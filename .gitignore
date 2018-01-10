@@ -1,0 +1,11 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/Engine/Engine/x64/Debug
+/Engine/Debug
+/Engine/x64/Debug
+/Engine/.vs/Engine/v14/.suo
+/Engine/Engine.VC.VC.opendb
+/Engine/Engine.VC.db
+/Engine/Engine/Thumbs.db
