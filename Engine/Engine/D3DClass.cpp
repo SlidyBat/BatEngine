@@ -330,7 +330,7 @@ bool D3DClass::Initialize( int screenWidth, int screenHeight, bool fullscreen, H
 
 void D3DClass::BeginScene( float red, float green, float blue, float alpha )
 {
-	float colour[4] = { red, green, blue, alpha };
+	const float colour[4] = { red, green, blue, alpha };
 
 	m_pDeviceContext->ClearRenderTargetView( m_pRenderTargetView, colour );
 	m_pDeviceContext->ClearDepthStencilView( m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );

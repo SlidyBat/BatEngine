@@ -3,6 +3,10 @@
 #include "SlidyWin.h"
 #include "D3DClass.h"
 
+#include "Camera.h"
+#include "ColourShader.h"
+#include "Model.h"
+
 class Graphics
 {
 public:
@@ -18,6 +22,10 @@ private:
 	bool Render();
 private:
 	D3DClass d3d;
+
+	Camera camera;
+	Model model;
+	ColourShader colourShader;
 public:
 	static constexpr bool FullScreen = false;
 	static constexpr int VSyncEnabled = true;

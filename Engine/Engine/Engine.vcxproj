@@ -110,17 +110,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="ColourShader.cpp" />
     <ClCompile Include="D3DClass.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="SystemClass.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="ColourShader.h" />
     <ClInclude Include="D3DClass.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="SlidyWin.h" />
     <ClInclude Include="SystemClass.h" />
   </ItemGroup>
@@ -128,8 +133,8 @@
     <Image Include="slidy.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Color.ps" />
-    <None Include="Color.vs" />
+    <None Include="Colour.ps" />
+    <None Include="Colour.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
