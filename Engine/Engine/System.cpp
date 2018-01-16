@@ -1,11 +1,11 @@
-#include "SystemClass.h"
+#include "System.h"
 
-SystemClass::~SystemClass()
+System::~System()
 {
 	ShutdownWindows();
 }
 
-bool SystemClass::Initialize()
+bool System::Initialize()
 {
 	int screenWidth = 0;
 	int screenHeight = 0;
@@ -19,7 +19,7 @@ bool SystemClass::Initialize()
 	return true;
 }
 
-void SystemClass::Run()
+void System::Run()
 {
 	MSG msg;
 	ZeroMemory( &msg, sizeof( msg ) );
@@ -47,7 +47,7 @@ void SystemClass::Run()
 	}
 }
 
-LRESULT SystemClass::MessageHandler( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+LRESULT System::MessageHandler( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	switch( uMsg )
 	{
@@ -68,7 +68,7 @@ LRESULT SystemClass::MessageHandler( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 	}
 }
 
-bool SystemClass::Frame()
+bool System::Frame()
 {
 	if( input.IsKeyPressed( VK_ESCAPE ) )
 	{
@@ -83,7 +83,7 @@ bool SystemClass::Frame()
 	return true;
 }
 
-void SystemClass::InitializeWindows( int& screenWidth, int& screenHeight )
+void System::InitializeWindows( int& screenWidth, int& screenHeight )
 {
 	ApplicationHandle = this;
 
@@ -125,6 +125,20 @@ void SystemClass::InitializeWindows( int& screenWidth, int& screenHeight )
 
 		posX = 0;
 		posY = 0;
+
+		m_hWnd = CreateWindowEx(
+			WS_EX_APPWINDOW,
+			m_szApplicationName,
+			m_szApplicationName,
+			WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_POPUP,
+			posX,
+			posY,
+			screenWidth,
+			screenHeight,
+			NULL,
+			NULL,
+			m_hInstance,
+			NULL );
 	}
 	else
 	{
@@ -134,27 +148,31 @@ void SystemClass::InitializeWindows( int& screenWidth, int& screenHeight )
 		// centre
 		posX = ( GetSystemMetrics( SM_CXSCREEN ) - screenWidth ) / 2;
 		posY = ( GetSystemMetrics( SM_CYSCREEN ) - screenHeight ) / 2;
-	}
 
-	m_hWnd = CreateWindowEx(
-		WS_EX_APPWINDOW,
-		m_szApplicationName, m_szApplicationName,
-		WS_CLIPCHILDREN|WS_CLIPSIBLINGS|WS_POPUP,
-		posX, posY,
-		screenWidth, screenHeight,
-		NULL,
-		NULL,
-		m_hInstance,
-		NULL );
+		RECT windowRect = { 0, 0, screenWidth, screenHeight };
+		AdjustWindowRect( &windowRect, WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_OVERLAPPEDWINDOW, false );
+
+		m_hWnd = CreateWindowEx(
+			WS_EX_APPWINDOW,
+			m_szApplicationName,
+			m_szApplicationName,
+			WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_OVERLAPPEDWINDOW,
+			posX,
+			posY,
+			windowRect.right - windowRect.left,
+			windowRect.bottom - windowRect.top,
+			NULL,
+			NULL,
+			m_hInstance,
+			NULL );
+	}
 
 	ShowWindow( m_hWnd, SW_SHOW );
 	SetForegroundWindow( m_hWnd );
 	SetFocus( m_hWnd );
-
-	ShowCursor( false );
 }
 
-void SystemClass::ShutdownWindows()
+void System::ShutdownWindows()
 {
 	ShowCursor( true );
 

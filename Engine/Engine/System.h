@@ -4,15 +4,15 @@
 #include "Graphics.h"
 #include "Input.h"
 
-class SystemClass
+class System
 {
 public:
-	SystemClass() = default;
-	SystemClass( const SystemClass& src ) = delete;
-	SystemClass& operator=( const SystemClass& src ) = delete;
-	SystemClass( SystemClass&& donor ) = delete;
-	SystemClass& operator=( SystemClass&& donor ) = delete;
-	~SystemClass();
+	System() = default;
+	System( const System& src ) = delete;
+	System& operator=( const System& src ) = delete;
+	System( System&& donor ) = delete;
+	System& operator=( System&& donor ) = delete;
+	~System();
 
 	bool Initialize();
 	void Run();
@@ -32,4 +32,4 @@ private:
 };
 
 static LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-static SystemClass* ApplicationHandle = nullptr;
+static System* ApplicationHandle = nullptr;
