@@ -10,12 +10,6 @@ bool Graphics::Initialize( const int screenWidth, const int screenHeight, HWND h
 
 	camera.SetPosition( 0.0f, 0.0f, -5.0f );
 
-	if( !model.Initialize( d3d.GetDevice() ) )
-	{
-		MessageBox( hWnd, "Failed to initialize model", "Error", MB_OK );
-		return false;
-	}
-
 	if( !colourShader.Initialize( d3d.GetDevice(), hWnd ) )
 	{
 		return false;
@@ -34,22 +28,25 @@ bool Graphics::Frame()
 	return true;
 }
 
+void Graphics::DrawTriangle( const std::array<Vertex, 3>& tri )
+{
+	Triangle( d3d.GetDevice(), tri ).Render( d3d.GetDeviceContext() );
+	colourShader.Render( d3d.GetDeviceContext(), 3 );
+}
+
 bool Graphics::Render()
 {
 	d3d.BeginScene( 0.0f, 0.0f, 0.0f, 1.0f );
 
-	camera.Render();
+	Vertex v1( { -1.0f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } );
+	Vertex v2( { -1.0f,  0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } );
+	Vertex v3( {  0.0f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } );
+	DrawTriangle( { v1, v2, v3 } );
 
-	DirectX::XMMATRIX worldMat		= d3d.GetWorldMatrix();
-	DirectX::XMMATRIX viewMat		= camera.GetViewMatrix();
-	DirectX::XMMATRIX projectionMat = d3d.GetProjectionMatrix();
-
-	model.Render( d3d.GetDeviceContext() );
-	
-	if( !colourShader.Render( d3d.GetDeviceContext(), model.GetIndexCount(), worldMat, viewMat, projectionMat ) )
-	{
-		return false;
-	}
+	Vertex v4( {  1.0f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } );
+	Vertex v5( {  0.0f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } );
+	Vertex v6( {  1.0f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } );
+	DrawTriangle( { v4, v5, v6 } );
 
 	d3d.EndScene();
 

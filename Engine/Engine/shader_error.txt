@@ -1,1 +1,1 @@
-C:\Users\admin\Source\Repos\SlidyEngine\Engine\Engine\Colour.ps(9,9-20): error X3018: invalid subscript 'colout'
+C:\Users\admin\Source\Repos\SlidyEngine\Engine\Engine\Colour.vs(17,2-7): error X3004: undeclared identifier 'output'

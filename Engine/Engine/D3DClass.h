@@ -26,10 +26,6 @@ public:
 	ID3D11Device* GetDevice() const;
 	ID3D11DeviceContext* GetDeviceContext() const;
 
-	DirectX::XMMATRIX GetProjectionMatrix() const;
-	DirectX::XMMATRIX GetWorldMatrix() const;
-	DirectX::XMMATRIX GetOrthoMatrix() const;
-
 	void GetVideoCardInfo( std::wstring& cardName, int& memory ) const;
 private:
 	bool						m_bVSyncEnabled;
@@ -41,12 +37,5 @@ private:
 	ID3D11Device*				m_pDevice = nullptr;
 	ID3D11DeviceContext*		m_pDeviceContext = nullptr;
 	ID3D11RenderTargetView*		m_pRenderTargetView = nullptr;
-	ID3D11Texture2D*			m_pDepthStencilBuffer = nullptr;
-	ID3D11DepthStencilState*	m_pDepthStencilState = nullptr;
-	ID3D11DepthStencilView*		m_pDepthStencilView = nullptr;
 	ID3D11RasterizerState*		m_pRasterState = nullptr;
-
-	DirectX::XMMATRIX			m_matProjectionMatrix;
-	DirectX::XMMATRIX			m_matWorldMatrix;
-	DirectX::XMMATRIX			m_matOrthoMatrix;
 };

@@ -116,8 +116,8 @@
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Model.cpp" />
-    <ClCompile Include="SystemClass.cpp" />
+    <ClCompile Include="Triangle.cpp" />
+    <ClCompile Include="System.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -125,9 +125,10 @@
     <ClInclude Include="D3DClass.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Input.h" />
-    <ClInclude Include="Model.h" />
+    <ClInclude Include="Triangle.h" />
     <ClInclude Include="SlidyWin.h" />
-    <ClInclude Include="SystemClass.h" />
+    <ClInclude Include="System.h" />
+    <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="slidy.ico" />

@@ -5,7 +5,7 @@
 
 #include "Camera.h"
 #include "ColourShader.h"
-#include "Model.h"
+#include "Triangle.h"
 
 class Graphics
 {
@@ -16,6 +16,8 @@ public:
 	Graphics( Graphics&& donor ) = delete;
 	Graphics& operator=( Graphics&& donor ) = delete;
 
+	void DrawTriangle( const std::array<Vertex, 3>& tri );
+
 	bool Initialize( const int screenWidth, const int screenHeight, HWND hWnd );
 	bool Frame();
 private:
@@ -24,11 +26,10 @@ private:
 	D3DClass d3d;
 
 	Camera camera;
-	Model model;
 	ColourShader colourShader;
 public:
 	static constexpr bool FullScreen = false;
-	static constexpr int VSyncEnabled = true;
+	static constexpr int VSyncEnabled = false;
 	static constexpr float ScreenDepth = 1000.0f;
 	static constexpr float ScreenNear = 0.1f;
 

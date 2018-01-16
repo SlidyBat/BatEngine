@@ -20,26 +20,15 @@ ColourShader::~ColourShader()
 		m_pInputLayout->Release();
 		m_pInputLayout = nullptr;
 	}
-
-	if( m_pMatrixBuffer )
-	{
-		m_pMatrixBuffer->Release();
-		m_pMatrixBuffer = nullptr;
-	}
 }
 
-bool ColourShader::Initialize( ID3D11Device * pDevice, HWND hWnd )
+bool ColourShader::Initialize( ID3D11Device* pDevice, HWND hWnd )
 {
 	return InitializeShader( pDevice, hWnd, L"../Engine/Colour.vs", L"../Engine/Colour.ps" );
 }
 
-bool ColourShader::Render( ID3D11DeviceContext *pDeviceContext, int nIndexes, DirectX::XMMATRIX worldMat, DirectX::XMMATRIX viewMat, DirectX::XMMATRIX projectionMat )
+bool ColourShader::Render( ID3D11DeviceContext* pDeviceContext, int nIndexes )
 {
-	if( !SetShaderParameters( pDeviceContext, worldMat, viewMat, projectionMat ) )
-	{
-		return false;
-	}
-
 	RenderShader( pDeviceContext, nIndexes );
 
 	return true;
@@ -118,19 +107,6 @@ bool ColourShader::InitializeShader( ID3D11Device* pDevice, HWND hWnd, const std
 	pixelShaderBuffer->Release();
 	pixelShaderBuffer = nullptr;
 
-	D3D11_BUFFER_DESC matBufferDesc;
-	matBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	matBufferDesc.ByteWidth = sizeof( MatrixBufferType );
-	matBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	matBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	matBufferDesc.MiscFlags = 0;
-	matBufferDesc.StructureByteStride = 0;
-
-	if( FAILED( pDevice->CreateBuffer( &matBufferDesc, NULL, &m_pMatrixBuffer ) ) )
-	{
-		return false;
-	}
-
 	return true;
 }
 
@@ -149,35 +125,12 @@ void ColourShader::OutputShaderErrorMessage( ID3D10Blob* errorMessage, HWND hWnd
 	MessageBoxW( hWnd, L"Error compiling shader file, check shader_error.txt for more info.", shaderFilename.c_str(), MB_OK );
 }
 
-bool ColourShader::SetShaderParameters( ID3D11DeviceContext* pDeviceContext, DirectX::XMMATRIX worldMat, DirectX::XMMATRIX viewMat, DirectX::XMMATRIX projectionMat )
-{
-	worldMat = DirectX::XMMatrixTranspose( worldMat );
-	viewMat = DirectX::XMMatrixTranspose( viewMat );
-	projectionMat = DirectX::XMMatrixTranspose( projectionMat );
-
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	if( FAILED( pDeviceContext->Map( m_pMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource ) ) )
-	{
-		return false;
-	}
-
-	MatrixBufferType* dataPtr = (MatrixBufferType*)mappedResource.pData;
-	dataPtr->world = worldMat;
-	dataPtr->view = viewMat;
-	dataPtr->projection = projectionMat;
-
-	pDeviceContext->Unmap( m_pMatrixBuffer, 0 );
-	pDeviceContext->VSSetConstantBuffers( 0, 1, &m_pMatrixBuffer );
-
-	return true;
-}
-
-void ColourShader::RenderShader( ID3D11DeviceContext* pDeviceContext, int nIndexes )
+void ColourShader::RenderShader( ID3D11DeviceContext* pDeviceContext, int nVertices )
 {
 	pDeviceContext->IASetInputLayout( m_pInputLayout );
 
 	pDeviceContext->VSSetShader( m_pVertexShader, NULL, 0 );
 	pDeviceContext->PSSetShader( m_pPixelShader, NULL, 0 );
 
-	pDeviceContext->DrawIndexed( nIndexes, 0, 0 );
+	pDeviceContext->Draw( nVertices, 0 );
 }
