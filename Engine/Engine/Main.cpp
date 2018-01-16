@@ -1,9 +1,9 @@
 #include "SlidyWin.h"
-#include "SystemClass.h"
+#include "System.h"
 
 int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow )
 {
-	SystemClass system;
+	System system;
 	if( system.Initialize() )
 	{
 		system.Run();
