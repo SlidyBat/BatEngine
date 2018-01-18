@@ -1,1 +1,1 @@
-C:\Users\admin\Source\Repos\SlidyEngine\Engine\Engine\Colour.vs(17,2-7): error X3004: undeclared identifier 'output'
+C:\Users\admin\Source\Repos\SlidyEngine\Engine\Engine\Texture.ps(10,13-37): error X3503: 'PSMain': function return value missing semantics

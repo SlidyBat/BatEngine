@@ -1,4 +1,5 @@
 #include "System.h"
+#include "GDIPManager.h"
 
 System::~System()
 {
@@ -21,6 +22,8 @@ bool System::Initialize()
 
 void System::Run()
 {
+	GDIPManager gdipm;
+
 	MSG msg;
 	ZeroMemory( &msg, sizeof( msg ) );
 

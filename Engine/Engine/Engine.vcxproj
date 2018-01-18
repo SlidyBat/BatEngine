@@ -113,29 +113,39 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ColourShader.cpp" />
     <ClCompile Include="D3DClass.cpp" />
+    <ClCompile Include="GDIPManager.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Triangle.cpp" />
+    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TextureShader.cpp" />
     <ClCompile Include="System.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Colour.h" />
     <ClInclude Include="ColourShader.h" />
     <ClInclude Include="D3DClass.h" />
+    <ClInclude Include="GDIPManager.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="TexVertex.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="TextureShader.h" />
     <ClInclude Include="Triangle.h" />
     <ClInclude Include="SlidyWin.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="mario.png" />
     <Image Include="slidy.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Colour.ps" />
     <None Include="Colour.vs" />
+    <None Include="Texture.ps" />
+    <None Include="Texture.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

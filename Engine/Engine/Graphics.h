@@ -3,8 +3,10 @@
 #include "SlidyWin.h"
 #include "D3DClass.h"
 
+#include "Texture.h"
+#include "TexVertex.h"
 #include "Camera.h"
-#include "ColourShader.h"
+#include "TextureShader.h"
 #include "Triangle.h"
 
 class Graphics
@@ -16,7 +18,11 @@ public:
 	Graphics( Graphics&& donor ) = delete;
 	Graphics& operator=( Graphics&& donor ) = delete;
 
-	void DrawTriangle( const std::array<Vertex, 3>& tri );
+	void DrawTriangle( const std::array<TexVertex, 3>& tri, Texture& texture )
+	{
+		Triangle<TexVertex>( d3d.GetDevice(), tri ).Render( d3d.GetDeviceContext() );
+		shader.Render( d3d.GetDeviceContext(), 3, texture.GetTextureView() );
+	}
 
 	bool Initialize( const int screenWidth, const int screenHeight, HWND hWnd );
 	bool Frame();
@@ -26,7 +32,7 @@ private:
 	D3DClass d3d;
 
 	Camera camera;
-	ColourShader colourShader;
+	TextureShader shader;
 public:
 	static constexpr bool FullScreen = false;
 	static constexpr int VSyncEnabled = false;

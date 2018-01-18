@@ -1,5 +1,6 @@
 #pragma once
 
+#ifndef FULL_WINTARD
 #define WIN32_LEAN_AND_MEAN
 #define NOGDICAPMASKS
 #define NOMENUS
@@ -31,6 +32,7 @@
 #define NOPROXYSTUB
 #define NOIMAGE
 #define NOTAPE
+#endif // FULL_WINTARD
 
 #define NOMINMAX
 
