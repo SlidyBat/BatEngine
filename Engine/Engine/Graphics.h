@@ -23,6 +23,13 @@ public:
 		Triangle<TexVertex>( d3d.GetDevice(), tri ).Render( d3d.GetDeviceContext() );
 		shader.Render( d3d.GetDeviceContext(), 3, texture.GetTextureView() );
 	}
+	void DrawQuad( const std::array<TexVertex, 4>& quad, Texture& texture )
+	{
+		Triangle<TexVertex>( d3d.GetDevice(), { quad[0], quad[1], quad[2] } ).Render( d3d.GetDeviceContext() );
+		shader.Render( d3d.GetDeviceContext(), 3, texture.GetTextureView() );
+		Triangle<TexVertex>( d3d.GetDevice(), { quad[2], quad[3], quad[0] } ).Render( d3d.GetDeviceContext() );
+		shader.Render( d3d.GetDeviceContext(), 3, texture.GetTextureView() );
+	}
 
 	bool Initialize( const int screenWidth, const int screenHeight, HWND hWnd );
 	bool Frame();

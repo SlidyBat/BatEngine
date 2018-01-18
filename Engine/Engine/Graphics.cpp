@@ -38,12 +38,8 @@ bool Graphics::Render()
 	TexVertex v1( { -0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f } );
 	TexVertex v2( { -0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f } );
 	TexVertex v3( {  0.5f,  0.5f, 0.0f }, { 1.0f, 0.0f } );
-	DrawTriangle( std::array<TexVertex, 3>{ v1, v2, v3 }, mario );
-
-	TexVertex v4( {  0.5f,  0.5f, 0.0f }, { 1.0f, 0.0f } );
-	TexVertex v5( {  0.5f, -0.5f, 0.0f }, { 1.0f, 1.0f } );
-	TexVertex v6( { -0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f } );
-	DrawTriangle( std::array<TexVertex, 3>{ v4, v5, v6 }, mario );
+	TexVertex v4( { 0.5f, -0.5f, 0.0f }, { 1.0f, 1.0f } );
+	DrawQuad( std::array<TexVertex, 4>{ v1, v2, v3, v4 }, mario );
 
 	d3d.EndScene();
 
