@@ -4,12 +4,12 @@
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
 #include <string>
+#include <wrl.h>
 
 class TextureShader
 {
 public:
 	TextureShader() = default;
-	~TextureShader();
 	TextureShader( const TextureShader& src ) = delete;
 	TextureShader& operator=( const TextureShader& src ) = delete;
 	TextureShader( TextureShader&& donor ) = delete;
@@ -23,9 +23,9 @@ private:
 
 	void RenderShader( ID3D11DeviceContext* pDeviceContext, int nVertices );
 private:
-	ID3D11VertexShader*	m_pVertexShader = nullptr;
-	ID3D11PixelShader*	m_pPixelShader = nullptr;
-	ID3D11InputLayout*	m_pInputLayout = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader>	m_pVertexShader;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader>	m_pPixelShader;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout>	m_pInputLayout;
 
-	ID3D11SamplerState*	m_pSamplerState = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState>	m_pSamplerState;
 };

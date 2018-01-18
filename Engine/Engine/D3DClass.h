@@ -7,12 +7,12 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <string>
+#include <wrl.h>
 
 class D3DClass
 {
 public:
 	D3DClass() = default;
-	~D3DClass();
 	D3DClass( const D3DClass& src ) = delete;
 	D3DClass& operator=( const D3DClass& src ) = delete;
 	D3DClass( D3DClass&& donor ) = delete;
@@ -33,9 +33,9 @@ private:
 	int							m_iVideoCardMemory;
 	std::wstring				m_szVideoCardDescription;
 
-	IDXGISwapChain*				m_pSwapChain = nullptr;
-	ID3D11Device*				m_pDevice = nullptr;
-	ID3D11DeviceContext*		m_pDeviceContext = nullptr;
-	ID3D11RenderTargetView*		m_pRenderTargetView = nullptr;
-	ID3D11RasterizerState*		m_pRasterState = nullptr;
+	Microsoft::WRL::ComPtr<IDXGISwapChain>				m_pSwapChain;
+	Microsoft::WRL::ComPtr<ID3D11Device>				m_pDevice;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext>			m_pDeviceContext;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_pRenderTargetView;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState>		m_pRasterState;
 };

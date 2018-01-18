@@ -43,7 +43,7 @@ Texture::Texture( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, co
 	textureDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
 	pDevice->CreateTexture2D( &textureDesc, NULL, &m_pTexture ); // should add error checking
-	pDeviceContext->UpdateSubresource( m_pTexture, 0, NULL, pPixels, bmp.GetWidth()*4, 0 );
+	pDeviceContext->UpdateSubresource( m_pTexture.Get(), 0, NULL, pPixels, bmp.GetWidth()*4, 0 );
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	srvDesc.Format = textureDesc.Format;
@@ -51,29 +51,14 @@ Texture::Texture( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, co
 	srvDesc.Texture2D.MipLevels = -1;
 	srvDesc.Texture2D.MostDetailedMip = 0;
 
-	pDevice->CreateShaderResourceView( m_pTexture, &srvDesc, &m_pTextureView );
+	pDevice->CreateShaderResourceView( m_pTexture.Get(), &srvDesc, &m_pTextureView );
 
-	pDeviceContext->GenerateMips( m_pTextureView );
+	pDeviceContext->GenerateMips( m_pTextureView.Get() );
 
 	delete[] pPixels;
 }
 
-Texture::~Texture()
-{
-	if( m_pTexture )
-	{
-		m_pTexture->Release();
-		m_pTexture = nullptr;
-	}
-
-	if( m_pTextureView )
-	{
-		m_pTextureView->Release();
-		m_pTextureView = nullptr;
-	}
-}
-
 ID3D11ShaderResourceView* Texture::GetTextureView()
 {
-	return m_pTextureView;
+	return m_pTextureView.Get();
 }

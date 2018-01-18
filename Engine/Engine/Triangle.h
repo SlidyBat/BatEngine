@@ -3,6 +3,7 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <array>
+#include <wrl.h>
 
 template <typename V>
 class Triangle
@@ -31,14 +32,6 @@ public:
 		:
 		Triangle( pDevice, std::array<V, 3>{ v1, v2, v3 } )
 	{}
-	~Triangle()
-	{
-		if( m_pVertexBuffer )
-		{
-			m_pVertexBuffer->Release();
-			m_pVertexBuffer = nullptr;
-		}
-	}
 	Triangle( const Triangle& src ) = delete;
 	Triangle& operator=( const Triangle& src ) = delete;
 	Triangle( Triangle&& donor ) = delete;
@@ -53,12 +46,12 @@ private:
 	{
 		UINT stride = sizeof( V );
 		UINT offset = 0;
-		pDeviceContext->IASetVertexBuffers( 0, 1, &m_pVertexBuffer, &stride, &offset );
+		pDeviceContext->IASetVertexBuffers( 0, 1, m_pVertexBuffer.GetAddressOf(), &stride, &offset );
 
 		pDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 	}
 private:
-	ID3D11Buffer*		m_pVertexBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Buffer>	m_pVertexBuffer;
 
-	std::array<V, 3>	triangleVerts;
+	std::array<V, 3>						triangleVerts;
 };

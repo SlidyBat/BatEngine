@@ -4,12 +4,12 @@
 
 ID3D11Device* D3DClass::GetDevice() const
 {
-	return m_pDevice;
+	return m_pDevice.Get();
 }
 
 ID3D11DeviceContext* D3DClass::GetDeviceContext() const
 {
-	return m_pDeviceContext;
+	return m_pDeviceContext.Get();
 }
 
 void D3DClass::GetVideoCardInfo( std::wstring& cardName, int& memory ) const
@@ -18,62 +18,23 @@ void D3DClass::GetVideoCardInfo( std::wstring& cardName, int& memory ) const
 	memory = m_iVideoCardMemory;
 }
 
-D3DClass::~D3DClass()
-{
-	// Before shutting down set to windowed mode or when you release the swap chain it will throw an exception.
-	if( m_pSwapChain )
-	{
-		m_pSwapChain->SetFullscreenState( false, NULL );
-	}
-
-	if( m_pRasterState )
-	{
-		m_pRasterState->Release();
-		m_pRasterState = nullptr;
-	}	
-
-	if( m_pRenderTargetView )
-	{
-		m_pRenderTargetView->Release();
-		m_pRenderTargetView = nullptr;
-	}
-
-	if( m_pDeviceContext )
-	{
-		m_pDeviceContext->Release();
-		m_pDeviceContext = nullptr;
-	}
-
-	if( m_pDevice )
-	{
-		m_pDevice->Release();
-		m_pDevice = nullptr;
-	}
-
-	if( m_pSwapChain )
-	{
-		m_pSwapChain->Release();
-		m_pSwapChain = nullptr;
-	}
-}
-
 bool D3DClass::Initialize( int screenWidth, int screenHeight, bool fullscreen, HWND hWnd, bool vsyncEnabled, float screendepth, float screennear )
 {
 	m_bVSyncEnabled = vsyncEnabled;
 
-	IDXGIFactory* factory;
+	Microsoft::WRL::ComPtr<IDXGIFactory> factory;
 	if( FAILED( CreateDXGIFactory( __uuidof( IDXGIFactory ), (void**)&factory ) ) )
 	{
 		return false;
 	}
 
-	IDXGIAdapter* adapter;
+	Microsoft::WRL::ComPtr<IDXGIAdapter> adapter;
 	if( FAILED( factory->EnumAdapters( 0, &adapter ) ) )
 	{
 		return false;
 	}
 
-	IDXGIOutput* adapterOutput;
+	Microsoft::WRL::ComPtr<IDXGIOutput> adapterOutput;
 	if( FAILED( adapter->EnumOutputs( 0, &adapterOutput ) ) )
 	{
 		return false;
@@ -106,6 +67,8 @@ bool D3DClass::Initialize( int screenWidth, int screenHeight, bool fullscreen, H
 		}
 	}
 
+	delete[] displayModes;
+
 	DXGI_ADAPTER_DESC adapterDesc;
 	if( FAILED( adapter->GetDesc( &adapterDesc ) ) )
 	{
@@ -115,17 +78,7 @@ bool D3DClass::Initialize( int screenWidth, int screenHeight, bool fullscreen, H
 	m_szVideoCardDescription = adapterDesc.Description;
 	m_iVideoCardMemory = (int)( adapterDesc.DedicatedVideoMemory / 1024 / 1024 ); // in mb
 
-	delete[] displayModes;
-	displayModes = nullptr;
-
-	adapterOutput->Release();
-	adapterOutput = nullptr;
-
-	adapter->Release();
-	adapter = nullptr;
-
-	factory->Release();
-	factory = nullptr;
+	
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	ZeroMemory( &swapChainDesc, sizeof( swapChainDesc ) );
@@ -188,7 +141,7 @@ bool D3DClass::Initialize( int screenWidth, int screenHeight, bool fullscreen, H
 	pBackBuffer->Release();
 	pBackBuffer = nullptr;
 
-	m_pDeviceContext->OMSetRenderTargets( 1, &m_pRenderTargetView, NULL );
+	m_pDeviceContext->OMSetRenderTargets( 1, m_pRenderTargetView.GetAddressOf(), NULL );
 
 	// set up raster description
 	D3D11_RASTERIZER_DESC rasterDesc;
@@ -208,7 +161,7 @@ bool D3DClass::Initialize( int screenWidth, int screenHeight, bool fullscreen, H
 		return false;
 	}
 
-	m_pDeviceContext->RSSetState( m_pRasterState );
+	m_pDeviceContext->RSSetState( m_pRasterState.Get() );
 
 	// set up viewport
 	D3D11_VIEWPORT viewport;
@@ -228,7 +181,7 @@ void D3DClass::BeginScene( float red, float green, float blue, float alpha )
 {
 	const float colour[4] = { red, green, blue, alpha };
 
-	m_pDeviceContext->ClearRenderTargetView( m_pRenderTargetView, colour );
+	m_pDeviceContext->ClearRenderTargetView( m_pRenderTargetView.Get(), colour );
 }
 
 void D3DClass::EndScene()

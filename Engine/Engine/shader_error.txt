@@ -1,1 +1,1 @@
-C:\Users\admin\Source\Repos\SlidyEngine\Engine\Engine\Texture.ps(10,13-37): error X3503: 'PSMain': function return value missing semantics
+C:\Users\admin\Source\Repos\SlidyEngine\Engine\Engine\Texture.ps(6,18-29): error X4502: invalid ps_5_0 input semantic 'SV_OSITION'
