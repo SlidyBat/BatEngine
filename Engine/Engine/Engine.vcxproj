@@ -130,6 +130,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="GDIPManager.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="Line.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Quad.h" />
     <ClInclude Include="Texture.h" />

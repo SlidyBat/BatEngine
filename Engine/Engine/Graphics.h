@@ -11,6 +11,7 @@
 #include "TextureShader.h"
 #include "ColourShader.h"
 #include "Point.h"
+#include "Line.h"
 #include "Triangle.h"
 #include "Quad.h"
 
@@ -30,6 +31,8 @@ public:
 	{
 		DrawPoint( std::vector<Vertex>{ point } );
 	}
+	void DrawLine( const std::array<TexVertex, 2>& line, Texture& texture );
+	void DrawLine( const std::array<Vertex, 2>& line );
 	void DrawTriangle( const std::array<TexVertex, 3>& tri, Texture& texture );
 	void DrawTriangle( const std::array<Vertex, 3>& tri );
 	void DrawQuad( const std::array<TexVertex, 4>& quad, Texture& texture );

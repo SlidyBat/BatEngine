@@ -1,6 +1,18 @@
 #include "Graphics.h"
 #include "Vertex.h"
 
+void Graphics::DrawLine( const std::array<TexVertex, 2>& line, Texture& texture )
+{
+	Line<TexVertex>( d3d.GetDevice(), line ).Render( d3d.GetDeviceContext() );
+	texShader.RenderIndexed( d3d.GetDeviceContext(), 2, texture.GetTextureView() );
+}
+
+void Graphics::DrawLine( const std::array<Vertex, 2>& line )
+{
+	Line<Vertex>( d3d.GetDevice(), line ).Render( d3d.GetDeviceContext() );
+	colShader.RenderIndexed( d3d.GetDeviceContext(), 2 );
+}
+
 void Graphics::DrawTriangle( const std::array<TexVertex, 3>& tri, Texture& texture )
 {
 	Triangle<TexVertex>( d3d.GetDevice(), tri ).Render( d3d.GetDeviceContext() );

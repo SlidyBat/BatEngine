@@ -20,7 +20,9 @@ void Game::UpdateModels()
 
 void Game::ComposeFrame()
 {
-	gfx.DrawPoint( { { -0.95f, -0.95f, 0.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } } );
+	gfx.DrawLine( std::array<Vertex, 2>{
+		Vertex{ { -0.95f, -0.95f, 0.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } },
+			Vertex{ { 0.95f, 0.95f, 0.0f }, { 0.0f, 1.0f, 1.0f, 1.0f } } } );
 
 	if( drawMario )
 	{
