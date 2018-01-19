@@ -70,10 +70,10 @@ bool TextureShader::Initialize( ID3D11Device* pDevice, HWND hWnd, const std::wst
 	return true;
 }
 
-bool TextureShader::Render( ID3D11DeviceContext* pDeviceContext, int nVertices, ID3D11ShaderResourceView* pTexture )
+bool TextureShader::Render( ID3D11DeviceContext* pDeviceContext, int nIndexes, ID3D11ShaderResourceView* pTexture )
 {
 	SetShaderParameters( pDeviceContext, pTexture );
-	RenderShader( pDeviceContext, nVertices );
+	RenderShader( pDeviceContext, nIndexes );
 
 	return true;
 }
@@ -95,7 +95,7 @@ void TextureShader::SetShaderParameters( ID3D11DeviceContext* pDeviceContext, ID
 	pDeviceContext->PSSetShaderResources( 0, 1, &pTexture );
 }
 
-void TextureShader::RenderShader( ID3D11DeviceContext* pDeviceContext, int nVertices )
+void TextureShader::RenderShader( ID3D11DeviceContext* pDeviceContext, int nIndexes )
 {
 	pDeviceContext->IASetInputLayout( m_pInputLayout.Get() );
 
@@ -104,5 +104,5 @@ void TextureShader::RenderShader( ID3D11DeviceContext* pDeviceContext, int nVert
 
 	pDeviceContext->PSSetSamplers( 0, 1, &m_pSamplerState );
 
-	pDeviceContext->Draw( nVertices, 0 );
+	pDeviceContext->DrawIndexed( nIndexes, 0, 0 );
 }

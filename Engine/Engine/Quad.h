@@ -6,33 +6,33 @@
 #include <wrl.h>
 
 template <typename V>
-class Triangle
+class Quad
 {
 public:
-	Triangle( ID3D11Device* pDevice, const std::array<V, 3>& points )
+	Quad( ID3D11Device* pDevice, const std::array<V, 4>& points )
 		:
-		triangleVerts( points )
+		quadVerts( points )
 	{
 		D3D11_BUFFER_DESC vertexBufferDesc;
 		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		vertexBufferDesc.ByteWidth = sizeof( V ) * 3;
+		vertexBufferDesc.ByteWidth = sizeof( V ) * 4;
 		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vertexBufferDesc.CPUAccessFlags = 0;
 		vertexBufferDesc.MiscFlags = 0;
 		vertexBufferDesc.StructureByteStride = 0;
 
 		D3D11_SUBRESOURCE_DATA vertexData;
-		vertexData.pSysMem = triangleVerts.data();
+		vertexData.pSysMem = quadVerts.data();
 		vertexData.SysMemPitch = 0;
 		vertexData.SysMemSlicePitch = 0;
 
 		pDevice->CreateBuffer( &vertexBufferDesc, &vertexData, &m_pVertexBuffer );
 
-		unsigned long indexes[3] = { 0, 1, 2 };
+		unsigned long indexes[6] = { 0, 1, 2, 2, 3, 0 };
 
 		D3D11_BUFFER_DESC indexBufferDesc;
 		indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		indexBufferDesc.ByteWidth = sizeof( unsigned long ) * 3;
+		indexBufferDesc.ByteWidth = sizeof( unsigned long ) * 6;
 		indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		indexBufferDesc.CPUAccessFlags = 0;
 		indexBufferDesc.MiscFlags = 0;
@@ -45,14 +45,14 @@ public:
 
 		pDevice->CreateBuffer( &indexBufferDesc, &indexData, &m_pIndexBuffer );
 	}
-	Triangle( ID3D11Device* pDevice, V v1, V v2, V v3 )
+	Quad( ID3D11Device* pDevice, V v1, V v2, V v3, V v4 )
 		:
-		Triangle( pDevice, std::array<V, 3>{ v1, v2, v3 } )
+		Quad( pDevice, std::array<V, 4>{ v1, v2, v3, v4 } )
 	{}
-	Triangle( const Triangle& src ) = delete;
-	Triangle& operator=( const Triangle& src ) = delete;
-	Triangle( Triangle&& donor ) = delete;
-	Triangle& operator=( Triangle&& donor ) = delete;
+	Quad( const Quad& src ) = delete;
+	Quad& operator=( const Quad& src ) = delete;
+	Quad( Quad&& donor ) = delete;
+	Quad& operator=( Quad&& donor ) = delete;
 
 	void Render( ID3D11DeviceContext* pDeviceContext )
 	{
@@ -60,7 +60,7 @@ public:
 	}
 	static int GetIndexCount()
 	{
-		return 3;
+		return 6;
 	}
 private:
 	void RenderBuffers( ID3D11DeviceContext* pDeviceContext )
@@ -76,5 +76,5 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer>	m_pVertexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>	m_pIndexBuffer;
 
-	std::array<V, 3>						triangleVerts;
+	std::array<V, 4>						quadVerts;
 };

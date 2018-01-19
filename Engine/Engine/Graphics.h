@@ -8,7 +8,9 @@
 #include "TexVertex.h"
 #include "Camera.h"
 #include "TextureShader.h"
+#include "ColourShader.h"
 #include "Triangle.h"
+#include "Quad.h"
 
 #include <memory>
 
@@ -24,14 +26,12 @@ public:
 	void DrawTriangle( const std::array<TexVertex, 3>& tri, Texture& texture )
 	{
 		Triangle<TexVertex>( d3d.GetDevice(), tri ).Render( d3d.GetDeviceContext() );
-		shader.Render( d3d.GetDeviceContext(), 3, texture.GetTextureView() );
+		texShader.Render( d3d.GetDeviceContext(), Triangle<TexVertex>::GetIndexCount(), texture.GetTextureView() );
 	}
 	void DrawQuad( const std::array<TexVertex, 4>& quad, Texture& texture )
 	{
-		Triangle<TexVertex>( d3d.GetDevice(), { quad[0], quad[1], quad[2] } ).Render( d3d.GetDeviceContext() );
-		shader.Render( d3d.GetDeviceContext(), 3, texture.GetTextureView() );
-		Triangle<TexVertex>( d3d.GetDevice(), { quad[2], quad[3], quad[0] } ).Render( d3d.GetDeviceContext() );
-		shader.Render( d3d.GetDeviceContext(), 3, texture.GetTextureView() );
+		Quad<TexVertex>( d3d.GetDevice(), quad ).Render( d3d.GetDeviceContext() );
+		texShader.Render( d3d.GetDeviceContext(), Quad<TexVertex>::GetIndexCount(), texture.GetTextureView() );
 	}
 	void DrawPixel( const int x, const int y, const Colour& c )
 	{
@@ -60,7 +60,8 @@ private:
 	D3DClass d3d;
 
 	Camera camera;
-	TextureShader shader;
+	TextureShader texShader;
+	ColourShader colShader;
 
 	std::unique_ptr<Colour[]> pPixelBuffer;
 public:

@@ -26,7 +26,12 @@ bool Graphics::Initialize( const int screenWidth, const int screenHeight, HWND h
 
 	camera.SetPosition( 0.0f, 0.0f, -5.0f );
 
-	if( !shader.Initialize( d3d.GetDevice(), hWnd, L"Texture.vs", L"Texture.ps" ) )
+	if( !colShader.Initialize( d3d.GetDevice(), hWnd, L"Colour.vs", L"Colour.ps" ) )
+	{
+		return false;
+	}
+
+	if( !texShader.Initialize( d3d.GetDevice(), hWnd, L"Texture.vs", L"Texture.ps" ) )
 	{
 		return false;
 	}

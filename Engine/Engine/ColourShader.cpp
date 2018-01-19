@@ -53,9 +53,9 @@ bool ColourShader::Initialize( ID3D11Device* pDevice, HWND hWnd, const std::wstr
 	return true;
 }
 
-bool ColourShader::Render( ID3D11DeviceContext* pDeviceContext, int nVertices )
+bool ColourShader::Render( ID3D11DeviceContext* pDeviceContext, int nIndexes )
 {
-	RenderShader( pDeviceContext, nVertices );
+	RenderShader( pDeviceContext, nIndexes );
 
 	return true;
 }
@@ -72,12 +72,12 @@ void ColourShader::OutputShaderErrorMessage( ID3DBlob* errorMessage, HWND hWnd, 
 	MessageBoxW( hWnd, L"Error compiling shader file, check shader_error.txt for more info.", shaderFilename.c_str(), MB_OK );
 }
 
-void ColourShader::RenderShader( ID3D11DeviceContext* pDeviceContext, int nVertices )
+void ColourShader::RenderShader( ID3D11DeviceContext* pDeviceContext, int nIndexes )
 {
 	pDeviceContext->IASetInputLayout( m_pInputLayout.Get() );
 
 	pDeviceContext->VSSetShader( m_pVertexShader.Get(), NULL, 0 );
 	pDeviceContext->PSSetShader( m_pPixelShader.Get(), NULL, 0 );
 
-	pDeviceContext->Draw( nVertices, 0 );
+	pDeviceContext->DrawIndexed( nIndexes, 0, 0 );
 }
