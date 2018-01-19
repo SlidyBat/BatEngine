@@ -1,11 +1,6 @@
 #include "Graphics.h"
 #include "Vertex.h"
 
-Graphics::Graphics()
-	:
-	pPixelBuffer( std::make_unique<Colour[]>( ScreenWidth*ScreenHeight ) )
-{}
-
 void Graphics::DrawTriangle( const std::array<TexVertex, 3>& tri, Texture& texture )
 {
 	Triangle<TexVertex>( d3d.GetDevice(), tri ).Render( d3d.GetDeviceContext() );
@@ -30,19 +25,10 @@ void Graphics::DrawQuad( const std::array<Vertex, 4>& quad )
 	colShader.RenderIndexed( d3d.GetDeviceContext(), Quad<Vertex>::GetIndexCount() );
 }
 
-void Graphics::DrawPixel( const int x, const int y, const Colour & c )
+void Graphics::DrawPoint( const std::vector<Vertex>& points )
 {
-	pPixelBuffer[x + y*ScreenWidth] = c;
-
-	static const std::array<TexVertex, 4> screenQuad =
-	{
-		TexVertex{ { -1.0f, -1.0f, 0.0f },{ 0.0f, 1.0f } },
-		TexVertex{ { -1.0f,  1.0f, 0.0f },{ 0.0f, 0.0f } },
-		TexVertex{ { 1.0f,  1.0f, 0.0f },{ 1.0f, 1.0f } },
-		TexVertex{ { 1.0f, -1.0f, 0.0f },{ 1.0f, 0.0f } }
-	};
-
-	DrawQuad( screenQuad, Texture( d3d.GetDevice(), d3d.GetDeviceContext(), pPixelBuffer.get(), ScreenWidth, ScreenHeight ) );
+	Point<Vertex>( d3d.GetDevice(), points ).Render( d3d.GetDeviceContext() );
+	colShader.Render( d3d.GetDeviceContext(), points.size() );
 }
 
 Texture Graphics::CreateTexture( const std::wstring& filename )
@@ -81,7 +67,6 @@ bool Graphics::Initialize( const int screenWidth, const int screenHeight, HWND h
 void Graphics::BeginFrame()
 {
 	d3d.BeginScene( 0.0f, 0.0f, 0.0f, 1.0f );
-	memset( pPixelBuffer.get(), 0, ScreenWidth*ScreenHeight );
 }
 
 void Graphics::EndFrame()

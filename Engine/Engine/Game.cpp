@@ -20,10 +20,7 @@ void Game::UpdateModels()
 
 void Game::ComposeFrame()
 {
-	gfx.DrawPixel( 50, 50, { 255, 255, 255 } );
-	gfx.DrawPixel( 50, 51, { 255, 0,   0   } );
-	gfx.DrawPixel( 50, 52, { 0,   255, 0   } );
-	gfx.DrawPixel( 50, 53, { 0,   0,   255 } );
+	gfx.DrawPoint( { { -0.95f, -0.95f, 0.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } } );
 
 	if( drawMario )
 	{

@@ -5,10 +5,12 @@
 
 #include "Colour.h"
 #include "Texture.h"
+#include "Vertex.h"
 #include "TexVertex.h"
 #include "Camera.h"
 #include "TextureShader.h"
 #include "ColourShader.h"
+#include "Point.h"
 #include "Triangle.h"
 #include "Quad.h"
 
@@ -17,17 +19,22 @@
 class Graphics
 {
 public:
-	Graphics();
+	Graphics() = default;
 	Graphics( const Graphics& src ) = delete;
 	Graphics& operator=( const Graphics& src ) = delete;
 	Graphics( Graphics&& donor ) = delete;
 	Graphics& operator=( Graphics&& donor ) = delete;
 
+	void DrawPoint( const std::vector<Vertex>& points );
+	void DrawPoint( const Vertex& point )
+	{
+		DrawPoint( std::vector<Vertex>{ point } );
+	}
 	void DrawTriangle( const std::array<TexVertex, 3>& tri, Texture& texture );
 	void DrawTriangle( const std::array<Vertex, 3>& tri );
 	void DrawQuad( const std::array<TexVertex, 4>& quad, Texture& texture );
 	void DrawQuad( const std::array<Vertex, 4>& quad );
-	void DrawPixel( const int x, const int y, const Colour& c );
+	
 
 	Texture CreateTexture( const std::wstring& filename );
 	Texture CreateTexture( const Colour* pPixels, int width, int height );
@@ -42,8 +49,6 @@ private:
 	Camera camera;
 	TextureShader texShader;
 	ColourShader colShader;
-
-	std::unique_ptr<Colour[]> pPixelBuffer;
 public:
 	static constexpr bool FullScreen = false;
 	static constexpr int VSyncEnabled = false;
