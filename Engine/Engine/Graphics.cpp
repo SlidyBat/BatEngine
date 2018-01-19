@@ -6,6 +6,45 @@ Graphics::Graphics()
 	pPixelBuffer( std::make_unique<Colour[]>( ScreenWidth*ScreenHeight ) )
 {}
 
+void Graphics::DrawTriangle( const std::array<TexVertex, 3>& tri, Texture& texture )
+{
+	Triangle<TexVertex>( d3d.GetDevice(), tri ).Render( d3d.GetDeviceContext() );
+	texShader.RenderIndexed( d3d.GetDeviceContext(), Triangle<TexVertex>::GetIndexCount(), texture.GetTextureView() );
+}
+
+void Graphics::DrawTriangle( const std::array<Vertex, 3>& tri )
+{
+	Triangle<Vertex>( d3d.GetDevice(), tri ).Render( d3d.GetDeviceContext() );
+	colShader.RenderIndexed( d3d.GetDeviceContext(), Triangle<Vertex>::GetIndexCount() );
+}
+
+void Graphics::DrawQuad( const std::array<TexVertex, 4>& quad, Texture & texture )
+{
+	Quad<TexVertex>( d3d.GetDevice(), quad ).Render( d3d.GetDeviceContext() );
+	texShader.RenderIndexed( d3d.GetDeviceContext(), Quad<TexVertex>::GetIndexCount(), texture.GetTextureView() );
+}
+
+void Graphics::DrawQuad( const std::array<Vertex, 4>& quad )
+{
+	Quad<Vertex>( d3d.GetDevice(), quad ).Render( d3d.GetDeviceContext() );
+	colShader.RenderIndexed( d3d.GetDeviceContext(), Quad<Vertex>::GetIndexCount() );
+}
+
+void Graphics::DrawPixel( const int x, const int y, const Colour & c )
+{
+	pPixelBuffer[x + y*ScreenWidth] = c;
+
+	static const std::array<TexVertex, 4> screenQuad =
+	{
+		TexVertex{ { -1.0f, -1.0f, 0.0f },{ 0.0f, 1.0f } },
+		TexVertex{ { -1.0f,  1.0f, 0.0f },{ 0.0f, 0.0f } },
+		TexVertex{ { 1.0f,  1.0f, 0.0f },{ 1.0f, 1.0f } },
+		TexVertex{ { 1.0f, -1.0f, 0.0f },{ 1.0f, 0.0f } }
+	};
+
+	DrawQuad( screenQuad, Texture( d3d.GetDevice(), d3d.GetDeviceContext(), pPixelBuffer.get(), ScreenWidth, ScreenHeight ) );
+}
+
 Texture Graphics::CreateTexture( const std::wstring& filename )
 {
 	return Texture( d3d.GetDevice(), d3d.GetDeviceContext(), filename );
