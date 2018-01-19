@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SlidyWin.h"
-#include "Graphics.h"
+#include "Game.h"
 #include "Input.h"
 
 class System
@@ -27,8 +27,7 @@ private:
 	HINSTANCE	m_hInstance;
 	HWND		m_hWnd;
 
-	Input		input;
-	Graphics	gfx;
+	Game game;
 };
 
 static LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );

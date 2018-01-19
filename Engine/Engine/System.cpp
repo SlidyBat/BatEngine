@@ -12,7 +12,7 @@ bool System::Initialize()
 	int screenHeight = 0;
 	InitializeWindows( screenWidth, screenHeight );
 
-	if( !gfx.Initialize( screenWidth, screenHeight, m_hWnd ) )
+	if( !game.Initialize( screenWidth, screenHeight, m_hWnd ) )
 	{
 		return false;
 	}
@@ -56,12 +56,12 @@ LRESULT System::MessageHandler( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	{
 	case WM_KEYDOWN:
 	{
-		input.KeyDown( (size_t)wParam );
+		Input::KeyDown( (size_t)wParam );
 		return 0;
 	}
 	case WM_KEYUP:
 	{
-		input.KeyUp( (size_t)wParam );
+		Input::KeyUp( (size_t)wParam );
 		return 0;
 	}
 	default:
@@ -73,15 +73,12 @@ LRESULT System::MessageHandler( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
 bool System::Frame()
 {
-	if( input.IsKeyPressed( VK_ESCAPE ) )
+	if( Input::IsKeyPressed( VK_ESCAPE ) )
 	{
 		return false;
 	}
 
-	if( !gfx.Frame() )
-	{
-		return false;
-	}
+	game.Run();
 
 	return true;
 }
@@ -100,7 +97,7 @@ void System::InitializeWindows( int& screenWidth, int& screenHeight )
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
 	wc.hInstance = m_hInstance;
-	wc.hIcon = LoadIcon( NULL, "slidy.ico" );
+	wc.hIcon = LoadIcon( m_hInstance, "slidy.ico" );
 	wc.hIconSm = wc.hIcon;
 	wc.hCursor = LoadCursor( NULL, IDC_ARROW );
 	wc.hbrBackground = (HBRUSH)GetStockObject( BLACK_BRUSH );

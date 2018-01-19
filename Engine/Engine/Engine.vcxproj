@@ -113,6 +113,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ColourShader.cpp" />
     <ClCompile Include="D3DClass.cpp" />
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="GDIPManager.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Input.cpp" />
@@ -126,6 +127,7 @@
     <ClInclude Include="Colour.h" />
     <ClInclude Include="ColourShader.h" />
     <ClInclude Include="D3DClass.h" />
+    <ClInclude Include="Game.h" />
     <ClInclude Include="GDIPManager.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Texture.h" />

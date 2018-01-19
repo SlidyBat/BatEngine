@@ -49,13 +49,13 @@ public:
 
 	}
 
+	Texture CreateTexture( const std::wstring& filename );
+	Texture CreateTexture( const Colour* pPixels, int width, int height );
+
 	bool Initialize( const int screenWidth, const int screenHeight, HWND hWnd );
-	bool Frame();
 
 	void BeginFrame();
 	void EndFrame();
-private:
-	bool Render();
 private:
 	D3DClass d3d;
 
