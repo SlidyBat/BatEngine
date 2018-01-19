@@ -26,12 +26,12 @@ public:
 	void DrawTriangle( const std::array<TexVertex, 3>& tri, Texture& texture )
 	{
 		Triangle<TexVertex>( d3d.GetDevice(), tri ).Render( d3d.GetDeviceContext() );
-		texShader.Render( d3d.GetDeviceContext(), Triangle<TexVertex>::GetIndexCount(), texture.GetTextureView() );
+		texShader.RenderIndexed( d3d.GetDeviceContext(), Triangle<TexVertex>::GetIndexCount(), texture.GetTextureView() );
 	}
 	void DrawQuad( const std::array<TexVertex, 4>& quad, Texture& texture )
 	{
 		Quad<TexVertex>( d3d.GetDevice(), quad ).Render( d3d.GetDeviceContext() );
-		texShader.Render( d3d.GetDeviceContext(), Quad<TexVertex>::GetIndexCount(), texture.GetTextureView() );
+		texShader.RenderIndexed( d3d.GetDeviceContext(), Quad<TexVertex>::GetIndexCount(), texture.GetTextureView() );
 	}
 	void DrawPixel( const int x, const int y, const Colour& c )
 	{
@@ -46,7 +46,6 @@ public:
 		};
 
 		DrawQuad( screenQuad, Texture( d3d.GetDevice(), d3d.GetDeviceContext(), pPixelBuffer.get(), ScreenWidth, ScreenHeight ) );
-
 	}
 
 	Texture CreateTexture( const std::wstring& filename );
