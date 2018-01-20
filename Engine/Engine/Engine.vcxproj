@@ -133,6 +133,7 @@
     <ClInclude Include="Line.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Quad.h" />
+    <ClInclude Include="Resource.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TexVertex.h" />
     <ClInclude Include="Input.h" />
@@ -151,6 +152,9 @@
     <None Include="Colour.vs" />
     <None Include="Texture.ps" />
     <None Include="Texture.vs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Engine.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
