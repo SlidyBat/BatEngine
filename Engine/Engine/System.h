@@ -22,6 +22,9 @@ private:
 	bool Frame();
 	void InitializeWindows( int& screenWidth, int& screenHeight );
 	void ShutdownWindows();
+
+	static LRESULT CALLBACK HandleMsgSetup( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+	static LRESULT CALLBACK HandleMsgThunk( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 private:
 	LPCSTR		m_szApplicationName;
 	HINSTANCE	m_hInstance;
@@ -29,6 +32,3 @@ private:
 
 	Game game;
 };
-
-static LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-static System* ApplicationHandle = nullptr;

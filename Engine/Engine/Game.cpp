@@ -1,4 +1,5 @@
 #include "Game.h"
+#include <chrono>
 
 bool Game::Initialize( int screenWidth, int screenHeight, HWND hWnd )
 {
@@ -20,17 +21,14 @@ void Game::UpdateModels()
 
 void Game::ComposeFrame()
 {
-	gfx.DrawLine( std::array<Vertex, 2>{
-		Vertex{ { -0.95f, -0.95f, 0.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } },
-			Vertex{ { 0.95f, 0.95f, 0.0f }, { 0.0f, 1.0f, 1.0f, 1.0f } } } );
+	gfx.DrawLine( std::array<Vertex, 2> {
+		Vertex{ { -0.95f, -0.95f, 0.0f },{ 1.0f, 1.0f, 0.0f, 1.0f } },
+			Vertex{ { 0.95f, 0.95f, 0.0f },{ 0.0f, 1.0f, 1.0f, 1.0f } } } );
 
-	if( drawMario )
-	{
-		static Texture mario = gfx.CreateTexture( L"mario.png" );
-		TexVertex v1( { -0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f } );
-		TexVertex v2( { -0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f } );
-		TexVertex v3( {  0.5f,  0.5f, 0.0f }, { 1.0f, 0.0f } );
-		TexVertex v4( {  0.5f, -0.5f, 0.0f }, { 1.0f, 1.0f } );
-		gfx.DrawQuad( { v1, v2, v3, v4 }, mario );
-	}
+	static Texture mario = gfx.CreateTexture( L"mario.png" );
+	TexVertex v1( { -0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f } );
+	TexVertex v2( { -0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f } );
+	TexVertex v3( { 0.5f,  0.5f, 0.0f }, { 1.0f, 0.0f } );
+	TexVertex v4( { 0.5f, -0.5f, 0.0f }, { 1.0f, 1.0f } );
+	gfx.DrawQuad( { v1, v2, v3, v4 }, mario );
 }

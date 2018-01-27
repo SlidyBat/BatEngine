@@ -56,19 +56,19 @@ LRESULT System::MessageHandler( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	switch( uMsg )
 	{
 	case WM_KEYDOWN:
-	{
-		Input::KeyDown( (size_t)wParam );
-		return 0;
-	}
+		{
+			Input::KeyDown( (size_t)wParam );
+			return 0;
+		}
 	case WM_KEYUP:
-	{
-		Input::KeyUp( (size_t)wParam );
-		return 0;
-	}
+		{
+			Input::KeyUp( (size_t)wParam );
+			return 0;
+		}
 	default:
-	{
-		return DefWindowProc( hWnd, uMsg, wParam, lParam );
-	}
+		{
+			return DefWindowProc( hWnd, uMsg, wParam, lParam );
+		}
 	}
 }
 
@@ -86,15 +86,13 @@ bool System::Frame()
 
 void System::InitializeWindows( int& screenWidth, int& screenHeight )
 {
-	ApplicationHandle = this;
-
 	m_hInstance = GetModuleHandle( NULL );
 	m_szApplicationName = "SlidyEngine";
 
 	WNDCLASSEX wc;
 
 	wc.style = CS_HREDRAW|CS_VREDRAW|CS_OWNDC;
-	wc.lpfnWndProc = WndProc;
+	wc.lpfnWndProc = HandleMsgSetup;
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
 	wc.hInstance = m_hInstance;
@@ -139,7 +137,7 @@ void System::InitializeWindows( int& screenWidth, int& screenHeight )
 			NULL,
 			NULL,
 			m_hInstance,
-			NULL );
+			this );
 	}
 	else
 	{
@@ -165,7 +163,7 @@ void System::InitializeWindows( int& screenWidth, int& screenHeight )
 			NULL,
 			NULL,
 			m_hInstance,
-			NULL );
+			this );
 	}
 
 	ShowWindow( m_hWnd, SW_SHOW );
@@ -187,23 +185,33 @@ void System::ShutdownWindows()
 
 	UnregisterClass( m_szApplicationName, m_hInstance );
 	m_hInstance = NULL;
-
-	ApplicationHandle = nullptr;
 }
 
-LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+LRESULT CALLBACK System::HandleMsgSetup( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	switch( uMsg )
 	{
-	case WM_DESTROY:
-	case WM_CLOSE:
-	{
-		PostQuitMessage( 0 );
-		return 0;
-	}
+	case WM_NCCREATE:
+		{
+			const CREATESTRUCTW* pCreate = reinterpret_cast<CREATESTRUCTW*>( lParam );
+
+			System* pSystem = reinterpret_cast<System*>( pCreate->lpCreateParams );
+			assert( pSystem );
+
+			SetWindowLongPtr( hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>( pSystem ) );
+			SetWindowLongPtr( hWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>( &HandleMsgThunk ) );
+
+			return pSystem->MessageHandler( hWnd, uMsg, wParam, lParam );
+		}
 	default:
-	{
-		return ApplicationHandle->MessageHandler( hWnd, uMsg, wParam, lParam );
+		{
+			return DefWindowProc( hWnd, uMsg, wParam, lParam );
+		}
 	}
-	}
+}
+
+LRESULT CALLBACK System::HandleMsgThunk( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+{
+	System* pSystem = reinterpret_cast<System*>( GetWindowLongPtr( hWnd, GWLP_USERDATA ) );
+	return pSystem->MessageHandler( hWnd, uMsg, wParam, lParam );
 }
