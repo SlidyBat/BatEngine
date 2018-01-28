@@ -2,23 +2,21 @@
 #include "GDIPManager.h"
 #include "Resource.h"
 
-System::~System()
-{
-	ShutdownWindows();
-}
-
-bool System::Initialize()
+System::System()
 {
 	int screenWidth = 0;
 	int screenHeight = 0;
 	InitializeWindows( screenWidth, screenHeight );
 
-	if( !game.Initialize( screenWidth, screenHeight, m_hWnd ) )
-	{
-		return false;
-	}
+	assert( screenWidth > 0 );
+	assert( screenHeight > 0 );
 
-	return true;
+	game = std::make_unique<Game>( screenWidth, screenHeight, m_hWnd );
+}
+
+System::~System()
+{
+	ShutdownWindows();
 }
 
 void System::Run()
@@ -79,7 +77,7 @@ bool System::Frame()
 		return false;
 	}
 
-	game.Run();
+	game->Run();
 
 	return true;
 }

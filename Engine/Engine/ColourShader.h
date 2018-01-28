@@ -9,19 +9,18 @@
 class ColourShader
 {
 public:
-	ColourShader() = default;
+	ColourShader( ID3D11Device* pDevice, HWND hWnd, const std::wstring& vsFilename, const std::wstring& psFilename );
 	ColourShader( const ColourShader& src ) = delete;
 	ColourShader& operator=( const ColourShader& src ) = delete;
 	ColourShader( ColourShader&& donor ) = delete;
 	ColourShader& operator=( ColourShader&& donor ) = delete;
 
-	bool Initialize( ID3D11Device* pDevice, HWND hWnd, const std::wstring& vsFilename, const std::wstring& psFilename );
-	bool Render( ID3D11DeviceContext* pDeviceContext, int nVertices );
-	bool RenderIndexed( ID3D11DeviceContext* pDeviceContext, int nIndexes );
+	bool Render( ID3D11DeviceContext* pDeviceContext, UINT nVertices );
+	bool RenderIndexed( ID3D11DeviceContext* pDeviceContext, UINT nIndexes );
 private:
 	void OutputShaderErrorMessage( ID3DBlob* errorMessage, HWND hWnd, const std::wstring& shaderFilename );
-	void RenderShader( ID3D11DeviceContext* pDeviceContext, int nVertices );
-	void RenderShaderIndexed( ID3D11DeviceContext* pDeviceContext, int nIndexes );
+	void RenderShader( ID3D11DeviceContext* pDeviceContext, UINT nVertices );
+	void RenderShaderIndexed( ID3D11DeviceContext* pDeviceContext, UINT nIndexes );
 private:
 	Microsoft::WRL::ComPtr<ID3D11VertexShader>	m_pVertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader>	m_pPixelShader;

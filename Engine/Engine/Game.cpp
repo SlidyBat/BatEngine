@@ -1,10 +1,10 @@
 #include "Game.h"
 #include <chrono>
 
-bool Game::Initialize( int screenWidth, int screenHeight, HWND hWnd )
-{
-	return gfx.Initialize( screenWidth, screenHeight, hWnd );
-}
+Game::Game( int screenWidth, int screenHeight, HWND hWnd )
+	:
+	gfx( screenWidth, screenHeight, hWnd )
+{}
 
 void Game::Run()
 {

@@ -6,7 +6,7 @@ class GDIPManager
 {
 public:
 	GDIPManager();
-	~GDIPManager();
+	~GDIPManager() noexcept;
 private:
 	static int nInstances;
 	static ULONG_PTR token;

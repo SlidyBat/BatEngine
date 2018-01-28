@@ -1,1 +1,1 @@
-C:\Users\admin\Source\Repos\SlidyEngine\Engine\Engine\Texture.ps(6,18-29): error X4502: invalid ps_5_0 input semantic 'SV_OSITION'
+C:\Users\admin\Source\Repos\SlidyEngine\Engine\Engine\Colour.vs(11,1): error X3000: syntax error: unexpected token '}'

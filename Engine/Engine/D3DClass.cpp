@@ -18,43 +18,43 @@ void D3DClass::GetVideoCardInfo( std::wstring& cardName, int& memory ) const
 	memory = m_iVideoCardMemory;
 }
 
-bool D3DClass::Initialize( int screenWidth, int screenHeight, bool fullscreen, HWND hWnd, bool vsyncEnabled, float screendepth, float screennear )
+D3DClass::D3DClass( int screenWidth, int screenHeight, bool fullscreen, HWND hWnd, bool vsyncEnabled, float screendepth, float screennear )
 {
 	m_bVSyncEnabled = vsyncEnabled;
 
 	Microsoft::WRL::ComPtr<IDXGIFactory> factory;
 	if( FAILED( CreateDXGIFactory( __uuidof( IDXGIFactory ), (void**)&factory ) ) )
 	{
-		return false;
+		throw std::runtime_error( "Failed to create DXGI Factory" );
 	}
 
 	Microsoft::WRL::ComPtr<IDXGIAdapter> adapter;
 	if( FAILED( factory->EnumAdapters( 0, &adapter ) ) )
 	{
-		return false;
+		throw std::runtime_error( "Failed to enumerate adapters" );
 	}
 
 	Microsoft::WRL::ComPtr<IDXGIOutput> adapterOutput;
 	if( FAILED( adapter->EnumOutputs( 0, &adapterOutput ) ) )
 	{
-		return false;
+		throw std::runtime_error( "Failed to enumerate adapter outputs" );
 	}
 
 	UINT numModes;
 	if( FAILED( adapterOutput->GetDisplayModeList( DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL ) ) )
 	{
-		return false;
+		throw std::runtime_error( "Failed to create DXGI Factory" );
 	}
 
 	DXGI_MODE_DESC* displayModes = new DXGI_MODE_DESC[numModes];
 	if( !displayModes )
 	{
-		return false;
+		throw std::runtime_error( "Failed to create display modes array" );
 	}
 
 	if( FAILED( adapterOutput->GetDisplayModeList( DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModes ) ) )
 	{
-		return false;
+		throw std::runtime_error( "Failed to get display mode list count" );
 	}
 
 	UINT numerator = 0, denominator = 1;
@@ -72,13 +72,12 @@ bool D3DClass::Initialize( int screenWidth, int screenHeight, bool fullscreen, H
 	DXGI_ADAPTER_DESC adapterDesc;
 	if( FAILED( adapter->GetDesc( &adapterDesc ) ) )
 	{
-		return false;
+		throw std::runtime_error( "Failed to get get adapter description" );
 	}
 
 	m_szVideoCardDescription = adapterDesc.Description;
 	m_iVideoCardMemory = (int)( adapterDesc.DedicatedVideoMemory / 1024 / 1024 ); // in mb
 
-	
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	ZeroMemory( &swapChainDesc, sizeof( swapChainDesc ) );
@@ -124,18 +123,18 @@ bool D3DClass::Initialize( int screenWidth, int screenHeight, bool fullscreen, H
 		&swapChainDesc, &m_pSwapChain,
 		&m_pDevice, NULL, &m_pDeviceContext ) ) )
 	{
-		return false;
+		throw std::runtime_error( "Failed to create device/swapchain" );
 	}
 
 	ID3D11Texture2D* pBackBuffer;
 	if( FAILED( m_pSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (void**)&pBackBuffer ) ) )
 	{
-		return false;
+		throw std::runtime_error( "Failed to get swapchain backbuffer" );
 	}
 
 	if( FAILED( m_pDevice->CreateRenderTargetView( pBackBuffer, NULL, &m_pRenderTargetView ) ) )
 	{
-		return false;
+		throw std::runtime_error( "Failed to create render target view" );
 	}
 
 	pBackBuffer->Release();
@@ -158,7 +157,7 @@ bool D3DClass::Initialize( int screenWidth, int screenHeight, bool fullscreen, H
 
 	if( FAILED( m_pDevice->CreateRasterizerState( &rasterDesc, &m_pRasterState ) ) )
 	{
-		return false;
+		throw std::runtime_error( "Failed to create rasterizer state" );
 	}
 
 	m_pDeviceContext->RSSetState( m_pRasterState.Get() );
@@ -173,8 +172,6 @@ bool D3DClass::Initialize( int screenWidth, int screenHeight, bool fullscreen, H
 	viewport.TopLeftY = 0.0f;
 
 	m_pDeviceContext->RSSetViewports( 1, &viewport );
-
-	return true;
 }
 
 void D3DClass::BeginScene( float red, float green, float blue, float alpha )

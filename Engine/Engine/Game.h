@@ -7,13 +7,12 @@
 class Game
 {
 public:
-	Game() = default;
+	Game( int screenWidth, int screenHeight, HWND hWnd );
 	Game( const Game& src ) = delete;
 	Game& operator=( const Game& src ) = delete;
 	Game( Game&& donor ) = delete;
 	Game& operator=( Game&& donor ) = delete;
 
-	bool Initialize( int screenWidth, int screenHeight, HWND hWnd );
 	void Run();
 private:
 	void UpdateModels();

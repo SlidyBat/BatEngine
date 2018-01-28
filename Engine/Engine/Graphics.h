@@ -20,7 +20,7 @@
 class Graphics
 {
 public:
-	Graphics() = default;
+	Graphics( const int screenWidth, const int screenHeight, HWND hWnd );
 	Graphics( const Graphics& src ) = delete;
 	Graphics& operator=( const Graphics& src ) = delete;
 	Graphics( Graphics&& donor ) = delete;
@@ -41,8 +41,6 @@ public:
 
 	Texture CreateTexture( const std::wstring& filename );
 	Texture CreateTexture( const Colour* pPixels, int width, int height );
-
-	bool Initialize( const int screenWidth, const int screenHeight, HWND hWnd );
 
 	void BeginFrame();
 	void EndFrame();

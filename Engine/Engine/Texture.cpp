@@ -41,7 +41,10 @@ Texture::Texture( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, co
 	textureDesc.CPUAccessFlags = 0;
 	textureDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
-	pDevice->CreateTexture2D( &textureDesc, NULL, &m_pTexture ); // should add error checking
+	if( FAILED( pDevice->CreateTexture2D( &textureDesc, NULL, &m_pTexture ) ) )
+	{
+		throw std::runtime_error( "Failed to create texture" );
+	}
 	pDeviceContext->UpdateSubresource( m_pTexture.Get(), 0, NULL, pPixels, bmp.GetWidth()*sizeof(Colour), 0 );
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
@@ -72,7 +75,10 @@ Texture::Texture( ID3D11Device * pDevice, ID3D11DeviceContext * pDeviceContext, 
 	textureDesc.CPUAccessFlags = 0;
 	textureDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
-	pDevice->CreateTexture2D( &textureDesc, NULL, &m_pTexture ); // should add error checking
+	if( FAILED( pDevice->CreateTexture2D( &textureDesc, NULL, &m_pTexture ) ) )
+	{
+		throw std::runtime_error( "Failed to create texture" );
+	}
 	pDeviceContext->UpdateSubresource( m_pTexture.Get(), 0, NULL, pPixels, width*sizeof(Colour), 0 );
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;

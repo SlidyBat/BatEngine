@@ -3,18 +3,18 @@
 #include "SlidyWin.h"
 #include "Game.h"
 #include "Input.h"
+#include <memory>
 
 class System
 {
 public:
-	System() = default;
+	System();
 	System( const System& src ) = delete;
 	System& operator=( const System& src ) = delete;
 	System( System&& donor ) = delete;
 	System& operator=( System&& donor ) = delete;
-	~System();
+	~System() noexcept;
 
-	bool Initialize();
 	void Run();
 
 	LRESULT CALLBACK MessageHandler( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
@@ -30,5 +30,5 @@ private:
 	HINSTANCE	m_hInstance;
 	HWND		m_hWnd;
 
-	Game game;
+	std::unique_ptr<Game> game;
 };
