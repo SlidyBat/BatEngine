@@ -11,3 +11,6 @@ Engine.VC.VC.opendb
 Engine.VC.db
 /Engine/Thumbs.db
 /Engine/Engine.aps
+/Engine/Release
+/Release
+/Engine/Engine.vcxproj.user
