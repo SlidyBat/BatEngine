@@ -2,14 +2,12 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/Engine/Engine/x64/Debug
+/.vs
+/x64
+/Debug
+/Engine/x64
 /Engine/Debug
-/Engine/x64/Debug
-/Engine/.vs/Engine/v14/.suo
-/Engine/Engine.VC.VC.opendb
-/Engine/Engine.VC.db
-/Engine/Engine/Thumbs.db
-/Engine/Engine/Engine.aps
-/Engine/x64/Release
-/Engine/Engine/x64/Release/Engine.tlog
-/Engine/Engine/x64/Release
+Engine.VC.VC.opendb
+Engine.VC.db
+/Engine/Thumbs.db
+/Engine/Engine.aps
