@@ -63,6 +63,87 @@ LRESULT System::MessageHandler( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 			Input::KeyUp( (size_t)wParam );
 			return 0;
 		}
+	case WM_LBUTTONDOWN:
+		{
+			Input::MouseButtonDown( Input::MouseButton::Left );
+			return 0;
+		}
+	case WM_LBUTTONUP:
+		{
+			Input::MouseButtonUp( Input::MouseButton::Left );
+			return 0;
+		}
+	case WM_LBUTTONDBLCLK:
+		{
+			Input::MouseButtonDblClick( Input::MouseButton::Left );
+			return 0;
+		}
+	case WM_RBUTTONDOWN:
+		{
+			Input::MouseButtonDown( Input::MouseButton::Right );
+			return 0;
+		}
+	case WM_RBUTTONUP:
+		{
+			Input::MouseButtonUp( Input::MouseButton::Right );
+			return 0;
+		}
+	case WM_RBUTTONDBLCLK:
+		{
+			Input::MouseButtonDblClick( Input::MouseButton::Right );
+			return 0;
+		}
+	case WM_MBUTTONDOWN:
+		{
+			Input::MouseButtonDown( Input::MouseButton::Middle );
+			return 0;
+		}
+	case WM_MBUTTONUP:
+		{
+			Input::MouseButtonUp( Input::MouseButton::Middle );
+			return 0;
+		}
+	case WM_MBUTTONDBLCLK:
+		{
+			Input::MouseButtonDblClick( Input::MouseButton::Middle );
+			return 0;
+		}
+	case WM_XBUTTONDOWN:
+		{
+			if( GET_XBUTTON_WPARAM( wParam ) == XBUTTON1 )
+			{
+				Input::MouseButtonDown( Input::MouseButton::X1 );
+			}
+			else if( GET_XBUTTON_WPARAM( wParam ) == XBUTTON2 )
+			{
+				Input::MouseButtonDown( Input::MouseButton::X2 );
+			}
+			return 0;
+		}
+	case WM_XBUTTONUP:
+		{
+			if( GET_XBUTTON_WPARAM( wParam ) == XBUTTON1 )
+			{
+				Input::MouseButtonUp( Input::MouseButton::X1 );
+			}
+			else if( GET_XBUTTON_WPARAM( wParam ) == XBUTTON2 )
+			{
+				Input::MouseButtonUp( Input::MouseButton::X2 );
+			}
+			return 0;
+		}
+	case WM_XBUTTONDBLCLK:
+		{
+			if( GET_XBUTTON_WPARAM( wParam ) == XBUTTON1 )
+			{
+				Input::MouseButtonDblClick( Input::MouseButton::X1 );
+			}
+			else if( GET_XBUTTON_WPARAM( wParam ) == XBUTTON2 )
+			{
+				Input::MouseButtonDblClick( Input::MouseButton::X2 );
+			}
+			return 0;
+		}
 	default:
 		{
 			return DefWindowProc( hWnd, uMsg, wParam, lParam );

@@ -51,12 +51,12 @@ private:
 	TextureShader texShader;
 	ColourShader colShader;
 public:
-	static constexpr bool FullScreen = false;
-	static constexpr int VSyncEnabled = false;
-	static constexpr float ScreenDepth = 1000.0f;
-	static constexpr float ScreenNear = 0.1f;
+	static constexpr bool	FullScreen = false;
+	static constexpr int	VSyncEnabled = false;
+	static constexpr float	ScreenDepth = 1000.0f;
+	static constexpr float	ScreenNear = 0.1f;
 
 	// only used when not in fullscreen
-	static constexpr int ScreenWidth = 1000;
-	static constexpr int ScreenHeight = 500;
+	static constexpr int	ScreenWidth = 800;
+	static constexpr int	ScreenHeight = 600;
 };
