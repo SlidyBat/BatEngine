@@ -15,46 +15,81 @@ Graphics::Graphics( Window& wnd )
 	} );
 }
 
-void Graphics::DrawLine( const std::array<TexVertex, 2>& line, Texture& texture )
+void Graphics::DrawModel( std::vector<TexVertex> vertices, std::vector<int> indices, const Texture& texture, D3D_PRIMITIVE_TOPOLOGY topology )
 {
-	Line<TexVertex>( d3d.GetDevice(), line ).Render( d3d.GetDeviceContext() );
-	texShader.RenderIndexed( d3d.GetDeviceContext(), 2, texture.GetTextureView() );
+	Model<TexVertex> model( d3d.GetDevice(), vertices, indices, topology );
+	model.Render( d3d.GetDeviceContext() );
+
+	texShader.RenderIndexed( d3d.GetDeviceContext(), model.GetIndexCount(), texture.GetTextureView() );
 }
 
-void Graphics::DrawLine( const std::array<Vertex, 2>& line )
+void Graphics::DrawModel( std::vector<TexVertex> vertices, const Texture& texture, D3D_PRIMITIVE_TOPOLOGY topology )
 {
-	Line<Vertex>( d3d.GetDevice(), line ).Render( d3d.GetDeviceContext() );
-	colShader.RenderIndexed( d3d.GetDeviceContext(), 2 );
+	Model<TexVertex> model( d3d.GetDevice(), vertices, {}, topology );
+	model.Render( d3d.GetDeviceContext() );
+
+	texShader.Render( d3d.GetDeviceContext(), model.GetVertexCount(), texture.GetTextureView() );
 }
 
-void Graphics::DrawTriangle( const std::array<TexVertex, 3>& tri, Texture& texture )
+void Graphics::DrawModel( std::vector<Vertex> vertices, std::vector<int> indices, D3D_PRIMITIVE_TOPOLOGY topology )
 {
-	Triangle<TexVertex>( d3d.GetDevice(), tri ).Render( d3d.GetDeviceContext() );
-	texShader.RenderIndexed( d3d.GetDeviceContext(), Triangle<TexVertex>::GetIndexCount(), texture.GetTextureView() );
+	Model<Vertex> model( d3d.GetDevice(), vertices, indices, topology );
+	model.Render( d3d.GetDeviceContext() );
+
+	colShader.RenderIndexed( d3d.GetDeviceContext(), model.GetIndexCount() );
 }
 
-void Graphics::DrawTriangle( const std::array<Vertex, 3>& tri )
+void Graphics::DrawModel( std::vector<Vertex> vertices, D3D_PRIMITIVE_TOPOLOGY topology )
 {
-	Triangle<Vertex>( d3d.GetDevice(), tri ).Render( d3d.GetDeviceContext() );
-	colShader.RenderIndexed( d3d.GetDeviceContext(), Triangle<Vertex>::GetIndexCount() );
+	Model<Vertex> model( d3d.GetDevice(), vertices, {}, topology );
+	model.Render( d3d.GetDeviceContext() );
+
+	colShader.Render( d3d.GetDeviceContext(), model.GetVertexCount() );
 }
 
-void Graphics::DrawQuad( const std::array<TexVertex, 4>& quad, Texture & texture )
+void Graphics::DrawPoints( const std::vector<Vertex>& points )
 {
-	Quad<TexVertex>( d3d.GetDevice(), quad ).Render( d3d.GetDeviceContext() );
-	texShader.RenderIndexed( d3d.GetDeviceContext(), Quad<TexVertex>::GetIndexCount(), texture.GetTextureView() );
+	DrawModel( points, D3D11_PRIMITIVE_TOPOLOGY_POINTLIST );
 }
 
-void Graphics::DrawQuad( const std::array<Vertex, 4>& quad )
+void Graphics::DrawLine( const TexVertex& p1, const TexVertex& p2, const Texture& texture )
 {
-	Quad<Vertex>( d3d.GetDevice(), quad ).Render( d3d.GetDeviceContext() );
-	colShader.RenderIndexed( d3d.GetDeviceContext(), Quad<Vertex>::GetIndexCount() );
+	DrawModel( { p1, p2 }, texture, D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
 }
 
-void Graphics::DrawPoint( const std::vector<Vertex>& points )
+void Graphics::DrawLine( const Vertex& p1, const Vertex& p2 )
 {
-	Point<Vertex>( d3d.GetDevice(), points ).Render( d3d.GetDeviceContext() );
-	colShader.Render( d3d.GetDeviceContext(), (UINT)points.size() );
+	DrawModel( { p1, p2 }, D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
+}
+
+void Graphics::DrawTriangle( const TexVertex & p1, const TexVertex & p2, const TexVertex & p3, const Texture & texture )
+{
+	DrawModel( { p1, p2, p3 }, texture );
+}
+
+void Graphics::DrawTriangle( const Vertex& p1, const Vertex& p2, const Vertex& p3 )
+{
+	DrawModel( { p1, p2, p3 } );
+}
+
+void Graphics::DrawQuad( const TexVertex& p1, const TexVertex& p2, const TexVertex& p3, const TexVertex& p4, const Texture& texture )
+{
+	static std::vector<int> indices = {
+		0, 1, 2,
+		2, 3, 0
+	};
+
+	DrawModel( { p1, p2, p3, p4 }, indices, texture );
+}
+
+void Graphics::DrawQuad( const Vertex& p1, const Vertex& p2, const Vertex& p3, const Vertex& p4 )
+{
+	static std::vector<int> indices = {
+		0, 1, 2,
+		2, 3, 0
+	};
+
+	DrawModel( { p1, p2, p3, p4 }, indices );
 }
 
 Texture Graphics::CreateTexture( const std::wstring& filename )

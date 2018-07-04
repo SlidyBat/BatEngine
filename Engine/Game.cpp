@@ -37,6 +37,6 @@ void Game::ComposeFrame()
 		TexVertex v2( { -0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f } );
 		TexVertex v3( { 0.5f,  0.5f, 0.0f }, { 1.0f, 0.0f } );
 		TexVertex v4( { 0.5f, -0.5f, 0.0f }, { 1.0f, 1.0f } );
-		gfx.DrawQuad( { v1, v2, v3, v4 }, mario );
+		gfx.DrawQuad( v1, v2, v3, v4, mario );
 	}
 }

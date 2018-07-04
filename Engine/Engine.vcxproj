@@ -130,15 +130,12 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="GDIPManager.h" />
     <ClInclude Include="Graphics.h" />
-    <ClInclude Include="Line.h" />
-    <ClInclude Include="Point.h" />
-    <ClInclude Include="Quad.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TexVertex.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="TextureShader.h" />
-    <ClInclude Include="Triangle.h" />
     <ClInclude Include="SlidyWin.h" />
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="Vertex.h" />

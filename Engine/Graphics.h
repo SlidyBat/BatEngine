@@ -9,13 +9,11 @@
 #include "Texture.h"
 #include "Vertex.h"
 #include "TexVertex.h"
+#include "Model.h"
 #include "Camera.h"
 #include "TextureShader.h"
 #include "ColourShader.h"
-#include "Point.h"
-#include "Line.h"
-#include "Triangle.h"
-#include "Quad.h"
+
 
 #include <memory>
 
@@ -33,18 +31,22 @@ public:
 		d3d.Resize( width, height );
 	}
 
-	void DrawPoint( const std::vector<Vertex>& points );
+	void DrawModel( std::vector<TexVertex> vertices, std::vector<int> indices, const Texture& texture, D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+	void DrawModel( std::vector<TexVertex> vertices, const Texture& texture, D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+	void DrawModel( std::vector<Vertex> vertices, std::vector<int> indices, D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+	void DrawModel( std::vector<Vertex> vertices, D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+
+	void DrawPoints( const std::vector<Vertex>& points );
 	void DrawPoint( const Vertex& point )
 	{
-		DrawPoint( std::vector<Vertex>{ point } );
+		DrawPoints( std::vector<Vertex>{ point } );
 	}
-	void DrawLine( const std::array<TexVertex, 2>& line, Texture& texture );
-	void DrawLine( const std::array<Vertex, 2>& line );
-	void DrawTriangle( const std::array<TexVertex, 3>& tri, Texture& texture );
-	void DrawTriangle( const std::array<Vertex, 3>& tri );
-	void DrawQuad( const std::array<TexVertex, 4>& quad, Texture& texture );
-	void DrawQuad( const std::array<Vertex, 4>& quad );
-	
+	void DrawLine( const TexVertex& p1, const TexVertex& p2, const Texture& texture );
+	void DrawLine( const Vertex& p1, const Vertex& p2 );
+	void DrawTriangle( const TexVertex& p1, const TexVertex& p2, const TexVertex& p3, const Texture& texture );
+	void DrawTriangle( const Vertex& p1, const Vertex& p2, const Vertex& p3 );
+	void DrawQuad( const TexVertex& p1, const TexVertex& p2, const TexVertex& p3, const TexVertex& p4, const Texture& texture );
+	void DrawQuad( const Vertex& p1, const Vertex& p2, const Vertex& p3, const Vertex& p4 );
 
 	Texture CreateTexture( const std::wstring& filename );
 	Texture CreateTexture( const Colour* pPixels, int width, int height );

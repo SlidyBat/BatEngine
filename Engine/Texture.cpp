@@ -92,7 +92,7 @@ Texture::Texture( ID3D11Device * pDevice, ID3D11DeviceContext * pDeviceContext, 
 	pDeviceContext->GenerateMips( m_pTextureView.Get() );
 }
 
-ID3D11ShaderResourceView* Texture::GetTextureView()
+ID3D11ShaderResourceView* Texture::GetTextureView() const
 {
 	return m_pTextureView.Get();
 }
