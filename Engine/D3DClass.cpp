@@ -192,3 +192,53 @@ void D3DClass::EndScene()
 		m_pSwapChain->Present( 0, 0 );
 	}
 }
+
+void D3DClass::Resize( int width, int height )
+{
+	m_pDeviceContext->OMSetRenderTargets( 0, NULL, NULL );
+
+	m_pRenderTargetView.Reset();
+
+	HRESULT hr;
+	if( FAILED( hr = m_pSwapChain->ResizeBuffers( 0, width, height, DXGI_FORMAT_UNKNOWN, 0 ) ) )
+	{
+		throw std::runtime_error( "Failed to resize swapchain buffer" );
+	}
+
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> pBuffer;
+	if( FAILED( m_pSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (void**)&pBuffer ) ) )
+	{
+		throw std::runtime_error( "Failed to get swapchain buffer" );
+	}
+
+	if( FAILED( m_pDevice->CreateRenderTargetView( pBuffer.Get(), NULL, &m_pRenderTargetView ) ) )
+	{
+		throw std::runtime_error( "Failed to create render target view while resizing" );
+	}
+
+	m_pDeviceContext->OMSetRenderTargets( 1, m_pRenderTargetView.GetAddressOf(), NULL );
+
+	if( width == 0 && height == 0 )
+	{
+		DXGI_SWAP_CHAIN_DESC desc;
+		m_pSwapChain->GetDesc( &desc );
+
+		HWND hWnd = desc.OutputWindow;
+
+		RECT rect;
+		GetClientRect( hWnd, &rect );
+
+		width = rect.right - rect.left;
+		height = rect.bottom - rect.top;
+	}
+
+	D3D11_VIEWPORT viewport;
+	viewport.Width = (float)width;
+	viewport.Height = (float)height;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	viewport.TopLeftX = 0.0f;
+	viewport.TopLeftY = 0.0f;
+
+	m_pDeviceContext->RSSetViewports( 1, &viewport );
+}

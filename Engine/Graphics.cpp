@@ -8,6 +8,11 @@ Graphics::Graphics( Window& wnd )
 	texShader( d3d.GetDevice(), wnd.GetHandle(), L"Texture.vs", L"Texture.ps" )
 {
 	camera.SetPosition( 0.0f, 0.0f, -5.0f );
+
+	wnd.AddResizeListener( [=]( int width, int height )
+	{
+		Resize();
+	} );
 }
 
 void Graphics::DrawLine( const std::array<TexVertex, 2>& line, Texture& texture )

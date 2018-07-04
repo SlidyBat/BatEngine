@@ -22,14 +22,14 @@ void Game::UpdateModels()
 
 void Game::ComposeFrame()
 {
-	if( wnd.input.IsKeyPressed( VK_SPACE ) )
+	/*if( wnd.input.IsKeyPressed( VK_SPACE ) )
 	{
 		gfx.DrawLine( std::array<Vertex, 2> {
 			Vertex{ { -0.95f, -0.95f, 0.0f },{ 1.0f, 1.0f, 0.0f, 1.0f } },
 				Vertex{ { 0.95f, 0.95f, 0.0f },{ 0.0f, 1.0f, 1.0f, 1.0f } } } );
-	}
+	}*/
 
-	if( wnd.GetPosition().y > 300 )
+	//if( wnd.GetPosition().y > 300 )
 	{
 		static Texture mario = gfx.CreateTexture( L"mario.png" );
 

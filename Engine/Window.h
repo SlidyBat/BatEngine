@@ -1,6 +1,9 @@
 #pragma once
 
 #include <string>
+#include <vector>
+#include <functional>
+
 #include "SlidyWin.h"
 #include "Input.h"
 #include "Vec2.h"
@@ -19,6 +22,8 @@ public:
 	bool IsMinimized() const;
 	void ShowMessageBox( const std::string& title, const std::string& msg, UINT type ) const;
 	bool ProcessMessage();
+
+	void AddResizeListener( const std::function<void( int, int )>& callback );
 
 	bool IsFullscreen() const
 	{
@@ -62,4 +67,6 @@ private:
 	std::string	m_szApplicationName;
 	HINSTANCE	m_hInstance;
 	HWND		m_hWnd;
+
+	std::vector<std::function<void( int, int )>> m_ResizeListeners;
 };

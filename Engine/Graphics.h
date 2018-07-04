@@ -28,6 +28,11 @@ public:
 	Graphics( Graphics&& donor ) = delete;
 	Graphics& operator=( Graphics&& donor ) = delete;
 
+	void Resize( int width = 0, int height = 0 )
+	{
+		d3d.Resize( width, height );
+	}
+
 	void DrawPoint( const std::vector<Vertex>& points );
 	void DrawPoint( const Vertex& point )
 	{

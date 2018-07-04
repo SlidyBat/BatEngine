@@ -21,6 +21,7 @@ public:
 
 	void BeginScene( float red, float green, float blue, float alpha );
 	void EndScene();
+	void Resize( int width = 0, int height = 0 );
 
 	ID3D11Device* GetDevice() const;
 	ID3D11DeviceContext* GetDeviceContext() const;

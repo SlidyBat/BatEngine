@@ -138,6 +138,11 @@ bool Window::ProcessMessage()
 	return true;
 }
 
+void Window::AddResizeListener( const std::function<void( int, int )>& callback )
+{
+	m_ResizeListeners.push_back( callback );
+}
+
 LRESULT Window::HandleMsg( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	switch( uMsg )
@@ -233,10 +238,16 @@ LRESULT Window::HandleMsg( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 			}
 			return 0;
 		}
-		case WM_DISPLAYCHANGE: // called when window is resized
+		case WM_SIZE: // called when window is resized
 		{
 			m_iWidth = LOWORD( lParam );
 			m_iHeight = HIWORD( lParam );
+
+			for( auto& cb : m_ResizeListeners )
+			{
+				cb( m_iWidth, m_iHeight );
+			}
+
 			return 0;
 		}
 		case WM_MOVE: // called when window is moved
