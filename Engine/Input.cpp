@@ -11,34 +11,13 @@ Input::Input()
 
 void Input::KeyDown( const size_t key )
 {
-	Get()._KeyDown( key );
-}
-
-void Input::KeyUp( const size_t key )
-{
-	Get()._KeyUp( key );
-}
-
-bool Input::IsKeyPressed( const size_t key )
-{
-	return Get()._IsKeyPressed( key );
-}
-
-Input& Input::Get()
-{
-	static Input instance;
-	return instance;
-}
-
-void Input::_KeyDown( const size_t key )
-{
 	assert( key >= 0 );
 	assert( key < MaxKeys );
 
 	m_bKeyIsPressed[key] = true;
 }
 
-void Input::_KeyUp( const size_t key )
+void Input::KeyUp( const size_t key )
 {
 	assert( key >= 0 );
 	assert( key < MaxKeys );
@@ -46,67 +25,52 @@ void Input::_KeyUp( const size_t key )
 	m_bKeyIsPressed[key] = false;
 }
 
-bool Input::_IsKeyPressed( const size_t key ) const
+bool Input::IsKeyPressed( const size_t key ) const
 {
 	return m_bKeyIsPressed[key];
 }
 
-void Input::_MouseButtonDown( const MouseButton mb )
-{
-	m_bMouseButtonIsDown[mb] = true;
-}
-
-void Input::_MouseButtonUp( const MouseButton mb )
-{
-	m_bMouseButtonIsDown[mb] = false;
-}
-
-void Input::_MouseButtonDblClick( const MouseButton mb )
-{
-	m_bMouseButtonIsDown[mb] = true; // might do more with double click later, but for now it just means mouse down
-}
-
-bool Input::_IsMouseButtonDown( const MouseButton mb ) const
-{
-	return m_bMouseButtonIsDown[mb];
-}
-
 void Input::MouseButtonDown( const MouseButton mb )
 {
-	Get()._MouseButtonDown( mb );
+	m_bMouseButtonIsDown[(int)mb] = true;
 }
 
 void Input::MouseButtonUp( const MouseButton mb )
 {
-	Get()._MouseButtonUp( mb );
+	m_bMouseButtonIsDown[(int)mb] = false;
 }
 
 void Input::MouseButtonDblClick( const MouseButton mb )
 {
-	Get()._MouseButtonDblClick( mb );
+	m_bMouseButtonIsDown[(int)mb] = true; // might do more with double click later, but for now it just means mouse down
 }
 
-bool Input::IsLeftDown()
+bool Input::IsMouseButtonDown( const MouseButton mb ) const
 {
-	return Get()._IsMouseButtonDown( MouseButton::Left );
+	return m_bMouseButtonIsDown[(int)mb];
 }
 
-bool Input::IsRightDown()
+bool Input::IsLeftDown() const
 {
-	return Get()._IsMouseButtonDown( MouseButton::Right );
+	return IsMouseButtonDown( MouseButton::Left );
 }
 
-bool Input::IsMiddleDown()
+bool Input::IsRightDown() const
 {
-	return Get()._IsMouseButtonDown( MouseButton::Middle );
+	return IsMouseButtonDown( MouseButton::Right );
 }
 
-bool Input::IsX1Down()
+bool Input::IsMiddleDown() const
 {
-	return Get()._IsMouseButtonDown( MouseButton::X1 );
+	return IsMouseButtonDown( MouseButton::Middle );
 }
 
-bool Input::IsX2Down()
+bool Input::IsX1Down() const
 {
-	return Get()._IsMouseButtonDown( MouseButton::X2 );
+	return IsMouseButtonDown( MouseButton::X1 );
+}
+
+bool Input::IsX2Down() const
+{
+	return IsMouseButtonDown( MouseButton::X2 );
 }

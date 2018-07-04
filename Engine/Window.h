@@ -2,6 +2,7 @@
 
 #include <string>
 #include "SlidyWin.h"
+#include "Input.h"
 #include "Vec2.h"
 
 class Window
@@ -43,7 +44,8 @@ public:
 	{
 		return m_hWnd;
 	}
-
+public:
+	Input input;
 private:
 	LRESULT CALLBACK HandleMsg( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 

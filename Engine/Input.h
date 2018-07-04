@@ -10,12 +10,12 @@ public:
 	Input& operator=( Input&& donor ) = delete;
 
 	// keyboard
-	static void KeyDown( const size_t key );
-	static void KeyUp( const size_t key );
-	static bool IsKeyPressed( const size_t key );
+	void KeyDown( const size_t key );
+	void KeyUp( const size_t key );
+	bool IsKeyPressed( const size_t key ) const;
 	// mouse
 public:
-	enum MouseButton
+	enum class MouseButton
 	{
 		Left,
 		Right,
@@ -25,29 +25,19 @@ public:
 		TOTAL_MOUSE_BUTTONS
 	};
 public:
-	static void MouseButtonDown( const MouseButton mb );
-	static void MouseButtonUp( const MouseButton mb );
-	static void MouseButtonDblClick( const MouseButton mb );
+	void MouseButtonDown( const MouseButton mb );
+	void MouseButtonUp( const MouseButton mb );
+	void MouseButtonDblClick( const MouseButton mb );
+	bool IsMouseButtonDown( const MouseButton mb ) const;
 
-	static bool IsLeftDown();
-	static bool IsRightDown();
-	static bool IsMiddleDown();
-	static bool IsX1Down(); // are there more than 2 X buttons?
-	static bool IsX2Down();
-private:
-	static Input& Get();
-
-	void _KeyDown( const size_t key );
-	void _KeyUp( const size_t key );
-	bool _IsKeyPressed( const size_t key ) const;
-
-	void _MouseButtonDown( const MouseButton mb );
-	void _MouseButtonUp( const MouseButton mb );
-	void _MouseButtonDblClick( const MouseButton mb );
-	bool _IsMouseButtonDown( const MouseButton mb ) const;
+	bool IsLeftDown() const;
+	bool IsRightDown() const;
+	bool IsMiddleDown() const;
+	bool IsX1Down() const;
+	bool IsX2Down() const;
 private:
 	static constexpr int MaxKeys = 256;
-	bool m_bKeyIsPressed[256];
+	bool m_bKeyIsPressed[MaxKeys];
 
-	bool m_bMouseButtonIsDown[TOTAL_MOUSE_BUTTONS];
+	bool m_bMouseButtonIsDown[(int)MouseButton::TOTAL_MOUSE_BUTTONS];
 };

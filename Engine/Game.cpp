@@ -22,7 +22,7 @@ void Game::UpdateModels()
 
 void Game::ComposeFrame()
 {
-	if( wnd.GetPosition().x > 300 )
+	if( wnd.input.IsKeyPressed( VK_SPACE ) )
 	{
 		gfx.DrawLine( std::array<Vertex, 2> {
 			Vertex{ { -0.95f, -0.95f, 0.0f },{ 1.0f, 1.0f, 0.0f, 1.0f } },
