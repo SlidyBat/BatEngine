@@ -3,7 +3,7 @@
 #include <cassert>
 #include "Input.h"
 
-Window::Window( int xpos, int ypos, int width, int height, const std::string& name, bool fullscreen )
+Window::Window( Vei2 pos, int width, int height, const std::string& name, bool fullscreen )
 	:
 	m_bFullscreen( fullscreen )
 {
@@ -42,16 +42,16 @@ Window::Window( int xpos, int ypos, int width, int height, const std::string& na
 
 		ChangeDisplaySettings( &dmScreenSettings, CDS_FULLSCREEN );
 
-		m_iXPos = 0;
-		m_iYPos = 0;
+		m_Pos = { 0, 0 };
+		m_dwStyle = WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_POPUP;
 
 		m_hWnd = CreateWindowEx(
 			WS_EX_APPWINDOW,
 			m_szApplicationName.c_str(),
 			m_szApplicationName.c_str(),
-			WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_POPUP,
-			m_iXPos,
-			m_iYPos,
+			m_dwStyle,
+			m_Pos.x,
+			m_Pos.y,
 			m_iWidth,
 			m_iHeight,
 			NULL,
@@ -64,20 +64,19 @@ Window::Window( int xpos, int ypos, int width, int height, const std::string& na
 		m_iWidth = width;
 		m_iHeight = height;
 
-		// centre
-		m_iXPos = xpos;
-		m_iYPos = ypos;
+		m_Pos = pos;
+		m_dwStyle = WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_OVERLAPPEDWINDOW;
 
 		RECT windowRect = { 0, 0, m_iWidth, m_iHeight };
-		AdjustWindowRect( &windowRect, WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_OVERLAPPEDWINDOW, false );
+		AdjustWindowRect( &windowRect, m_dwStyle, false );
 
 		m_hWnd = CreateWindowEx(
 			WS_EX_APPWINDOW,
 			m_szApplicationName.c_str(),
 			m_szApplicationName.c_str(),
-			WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_OVERLAPPEDWINDOW,
-			m_iXPos,
-			m_iYPos,
+			m_dwStyle,
+			m_Pos.x,
+			m_Pos.y,
 			windowRect.right - windowRect.left,
 			windowRect.bottom - windowRect.top,
 			NULL,
@@ -233,6 +232,18 @@ LRESULT Window::HandleMsg( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 			{
 				Input::MouseButtonDblClick( Input::MouseButton::X2 );
 			}
+			return 0;
+		}
+		case WM_DISPLAYCHANGE: // called when window is resized
+		{
+			m_iWidth = LOWORD( lParam );
+			m_iHeight = HIWORD( lParam );
+			return 0;
+		}
+		case WM_MOVE: // called when window is moved
+		{
+			m_Pos.x = LOWORD( lParam );
+			m_Pos.y = HIWORD( lParam );
 			return 0;
 		}
 		default:

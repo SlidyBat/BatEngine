@@ -2,14 +2,15 @@
 
 #include <string>
 #include "SlidyWin.h"
+#include "Vec2.h"
 
 class Window
 {
 public:
-	Window( int xpos, int ypos, int width, int height, const std::string& name, bool fullscreen = false );
+	Window( Vei2 pos, int width, int height, const std::string& name, bool fullscreen = false );
 	Window( int width, int height, const std::string& name, bool fullscreen = false )
 		:
-		Window( 50, 50, width, height, name, fullscreen )
+		Window( { 50, 50 }, width, height, name, fullscreen )
 	{}
 	~Window() noexcept;
 
@@ -30,20 +31,29 @@ public:
 	{
 		return m_iHeight;
 	}
+	Vei2 GetPosition() const
+	{
+		return m_Pos;
+	}
+	int GetStyle() const
+	{
+		return m_dwStyle;
+	}
 	HWND GetHandle() const
 	{
 		return m_hWnd;
 	}
+
 private:
 	LRESULT CALLBACK HandleMsg( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
 	static LRESULT CALLBACK HandleMsgSetup( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 	static LRESULT CALLBACK HandleMsgThunk( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 private:
-	int m_iXPos;
-	int m_iYPos;
 	int m_iWidth;
 	int m_iHeight;
+	Vei2 m_Pos;
+	DWORD m_dwStyle;
 
 	bool m_bFullscreen;
 

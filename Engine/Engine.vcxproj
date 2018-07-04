@@ -140,6 +140,7 @@
     <ClInclude Include="TextureShader.h" />
     <ClInclude Include="Triangle.h" />
     <ClInclude Include="SlidyWin.h" />
+    <ClInclude Include="Vec2.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>

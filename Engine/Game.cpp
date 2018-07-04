@@ -17,18 +17,19 @@ void Game::Run()
 
 void Game::UpdateModels()
 {
+
 }
 
 void Game::ComposeFrame()
 {
-	if( Input::IsRightDown() )
+	if( wnd.GetPosition().x > 300 )
 	{
 		gfx.DrawLine( std::array<Vertex, 2> {
 			Vertex{ { -0.95f, -0.95f, 0.0f },{ 1.0f, 1.0f, 0.0f, 1.0f } },
 				Vertex{ { 0.95f, 0.95f, 0.0f },{ 0.0f, 1.0f, 1.0f, 1.0f } } } );
 	}
 
-	if( Input::IsLeftDown() )
+	if( wnd.GetPosition().y > 300 )
 	{
 		static Texture mario = gfx.CreateTexture( L"mario.png" );
 

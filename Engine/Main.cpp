@@ -8,7 +8,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 {
 	try
 	{
-		Window wnd( 50, 50, Graphics::ScreenWidth, Graphics::ScreenHeight, "Slidy Engine", Graphics::FullScreen );
+		Window wnd( { 50, 50 }, Graphics::ScreenWidth, Graphics::ScreenHeight, "Slidy Engine", Graphics::FullScreen );
 
 		try
 		{
