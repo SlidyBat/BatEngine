@@ -130,6 +130,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="GDIPManager.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Texture.h" />
@@ -139,6 +140,7 @@
     <ClInclude Include="SlidyWin.h" />
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="Vertex.h" />
+    <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
