@@ -4,6 +4,7 @@
 #pragma comment( lib, "dxgi.lib" )
 #pragma comment( lib, "d3dcompiler.lib" )
 
+#include "Window.h"
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <string>
@@ -12,7 +13,7 @@
 class D3DClass
 {
 public:
-	D3DClass( int screenWidth, int screenHeight, bool fullscreen, HWND hWnd, bool vsyncEnabled, float screendepth, float screennear );
+	D3DClass( Window& wnd, bool vsyncEnabled, float screendepth, float screennear );
 	D3DClass( const D3DClass& src ) = delete;
 	D3DClass& operator=( const D3DClass& src ) = delete;
 	D3DClass( D3DClass&& donor ) = delete;

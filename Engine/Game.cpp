@@ -1,9 +1,10 @@
 #include "Game.h"
 #include <chrono>
 
-Game::Game( int screenWidth, int screenHeight, HWND hWnd )
+Game::Game( Window& wnd )
 	:
-	gfx( screenWidth, screenHeight, hWnd )
+	wnd( wnd ),
+	gfx( wnd )
 {}
 
 void Game::Run()
@@ -16,7 +17,6 @@ void Game::Run()
 
 void Game::UpdateModels()
 {
-	drawMario = Input::IsKeyPressed( VK_SPACE );
 }
 
 void Game::ComposeFrame()

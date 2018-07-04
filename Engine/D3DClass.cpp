@@ -18,7 +18,7 @@ void D3DClass::GetVideoCardInfo( std::wstring& cardName, int& memory ) const
 	memory = m_iVideoCardMemory;
 }
 
-D3DClass::D3DClass( int screenWidth, int screenHeight, bool fullscreen, HWND hWnd, bool vsyncEnabled, float screendepth, float screennear )
+D3DClass::D3DClass( Window& wnd, bool vsyncEnabled, float screendepth, float screennear )
 {
 	m_bVSyncEnabled = vsyncEnabled;
 
@@ -60,7 +60,7 @@ D3DClass::D3DClass( int screenWidth, int screenHeight, bool fullscreen, HWND hWn
 	UINT numerator = 0, denominator = 1;
 	for( UINT i = 0; i < numModes; i++ )
 	{
-		if( displayModes[i].Width == (UINT)screenWidth && displayModes[i].Height == (UINT)screenHeight )
+		if( displayModes[i].Width == (UINT)wnd.GetWidth() && displayModes[i].Height == (UINT)wnd.GetHeight() )
 		{
 			numerator = displayModes[i].RefreshRate.Numerator;
 			denominator = displayModes[i].RefreshRate.Denominator;
@@ -83,8 +83,8 @@ D3DClass::D3DClass( int screenWidth, int screenHeight, bool fullscreen, HWND hWn
 	ZeroMemory( &swapChainDesc, sizeof( swapChainDesc ) );
 
 	swapChainDesc.BufferCount = 1;
-	swapChainDesc.BufferDesc.Width = screenWidth;
-	swapChainDesc.BufferDesc.Height = screenHeight;
+	swapChainDesc.BufferDesc.Width = wnd.GetWidth();
+	swapChainDesc.BufferDesc.Height = wnd.GetHeight();
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 	if( m_bVSyncEnabled )
@@ -99,18 +99,18 @@ D3DClass::D3DClass( int screenWidth, int screenHeight, bool fullscreen, HWND hWn
 	}
 
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapChainDesc.OutputWindow = hWnd;
+	swapChainDesc.OutputWindow = wnd.GetHandle();
 
 	// multisampling
 	swapChainDesc.SampleDesc.Count = 1;
 	swapChainDesc.SampleDesc.Quality = 0;
 
-	swapChainDesc.Windowed = !fullscreen;
+	swapChainDesc.Windowed = !wnd.IsFullscreen();
 
 	swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
-	swapChainDesc.Flags = fullscreen ? DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH : 0;
+	swapChainDesc.Flags = wnd.IsFullscreen() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH : 0;
 
 	//D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
 	if( FAILED( D3D11CreateDeviceAndSwapChain(
@@ -164,8 +164,8 @@ D3DClass::D3DClass( int screenWidth, int screenHeight, bool fullscreen, HWND hWn
 
 	// set up viewport
 	D3D11_VIEWPORT viewport;
-	viewport.Width = (float)screenWidth;
-	viewport.Height = (float)screenHeight;
+	viewport.Width = (float)wnd.GetWidth();
+	viewport.Height = (float)wnd.GetHeight();
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	viewport.TopLeftX = 0.0f;

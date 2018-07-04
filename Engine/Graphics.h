@@ -3,6 +3,8 @@
 #include "SlidyWin.h"
 #include "D3DClass.h"
 
+#include "Window.h"
+#include "GDIPManager.h"
 #include "Colour.h"
 #include "Texture.h"
 #include "Vertex.h"
@@ -20,7 +22,7 @@
 class Graphics
 {
 public:
-	Graphics( const int screenWidth, const int screenHeight, HWND hWnd );
+	Graphics( Window& wnd );
 	Graphics( const Graphics& src ) = delete;
 	Graphics& operator=( const Graphics& src ) = delete;
 	Graphics( Graphics&& donor ) = delete;
@@ -50,6 +52,8 @@ private:
 	Camera camera;
 	TextureShader texShader;
 	ColourShader colShader;
+
+	GDIPManager gdip;
 public:
 	static constexpr bool	FullScreen = false;
 	static constexpr int	VSyncEnabled = false;

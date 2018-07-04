@@ -1,6 +1,15 @@
 #include "Graphics.h"
 #include "Vertex.h"
 
+Graphics::Graphics( Window& wnd )
+	:
+	d3d( wnd, VSyncEnabled, ScreenDepth, ScreenNear ),
+	colShader( d3d.GetDevice(), wnd.GetHandle(), L"Colour.vs", L"Colour.ps" ),
+	texShader( d3d.GetDevice(), wnd.GetHandle(), L"Texture.vs", L"Texture.ps" )
+{
+	camera.SetPosition( 0.0f, 0.0f, -5.0f );
+}
+
 void Graphics::DrawLine( const std::array<TexVertex, 2>& line, Texture& texture )
 {
 	Line<TexVertex>( d3d.GetDevice(), line ).Render( d3d.GetDeviceContext() );
@@ -35,15 +44,6 @@ void Graphics::DrawQuad( const std::array<Vertex, 4>& quad )
 {
 	Quad<Vertex>( d3d.GetDevice(), quad ).Render( d3d.GetDeviceContext() );
 	colShader.RenderIndexed( d3d.GetDeviceContext(), Quad<Vertex>::GetIndexCount() );
-}
-
-Graphics::Graphics( const int screenWidth, const int screenHeight, HWND hWnd )
-	:
-	d3d( screenWidth, screenHeight, FullScreen, hWnd, VSyncEnabled, ScreenDepth, ScreenNear ),
-	colShader( d3d.GetDevice(), hWnd, L"Colour.vs", L"Colour.ps" ),
-	texShader( d3d.GetDevice(), hWnd, L"Texture.vs", L"Texture.ps" )
-{
-	camera.SetPosition( 0.0f, 0.0f, -5.0f );
 }
 
 void Graphics::DrawPoint( const std::vector<Vertex>& points )
