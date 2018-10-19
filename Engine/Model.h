@@ -30,11 +30,11 @@ public:
 		RenderBuffers( pDeviceContext );
 	}
 
-	int GetIndexCount() const
+	size_t GetIndexCount() const
 	{
 		return m_Indices.size();
 	}
-	int GetVertexCount() const
+	size_t GetVertexCount() const
 	{
 		return m_Vertices.size();
 	}

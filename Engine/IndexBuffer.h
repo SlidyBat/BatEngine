@@ -10,7 +10,7 @@ public:
 	{
 		D3D11_BUFFER_DESC indexBufferDesc;
 		indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		indexBufferDesc.ByteWidth = sizeof( unsigned long ) * indices.size();
+		indexBufferDesc.ByteWidth = UINT( sizeof( unsigned long ) * indices.size() );
 		indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		indexBufferDesc.CPUAccessFlags = 0;
 		indexBufferDesc.MiscFlags = 0;

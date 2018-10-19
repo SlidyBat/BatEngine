@@ -64,7 +64,7 @@ TextureShader::TextureShader( ID3D11Device * pDevice, HWND hWnd, const std::wstr
 	pDevice->CreateSamplerState( &samplerDesc, &m_pSamplerState );
 }
 
-bool TextureShader::Render( ID3D11DeviceContext* pDeviceContext, UINT nVertices, ID3D11ShaderResourceView* pTexture )
+bool TextureShader::Render( ID3D11DeviceContext* pDeviceContext, size_t nVertices, ID3D11ShaderResourceView* pTexture )
 {
 	SetShaderParameters( pDeviceContext, pTexture );
 	RenderShader( pDeviceContext, nVertices );
@@ -72,7 +72,7 @@ bool TextureShader::Render( ID3D11DeviceContext* pDeviceContext, UINT nVertices,
 	return true;
 }
 
-bool TextureShader::RenderIndexed( ID3D11DeviceContext* pDeviceContext, UINT nIndexes, ID3D11ShaderResourceView* pTexture )
+bool TextureShader::RenderIndexed( ID3D11DeviceContext* pDeviceContext, size_t nIndexes, ID3D11ShaderResourceView* pTexture )
 {
 	SetShaderParameters( pDeviceContext, pTexture );
 	RenderShaderIndexed( pDeviceContext, nIndexes );
@@ -97,7 +97,7 @@ void TextureShader::SetShaderParameters( ID3D11DeviceContext* pDeviceContext, ID
 	pDeviceContext->PSSetShaderResources( 0, 1, &pTexture );
 }
 
-void TextureShader::RenderShader( ID3D11DeviceContext* pDeviceContext, UINT nVertices )
+void TextureShader::RenderShader( ID3D11DeviceContext* pDeviceContext, size_t nVertices )
 {
 	pDeviceContext->IASetInputLayout( m_pInputLayout.Get() );
 
@@ -106,10 +106,10 @@ void TextureShader::RenderShader( ID3D11DeviceContext* pDeviceContext, UINT nVer
 
 	pDeviceContext->PSSetSamplers( 0, 1, &m_pSamplerState );
 
-	pDeviceContext->Draw( nVertices, 0 );
+	pDeviceContext->Draw( (UINT)nVertices, 0 );
 }
 
-void TextureShader::RenderShaderIndexed( ID3D11DeviceContext* pDeviceContext, UINT nIndexes )
+void TextureShader::RenderShaderIndexed( ID3D11DeviceContext* pDeviceContext, size_t nIndexes )
 {
 	pDeviceContext->IASetInputLayout( m_pInputLayout.Get() );
 
@@ -118,5 +118,5 @@ void TextureShader::RenderShaderIndexed( ID3D11DeviceContext* pDeviceContext, UI
 
 	pDeviceContext->PSSetSamplers( 0, 1, &m_pSamplerState );
 
-	pDeviceContext->DrawIndexed( nIndexes, 0, 0 );
+	pDeviceContext->DrawIndexed( (UINT)nIndexes, 0, 0 );
 }

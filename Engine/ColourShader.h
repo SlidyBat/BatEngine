@@ -15,12 +15,12 @@ public:
 	ColourShader( ColourShader&& donor ) = delete;
 	ColourShader& operator=( ColourShader&& donor ) = delete;
 
-	bool Render( ID3D11DeviceContext* pDeviceContext, UINT nVertices );
-	bool RenderIndexed( ID3D11DeviceContext* pDeviceContext, UINT nIndexes );
+	bool Render( ID3D11DeviceContext* pDeviceContext, size_t nVertices );
+	bool RenderIndexed( ID3D11DeviceContext* pDeviceContext, size_t nIndexes );
 private:
 	void OutputShaderErrorMessage( ID3DBlob* errorMessage, HWND hWnd, const std::wstring& shaderFilename );
-	void RenderShader( ID3D11DeviceContext* pDeviceContext, UINT nVertices );
-	void RenderShaderIndexed( ID3D11DeviceContext* pDeviceContext, UINT nIndexes );
+	void RenderShader( ID3D11DeviceContext* pDeviceContext, size_t nVertices );
+	void RenderShaderIndexed( ID3D11DeviceContext* pDeviceContext, size_t nIndexes );
 private:
 	Microsoft::WRL::ComPtr<ID3D11VertexShader>	m_pVertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader>	m_pPixelShader;
