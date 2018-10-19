@@ -20,12 +20,12 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 		}
 		catch( const std::exception& e )
 		{
-			wnd.ShowMessageBox( "Runtime error", e.what(), MB_OK );
+			wnd.ShowMessageBox( "Error", e.what(), MB_ICONWARNING );
 		}
 	}
 	catch( const std::exception& e )
 	{
-		MessageBox( NULL, e.what(), "Error in window creation", MB_OK );
+		MessageBox( NULL, e.what(), "Error in window creation", MB_ICONWARNING );
 	}
 
 	return 0;

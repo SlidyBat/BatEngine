@@ -1,6 +1,9 @@
 #include "D3DClass.h"
+
 #include <vector>
 #include <algorithm>
+
+#include "COMException.h"
 
 ID3D11Device* D3DClass::GetDevice() const
 {
@@ -23,39 +26,20 @@ D3DClass::D3DClass( Window& wnd, bool vsyncEnabled, float screendepth, float scr
 	m_bVSyncEnabled = vsyncEnabled;
 
 	Microsoft::WRL::ComPtr<IDXGIFactory> factory;
-	if( FAILED( CreateDXGIFactory( __uuidof( IDXGIFactory ), (void**)&factory ) ) )
-	{
-		throw std::runtime_error( "Failed to create DXGI Factory" );
-	}
+	COM_ERROR_IF_FAILED( CreateDXGIFactory( __uuidof(IDXGIFactory), (void**)&factory ) );
 
 	Microsoft::WRL::ComPtr<IDXGIAdapter> adapter;
-	if( FAILED( factory->EnumAdapters( 0, &adapter ) ) )
-	{
-		throw std::runtime_error( "Failed to enumerate adapters" );
-	}
+	COM_ERROR_IF_FAILED( factory->EnumAdapters( 0, &adapter ) );
 
 	Microsoft::WRL::ComPtr<IDXGIOutput> adapterOutput;
-	if( FAILED( adapter->EnumOutputs( 0, &adapterOutput ) ) )
-	{
-		throw std::runtime_error( "Failed to enumerate adapter outputs" );
-	}
+	COM_ERROR_IF_FAILED( adapter->EnumOutputs( 0, &adapterOutput ) );
 
 	UINT numModes;
-	if( FAILED( adapterOutput->GetDisplayModeList( DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL ) ) )
-	{
-		throw std::runtime_error( "Failed to create DXGI Factory" );
-	}
+	COM_ERROR_IF_FAILED( adapterOutput->GetDisplayModeList( DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL ) );
 
 	DXGI_MODE_DESC* displayModes = new DXGI_MODE_DESC[numModes];
-	if( !displayModes )
-	{
-		throw std::runtime_error( "Failed to create display modes array" );
-	}
 
-	if( FAILED( adapterOutput->GetDisplayModeList( DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModes ) ) )
-	{
-		throw std::runtime_error( "Failed to get display mode list count" );
-	}
+	COM_ERROR_IF_FAILED( adapterOutput->GetDisplayModeList( DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModes ) );
 
 	UINT numerator = 0, denominator = 1;
 	for( UINT i = 0; i < numModes; i++ )
@@ -70,10 +54,7 @@ D3DClass::D3DClass( Window& wnd, bool vsyncEnabled, float screendepth, float scr
 	delete[] displayModes;
 
 	DXGI_ADAPTER_DESC adapterDesc;
-	if( FAILED( adapter->GetDesc( &adapterDesc ) ) )
-	{
-		throw std::runtime_error( "Failed to get get adapter description" );
-	}
+	COM_ERROR_IF_FAILED( adapter->GetDesc( &adapterDesc ) );
 
 	m_szVideoCardDescription = adapterDesc.Description;
 	m_iVideoCardMemory = (int)( adapterDesc.DedicatedVideoMemory / 1024 / 1024 ); // in mb
@@ -113,7 +94,7 @@ D3DClass::D3DClass( Window& wnd, bool vsyncEnabled, float screendepth, float scr
 	swapChainDesc.Flags = wnd.IsFullscreen() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH : 0;
 
 	//D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
-	if( FAILED( D3D11CreateDeviceAndSwapChain(
+	COM_ERROR_IF_FAILED( D3D11CreateDeviceAndSwapChain(
 		NULL,
 		D3D_DRIVER_TYPE_HARDWARE,
 		NULL,
@@ -121,21 +102,12 @@ D3DClass::D3DClass( Window& wnd, bool vsyncEnabled, float screendepth, float scr
 		NULL, 0,
 		D3D11_SDK_VERSION,
 		&swapChainDesc, &m_pSwapChain,
-		&m_pDevice, NULL, &m_pDeviceContext ) ) )
-	{
-		throw std::runtime_error( "Failed to create device/swapchain" );
-	}
+		&m_pDevice, NULL, &m_pDeviceContext ) );
 
 	ID3D11Texture2D* pBackBuffer;
-	if( FAILED( m_pSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (void**)&pBackBuffer ) ) )
-	{
-		throw std::runtime_error( "Failed to get swapchain backbuffer" );
-	}
+	COM_ERROR_IF_FAILED( m_pSwapChain->GetBuffer( 0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer ) );
 
-	if( FAILED( m_pDevice->CreateRenderTargetView( pBackBuffer, NULL, &m_pRenderTargetView ) ) )
-	{
-		throw std::runtime_error( "Failed to create render target view" );
-	}
+	COM_ERROR_IF_FAILED( m_pDevice->CreateRenderTargetView( pBackBuffer, NULL, &m_pRenderTargetView ) );
 
 	pBackBuffer->Release();
 	pBackBuffer = nullptr;
@@ -155,10 +127,7 @@ D3DClass::D3DClass( Window& wnd, bool vsyncEnabled, float screendepth, float scr
 	rasterDesc.ScissorEnable = false;
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
 
-	if( FAILED( m_pDevice->CreateRasterizerState( &rasterDesc, &m_pRasterState ) ) )
-	{
-		throw std::runtime_error( "Failed to create rasterizer state" );
-	}
+	COM_ERROR_IF_FAILED( m_pDevice->CreateRasterizerState( &rasterDesc, &m_pRasterState ) );
 
 	m_pDeviceContext->RSSetState( m_pRasterState.Get() );
 
@@ -200,21 +169,12 @@ void D3DClass::Resize( int width, int height )
 	m_pRenderTargetView.Reset();
 
 	HRESULT hr;
-	if( FAILED( hr = m_pSwapChain->ResizeBuffers( 0, width, height, DXGI_FORMAT_UNKNOWN, 0 ) ) )
-	{
-		throw std::runtime_error( "Failed to resize swapchain buffer" );
-	}
+	COM_ERROR_IF_FAILED( hr = m_pSwapChain->ResizeBuffers( 0, width, height, DXGI_FORMAT_UNKNOWN, 0 ) );
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> pBuffer;
-	if( FAILED( m_pSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (void**)&pBuffer ) ) )
-	{
-		throw std::runtime_error( "Failed to get swapchain buffer" );
-	}
+	COM_ERROR_IF_FAILED( m_pSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (void**)&pBuffer ) );
 
-	if( FAILED( m_pDevice->CreateRenderTargetView( pBuffer.Get(), NULL, &m_pRenderTargetView ) ) )
-	{
-		throw std::runtime_error( "Failed to create render target view while resizing" );
-	}
+	COM_ERROR_IF_FAILED( m_pDevice->CreateRenderTargetView( pBuffer.Get(), NULL, &m_pRenderTargetView ) );
 
 	m_pDeviceContext->OMSetRenderTargets( 1, m_pRenderTargetView.GetAddressOf(), NULL );
 

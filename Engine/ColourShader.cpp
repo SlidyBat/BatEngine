@@ -1,14 +1,16 @@
 #include "ColourShader.h"
 #include "Vertex.h"
 #include <fstream>
+#include "COMException.h"
 
 
 ColourShader::ColourShader( ID3D11Device* pDevice, HWND hWnd, const std::wstring& vsFilename, const std::wstring& psFilename )
 {
+	HRESULT hr;
 	Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
 
 	Microsoft::WRL::ComPtr<ID3DBlob> vertexShaderBuffer;
-	if( FAILED( D3DCompileFromFile( vsFilename.c_str(), NULL, NULL, "VSMain", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage ) ) )
+	if( FAILED( hr = D3DCompileFromFile( vsFilename.c_str(), NULL, NULL, "VSMain", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage ) ) )
 	{
 		if( errorMessage )
 		{
@@ -16,12 +18,13 @@ ColourShader::ColourShader( ID3D11Device* pDevice, HWND hWnd, const std::wstring
 		}
 		else
 		{
-			throw std::runtime_error( "Failed to find vertex shader file" );
+			std::string filename( vsFilename.begin(), vsFilename.end() );
+			THROW_COM_ERROR( hr, "Failed to compile vertex shader file '" + filename + "'" );
 		}
 	}
 
 	Microsoft::WRL::ComPtr<ID3DBlob> pixelShaderBuffer;
-	if( FAILED( D3DCompileFromFile( psFilename.c_str(), NULL, NULL, "PSMain", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage ) ) )
+	if( FAILED( hr = D3DCompileFromFile( psFilename.c_str(), NULL, NULL, "PSMain", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage ) ) )
 	{
 		if( errorMessage )
 		{
@@ -29,23 +32,15 @@ ColourShader::ColourShader( ID3D11Device* pDevice, HWND hWnd, const std::wstring
 		}
 		else
 		{
-			throw std::runtime_error( "Failed to find pixel shader file" );
+			std::string filename( psFilename.begin(), psFilename.end() );
+			THROW_COM_ERROR( hr, "Failed to compile pixel shader file '" + filename + "'" );
 		}
 	}
 
-	if( FAILED( pDevice->CreateVertexShader( vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_pVertexShader ) ) )
-	{
-		throw std::runtime_error( "Failed to create vertex shader file" );
-	}
-	if( FAILED( pDevice->CreatePixelShader( pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader ) ) )
-	{
-		throw std::runtime_error( "Failed to create pixel shader file" );
-	}
+	COM_ERROR_IF_FAILED( hr = pDevice->CreateVertexShader( vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_pVertexShader ) );
+	COM_ERROR_IF_FAILED( pDevice->CreatePixelShader( pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader ) );
 
-	if( FAILED( pDevice->CreateInputLayout( Vertex::InputLayout, Vertex::Inputs, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_pInputLayout ) ) )
-	{
-		throw std::runtime_error( "Failed to create input layout" );
-	}
+	COM_ERROR_IF_FAILED( pDevice->CreateInputLayout( Vertex::InputLayout, Vertex::Inputs, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_pInputLayout ) );
 }
 
 bool ColourShader::Render( ID3D11DeviceContext* pDeviceContext, size_t nVertices )

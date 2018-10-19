@@ -126,6 +126,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Colour.h" />
     <ClInclude Include="ColourShader.h" />
+    <ClInclude Include="COMException.h" />
     <ClInclude Include="D3DClass.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GDIPManager.h" />
