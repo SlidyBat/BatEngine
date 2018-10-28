@@ -105,6 +105,11 @@ Window::~Window() noexcept
 	m_hInstance = NULL;
 }
 
+void Window::Kill( int exitcode /* = 0 */ ) const
+{
+	PostQuitMessage( exitcode );
+}
+
 bool Window::IsActive() const
 {
 	return GetActiveWindow() == m_hWnd;
@@ -147,60 +152,65 @@ LRESULT Window::HandleMsg( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	switch( uMsg )
 	{
+		case WM_DESTROY:
+		{
+			Kill();
+			break;
+		}
 		case WM_KEYDOWN:
 		{
 			input.KeyDown( (size_t)wParam );
-			return 0;
+			break;
 		}
 		case WM_KEYUP:
 		{
 			input.KeyUp( (size_t)wParam );
-			return 0;
+			break;
 		}
 		case WM_LBUTTONDOWN:
 		{
 			input.MouseButtonDown( Input::MouseButton::Left );
-			return 0;
+			break;
 		}
 		case WM_LBUTTONUP:
 		{
 			input.MouseButtonUp( Input::MouseButton::Left );
-			return 0;
+			break;
 		}
 		case WM_LBUTTONDBLCLK:
 		{
 			input.MouseButtonDblClick( Input::MouseButton::Left );
-			return 0;
+			break;
 		}
 		case WM_RBUTTONDOWN:
 		{
 			input.MouseButtonDown( Input::MouseButton::Right );
-			return 0;
+			break;
 		}
 		case WM_RBUTTONUP:
 		{
 			input.MouseButtonUp( Input::MouseButton::Right );
-			return 0;
+			break;
 		}
 		case WM_RBUTTONDBLCLK:
 		{
 			input.MouseButtonDblClick( Input::MouseButton::Right );
-			return 0;
+			break;
 		}
 		case WM_MBUTTONDOWN:
 		{
 			input.MouseButtonDown( Input::MouseButton::Middle );
-			return 0;
+			break;
 		}
 		case WM_MBUTTONUP:
 		{
 			input.MouseButtonUp( Input::MouseButton::Middle );
-			return 0;
+			break;
 		}
 		case WM_MBUTTONDBLCLK:
 		{
 			input.MouseButtonDblClick( Input::MouseButton::Middle );
-			return 0;
+			break;
 		}
 		case WM_XBUTTONDOWN:
 		{
@@ -212,7 +222,7 @@ LRESULT Window::HandleMsg( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 			{
 				input.MouseButtonDown( Input::MouseButton::X2 );
 			}
-			return 0;
+			break;
 		}
 		case WM_XBUTTONUP:
 		{
@@ -224,7 +234,7 @@ LRESULT Window::HandleMsg( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 			{
 				input.MouseButtonUp( Input::MouseButton::X2 );
 			}
-			return 0;
+			break;
 		}
 		case WM_XBUTTONDBLCLK:
 		{
@@ -236,7 +246,7 @@ LRESULT Window::HandleMsg( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 			{
 				input.MouseButtonDblClick( Input::MouseButton::X2 );
 			}
-			return 0;
+			break;
 		}
 		case WM_SIZE: // called when window is resized
 		{
@@ -248,19 +258,17 @@ LRESULT Window::HandleMsg( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 				cb( m_iWidth, m_iHeight );
 			}
 
-			return 0;
+			break;
 		}
 		case WM_MOVE: // called when window is moved
 		{
 			m_Pos.x = LOWORD( lParam );
 			m_Pos.y = HIWORD( lParam );
-			return 0;
-		}
-		default:
-		{
-			return DefWindowProc( hWnd, uMsg, wParam, lParam );
+			break;
 		}
 	}
+
+	return DefWindowProc( hWnd, uMsg, wParam, lParam );
 }
 
 LRESULT CALLBACK Window::HandleMsgSetup( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )

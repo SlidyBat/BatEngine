@@ -18,6 +18,7 @@ public:
 	{}
 	~Window() noexcept;
 
+	void Kill( int exitcode = 0 ) const;
 	bool IsActive() const;
 	bool IsMinimized() const;
 	void ShowMessageBox( const std::string& title, const std::string& msg, UINT type ) const;
@@ -67,6 +68,8 @@ private:
 	std::string	m_szApplicationName;
 	HINSTANCE	m_hInstance;
 	HWND		m_hWnd;
+
+	bool m_bDestroyed = false;
 
 	std::vector<std::function<void( int, int )>> m_ResizeListeners;
 };
