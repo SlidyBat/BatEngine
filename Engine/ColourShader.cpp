@@ -10,7 +10,7 @@ ColourShader::ColourShader( ID3D11Device* pDevice, HWND hWnd, const std::wstring
 	Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
 
 	Microsoft::WRL::ComPtr<ID3DBlob> vertexShaderBuffer;
-	if( FAILED( hr = D3DCompileFromFile( vsFilename.c_str(), NULL, NULL, "VSMain", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage ) ) )
+	if( FAILED( hr = D3DCompileFromFile( vsFilename.c_str(), NULL, NULL, "main", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage ) ) )
 	{
 		if( errorMessage )
 		{
@@ -24,7 +24,7 @@ ColourShader::ColourShader( ID3D11Device* pDevice, HWND hWnd, const std::wstring
 	}
 
 	Microsoft::WRL::ComPtr<ID3DBlob> pixelShaderBuffer;
-	if( FAILED( hr = D3DCompileFromFile( psFilename.c_str(), NULL, NULL, "PSMain", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage ) ) )
+	if( FAILED( hr = D3DCompileFromFile( psFilename.c_str(), NULL, NULL, "main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage ) ) )
 	{
 		if( errorMessage )
 		{

@@ -4,8 +4,8 @@
 Graphics::Graphics( Window& wnd )
 	:
 	d3d( wnd, VSyncEnabled, ScreenDepth, ScreenNear ),
-	colShader( d3d.GetDevice(), wnd.GetHandle(), L"Colour.vs", L"Colour.ps" ),
-	texShader( d3d.GetDevice(), wnd.GetHandle(), L"Texture.vs", L"Texture.ps" )
+	colShader( d3d.GetDevice(), wnd.GetHandle(), L"ColourVS.hlsl", L"ColourPS.hlsl" ),
+	texShader( d3d.GetDevice(), wnd.GetHandle(), L"TextureVS.hlsl", L"TexturePS.hlsl" )
 {
 	camera.SetPosition( 0.0f, 0.0f, -5.0f );
 

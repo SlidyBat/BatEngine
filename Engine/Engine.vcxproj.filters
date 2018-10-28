@@ -123,22 +123,22 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Colour.ps">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Colour.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Texture.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Texture.ps">
-      <Filter>Shader Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="Engine.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="ColourPS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="ColourVS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="TexturePS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="TextureVS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
