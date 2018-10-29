@@ -3,26 +3,32 @@
 #include <d3d11.h>
 #include <wrl.h>
 
+#include "COMException.h"
+
 class IndexBuffer
 {
 public:
-	IndexBuffer( ID3D11Device* pDevice, const std::vector<int>& indices )
+	IndexBuffer( ID3D11Device* pDevice, const int* data, const UINT size )
 	{
 		D3D11_BUFFER_DESC indexBufferDesc;
 		indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		indexBufferDesc.ByteWidth = UINT( sizeof( unsigned long ) * indices.size() );
+		indexBufferDesc.ByteWidth = UINT( sizeof( unsigned long ) * size );
 		indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		indexBufferDesc.CPUAccessFlags = 0;
 		indexBufferDesc.MiscFlags = 0;
 		indexBufferDesc.StructureByteStride = 0;
 
 		D3D11_SUBRESOURCE_DATA indexData;
-		indexData.pSysMem = indices.data();
+		indexData.pSysMem = data;
 		indexData.SysMemPitch = 0;
 		indexData.SysMemSlicePitch = 0;
 
-		pDevice->CreateBuffer( &indexBufferDesc, &indexData, &m_pIndexBuffer );
+		COM_ERROR_IF_FAILED( pDevice->CreateBuffer( &indexBufferDesc, &indexData, &m_pIndexBuffer ) );
 	}
+	IndexBuffer( ID3D11Device* pDevice, const std::vector<int>& indices )
+		:
+		IndexBuffer( pDevice, indices.data(), (UINT)indices.size() )
+	{}
 
 	operator ID3D11Buffer*() const
 	{
