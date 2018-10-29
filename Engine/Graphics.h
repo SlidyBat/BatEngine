@@ -53,10 +53,15 @@ public:
 
 	void BeginFrame();
 	void EndFrame();
+
+	DirectX::XMMATRIX GetWVP()
+	{
+		camera.Render();
+		return DirectX::XMMatrixTranspose( camera.GetViewMatrix() * projection );
+	}
 private:
 	D3DClass d3d;
 
-	Camera camera;
 	TextureShader texShader;
 	ColourShader colShader;
 
@@ -74,4 +79,6 @@ public:
 	// only used when not in fullscreen
 	static constexpr int	ScreenWidth = 800;
 	static constexpr int	ScreenHeight = 600;
+
+	Camera camera;
 };

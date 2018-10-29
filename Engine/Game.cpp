@@ -17,7 +17,39 @@ void Game::Run()
 
 void Game::UpdateModels()
 {
+	if( wnd.input.IsKeyPressed( 'A' ) )
+	{
+		gfx.camera.MoveBy( -0.01f, 0.0f, 0.0f );
+	}
+	if( wnd.input.IsKeyPressed( 'D' ) )
+	{
+		gfx.camera.MoveBy( 0.01f, 0.0f, 0.0f );
+	}
+	if( wnd.input.IsKeyPressed( 'W' ) )
+	{
+		gfx.camera.MoveBy( 0.0f, -0.01f, 0.0f );
+	}
+	if( wnd.input.IsKeyPressed( 'S' ) )
+	{
+		gfx.camera.MoveBy( 0.0f, 0.01f, 0.0f );
+	}
+	if( wnd.input.IsKeyPressed( 'Q' ) )
+	{
+		gfx.camera.MoveBy( 0.0f, 0.0f, 0.01f );
+	}
+	if( wnd.input.IsKeyPressed( 'E' ) )
+	{
+		gfx.camera.MoveBy( 0.0f, 0.0f, -0.01f );
+	}
 
+	if( wnd.input.IsKeyPressed( VK_LEFT ) )
+	{
+		gfx.camera.RotateBy( 0.0f, -0.01f, 0.0f );
+	}
+	if( wnd.input.IsKeyPressed( VK_RIGHT ) )
+	{
+		gfx.camera.RotateBy( 0.0f, 0.01f, 0.0f );
+	}
 }
 
 void Game::ComposeFrame()

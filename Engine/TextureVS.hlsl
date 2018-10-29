@@ -20,7 +20,6 @@ PixelInputType main(VertexInputType input)
     PixelInputType output;
 
     output.position = mul(input.position, mat);
-    output.position.w = 1.0f;
     output.tex = input.tex;
 
     return output;
