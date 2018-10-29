@@ -1,6 +1,7 @@
 #pragma once
 
 #include <d3d11.h>
+#include <DirectXMath.h>
 #include <string>
 #include <wrl.h>
 
@@ -16,8 +17,8 @@ public:
 	ColourShader( ColourShader&& donor ) = delete;
 	ColourShader& operator=( ColourShader&& donor ) = delete;
 
-	bool Render( ID3D11DeviceContext* pDeviceContext, size_t nVertices );
-	bool RenderIndexed( ID3D11DeviceContext* pDeviceContext, size_t nIndexes );
+	bool Render( ID3D11DeviceContext* pDeviceContext, size_t nVertices, const DirectX::XMMATRIX& mat );
+	bool RenderIndexed( ID3D11DeviceContext* pDeviceContext, size_t nIndexes, const DirectX::XMMATRIX& mat );
 private:
 	VertexShader m_VertexShader;
 	PixelShader m_PixelShader;

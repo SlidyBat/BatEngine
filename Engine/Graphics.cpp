@@ -3,15 +3,18 @@
 
 Graphics::Graphics( Window& wnd )
 	:
-	d3d( wnd, VSyncEnabled, ScreenDepth, ScreenNear ),
+	d3d( wnd, VSyncEnabled, ScreenFar, ScreenNear ),
 	colShader( d3d.GetDevice(), wnd.GetHandle(), L"ColourVS.hlsl", L"ColourPS.hlsl" ),
 	texShader( d3d.GetDevice(), wnd.GetHandle(), L"TextureVS.hlsl", L"TexturePS.hlsl" )
 {
 	camera.SetPosition( 0.0f, 0.0f, -5.0f );
 
+	projection = DirectX::XMMatrixPerspectiveFovLH( FOVRadians, (float)wnd.GetWidth() / wnd.GetHeight(), ScreenNear, ScreenFar );
+
 	wnd.AddResizeListener( [=]( int width, int height )
 	{
 		Resize();
+		projection = DirectX::XMMatrixPerspectiveFovLH( FOVRadians, (float)width / height, ScreenNear, ScreenFar );
 	} );
 }
 
@@ -20,7 +23,7 @@ void Graphics::DrawModel( std::vector<TexVertex> vertices, std::vector<int> indi
 	Model<TexVertex> model( d3d.GetDevice(), vertices, indices, topology );
 	model.Render( d3d.GetDeviceContext() );
 
-	texShader.RenderIndexed( d3d.GetDeviceContext(), model.GetIndexCount(), texture.GetTextureView() );
+	texShader.RenderIndexed( d3d.GetDeviceContext(), model.GetIndexCount(), texture.GetTextureView(), projection );
 }
 
 void Graphics::DrawModel( std::vector<TexVertex> vertices, const Texture& texture, D3D_PRIMITIVE_TOPOLOGY topology )
@@ -28,7 +31,7 @@ void Graphics::DrawModel( std::vector<TexVertex> vertices, const Texture& textur
 	Model<TexVertex> model( d3d.GetDevice(), vertices, {}, topology );
 	model.Render( d3d.GetDeviceContext() );
 
-	texShader.Render( d3d.GetDeviceContext(), model.GetVertexCount(), texture.GetTextureView() );
+	texShader.Render( d3d.GetDeviceContext(), model.GetVertexCount(), texture.GetTextureView(), projection );
 }
 
 void Graphics::DrawModel( std::vector<Vertex> vertices, std::vector<int> indices, D3D_PRIMITIVE_TOPOLOGY topology )
@@ -36,7 +39,7 @@ void Graphics::DrawModel( std::vector<Vertex> vertices, std::vector<int> indices
 	Model<Vertex> model( d3d.GetDevice(), vertices, indices, topology );
 	model.Render( d3d.GetDeviceContext() );
 
-	colShader.RenderIndexed( d3d.GetDeviceContext(), model.GetIndexCount() );
+	colShader.RenderIndexed( d3d.GetDeviceContext(), model.GetIndexCount(), projection );
 }
 
 void Graphics::DrawModel( std::vector<Vertex> vertices, D3D_PRIMITIVE_TOPOLOGY topology )
@@ -44,7 +47,7 @@ void Graphics::DrawModel( std::vector<Vertex> vertices, D3D_PRIMITIVE_TOPOLOGY t
 	Model<Vertex> model( d3d.GetDevice(), vertices, {}, topology );
 	model.Render( d3d.GetDeviceContext() );
 
-	colShader.Render( d3d.GetDeviceContext(), model.GetVertexCount() );
+	colShader.Render( d3d.GetDeviceContext(), model.GetVertexCount(), projection );
 }
 
 void Graphics::DrawPoints( const std::vector<Vertex>& points )

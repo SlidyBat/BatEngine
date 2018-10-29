@@ -12,9 +12,9 @@
 class TextureShader
 {
 private:
-	struct CB_VS_Test
+	struct CB_Matrix
 	{
-		float x;
+		DirectX::XMMATRIX mat;
 	};
 public:
 	TextureShader( ID3D11Device* pDevice, HWND hWnd, const std::wstring& vsFilename, const std::wstring& psFilename );
@@ -23,8 +23,8 @@ public:
 	TextureShader( TextureShader&& donor ) = delete;
 	TextureShader& operator=( TextureShader&& donor ) = delete;
 
-	bool Render( ID3D11DeviceContext* pDeviceContext, size_t nVertices, ID3D11ShaderResourceView* pTexture );
-	bool RenderIndexed( ID3D11DeviceContext* pDeviceContext, size_t nIndexes, ID3D11ShaderResourceView* pTexture );
+	bool Render( ID3D11DeviceContext* pDeviceContext, size_t nVertices, ID3D11ShaderResourceView* pTexture, const DirectX::XMMATRIX& mat );
+	bool RenderIndexed( ID3D11DeviceContext* pDeviceContext, size_t nIndexes, ID3D11ShaderResourceView* pTexture, const DirectX::XMMATRIX& mat );
 private:
 	VertexShader m_VertexShader;
 	PixelShader m_PixelShader;

@@ -2,6 +2,7 @@
 #include "TexVertex.h"
 #include <fstream>
 #include "COMException.h"
+#include "Graphics.h"
 
 TextureShader::TextureShader( ID3D11Device* pDevice, HWND hWnd, const std::wstring& vsFilename, const std::wstring& psFilename )
 	:
@@ -24,10 +25,14 @@ TextureShader::TextureShader( ID3D11Device* pDevice, HWND hWnd, const std::wstri
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
 	m_PixelShader.AddSampler( pDevice, &samplerDesc );
+
+	m_VertexShader.AddConstantBuffer<CB_Matrix>( pDevice );
 }
 
-bool TextureShader::Render( ID3D11DeviceContext* pDeviceContext, size_t nVertices, ID3D11ShaderResourceView* pTexture )
+bool TextureShader::Render( ID3D11DeviceContext* pDeviceContext, size_t nVertices, ID3D11ShaderResourceView* pTexture, const DirectX::XMMATRIX& mat )
 {
+	m_VertexShader.GetConstantBuffer( 0 ).SetData( pDeviceContext, &mat );
+
 	m_PixelShader.SetResource( pDeviceContext, 0, pTexture );
 	m_VertexShader.Bind( pDeviceContext );
 	m_PixelShader.Bind( pDeviceContext );
@@ -37,8 +42,10 @@ bool TextureShader::Render( ID3D11DeviceContext* pDeviceContext, size_t nVertice
 	return true;
 }
 
-bool TextureShader::RenderIndexed( ID3D11DeviceContext* pDeviceContext, size_t nIndexes, ID3D11ShaderResourceView* pTexture )
+bool TextureShader::RenderIndexed( ID3D11DeviceContext* pDeviceContext, size_t nIndexes, ID3D11ShaderResourceView* pTexture, const DirectX::XMMATRIX& mat )
 {
+	m_VertexShader.GetConstantBuffer( 0 ).SetData( pDeviceContext, &mat );
+
 	m_PixelShader.SetResource( pDeviceContext, 0, pTexture );
 	m_VertexShader.Bind( pDeviceContext );
 	m_PixelShader.Bind( pDeviceContext );

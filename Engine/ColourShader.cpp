@@ -10,8 +10,10 @@ ColourShader::ColourShader( ID3D11Device* pDevice, HWND hWnd, const std::wstring
 	m_PixelShader(pDevice, psFilename)
 {}
 
-bool ColourShader::Render( ID3D11DeviceContext* pDeviceContext, size_t nVertices )
+bool ColourShader::Render( ID3D11DeviceContext* pDeviceContext, size_t nVertices, const DirectX::XMMATRIX& mat )
 {
+	m_VertexShader.GetConstantBuffer( 0 ).SetData( pDeviceContext, &mat );
+
 	m_VertexShader.Bind( pDeviceContext );
 	m_PixelShader.Bind( pDeviceContext );
 	pDeviceContext->Draw( (UINT)nVertices, 0 );
@@ -19,8 +21,10 @@ bool ColourShader::Render( ID3D11DeviceContext* pDeviceContext, size_t nVertices
 	return true;
 }
 
-bool ColourShader::RenderIndexed( ID3D11DeviceContext* pDeviceContext, size_t nIndexes )
+bool ColourShader::RenderIndexed( ID3D11DeviceContext* pDeviceContext, size_t nIndexes, const DirectX::XMMATRIX& mat )
 {
+	m_VertexShader.GetConstantBuffer( 0 ).SetData( pDeviceContext, &mat );
+
 	m_VertexShader.Bind( pDeviceContext );
 	m_PixelShader.Bind( pDeviceContext );
 	pDeviceContext->DrawIndexed( (UINT)nIndexes, 0, 0 );

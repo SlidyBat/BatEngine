@@ -61,11 +61,15 @@ private:
 	ColourShader colShader;
 
 	GDIPManager gdip;
+
+	DirectX::XMMATRIX projection;
 public:
 	static constexpr bool	FullScreen = false;
 	static constexpr int	VSyncEnabled = false;
-	static constexpr float	ScreenDepth = 1000.0f;
+	static constexpr float	ScreenFar = 1000.0f;
 	static constexpr float	ScreenNear = 0.1f;
+	static constexpr float	FOV = 90.0f;
+	static constexpr float  FOVRadians = FOV * (DirectX::XM_PI / 180.0f);
 
 	// only used when not in fullscreen
 	static constexpr int	ScreenWidth = 800;
