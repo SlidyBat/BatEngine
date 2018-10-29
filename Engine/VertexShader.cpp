@@ -36,11 +36,15 @@ VertexShader::~VertexShader()
 	}
 }
 
-void VertexShader::Bind( ID3D11DeviceContext * pDeviceContext )
+void VertexShader::Bind( ID3D11DeviceContext* pDeviceContext )
 {
 	pDeviceContext->IASetInputLayout( m_pInputLayout.Get() );
 	pDeviceContext->VSSetShader( m_pVertexShader.Get(), NULL, 0 );
 	pDeviceContext->VSSetSamplers( 0, (UINT)m_pSamplerStates.size(), m_pSamplerStates.data() );
+	for( UINT i = 0; i < m_ConstantBuffers.size(); i++ )
+	{
+		pDeviceContext->VSSetConstantBuffers( i, 1, m_ConstantBuffers[i].GetAddressOf() );
+	}
 }
 
 void VertexShader::AddSampler( ID3D11Device* pDevice, const D3D11_SAMPLER_DESC* pSamplerDesc )

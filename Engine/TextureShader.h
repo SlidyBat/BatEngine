@@ -11,6 +11,11 @@
 
 class TextureShader
 {
+private:
+	struct CB_VS_Test
+	{
+		float x;
+	};
 public:
 	TextureShader( ID3D11Device* pDevice, HWND hWnd, const std::wstring& vsFilename, const std::wstring& psFilename );
 	TextureShader( const TextureShader& src ) = delete;

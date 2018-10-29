@@ -39,6 +39,10 @@ void PixelShader::Bind( ID3D11DeviceContext* pDeviceContext )
 {
 	pDeviceContext->PSSetShader( m_pPixelShader.Get(), NULL, 0 );
 	pDeviceContext->PSSetSamplers( 0, (UINT)m_pSamplerStates.size(), m_pSamplerStates.data() );
+	for( UINT i = 0; i < m_ConstantBuffers.size(); i++ )
+	{
+		pDeviceContext->PSSetConstantBuffers( i, 1, m_ConstantBuffers[i].GetAddressOf() );
+	}
 }
 
 void PixelShader::AddSampler( ID3D11Device* pDevice, const D3D11_SAMPLER_DESC* pSamplerDesc )

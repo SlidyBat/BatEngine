@@ -125,6 +125,9 @@
     <ClInclude Include="PixelShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ConstantBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="slidy.ico">
