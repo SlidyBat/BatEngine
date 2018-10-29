@@ -1,10 +1,11 @@
 #pragma once
 
 #include <d3d11.h>
-#include <d3dcompiler.h>
-#include <DirectXMath.h>
 #include <string>
 #include <wrl.h>
+
+#include "VertexShader.h"
+#include "PixelShader.h"
 
 class ColourShader
 {
@@ -18,11 +19,6 @@ public:
 	bool Render( ID3D11DeviceContext* pDeviceContext, size_t nVertices );
 	bool RenderIndexed( ID3D11DeviceContext* pDeviceContext, size_t nIndexes );
 private:
-	void OutputShaderErrorMessage( ID3DBlob* errorMessage, HWND hWnd, const std::wstring& shaderFilename );
-	void RenderShader( ID3D11DeviceContext* pDeviceContext, size_t nVertices );
-	void RenderShaderIndexed( ID3D11DeviceContext* pDeviceContext, size_t nIndexes );
-private:
-	Microsoft::WRL::ComPtr<ID3D11VertexShader>	m_pVertexShader;
-	Microsoft::WRL::ComPtr<ID3D11PixelShader>	m_pPixelShader;
-	Microsoft::WRL::ComPtr<ID3D11InputLayout>	m_pInputLayout;
+	VertexShader m_VertexShader;
+	PixelShader m_PixelShader;
 };

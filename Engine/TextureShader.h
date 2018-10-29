@@ -6,6 +6,9 @@
 #include <string>
 #include <wrl.h>
 
+#include "VertexShader.h"
+#include "PixelShader.h"
+
 class TextureShader
 {
 public:
@@ -18,15 +21,6 @@ public:
 	bool Render( ID3D11DeviceContext* pDeviceContext, size_t nVertices, ID3D11ShaderResourceView* pTexture );
 	bool RenderIndexed( ID3D11DeviceContext* pDeviceContext, size_t nIndexes, ID3D11ShaderResourceView* pTexture );
 private:
-	void OutputShaderErrorMessage( ID3DBlob* errorMessage, HWND hWnd, const std::wstring& shaderFilename );
-	void SetShaderParameters( ID3D11DeviceContext* pDeviceContext, ID3D11ShaderResourceView* pSrv );
-
-	void RenderShader( ID3D11DeviceContext* pDeviceContext, size_t nVertices );
-	void RenderShaderIndexed( ID3D11DeviceContext* pDeviceContext, size_t nIndexes );
-private:
-	Microsoft::WRL::ComPtr<ID3D11VertexShader>	m_pVertexShader;
-	Microsoft::WRL::ComPtr<ID3D11PixelShader>	m_pPixelShader;
-	Microsoft::WRL::ComPtr<ID3D11InputLayout>	m_pInputLayout;
-
-	Microsoft::WRL::ComPtr<ID3D11SamplerState>	m_pSamplerState;
+	VertexShader m_VertexShader;
+	PixelShader m_PixelShader;
 };
