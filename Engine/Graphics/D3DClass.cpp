@@ -93,12 +93,18 @@ D3DClass::D3DClass( Window& wnd, bool vsyncEnabled, float screendepth, float scr
 
 	swapChainDesc.Flags = wnd.IsFullscreen() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH : 0;
 
+#ifdef _DEBUG
+	UINT flags = D3D11_CREATE_DEVICE_DEBUG;
+#else
+	UINT flags = 0;
+#endif
+
 	//D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
 	COM_ERROR_IF_FAILED( D3D11CreateDeviceAndSwapChain(
 		NULL,
 		D3D_DRIVER_TYPE_HARDWARE,
 		NULL,
-		0,
+		flags,
 		NULL, 0,
 		D3D11_SDK_VERSION,
 		&swapChainDesc, &m_pSwapChain,
