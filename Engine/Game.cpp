@@ -1,5 +1,6 @@
 #include "Game.h"
-#include <chrono>
+
+#include "MathLib.h"
 
 Game::Game( Window& wnd )
 	:
@@ -26,38 +27,41 @@ void Game::Run()
 
 void Game::UpdateModels()
 {
+	Vec3 forward = gfx.camera.GetForwardVector();
+	Vec3 right = gfx.camera.GetRightVector();
+
 	if( wnd.input.IsKeyPressed( 'A' ) )
 	{
-		gfx.camera.MoveBy( -0.01f, 0.0f, 0.0f );
+		gfx.camera.MoveBy( -right * 0.01f );
 	}
 	if( wnd.input.IsKeyPressed( 'D' ) )
 	{
-		gfx.camera.MoveBy( 0.01f, 0.0f, 0.0f );
+		gfx.camera.MoveBy( right * 0.01f );
 	}
 	if( wnd.input.IsKeyPressed( 'W' ) )
 	{
-		gfx.camera.MoveBy( 0.0f, 0.01f, 0.0f );
+		gfx.camera.MoveBy( forward * 0.01f );
 	}
 	if( wnd.input.IsKeyPressed( 'S' ) )
 	{
-		gfx.camera.MoveBy( 0.0f, -0.01f, 0.0f );
-	}
-	if( wnd.input.IsKeyPressed( 'Q' ) )
-	{
-		gfx.camera.MoveBy( 0.0f, 0.0f, 0.01f );
-	}
-	if( wnd.input.IsKeyPressed( 'E' ) )
-	{
-		gfx.camera.MoveBy( 0.0f, 0.0f, -0.01f );
+		gfx.camera.MoveBy( -forward * 0.01f );
 	}
 
+	if( wnd.input.IsKeyPressed( VK_UP ) )
+	{
+		gfx.camera.RotateBy( -0.1f, 0.0f, 0.0f );
+	}
+	if( wnd.input.IsKeyPressed( VK_DOWN ) )
+	{
+		gfx.camera.RotateBy( 0.1f, 0.0f, 0.0f );
+	}
 	if( wnd.input.IsKeyPressed( VK_LEFT ) )
 	{
-		gfx.camera.RotateBy( 0.0f, -0.01f, 0.0f );
+		gfx.camera.RotateBy( 0.0f, -0.1f, 0.0f );
 	}
 	if( wnd.input.IsKeyPressed( VK_RIGHT ) )
 	{
-		gfx.camera.RotateBy( 0.0f, 0.01f, 0.0f );
+		gfx.camera.RotateBy( 0.0f, 0.1f, 0.0f );
 	}
 }
 

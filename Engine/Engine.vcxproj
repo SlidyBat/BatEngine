@@ -70,7 +70,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)-$(Platform)\</OutDir>
-    <IntDir>Build\Obj\$(Configuration)-$(Platform)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Obj\$(Configuration)-$(Platform)\</IntDir>
     <IncludePath>$(ProjectDir)Util;$(ProjectDir);$(ProjectDir)Graphics;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -127,6 +127,7 @@
     <ClCompile Include="Graphics\Texture.cpp" />
     <ClCompile Include="Graphics\TextureShader.cpp" />
     <ClCompile Include="Graphics\VertexShader.cpp" />
+    <ClCompile Include="Util\MathLib.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -149,6 +150,7 @@
     <ClInclude Include="Input.h" />
     <ClInclude Include="Graphics\TextureShader.h" />
     <ClInclude Include="SlidyWin.h" />
+    <ClInclude Include="Util\MathLib.h" />
     <ClInclude Include="Util\Vec2.h" />
     <ClInclude Include="Graphics\Vertex.h" />
     <ClInclude Include="Graphics\VertexBuffer.h" />
