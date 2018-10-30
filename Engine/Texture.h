@@ -8,11 +8,12 @@
 class Texture
 {
 public:
+	Texture() = default;
 	Texture( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::wstring& filename );
 	Texture( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const Colour* pPixels, int width, int height );
 
 	ID3D11ShaderResourceView* GetTextureView() const;
 private:
-	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pTexture;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_pTextureView;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pTexture = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_pTextureView = nullptr;
 };

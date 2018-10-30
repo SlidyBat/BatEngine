@@ -10,6 +10,8 @@ class VertexBuffer
 {
 public:
 	VertexBuffer( ID3D11Device* pDevice, const V* data, const UINT size )
+		:
+		size( size )
 	{
 		D3D11_BUFFER_DESC vertexBufferDesc;
 		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -26,7 +28,7 @@ public:
 
 		COM_ERROR_IF_FAILED( pDevice->CreateBuffer( &vertexBufferDesc, &vertexData, &m_pVertexBuffer ) );
 	}
-	VertexBuffer( ID3D11Device* pDevice, const std::vector<V> vertices )
+	VertexBuffer( ID3D11Device* pDevice, const std::vector<V>& vertices )
 		:
 		VertexBuffer( pDevice, vertices.data(), (UINT)vertices.size() )
 	{}
@@ -40,6 +42,14 @@ public:
 	{
 		return m_pVertexBuffer.GetAddressOf();
 	}
+
+	void Bind( ID3D11DeviceContext* pDeviceContext ) const
+	{
+		UINT stride = sizeof( V );
+		UINT offset = 0;
+		pDeviceContext->IASetVertexBuffers( 0, 1, m_pVertexBuffer.GetAddressOf(), &stride, &offset );
+	}
 private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer>	m_pVertexBuffer;
+	UINT size;
 };

@@ -9,6 +9,8 @@ class IndexBuffer
 {
 public:
 	IndexBuffer( ID3D11Device* pDevice, const int* data, const UINT size )
+		:
+		size(size)
 	{
 		D3D11_BUFFER_DESC indexBufferDesc;
 		indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -34,6 +36,17 @@ public:
 	{
 		return m_pIndexBuffer.Get();
 	}
+
+	void Bind( ID3D11DeviceContext* pDeviceContext ) const
+	{
+		pDeviceContext->IASetIndexBuffer( m_pIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0 );
+	}
+
+	UINT GetIndexCount() const
+	{
+		return size;
+	}
 private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer>	m_pIndexBuffer;
+	UINT size;
 };

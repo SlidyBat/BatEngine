@@ -1,6 +1,6 @@
 cbuffer Matrices
 {
-    float4x4 mat;
+    float4x4 wvp;
 };
 
 struct VertexInputType
@@ -19,7 +19,7 @@ PixelInputType main(VertexInputType input)
 {
     PixelInputType output;
 
-    output.position = mul(input.position, mat);
+    output.position = mul(input.position, wvp);
     output.tex = input.tex;
 
     return output;

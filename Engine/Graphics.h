@@ -31,22 +31,7 @@ public:
 		d3d.Resize( width, height );
 	}
 
-	void DrawModel( std::vector<TexVertex> vertices, std::vector<int> indices, const Texture& texture, D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-	void DrawModel( std::vector<TexVertex> vertices, const Texture& texture, D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-	void DrawModel( std::vector<Vertex> vertices, std::vector<int> indices, D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-	void DrawModel( std::vector<Vertex> vertices, D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-
-	void DrawPoints( const std::vector<Vertex>& points );
-	void DrawPoint( const Vertex& point )
-	{
-		DrawPoints( std::vector<Vertex>{ point } );
-	}
-	void DrawLine( const TexVertex& p1, const TexVertex& p2, const Texture& texture );
-	void DrawLine( const Vertex& p1, const Vertex& p2 );
-	void DrawTriangle( const TexVertex& p1, const TexVertex& p2, const TexVertex& p3, const Texture& texture );
-	void DrawTriangle( const Vertex& p1, const Vertex& p2, const Vertex& p3 );
-	void DrawQuad( const TexVertex& p1, const TexVertex& p2, const TexVertex& p3, const TexVertex& p4, const Texture& texture );
-	void DrawQuad( const Vertex& p1, const Vertex& p2, const Vertex& p3, const Vertex& p4 );
+	Model* CreateTexturedModel( const std::vector<TexVertex>& vertices, const std::vector<int>& indices, Texture& tex );
 
 	Texture CreateTexture( const std::wstring& filename );
 	Texture CreateTexture( const Colour* pPixels, int width, int height );
@@ -54,10 +39,10 @@ public:
 	void BeginFrame();
 	void EndFrame();
 
-	DirectX::XMMATRIX GetWVP()
+	DirectX::XMMATRIX GetVPMatrix()
 	{
 		camera.Render();
-		return DirectX::XMMatrixTranspose( camera.GetViewMatrix() * projection );
+		return camera.GetViewMatrix() * projection;
 	}
 private:
 	D3DClass d3d;

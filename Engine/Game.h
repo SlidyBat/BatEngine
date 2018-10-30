@@ -4,6 +4,7 @@
 #include "Window.h"
 #include "Graphics.h"
 #include "Input.h"
+#include "Texture.h"
 
 class Game
 {
@@ -21,4 +22,7 @@ private:
 private:
 	Window& wnd;
 	Graphics gfx;
+
+	Texture mariotex;
+	Model* pMario;
 };
