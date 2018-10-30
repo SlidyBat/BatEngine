@@ -14,3 +14,4 @@ Engine.VC.db
 /Engine/Release
 /Release
 /Engine/Engine.vcxproj.user
+/Build
