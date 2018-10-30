@@ -15,6 +15,6 @@ void TexturedModel::Draw( const DirectX::XMMATRIX& vp ) const
 	m_pDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 	m_VertexBuffer.Bind( m_pDeviceContext );
 	m_IndexBuffer.Bind( m_pDeviceContext );
-	TextureShaderParameters params( DirectX::XMMatrixTranspose( GetWorldMatrix() * vp ), m_pTexture, m_IndexBuffer.GetIndexCount() );
+	TextureShaderParameters params( DirectX::XMMatrixTranspose( GetWorldMatrix() ), DirectX::XMMatrixTranspose( vp ), m_pTexture, m_IndexBuffer.GetIndexCount() );
 	m_pShader->Render( m_pDeviceContext, &params );
 }

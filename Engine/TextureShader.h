@@ -11,18 +11,26 @@
 #include "VertexShader.h"
 #include "PixelShader.h"
 
+struct CB_Matrix
+{
+	DirectX::XMMATRIX world;
+	DirectX::XMMATRIX viewproj;
+};
+
 class TextureShaderParameters : public IShaderParameters
 {
 public:
-	TextureShaderParameters( const DirectX::XMMATRIX& wvp, Texture* pTexture, UINT indexcount )
+	TextureShaderParameters( const DirectX::XMMATRIX& world, const DirectX::XMMATRIX& viewproj, Texture* pTexture, UINT indexcount )
 		:
-		wvp(wvp),
 		pTexture(pTexture),
 		indexcount(indexcount)
-	{}
-	DirectX::XMMATRIX* GetTransformMatrix()
 	{
-		return &wvp;
+		transform.world = world;
+		transform.viewproj = viewproj;
+	}
+	CB_Matrix* GetTransformMatrix()
+	{
+		return &transform;
 	}
 	ID3D11ShaderResourceView* GetTextureView() const
 	{
@@ -33,18 +41,13 @@ public:
 		return indexcount;
 	}
 private:
-	DirectX::XMMATRIX wvp;
+	CB_Matrix transform;
 	Texture* pTexture;
 	UINT indexcount;
 };
 
 class TextureShader : public IShader
 {
-private:
-	struct CB_Matrix
-	{
-		DirectX::XMMATRIX mat;
-	};
 public:
 	TextureShader( ID3D11Device* pDevice, const std::wstring& vsFilename, const std::wstring& psFilename );
 
