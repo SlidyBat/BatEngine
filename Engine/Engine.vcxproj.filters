@@ -16,6 +16,15 @@
     <Filter Include="Shader Files">
       <UniqueIdentifier>{38f55334-36c0-488f-82ed-5f1894645294}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Graphics">
+      <UniqueIdentifier>{79afa719-08c5-41f7-ad92-a005230e270f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Util">
+      <UniqueIdentifier>{10b6ee96-8eff-46ff-a70a-632d8cf564ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics">
+      <UniqueIdentifier>{0c704564-5c80-4352-a32b-c52bf76e2a11}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -24,41 +33,41 @@
     <ClCompile Include="Input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="D3DClass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ColourShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GDIPManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VertexShader.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Graphics\Camera.cpp">
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="PixelShader.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Graphics\ColourShader.cpp">
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Model.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Graphics\D3DClass.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GDIPManager.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Graphics.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Model.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\PixelShader.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Texture.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\TextureShader.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\VertexShader.cpp">
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -66,36 +75,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="D3DClass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ColourShader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Vertex.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureShader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TexVertex.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GDIPManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Colour.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Game.h">
@@ -107,39 +86,69 @@
     <ClInclude Include="Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Vec2.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Graphics\Camera.h">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Model.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Graphics\Colour.h">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="IndexBuffer.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Graphics\ColourShader.h">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="VertexBuffer.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Graphics\ConstantBuffer.h">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="COMException.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Graphics\D3DClass.h">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="VertexShader.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Graphics\GDIPManager.h">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="PixelShader.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Graphics\Graphics.h">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="ConstantBuffer.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Graphics\IndexBuffer.h">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="IShader.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Graphics\IShader.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Model.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\PixelShader.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Texture.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\TextureShader.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\TexVertex.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Vertex.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\VertexBuffer.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\VertexShader.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\COMException.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Vec2.h">
+      <Filter>Header Files\Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="slidy.ico">
+    <Image Include="Assets\mario.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="mario.png">
+    <Image Include="Assets\slidy.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
@@ -149,16 +158,16 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="ColourPS.hlsl">
+    <FxCompile Include="Graphics\Shaders\ColourPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
-    <FxCompile Include="ColourVS.hlsl">
+    <FxCompile Include="Graphics\Shaders\ColourVS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
-    <FxCompile Include="TexturePS.hlsl">
+    <FxCompile Include="Graphics\Shaders\TexturePS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
-    <FxCompile Include="TextureVS.hlsl">
+    <FxCompile Include="Graphics\Shaders\TextureVS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

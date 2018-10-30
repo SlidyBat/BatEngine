@@ -68,7 +68,11 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)Build\$(Configuration)-$(Platform)\</OutDir>
+    <IntDir>Build\Obj\$(Configuration)-$(Platform)\</IntDir>
+    <IncludePath>$(ProjectDir)Util;$(ProjectDir);$(ProjectDir)Graphics;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -110,56 +114,56 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="ColourShader.cpp" />
-    <ClCompile Include="D3DClass.cpp" />
+    <ClCompile Include="Graphics\Camera.cpp" />
+    <ClCompile Include="Graphics\ColourShader.cpp" />
+    <ClCompile Include="Graphics\D3DClass.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="GDIPManager.cpp" />
-    <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="Graphics\GDIPManager.cpp" />
+    <ClCompile Include="Graphics\Graphics.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Model.cpp" />
-    <ClCompile Include="PixelShader.cpp" />
-    <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="TextureShader.cpp" />
-    <ClCompile Include="VertexShader.cpp" />
+    <ClCompile Include="Graphics\Model.cpp" />
+    <ClCompile Include="Graphics\PixelShader.cpp" />
+    <ClCompile Include="Graphics\Texture.cpp" />
+    <ClCompile Include="Graphics\TextureShader.cpp" />
+    <ClCompile Include="Graphics\VertexShader.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Colour.h" />
-    <ClInclude Include="ColourShader.h" />
-    <ClInclude Include="COMException.h" />
-    <ClInclude Include="ConstantBuffer.h" />
-    <ClInclude Include="D3DClass.h" />
+    <ClInclude Include="Graphics\Camera.h" />
+    <ClInclude Include="Graphics\Colour.h" />
+    <ClInclude Include="Graphics\ColourShader.h" />
+    <ClInclude Include="Util\COMException.h" />
+    <ClInclude Include="Graphics\ConstantBuffer.h" />
+    <ClInclude Include="Graphics\D3DClass.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="GDIPManager.h" />
-    <ClInclude Include="Graphics.h" />
-    <ClInclude Include="IndexBuffer.h" />
-    <ClInclude Include="IShader.h" />
-    <ClInclude Include="Model.h" />
-    <ClInclude Include="PixelShader.h" />
+    <ClInclude Include="Graphics\GDIPManager.h" />
+    <ClInclude Include="Graphics\Graphics.h" />
+    <ClInclude Include="Graphics\IndexBuffer.h" />
+    <ClInclude Include="Graphics\IShader.h" />
+    <ClInclude Include="Graphics\Model.h" />
+    <ClInclude Include="Graphics\PixelShader.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="TexVertex.h" />
+    <ClInclude Include="Graphics\Texture.h" />
+    <ClInclude Include="Graphics\TexVertex.h" />
     <ClInclude Include="Input.h" />
-    <ClInclude Include="TextureShader.h" />
+    <ClInclude Include="Graphics\TextureShader.h" />
     <ClInclude Include="SlidyWin.h" />
-    <ClInclude Include="Vec2.h" />
-    <ClInclude Include="Vertex.h" />
-    <ClInclude Include="VertexBuffer.h" />
-    <ClInclude Include="VertexShader.h" />
+    <ClInclude Include="Util\Vec2.h" />
+    <ClInclude Include="Graphics\Vertex.h" />
+    <ClInclude Include="Graphics\VertexBuffer.h" />
+    <ClInclude Include="Graphics\VertexShader.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="mario.png" />
-    <Image Include="slidy.ico" />
+    <Image Include="Assets\mario.png" />
+    <Image Include="Assets\slidy.ico" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Engine.rc" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="ColourPS.hlsl">
+    <FxCompile Include="Graphics\Shaders\ColourPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
@@ -169,7 +173,7 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
     </FxCompile>
-    <FxCompile Include="ColourVS.hlsl">
+    <FxCompile Include="Graphics\Shaders\ColourVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
@@ -179,7 +183,7 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
     </FxCompile>
-    <FxCompile Include="TexturePS.hlsl">
+    <FxCompile Include="Graphics\Shaders\TexturePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
@@ -189,7 +193,7 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
     </FxCompile>
-    <FxCompile Include="TextureVS.hlsl">
+    <FxCompile Include="Graphics\Shaders\TextureVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
