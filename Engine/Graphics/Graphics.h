@@ -38,12 +38,6 @@ public:
 
 	void BeginFrame();
 	void EndFrame();
-
-	DirectX::XMMATRIX GetVPMatrix()
-	{
-		camera.Render();
-		return camera.GetViewMatrix() * projection;
-	}
 private:
 	D3DClass d3d;
 

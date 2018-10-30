@@ -4,6 +4,7 @@
 #include <DirectXMath.h>
 #include <vector>
 
+#include "Camera.h"
 #include "Texture.h"
 #include "TexVertex.h"
 #include "VertexBuffer.h"
@@ -22,7 +23,7 @@ public:
 	{}
 	virtual ~Model() = default;
 
-	virtual void Draw( const DirectX::XMMATRIX& vp ) const = 0;
+	virtual void Draw() const = 0;
 
 	DirectX::XMFLOAT3 GetPosition() const
 	{
@@ -90,11 +91,12 @@ protected:
 class TexturedModel : public Model
 {
 public:
-	TexturedModel( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, IShader* pShader, Texture* pTexture, const std::vector<TexVertex>& verts, const std::vector<int>& indices );
+	TexturedModel( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, IShader* pShader, Camera* pCamera,  Texture* pTexture, const std::vector<TexVertex>& verts, const std::vector<int>& indices );
 
-	virtual void Draw( const DirectX::XMMATRIX& vp ) const override;
+	virtual void Draw() const override;
 private:
 	VertexBuffer<TexVertex> m_VertexBuffer;
 	IndexBuffer m_IndexBuffer;
+	Camera* m_pCamera;
 	Texture* m_pTexture;
 };

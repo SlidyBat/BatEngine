@@ -67,5 +67,5 @@ void Game::UpdateModels()
 
 void Game::ComposeFrame()
 {
-	pMario->Draw( gfx.GetVPMatrix() );
+	pMario->Draw();
 }

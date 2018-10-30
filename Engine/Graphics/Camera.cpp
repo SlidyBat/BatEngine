@@ -2,11 +2,45 @@
 
 #include "MathLib.h"
 
-Camera::Camera()
+Camera::Camera( const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& rot, float fov, float ar, float screen_near, float screen_far )
 	:
-	m_vecPosition( 0.0f, 0.0f, 0.0f ),
-	m_angRotation( 0.0f, 0.0f, 0.0f )
+	m_vecPosition( pos ),
+	m_angRotation( rot ),
+	m_flFOV( fov ),
+	m_flAspectRatio( ar ),
+	m_flScreenNear( screen_near ),
+	m_flScreenFar( screen_far )
 {
+	UpdateViewMatrix();
+	UpdateProjectionMatrix();
+}
+
+Camera::Camera( float fov, float ar, float screen_near, float screen_far )
+	:
+	
+	Camera( {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, fov, ar, screen_near, screen_far )
+{}
+
+float Camera::GetFOV() const
+{
+	return m_flFOV;
+}
+
+void Camera::SetFOV( float fov )
+{
+	m_flFOV = fov;
+	UpdateProjectionMatrix();
+}
+
+float Camera::GetAspectRatio() const
+{
+	return m_flAspectRatio;
+}
+
+void Camera::SetAspectRatio( float ar )
+{
+	m_flAspectRatio = ar;
+	UpdateProjectionMatrix();
 }
 
 void Camera::MoveBy( const float dx, const float dy, const float dz )
@@ -14,6 +48,7 @@ void Camera::MoveBy( const float dx, const float dy, const float dz )
 	m_vecPosition.x += dx;
 	m_vecPosition.y += dy;
 	m_vecPosition.z += dz;
+	UpdateViewMatrix();
 }
 
 void Camera::MoveBy( const DirectX::XMFLOAT3& pos )
@@ -21,16 +56,19 @@ void Camera::MoveBy( const DirectX::XMFLOAT3& pos )
 	m_vecPosition.x += pos.x;
 	m_vecPosition.y += pos.y;
 	m_vecPosition.z += pos.z;
+	UpdateViewMatrix();
 }
 
 void Camera::SetPosition( const DirectX::XMFLOAT3& pos )
 {
 	m_vecPosition = pos;
+	UpdateViewMatrix();
 }
 
 void Camera::SetPosition( const float x, const float y, const float z )
 {
 	m_vecPosition = { x, y, z };
+	UpdateViewMatrix();
 }
 
 DirectX::XMFLOAT3 Camera::GetPosition() const
@@ -43,6 +81,7 @@ void Camera::RotateBy( const float dpitch, const float dyaw, const float droll )
 	m_angRotation.x += dpitch;
 	m_angRotation.y += dyaw;
 	m_angRotation.z += droll;
+	UpdateViewMatrix();
 }
 
 void Camera::RotateBy( const DirectX::XMFLOAT3& rot )
@@ -50,16 +89,19 @@ void Camera::RotateBy( const DirectX::XMFLOAT3& rot )
 	m_angRotation.x += rot.x;
 	m_angRotation.y += rot.y;
 	m_angRotation.z += rot.z;
+	UpdateViewMatrix();
 }
 
 void Camera::SetRotation( const DirectX::XMFLOAT3& rot )
 {
 	m_angRotation = rot;
+	UpdateViewMatrix();
 }
 
 void Camera::SetRotation( const float pitch, const float yaw, const float roll )
 {
 	m_angRotation = { pitch, yaw, roll };
+	UpdateViewMatrix();
 }
 
 DirectX::XMFLOAT3 Camera::GetRotation() const
@@ -77,7 +119,17 @@ DirectX::XMFLOAT3 Camera::GetRightVector() const
 	return m_vecRight;
 }
 
-void Camera::Render()
+DirectX::XMMATRIX Camera::GetViewMatrix() const
+{
+	return m_matViewMatrix;
+}
+
+DirectX::XMMATRIX Camera::GetProjectionMatrix() const
+{
+	return m_matProjMatrix;
+}
+
+void Camera::UpdateViewMatrix()
 {
 	using namespace DirectX;
 
@@ -86,7 +138,7 @@ void Camera::Render()
 	XMVECTOR upVec = XMLoadFloat3( &up );
 
 	XMVECTOR positionVec = XMLoadFloat3( &m_vecPosition );
-	
+
 	static const XMFLOAT3 defaultLookAt = { 0.0f, 0.0f, 1.0f };
 	XMVECTOR lookAtVec = XMLoadFloat3( &defaultLookAt );
 
@@ -115,7 +167,7 @@ void Camera::Render()
 	XMStoreFloat3( &m_vecRight, right );
 }
 
-DirectX::XMMATRIX Camera::GetViewMatrix() const
+void Camera::UpdateProjectionMatrix()
 {
-	return m_matViewMatrix;
+	m_matProjMatrix = DirectX::XMMatrixPerspectiveFovLH( Math::DegToRad( m_flFOV ), m_flAspectRatio, m_flScreenNear, m_flScreenFar );
 }

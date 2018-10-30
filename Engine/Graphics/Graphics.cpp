@@ -5,7 +5,8 @@ Graphics::Graphics( Window& wnd )
 	:
 	d3d( wnd, VSyncEnabled, ScreenFar, ScreenNear ),
 	colShader( d3d.GetDevice(), wnd.GetHandle(), L"Graphics/Shaders/ColourVS.hlsl", L"Graphics/Shaders/ColourPS.hlsl" ),
-	texShader( d3d.GetDevice(), L"Graphics/Shaders/TextureVS.hlsl", L"Graphics/Shaders/TexturePS.hlsl" )
+	texShader( d3d.GetDevice(), L"Graphics/Shaders/TextureVS.hlsl", L"Graphics/Shaders/TexturePS.hlsl" ),
+	camera( FOV, (float)ScreenWidth / ScreenHeight, ScreenNear, ScreenFar )
 {
 	camera.SetPosition( 0.0f, 0.0f, -5.0f );
 
@@ -13,14 +14,14 @@ Graphics::Graphics( Window& wnd )
 
 	wnd.AddResizeListener( [=]( int width, int height )
 	{
-		Resize();
-		projection = DirectX::XMMatrixPerspectiveFovLH( FOVRadians, (float)width / height, ScreenNear, ScreenFar );
+		Resize( width, height );
+		camera.SetAspectRatio( (float)width / height );
 	} );
 }
 
 Model* Graphics::CreateTexturedModel( const std::vector<TexVertex>& vertices, const std::vector<int>& indices, Texture& tex )
 {
-	return new TexturedModel( d3d.GetDevice(), d3d.GetDeviceContext(), &texShader, &tex, vertices, indices );
+	return new TexturedModel( d3d.GetDevice(), d3d.GetDeviceContext(), &texShader, &camera, &tex, vertices, indices );
 }
 
 Texture Graphics::CreateTexture( const std::wstring& filename )
