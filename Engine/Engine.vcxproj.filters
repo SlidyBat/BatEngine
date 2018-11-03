@@ -149,6 +149,9 @@
     <ClInclude Include="Util\MathLib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SlidyAssert.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\mario.png">

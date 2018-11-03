@@ -1,6 +1,6 @@
 #include "VertexShader.h"
 
-#include <cassert>
+#include "SlidyAssert.h"
 #include <d3dcompiler.h>
 #include "COMException.h"
 
@@ -53,7 +53,7 @@ void VertexShader::AddSampler( ID3D11Device* pDevice, const D3D11_SAMPLER_DESC* 
 	COM_ERROR_IF_FAILED( pDevice->CreateSamplerState( pSamplerDesc, &pSamplerState ) );
 	m_pSamplerStates.emplace_back( pSamplerState );
 
-	assert( m_pSamplerStates.size() <= D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT );
+	ASSERT( m_pSamplerStates.size() <= D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, "Too many sampler states!" );
 }
 
 void VertexShader::SetResource( ID3D11DeviceContext* pDeviceContext, int slot, ID3D11ShaderResourceView* const pResource )

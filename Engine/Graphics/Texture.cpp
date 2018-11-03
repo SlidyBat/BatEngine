@@ -1,5 +1,5 @@
 #include "Texture.h"
-#include <cassert>
+#include "SlidyAssert.h"
 
 #define FULL_WINTARD
 #include "SlidyWin.h"
@@ -15,7 +15,7 @@ namespace Gdiplus
 Texture::Texture( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::wstring& filename )
 {
 	Gdiplus::Bitmap bmp( filename.c_str() );
-	assert( bmp.GetPixelFormat() == PixelFormat32bppARGB );
+	ASSERT( bmp.GetPixelFormat() == PixelFormat32bppARGB, "Unsupported BMP format" );
 
 	Colour* pPixels = new Colour[bmp.GetWidth()*bmp.GetHeight()];
 	for( size_t y = 0; y < bmp.GetHeight(); y++ )

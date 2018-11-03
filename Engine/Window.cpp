@@ -1,6 +1,6 @@
 #include "Window.h"
 #include "Resource.h"
-#include <cassert>
+#include "SlidyAssert.h"
 
 Window::Window( Vei2 pos, int width, int height, const std::string& name, bool fullscreen )
 	:
@@ -280,7 +280,7 @@ LRESULT CALLBACK Window::HandleMsgSetup( HWND hWnd, UINT uMsg, WPARAM wParam, LP
 			const CREATESTRUCTW* pCreate = reinterpret_cast<CREATESTRUCTW*>( lParam );
 
 			Window* pWnd = reinterpret_cast<Window*>( pCreate->lpCreateParams );
-			assert( pWnd );
+			ASSERT( pWnd, "Failed to get Window ptr" );
 
 			SetWindowLongPtr( hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>( pWnd ) );
 			SetWindowLongPtr( hWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>( &HandleMsgThunk ) );
