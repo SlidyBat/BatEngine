@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SlidyWin.h"
+#include "BatWinAPI.h"
 
 class GDIPManager
 {

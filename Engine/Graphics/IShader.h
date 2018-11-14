@@ -4,16 +4,19 @@
 #include "PixelShader.h"
 #include <DirectXMath.h>
 
-class IShaderParameters
+namespace Bat
 {
-public:
-	virtual ~IShaderParameters() = default;
-};
+	class IShaderParameters
+	{
+	public:
+		virtual ~IShaderParameters() = default;
+	};
 
-class IShader
-{
-public:
-	virtual ~IShader() = default;
-	
-	virtual void Render( ID3D11DeviceContext* pDeviceContext, IShaderParameters* pParameters ) = 0;
-};
+	class IShader
+	{
+	public:
+		virtual ~IShader() = default;
+
+		virtual void Render( ID3D11DeviceContext* pDeviceContext, IShaderParameters* pParameters ) = 0;
+	};
+}

@@ -6,23 +6,26 @@
 #include "Input.h"
 #include "Texture.h"
 
-class Game
+namespace Bat
 {
-public:
-	Game( Window& wnd );
-	Game( const Game& src ) = delete;
-	Game& operator=( const Game& src ) = delete;
-	Game( Game&& donor ) = delete;
-	Game& operator=( Game&& donor ) = delete;
+	class Game
+	{
+	public:
+		Game( Window& wnd );
+		Game( const Game& src ) = delete;
+		Game& operator=( const Game& src ) = delete;
+		Game( Game&& donor ) = delete;
+		Game& operator=( Game&& donor ) = delete;
 
-	void Run();
-private:
-	void UpdateModels();
-	void ComposeFrame();
-private:
-	Window& wnd;
-	Graphics gfx;
+		void Run();
+	private:
+		void UpdateModels();
+		void ComposeFrame();
+	private:
+		Window& wnd;
+		Graphics gfx;
 
-	Texture mariotex;
-	Model* pMario;
-};
+		Texture mariotex;
+		Model* pMario;
+	};
+}

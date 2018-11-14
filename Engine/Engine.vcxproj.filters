@@ -48,9 +48,6 @@
     <ClCompile Include="Graphics\D3DClass.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\GDIPManager.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\Graphics.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
@@ -72,11 +69,11 @@
     <ClCompile Include="Util\MathLib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Util\GDIPManager.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SlidyWin.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -102,9 +99,6 @@
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\D3DClass.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\GDIPManager.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Graphics.h">
@@ -143,13 +137,16 @@
     <ClInclude Include="Util\COMException.h">
       <Filter>Header Files\Util</Filter>
     </ClInclude>
-    <ClInclude Include="Util\Vec2.h">
-      <Filter>Header Files\Util</Filter>
-    </ClInclude>
     <ClInclude Include="Util\MathLib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SlidyAssert.h">
+    <ClInclude Include="BatAssert.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="BatWinAPI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\GDIPManager.h">
       <Filter>Header Files\Util</Filter>
     </ClInclude>
   </ItemGroup>

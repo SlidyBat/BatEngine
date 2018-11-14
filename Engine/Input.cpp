@@ -1,76 +1,79 @@
 #include "Input.h"
-#include "SlidyAssert.h"
+#include "BatAssert.h"
 
-Input::Input()
+namespace Bat
 {
-	for( int i = 0; i < MaxKeys; i++ )
+	Input::Input()
 	{
-		m_bKeyIsPressed[i] = false;
+		for( int i = 0; i < MaxKeys; i++ )
+		{
+			m_bKeyIsPressed[i] = false;
+		}
 	}
-}
 
-void Input::KeyDown( const size_t key )
-{
-	ASSERT( key >= 0, "Invalid keyboard key"  );
-	ASSERT( key < MaxKeys, "Invalid keyboard key" );
+	void Input::KeyDown( const size_t key )
+	{
+		ASSERT( key >= 0, "Invalid keyboard key" );
+		ASSERT( key < MaxKeys, "Invalid keyboard key" );
 
-	m_bKeyIsPressed[key] = true;
-}
+		m_bKeyIsPressed[key] = true;
+	}
 
-void Input::KeyUp( const size_t key )
-{
-	ASSERT( key >= 0, "Invalid keyboard key" );
-	ASSERT( key < MaxKeys, "Invalid keyboard key" );
+	void Input::KeyUp( const size_t key )
+	{
+		ASSERT( key >= 0, "Invalid keyboard key" );
+		ASSERT( key < MaxKeys, "Invalid keyboard key" );
 
-	m_bKeyIsPressed[key] = false;
-}
+		m_bKeyIsPressed[key] = false;
+	}
 
-bool Input::IsKeyPressed( const size_t key ) const
-{
-	return m_bKeyIsPressed[key];
-}
+	bool Input::IsKeyPressed( const size_t key ) const
+	{
+		return m_bKeyIsPressed[key];
+	}
 
-void Input::MouseButtonDown( const MouseButton mb )
-{
-	m_bMouseButtonIsDown[(int)mb] = true;
-}
+	void Input::MouseButtonDown( const MouseButton mb )
+	{
+		m_bMouseButtonIsDown[(int)mb] = true;
+	}
 
-void Input::MouseButtonUp( const MouseButton mb )
-{
-	m_bMouseButtonIsDown[(int)mb] = false;
-}
+	void Input::MouseButtonUp( const MouseButton mb )
+	{
+		m_bMouseButtonIsDown[(int)mb] = false;
+	}
 
-void Input::MouseButtonDblClick( const MouseButton mb )
-{
-	m_bMouseButtonIsDown[(int)mb] = true; // might do more with double click later, but for now it just means mouse down
-}
+	void Input::MouseButtonDblClick( const MouseButton mb )
+	{
+		m_bMouseButtonIsDown[(int)mb] = true; // might do more with double click later, but for now it just means mouse down
+	}
 
-bool Input::IsMouseButtonDown( const MouseButton mb ) const
-{
-	return m_bMouseButtonIsDown[(int)mb];
-}
+	bool Input::IsMouseButtonDown( const MouseButton mb ) const
+	{
+		return m_bMouseButtonIsDown[(int)mb];
+	}
 
-bool Input::IsLeftDown() const
-{
-	return IsMouseButtonDown( MouseButton::Left );
-}
+	bool Input::IsLeftDown() const
+	{
+		return IsMouseButtonDown( MouseButton::Left );
+	}
 
-bool Input::IsRightDown() const
-{
-	return IsMouseButtonDown( MouseButton::Right );
-}
+	bool Input::IsRightDown() const
+	{
+		return IsMouseButtonDown( MouseButton::Right );
+	}
 
-bool Input::IsMiddleDown() const
-{
-	return IsMouseButtonDown( MouseButton::Middle );
-}
+	bool Input::IsMiddleDown() const
+	{
+		return IsMouseButtonDown( MouseButton::Middle );
+	}
 
-bool Input::IsX1Down() const
-{
-	return IsMouseButtonDown( MouseButton::X1 );
-}
+	bool Input::IsX1Down() const
+	{
+		return IsMouseButtonDown( MouseButton::X1 );
+	}
 
-bool Input::IsX2Down() const
-{
-	return IsMouseButtonDown( MouseButton::X2 );
+	bool Input::IsX2Down() const
+	{
+		return IsMouseButtonDown( MouseButton::X2 );
+	}
 }

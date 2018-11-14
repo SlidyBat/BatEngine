@@ -10,32 +10,35 @@
 #include <string>
 #include <wrl.h>
 
-class D3DClass
+namespace Bat
 {
-public:
-	D3DClass( Window& wnd, bool vsyncEnabled, float screendepth, float screennear );
-	D3DClass( const D3DClass& src ) = delete;
-	D3DClass& operator=( const D3DClass& src ) = delete;
-	D3DClass( D3DClass&& donor ) = delete;
-	D3DClass& operator=( D3DClass&& donor ) = delete;
+	class D3DClass
+	{
+	public:
+		D3DClass( Window& wnd, bool vsyncEnabled, float screendepth, float screennear );
+		D3DClass( const D3DClass& src ) = delete;
+		D3DClass& operator=( const D3DClass& src ) = delete;
+		D3DClass( D3DClass&& donor ) = delete;
+		D3DClass& operator=( D3DClass&& donor ) = delete;
 
-	void BeginScene( float red, float green, float blue, float alpha );
-	void EndScene();
-	void Resize( int width = 0, int height = 0 );
+		void BeginScene( float red, float green, float blue, float alpha );
+		void EndScene();
+		void Resize( int width = 0, int height = 0 );
 
-	ID3D11Device* GetDevice() const;
-	ID3D11DeviceContext* GetDeviceContext() const;
+		ID3D11Device* GetDevice() const;
+		ID3D11DeviceContext* GetDeviceContext() const;
 
-	void GetVideoCardInfo( std::wstring& cardName, int& memory ) const;
-private:
-	bool						m_bVSyncEnabled;
+		void GetVideoCardInfo( std::wstring& cardName, int& memory ) const;
+	private:
+		bool						m_bVSyncEnabled;
 
-	int							m_iVideoCardMemory;
-	std::wstring				m_szVideoCardDescription;
+		int							m_iVideoCardMemory;
+		std::wstring				m_szVideoCardDescription;
 
-	Microsoft::WRL::ComPtr<IDXGISwapChain>				m_pSwapChain;
-	Microsoft::WRL::ComPtr<ID3D11Device>				m_pDevice;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext>			m_pDeviceContext;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_pRenderTargetView;
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState>		m_pRasterState;
-};
+		Microsoft::WRL::ComPtr<IDXGISwapChain>				m_pSwapChain;
+		Microsoft::WRL::ComPtr<ID3D11Device>				m_pDevice;
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext>			m_pDeviceContext;
+		Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_pRenderTargetView;
+		Microsoft::WRL::ComPtr<ID3D11RasterizerState>		m_pRasterState;
+	};
+}

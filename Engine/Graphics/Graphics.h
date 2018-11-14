@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SlidyWin.h"
+#include "BatWinAPI.h"
 #include "D3DClass.h"
 
 #include "Window.h"
@@ -17,47 +17,50 @@
 
 #include <memory>
 
-class Graphics
+namespace Bat
 {
-public:
-	Graphics( Window& wnd );
-	Graphics( const Graphics& src ) = delete;
-	Graphics& operator=( const Graphics& src ) = delete;
-	Graphics( Graphics&& donor ) = delete;
-	Graphics& operator=( Graphics&& donor ) = delete;
-
-	void Resize( int width = 0, int height = 0 )
+	class Graphics
 	{
-		d3d.Resize( width, height );
-	}
+	public:
+		Graphics( Window& wnd );
+		Graphics( const Graphics& src ) = delete;
+		Graphics& operator=( const Graphics& src ) = delete;
+		Graphics( Graphics&& donor ) = delete;
+		Graphics& operator=( Graphics&& donor ) = delete;
 
-	Model* CreateTexturedModel( const std::vector<TexVertex>& vertices, const std::vector<int>& indices, Texture& tex );
+		void Resize( int width = 0, int height = 0 )
+		{
+			d3d.Resize( width, height );
+		}
 
-	Texture CreateTexture( const std::wstring& filename );
-	Texture CreateTexture( const Colour* pPixels, int width, int height );
+		Model* CreateTexturedModel( const std::vector<TexVertex>& vertices, const std::vector<int>& indices, Texture& tex );
 
-	void BeginFrame();
-	void EndFrame();
-private:
-	D3DClass d3d;
+		Texture CreateTexture( const std::wstring& filename );
+		Texture CreateTexture( const Bat::Colour* pPixels, int width, int height );
 
-	TextureShader texShader;
-	ColourShader colShader;
+		void BeginFrame();
+		void EndFrame();
+	private:
+		Bat::D3DClass d3d;
 
-	GDIPManager gdip;
+		Bat::TextureShader texShader;
+		Bat::ColourShader colShader;
 
-	DirectX::XMMATRIX projection;
-public:
-	static constexpr bool	FullScreen = false;
-	static constexpr int	VSyncEnabled = false;
-	static constexpr float	ScreenFar = 1000.0f;
-	static constexpr float	ScreenNear = 0.1f;
-	static constexpr float	FOV = 90.0f;
-	static constexpr float  FOVRadians = FOV * (DirectX::XM_PI / 180.0f);
+		GDIPManager gdip;
 
-	// only used when not in fullscreen
-	static constexpr int	ScreenWidth = 800;
-	static constexpr int	ScreenHeight = 600;
+		DirectX::XMMATRIX projection;
+	public:
+		static constexpr bool	FullScreen = false;
+		static constexpr int	VSyncEnabled = false;
+		static constexpr float	ScreenFar = 1000.0f;
+		static constexpr float	ScreenNear = 0.1f;
+		static constexpr float	FOV = 90.0f;
+		static constexpr float  FOVRadians = FOV * (DirectX::XM_PI / 180.0f);
 
-	Camera camera;
-};
+		// only used when not in fullscreen
+		static constexpr int	ScreenWidth = 800;
+		static constexpr int	ScreenHeight = 600;
+
+		Camera camera;
+	};
+}

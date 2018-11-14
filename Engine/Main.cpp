@@ -1,8 +1,10 @@
-#include "SlidyWin.h"
+#include "BatWinAPI.h"
 #include "Window.h"
 #include "Graphics.h"
 #include "Game.h"
 #include <string>
+
+using namespace Bat;
 
 int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow )
 {

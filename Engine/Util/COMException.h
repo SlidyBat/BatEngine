@@ -4,7 +4,7 @@
 #include <string>
 #include <comdef.h>
 
-#include "SlidyWin.h"
+#include "BatWinAPI.h"
 
 #define THROW_COM_ERROR( hr, msg ) throw COMException( hr, msg, __FILE__, __FUNCTION__, __LINE__ )
 #define COM_ERROR_IF_FAILED( hr ) if( FAILED( hr ) ) throw COMException( hr, __FILE__, __FUNCTION__, __LINE__ )

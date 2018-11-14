@@ -1,60 +1,63 @@
 #include "PixelShader.h"
 
-#include "SlidyAssert.h"
+#include "BatAssert.h"
 #include <d3dcompiler.h>
 #include "COMException.h"
 
-PixelShader::PixelShader( ID3D11Device* pDevice, const std::wstring& filename )
+namespace Bat
 {
-	HRESULT hr;
-	Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
-
-	Microsoft::WRL::ComPtr<ID3DBlob> pixelShaderBuffer;
-	if( FAILED( hr = D3DCompileFromFile( filename.c_str(), NULL, NULL, "main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage ) ) )
+	PixelShader::PixelShader( ID3D11Device* pDevice, const std::wstring& filename )
 	{
-		std::string filename_converted( filename.begin(), filename.end() );
-		if( errorMessage )
+		HRESULT hr;
+		Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
+
+		Microsoft::WRL::ComPtr<ID3DBlob> pixelShaderBuffer;
+		if( FAILED( hr = D3DCompileFromFile( filename.c_str(), NULL, NULL, "main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage ) ) )
 		{
-			std::string error = (char*)errorMessage->GetBufferPointer();
-			THROW_COM_ERROR( hr, "Failed to compile pixel shader file '" + filename_converted + "'\n" + error );
+			std::string filename_converted( filename.begin(), filename.end() );
+			if( errorMessage )
+			{
+				std::string error = (char*)errorMessage->GetBufferPointer();
+				THROW_COM_ERROR( hr, "Failed to compile pixel shader file '" + filename_converted + "'\n" + error );
+			}
+			else
+			{
+				THROW_COM_ERROR( hr, "Failed to compile pixel shader file '" + filename_converted + "'" );
+			}
 		}
-		else
+
+		COM_ERROR_IF_FAILED( pDevice->CreatePixelShader( pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader ) );
+	}
+
+	PixelShader::~PixelShader()
+	{
+		for( auto pSamplerState : m_pSamplerStates )
 		{
-			THROW_COM_ERROR( hr, "Failed to compile pixel shader file '" + filename_converted + "'" );
+			pSamplerState->Release();
 		}
 	}
 
-	COM_ERROR_IF_FAILED( pDevice->CreatePixelShader( pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader ) );
-}
-
-PixelShader::~PixelShader()
-{
-	for( auto pSamplerState : m_pSamplerStates )
+	void PixelShader::Bind( ID3D11DeviceContext* pDeviceContext )
 	{
-		pSamplerState->Release();
+		pDeviceContext->PSSetShader( m_pPixelShader.Get(), NULL, 0 );
+		pDeviceContext->PSSetSamplers( 0, (UINT)m_pSamplerStates.size(), m_pSamplerStates.data() );
+		for( UINT i = 0; i < m_ConstantBuffers.size(); i++ )
+		{
+			pDeviceContext->PSSetConstantBuffers( i, 1, m_ConstantBuffers[i].GetAddressOf() );
+		}
 	}
-}
 
-void PixelShader::Bind( ID3D11DeviceContext* pDeviceContext )
-{
-	pDeviceContext->PSSetShader( m_pPixelShader.Get(), NULL, 0 );
-	pDeviceContext->PSSetSamplers( 0, (UINT)m_pSamplerStates.size(), m_pSamplerStates.data() );
-	for( UINT i = 0; i < m_ConstantBuffers.size(); i++ )
+	void PixelShader::AddSampler( ID3D11Device* pDevice, const D3D11_SAMPLER_DESC* pSamplerDesc )
 	{
-		pDeviceContext->PSSetConstantBuffers( i, 1, m_ConstantBuffers[i].GetAddressOf() );
+		ID3D11SamplerState* pSamplerState;
+		COM_ERROR_IF_FAILED( pDevice->CreateSamplerState( pSamplerDesc, &pSamplerState ) );
+		m_pSamplerStates.emplace_back( pSamplerState );
+
+		ASSERT( m_pSamplerStates.size() < D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, "Too many samplers!" );
 	}
-}
 
-void PixelShader::AddSampler( ID3D11Device* pDevice, const D3D11_SAMPLER_DESC* pSamplerDesc )
-{
-	ID3D11SamplerState* pSamplerState;
-	COM_ERROR_IF_FAILED( pDevice->CreateSamplerState( pSamplerDesc, &pSamplerState ) );
-	m_pSamplerStates.emplace_back( pSamplerState );
-
-	ASSERT( m_pSamplerStates.size() < D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, "Too many samplers!" );
-}
-
-void PixelShader::SetResource( ID3D11DeviceContext* pDeviceContext, int slot, ID3D11ShaderResourceView* const pResource )
-{
-	pDeviceContext->PSSetShaderResources( (UINT)slot, 1, &pResource );
+	void PixelShader::SetResource( ID3D11DeviceContext* pDeviceContext, int slot, ID3D11ShaderResourceView* const pResource )
+	{
+		pDeviceContext->PSSetShaderResources( (UINT)slot, 1, &pResource );
+	}
 }

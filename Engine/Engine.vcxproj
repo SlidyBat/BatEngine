@@ -118,7 +118,7 @@
     <ClCompile Include="Graphics\ColourShader.cpp" />
     <ClCompile Include="Graphics\D3DClass.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Graphics\GDIPManager.cpp" />
+    <ClCompile Include="Util\GDIPManager.cpp" />
     <ClCompile Include="Graphics\Graphics.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -131,7 +131,7 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SlidyAssert.h" />
+    <ClInclude Include="BatAssert.h" />
     <ClInclude Include="Graphics\Camera.h" />
     <ClInclude Include="Graphics\Colour.h" />
     <ClInclude Include="Graphics\ColourShader.h" />
@@ -139,7 +139,7 @@
     <ClInclude Include="Graphics\ConstantBuffer.h" />
     <ClInclude Include="Graphics\D3DClass.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="Graphics\GDIPManager.h" />
+    <ClInclude Include="Util\GDIPManager.h" />
     <ClInclude Include="Graphics\Graphics.h" />
     <ClInclude Include="Graphics\IndexBuffer.h" />
     <ClInclude Include="Graphics\IShader.h" />
@@ -150,9 +150,8 @@
     <ClInclude Include="Graphics\TexVertex.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Graphics\TextureShader.h" />
-    <ClInclude Include="SlidyWin.h" />
+    <ClInclude Include="BatWinAPI.h" />
     <ClInclude Include="Util\MathLib.h" />
-    <ClInclude Include="Util\Vec2.h" />
     <ClInclude Include="Graphics\Vertex.h" />
     <ClInclude Include="Graphics\VertexBuffer.h" />
     <ClInclude Include="Graphics\VertexShader.h" />
