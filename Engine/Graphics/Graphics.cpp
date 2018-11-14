@@ -43,6 +43,7 @@ namespace Bat
 
 	void Graphics::EndFrame()
 	{
+		camera.Render();
 		d3d.EndScene();
 	}
 }

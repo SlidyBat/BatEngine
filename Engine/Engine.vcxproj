@@ -117,7 +117,7 @@
     <ClCompile Include="Graphics\Camera.cpp" />
     <ClCompile Include="Graphics\ColourShader.cpp" />
     <ClCompile Include="Graphics\D3DClass.cpp" />
-    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="TestScene.cpp" />
     <ClCompile Include="Util\GDIPManager.cpp" />
     <ClCompile Include="Graphics\Graphics.cpp" />
     <ClCompile Include="Input.cpp" />
@@ -132,13 +132,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BatAssert.h" />
+    <ClInclude Include="ClassDef.h" />
     <ClInclude Include="Graphics\Camera.h" />
     <ClInclude Include="Graphics\Colour.h" />
     <ClInclude Include="Graphics\ColourShader.h" />
+    <ClInclude Include="TestScene.h" />
     <ClInclude Include="Util\COMException.h" />
     <ClInclude Include="Graphics\ConstantBuffer.h" />
     <ClInclude Include="Graphics\D3DClass.h" />
-    <ClInclude Include="Game.h" />
+    <ClInclude Include="IScene.h" />
     <ClInclude Include="Util\GDIPManager.h" />
     <ClInclude Include="Graphics\Graphics.h" />
     <ClInclude Include="Graphics\IndexBuffer.h" />

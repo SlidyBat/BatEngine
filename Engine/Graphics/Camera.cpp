@@ -31,7 +31,6 @@ namespace Bat
 	void Camera::SetFOV( float fov )
 	{
 		m_flFOV = fov;
-		UpdateProjectionMatrix();
 	}
 
 	float Camera::GetAspectRatio() const
@@ -42,7 +41,6 @@ namespace Bat
 	void Camera::SetAspectRatio( float ar )
 	{
 		m_flAspectRatio = ar;
-		UpdateProjectionMatrix();
 	}
 
 	void Camera::MoveBy( const float dx, const float dy, const float dz )
@@ -50,7 +48,6 @@ namespace Bat
 		m_vecPosition.x += dx;
 		m_vecPosition.y += dy;
 		m_vecPosition.z += dz;
-		UpdateViewMatrix();
 	}
 
 	void Camera::MoveBy( const Vec3& pos )
@@ -58,19 +55,16 @@ namespace Bat
 		m_vecPosition.x += pos.x;
 		m_vecPosition.y += pos.y;
 		m_vecPosition.z += pos.z;
-		UpdateViewMatrix();
 	}
 
 	void Camera::SetPosition( const Vec3& pos )
 	{
 		m_vecPosition = pos;
-		UpdateViewMatrix();
 	}
 
 	void Camera::SetPosition( const float x, const float y, const float z )
 	{
 		m_vecPosition = { x, y, z };
-		UpdateViewMatrix();
 	}
 
 	Vec3 Camera::GetPosition() const
@@ -83,7 +77,6 @@ namespace Bat
 		m_angRotation.x += dpitch;
 		m_angRotation.y += dyaw;
 		m_angRotation.z += droll;
-		UpdateViewMatrix();
 	}
 
 	void Camera::RotateBy( const Vec3& rot )
@@ -91,19 +84,16 @@ namespace Bat
 		m_angRotation.x += rot.x;
 		m_angRotation.y += rot.y;
 		m_angRotation.z += rot.z;
-		UpdateViewMatrix();
 	}
 
 	void Camera::SetRotation( const Vec3& rot )
 	{
 		m_angRotation = rot;
-		UpdateViewMatrix();
 	}
 
 	void Camera::SetRotation( const float pitch, const float yaw, const float roll )
 	{
 		m_angRotation = { pitch, yaw, roll };
-		UpdateViewMatrix();
 	}
 
 	Vec3 Camera::GetRotation() const
@@ -129,6 +119,12 @@ namespace Bat
 	DirectX::XMMATRIX Camera::GetProjectionMatrix() const
 	{
 		return m_matProjMatrix;
+	}
+
+	void Camera::Render()
+	{
+		UpdateViewMatrix();
+		UpdateProjectionMatrix();
 	}
 
 	void Camera::UpdateViewMatrix()

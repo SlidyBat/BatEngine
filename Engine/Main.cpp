@@ -1,7 +1,7 @@
 #include "BatWinAPI.h"
 #include "Window.h"
 #include "Graphics.h"
-#include "Game.h"
+#include "TestScene.h"
 #include <string>
 
 using namespace Bat;
@@ -10,19 +10,16 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 {
 	try
 	{
-		Window wnd( { 50, 50 }, Graphics::ScreenWidth, Graphics::ScreenHeight, "Slidy Engine", Graphics::FullScreen );
+		Window wnd( { 50, 50 }, Graphics::ScreenWidth, Graphics::ScreenHeight, "Bat Engine", Graphics::FullScreen );
+		Graphics gfx( wnd );
 
-		try
+		IScene* scene = new TestScene( wnd, gfx );
+		while( wnd.ProcessMessage() )
 		{
-			Game game( wnd );
-			while( wnd.ProcessMessage() )
-			{
-				game.Run();
-			}
-		}
-		catch( const std::exception& e )
-		{
-			wnd.ShowMessageBox( "Error", e.what(), MB_ICONWARNING );
+			scene->OnUpdate();
+			gfx.BeginFrame();
+			scene->OnRender();
+			gfx.EndFrame();
 		}
 	}
 	catch( const std::exception& e )

@@ -37,6 +37,8 @@ namespace Bat
 
 		DirectX::XMMATRIX GetViewMatrix() const;
 		DirectX::XMMATRIX GetProjectionMatrix() const;
+
+		void Render();
 	private:
 		void UpdateProjectionMatrix();
 		void UpdateViewMatrix();
