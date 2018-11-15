@@ -1,4 +1,4 @@
-#include "TestScene.h"
+#include "MarioTestScene.h"
 
 #include "Window.h"
 #include "Graphics.h"
@@ -6,7 +6,7 @@
 
 using namespace Bat;
 
-TestScene::TestScene( Window& wnd )
+MarioTestScene::MarioTestScene( Window& wnd )
 	:
 	BaseClass( wnd )
 {
@@ -20,7 +20,7 @@ TestScene::TestScene( Window& wnd )
 	pMario = g_pGfx->CreateTexturedModel( { v1, v2, v3, v4 }, { 0,1,2, 2,3,0 }, mariotex );
 }
 
-void TestScene::OnUpdate()
+void MarioTestScene::OnUpdate()
 {
 	Camera* pCamera = g_pGfx->GetCamera();
 
@@ -62,7 +62,7 @@ void TestScene::OnUpdate()
 	}
 }
 
-void TestScene::OnRender()
+void MarioTestScene::OnRender()
 {
 	auto pShader = g_pGfx->GetShader( "texture" );
 	pMario->Draw( pShader );

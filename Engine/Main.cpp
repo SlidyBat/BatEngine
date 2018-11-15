@@ -1,7 +1,7 @@
 #include "BatWinAPI.h"
 #include "Window.h"
 #include "Graphics.h"
-#include "TestScene.h"
+#include "MarioTestScene.h"
 #include <string>
 
 using namespace Bat;
@@ -14,7 +14,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 		Graphics gfx( wnd );
 		//IGraphics::RegisterGraphics( gfx );
 
-		IScene* pScene = new TestScene( wnd );
+		IScene* pScene = new MarioTestScene( wnd );
 		while( wnd.ProcessMessage() )
 		{
 			pScene->OnUpdate();
@@ -22,6 +22,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 			pScene->OnRender();
 			gfx.EndFrame();
 		}
+		delete pScene;
 	}
 	catch( const std::exception& e )
 	{

@@ -4,11 +4,11 @@
 #include "Texture.h"
 #include "ClassDef.h"
 
-class TestScene : public Bat::IScene
+class MarioTestScene : public Bat::IScene
 {
-	DECLARE_CLASS( TestScene, IScene );
+	DECLARE_CLASS( MarioTestScene, IScene );
 public:
-	TestScene( Bat::Window& wnd );
+	MarioTestScene( Bat::Window& wnd );
 
 	virtual void OnUpdate() override;
 	virtual void OnRender() override;
