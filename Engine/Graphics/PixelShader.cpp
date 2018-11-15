@@ -13,7 +13,6 @@ namespace Bat
 
 		HRESULT hr;
 		Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
-
 		Microsoft::WRL::ComPtr<ID3DBlob> pixelShaderBuffer;
 		if( FAILED( hr = D3DCompileFromFile( filename.c_str(), NULL, NULL, "main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage ) ) )
 		{

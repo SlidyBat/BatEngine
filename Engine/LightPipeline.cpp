@@ -3,6 +3,7 @@
 #include <fstream>
 #include "COMException.h"
 #include "IGraphics.h"
+#include "Globals.h"
 
 namespace Bat
 {
@@ -52,14 +53,20 @@ namespace Bat
 		m_PixelShader.AddSampler( &samplerDesc );
 
 		m_VertexShader.AddConstantBuffer<CB_LightPipelineMatrix>();
+		m_PixelShader.AddConstantBuffer<CB_LightPipelineLightingParams>();
 	}
 
 	void LightPipeline::BindParameters( IPipelineParameters* pParameters )
 	{
+		CB_LightPipelineLightingParams ps_params;
+		ps_params.cameraPos = g_pGfx->GetCamera()->GetPosition();
+		ps_params.time = g_pGlobals->elapsed_time;
+
 		auto pTextureParameters = static_cast<LightPipelineParameters*>(pParameters);
 		m_VertexShader.Bind();
 		m_PixelShader.Bind();
 		m_VertexShader.GetConstantBuffer( 0 ).SetData( pTextureParameters->GetTransformMatrix() );
+		m_PixelShader.GetConstantBuffer( 0 ).SetData( &ps_params );
 		m_PixelShader.SetResource( 0, pTextureParameters->GetTextureView() );
 	}
 

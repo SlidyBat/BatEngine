@@ -37,6 +37,9 @@
     <Filter Include="Header Files\Graphics\Pipelines">
       <UniqueIdentifier>{137f1696-2e44-46f0-8684-31bb145873e9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Util">
+      <UniqueIdentifier>{99207158-cc00-43a2-b92f-d2b7ca847215}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -92,6 +95,12 @@
     </ClCompile>
     <ClCompile Include="ModelTestScene.cpp">
       <Filter>Source Files\TestScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Globals.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\FrameTimer.cpp">
+      <Filter>Source Files\Util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -190,6 +199,12 @@
     </ClInclude>
     <ClInclude Include="ModelTestScene.h">
       <Filter>Header Files\TestScenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Globals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\FrameTimer.h">
+      <Filter>Header Files\Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

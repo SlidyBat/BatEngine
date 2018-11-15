@@ -16,7 +16,7 @@ class ColourTestScene : public Bat::IScene
 public:
 	ColourTestScene( Bat::Window& wnd );
 
-	virtual void OnUpdate() override;
+	virtual void OnUpdate( float deltatime ) override;
 	virtual void OnRender() override;
 private:
 	Bat::IModel* pRedSquare;

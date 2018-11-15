@@ -22,7 +22,7 @@ ColourTestScene::ColourTestScene( Window& wnd )
 	pRedSquare = g_pGfx->CreateColouredModel( { v1, v2, v3, v4 }, { 0,1,2, 2,3,0 } );
 }
 
-void ColourTestScene::OnUpdate()
+void ColourTestScene::OnUpdate( float deltatime )
 {
 	Camera* pCamera = g_pGfx->GetCamera();
 

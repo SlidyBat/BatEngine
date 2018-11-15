@@ -22,7 +22,7 @@ MarioTestScene::MarioTestScene( Window& wnd )
 	pMario = g_pGfx->CreateTexturedModel( { v1, v2, v3, v4 }, { 0,1,2, 2,3,0 }, *pMarioTex );
 }
 
-void MarioTestScene::OnUpdate()
+void MarioTestScene::OnUpdate( float deltatime )
 {
 	Camera* pCamera = g_pGfx->GetCamera();
 

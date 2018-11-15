@@ -17,7 +17,7 @@ ModelTestScene::ModelTestScene( Window& wnd )
 	pNanoSuit = new LightModel( ModelLoader::LoadModel( "Assets/NanoSuit/nanosuit.obj" ) );
 }
 
-void ModelTestScene::OnUpdate()
+void ModelTestScene::OnUpdate( float deltatime )
 {
 	Camera* pCamera = g_pGfx->GetCamera();
 

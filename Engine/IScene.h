@@ -14,7 +14,7 @@ namespace Bat
 			wnd( wnd )
 		{}
 
-		virtual void OnUpdate() = 0;
+		virtual void OnUpdate( float deltatime ) = 0;
 		virtual void OnRender() = 0;
 	protected:
 		Window& wnd;

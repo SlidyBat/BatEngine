@@ -16,7 +16,7 @@ class ModelTestScene : public Bat::IScene
 public:
 	ModelTestScene( Bat::Window& wnd );
 
-	virtual void OnUpdate() override;
+	virtual void OnUpdate( float deltatime ) override;
 	virtual void OnRender() override;
 private:
 	Bat::IModel* pNanoSuit;

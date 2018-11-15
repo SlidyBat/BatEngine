@@ -6,6 +6,8 @@
 #include "ModelTestScene.h"
 #include "COMException.h"
 #include <string>
+#include "FrameTimer.h"
+#include "Globals.h"
 
 using namespace Bat;
 
@@ -19,10 +21,14 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 		Graphics gfx( wnd );
 		//IGraphics::RegisterGraphics( gfx );
 
+		FrameTimer ft;
+
 		IScene* pScene = new ModelTestScene( wnd );
 		while( wnd.ProcessMessage() )
 		{
-			pScene->OnUpdate();
+			float dt = ft.Mark();
+			g_pGlobals->elapsed_time += dt;
+			pScene->OnUpdate( dt );
 			gfx.BeginFrame();
 			pScene->OnRender();
 			gfx.EndFrame();

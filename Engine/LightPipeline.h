@@ -21,6 +21,12 @@ namespace Bat
 		DirectX::XMMATRIX viewproj;
 	};
 
+	struct CB_LightPipelineLightingParams
+	{
+		Vec3 cameraPos;
+		float time;
+	};
+
 	class LightModel : public IModel
 	{
 	public:

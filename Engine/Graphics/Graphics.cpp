@@ -59,7 +59,7 @@ namespace Bat
 
 	void Graphics::BeginFrame()
 	{
-		d3d.BeginScene( 0.4f, 0.4f, 0.4f, 1.0f );
+		d3d.BeginScene( 0.1f, 0.1f, 0.1f, 1.0f );
 	}
 
 	void Graphics::EndFrame()
