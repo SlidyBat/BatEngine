@@ -3,11 +3,14 @@
 #include "BatAssert.h"
 #include <d3dcompiler.h>
 #include "COMException.h"
+#include "Graphics.h"
 
 namespace Bat
 {
-	PixelShader::PixelShader( ID3D11Device* pDevice, const std::wstring& filename )
+	PixelShader::PixelShader( const std::wstring& filename )
 	{
+		auto pDevice = g_pGfx->GetDevice();
+
 		HRESULT hr;
 		Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
 
@@ -37,8 +40,10 @@ namespace Bat
 		}
 	}
 
-	void PixelShader::Bind( ID3D11DeviceContext* pDeviceContext )
+	void PixelShader::Bind()
 	{
+		auto pDeviceContext = g_pGfx->GetDeviceContext();
+
 		pDeviceContext->PSSetShader( m_pPixelShader.Get(), NULL, 0 );
 		pDeviceContext->PSSetSamplers( 0, (UINT)m_pSamplerStates.size(), m_pSamplerStates.data() );
 		for( UINT i = 0; i < m_ConstantBuffers.size(); i++ )
@@ -47,8 +52,10 @@ namespace Bat
 		}
 	}
 
-	void PixelShader::AddSampler( ID3D11Device* pDevice, const D3D11_SAMPLER_DESC* pSamplerDesc )
+	void PixelShader::AddSampler( const D3D11_SAMPLER_DESC* pSamplerDesc )
 	{
+		auto pDevice = g_pGfx->GetDevice();
+
 		ID3D11SamplerState* pSamplerState;
 		COM_ERROR_IF_FAILED( pDevice->CreateSamplerState( pSamplerDesc, &pSamplerState ) );
 		m_pSamplerStates.emplace_back( pSamplerState );
@@ -56,8 +63,9 @@ namespace Bat
 		ASSERT( m_pSamplerStates.size() < D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, "Too many samplers!" );
 	}
 
-	void PixelShader::SetResource( ID3D11DeviceContext* pDeviceContext, int slot, ID3D11ShaderResourceView* const pResource )
+	void PixelShader::SetResource( int slot, ID3D11ShaderResourceView* const pResource )
 	{
+		auto pDeviceContext = g_pGfx->GetDeviceContext();
 		pDeviceContext->PSSetShaderResources( (UINT)slot, 1, &pResource );
 	}
 }

@@ -1,4 +1,4 @@
-#include "ColourShader.h"
+/*#include "ColourShader.h"
 #include "Vertex.h"
 #include <fstream>
 #include "COMException.h"
@@ -32,4 +32,4 @@ namespace Bat
 
 		return true;
 	}
-}
+}*/

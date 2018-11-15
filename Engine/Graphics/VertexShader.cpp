@@ -3,11 +3,14 @@
 #include "BatAssert.h"
 #include <d3dcompiler.h>
 #include "COMException.h"
+#include "Graphics.h"
 
 namespace Bat
 {
-	VertexShader::VertexShader( ID3D11Device* pDevice, const std::wstring& filename, const D3D11_INPUT_ELEMENT_DESC* pInputElementsDesc, UINT elements )
+	VertexShader::VertexShader( const std::wstring& filename, const D3D11_INPUT_ELEMENT_DESC* pInputElementsDesc, UINT elements )
 	{
+		auto pDevice = g_pGfx->GetDevice();
+
 		HRESULT hr;
 		Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
 		Microsoft::WRL::ComPtr<ID3DBlob> vertexShaderBuffer;
@@ -38,8 +41,10 @@ namespace Bat
 		}
 	}
 
-	void VertexShader::Bind( ID3D11DeviceContext* pDeviceContext )
+	void VertexShader::Bind()
 	{
+		auto pDeviceContext = g_pGfx->GetDeviceContext();
+
 		pDeviceContext->IASetInputLayout( m_pInputLayout.Get() );
 		pDeviceContext->VSSetShader( m_pVertexShader.Get(), NULL, 0 );
 		pDeviceContext->VSSetSamplers( 0, (UINT)m_pSamplerStates.size(), m_pSamplerStates.data() );
@@ -49,8 +54,10 @@ namespace Bat
 		}
 	}
 
-	void VertexShader::AddSampler( ID3D11Device* pDevice, const D3D11_SAMPLER_DESC* pSamplerDesc )
+	void VertexShader::AddSampler( const D3D11_SAMPLER_DESC* pSamplerDesc )
 	{
+		auto pDevice = g_pGfx->GetDevice();
+
 		ID3D11SamplerState* pSamplerState;
 		COM_ERROR_IF_FAILED( pDevice->CreateSamplerState( pSamplerDesc, &pSamplerState ) );
 		m_pSamplerStates.emplace_back( pSamplerState );
@@ -58,8 +65,9 @@ namespace Bat
 		ASSERT( m_pSamplerStates.size() <= D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, "Too many sampler states!" );
 	}
 
-	void VertexShader::SetResource( ID3D11DeviceContext* pDeviceContext, int slot, ID3D11ShaderResourceView* const pResource )
+	void VertexShader::SetResource( int slot, ID3D11ShaderResourceView* const pResource )
 	{
+		auto pDeviceContext = g_pGfx->GetDeviceContext();
 		pDeviceContext->VSSetShaderResources( (UINT)slot, 1, &pResource );
 	}
 }

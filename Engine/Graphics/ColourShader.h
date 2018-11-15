@@ -1,4 +1,4 @@
-#pragma once
+/*#pragma once
 
 #include <d3d11.h>
 #include <DirectXMath.h>
@@ -25,4 +25,4 @@ namespace Bat
 		VertexShader m_VertexShader;
 		PixelShader m_PixelShader;
 	};
-}
+}*/

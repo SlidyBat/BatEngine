@@ -8,7 +8,7 @@ class TestScene : public Bat::IScene
 {
 	DECLARE_CLASS( TestScene, IScene );
 public:
-	TestScene( Bat::Window& wnd, Bat::Graphics& gfx );
+	TestScene( Bat::Window& wnd );
 
 	virtual void OnUpdate() override;
 	virtual void OnRender() override;

@@ -4,13 +4,14 @@
 #include <wrl.h>
 
 #include "COMException.h"
+#include "IGraphics.h"
 
 namespace Bat
 {
 	class ConstantBuffer
 	{
 	public:
-		ConstantBuffer( ID3D11Device* pDevice, const size_t size )
+		ConstantBuffer( const size_t size )
 		{
 			m_iSize = size;
 
@@ -22,9 +23,10 @@ namespace Bat
 			desc.ByteWidth = static_cast<UINT>(size + (16 - (size % 16)));
 			desc.StructureByteStride = 0;
 
+			auto pDevice = g_pGfx->GetDevice();
 			COM_ERROR_IF_FAILED( pDevice->CreateBuffer( &desc, NULL, &m_pConstantBuffer ) );
 		}
-		ConstantBuffer( ID3D11Device* pDevice, const void* pData, const size_t size )
+		ConstantBuffer( const void* pData, const size_t size )
 		{
 			m_iSize = size;
 
@@ -41,11 +43,14 @@ namespace Bat
 			data.SysMemPitch = 0;
 			data.SysMemSlicePitch = 0;
 
+			auto pDevice = g_pGfx->GetDevice();
 			COM_ERROR_IF_FAILED( pDevice->CreateBuffer( &desc, &data, &m_pConstantBuffer ) );
 		}
 
-		void SetData( ID3D11DeviceContext* pDeviceContext, const void* pData )
+		void SetData( const void* pData )
 		{
+			auto pDeviceContext = g_pGfx->GetDeviceContext();
+
 			D3D11_MAPPED_SUBRESOURCE resource;
 			COM_ERROR_IF_FAILED( pDeviceContext->Map( m_pConstantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource ) );
 			memcpy( resource.pData, pData, (UINT)m_iSize );

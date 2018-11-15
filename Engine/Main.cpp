@@ -12,13 +12,14 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 	{
 		Window wnd( { 50, 50 }, Graphics::ScreenWidth, Graphics::ScreenHeight, "Bat Engine", Graphics::FullScreen );
 		Graphics gfx( wnd );
+		//IGraphics::RegisterGraphics( gfx );
 
-		IScene* scene = new TestScene( wnd, gfx );
+		IScene* pScene = new TestScene( wnd );
 		while( wnd.ProcessMessage() )
 		{
-			scene->OnUpdate();
+			pScene->OnUpdate();
 			gfx.BeginFrame();
-			scene->OnRender();
+			pScene->OnRender();
 			gfx.EndFrame();
 		}
 	}

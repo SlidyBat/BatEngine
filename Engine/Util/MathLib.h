@@ -43,6 +43,10 @@ namespace Bat
 	{
 	public:
 		Vec2() = default;
+		Vec2( const float x, const float y )
+			:
+			DirectX::XMFLOAT2( x, y )
+		{}
 		Vec2( const DirectX::XMFLOAT2& src )
 		{
 			x = src.x;
@@ -104,6 +108,47 @@ namespace Bat
 			return *this;
 		}
 		Vec3& operator-()
+		{
+			x = -x;
+			y = -y;
+			z = -z;
+
+			return *this;
+		}
+	};
+
+	class Vec4 : public DirectX::XMFLOAT4
+	{
+	public:
+		Vec4() = default;
+		Vec4( const float x, const float y, const float z, const float w )
+			:
+			DirectX::XMFLOAT4( x, y, z, w )
+		{}
+		Vec4( const DirectX::XMFLOAT4& src )
+		{
+			x = src.x;
+			y = src.y;
+			z = src.z;
+		}
+
+		Vec4 operator=( const DirectX::XMFLOAT4& src )
+		{
+			x = src.x;
+			y = src.y;
+			z = src.z;
+
+			return *this;
+		}
+		Vec4& operator*( float scalar )
+		{
+			x *= scalar;
+			y *= scalar;
+			z *= scalar;
+
+			return *this;
+		}
+		Vec4& operator-()
 		{
 			x = -x;
 			y = -y;

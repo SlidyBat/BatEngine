@@ -14,22 +14,22 @@ namespace Bat
 	class PixelShader
 	{
 	public:
-		PixelShader( ID3D11Device* pDevice, const std::wstring& filename );
+		PixelShader( const std::wstring& filename );
 		~PixelShader();
 
-		void Bind( ID3D11DeviceContext* pDeviceContext );
-		void AddSampler( ID3D11Device* pDevice, const D3D11_SAMPLER_DESC* pSamplerDesc );
-		void SetResource( ID3D11DeviceContext* pDeviceContext, int slot, ID3D11ShaderResourceView* const pResource );
+		void Bind();
+		void AddSampler( const D3D11_SAMPLER_DESC* pSamplerDesc );
+		void SetResource( int slot, ID3D11ShaderResourceView* const pResource );
 
 		template <typename T>
-		void AddConstantBuffer( ID3D11Device* pDevice )
+		void AddConstantBuffer()
 		{
-			m_ConstantBuffers.emplace_back( pDevice, sizeof( T ) );
+			m_ConstantBuffers.emplace_back( sizeof( T ) );
 		}
 		template <typename T>
-		void AddConstantBuffer( ID3D11Device* pDevice, T* pData )
+		void AddConstantBuffer( T* pData )
 		{
-			m_ConstantBuffers.emplace_back( pDevice, pData, sizeof( T ) );
+			m_ConstantBuffers.emplace_back( pData, sizeof( T ) );
 		}
 
 		ConstantBuffer& GetConstantBuffer( int slot )

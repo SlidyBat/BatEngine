@@ -17,6 +17,8 @@ namespace Bat
 	public:
 		virtual ~IShader() = default;
 
-		virtual void Render( ID3D11DeviceContext* pDeviceContext, IShaderParameters* pParameters ) = 0;
+		virtual void BindParameters( IShaderParameters* pParameters ) = 0;
+		virtual void Render( UINT vertexcount ) = 0;
+		virtual void RenderIndexed( UINT indexcount ) = 0;
 	};
 }

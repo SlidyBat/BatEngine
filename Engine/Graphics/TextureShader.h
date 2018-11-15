@@ -22,10 +22,9 @@ namespace Bat
 	class TextureShaderParameters : public IShaderParameters
 	{
 	public:
-		TextureShaderParameters( const DirectX::XMMATRIX& world, const DirectX::XMMATRIX& viewproj, Texture* pTexture, UINT indexcount )
+		TextureShaderParameters( const DirectX::XMMATRIX& world, const DirectX::XMMATRIX& viewproj, Texture* pTexture )
 			:
-			pTexture( pTexture ),
-			indexcount( indexcount )
+			pTexture( pTexture )
 		{
 			transform.world = world;
 			transform.viewproj = viewproj;
@@ -38,22 +37,19 @@ namespace Bat
 		{
 			return pTexture->GetTextureView();
 		}
-		UINT GetIndexCount() const
-		{
-			return indexcount;
-		}
 	private:
 		CB_Matrix transform;
 		Texture* pTexture;
-		UINT indexcount;
 	};
 
 	class TextureShader : public IShader
 	{
 	public:
-		TextureShader( ID3D11Device* pDevice, const std::wstring& vsFilename, const std::wstring& psFilename );
+		TextureShader( const std::wstring& vsFilename, const std::wstring& psFilename );
 
-		void Render( ID3D11DeviceContext* pDeviceContext, IShaderParameters* pParameters ) override;
+		void BindParameters( IShaderParameters* pParameters ) override;
+		void Render( UINT vertexcount ) override;
+		void RenderIndexed( UINT indexcount ) override;
 	private:
 		VertexShader m_VertexShader;
 		PixelShader m_PixelShader;

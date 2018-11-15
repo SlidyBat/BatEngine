@@ -1,39 +1,41 @@
 #include "Graphics.h"
-#include "Vertex.h"
+#include "VertexTypes.h"
 
 namespace Bat
 {
+	IGraphics* g_pGfx = nullptr;
+
 	Graphics::Graphics( Window& wnd )
 		:
-		d3d( wnd, VSyncEnabled, ScreenFar, ScreenNear ),
-		colShader( d3d.GetDevice(), wnd.GetHandle(), L"Graphics/Shaders/ColourVS.hlsl", L"Graphics/Shaders/ColourPS.hlsl" ),
-		texShader( d3d.GetDevice(), L"Graphics/Shaders/TextureVS.hlsl", L"Graphics/Shaders/TexturePS.hlsl" ),
-		camera( FOV, (float)ScreenWidth / ScreenHeight, ScreenNear, ScreenFar )
+		d3d( wnd, VSyncEnabled, ScreenFar, ScreenNear )
 	{
-		camera.SetPosition( 0.0f, 0.0f, -5.0f );
+		IGraphics::RegisterGraphics( this );
+		AddShader( "texture", new TextureShader( L"Graphics/Shaders/TextureVS.hlsl", L"Graphics/Shaders/TexturePS.hlsl" ) );
 
-		projection = DirectX::XMMatrixPerspectiveFovLH( FOVRadians, (float)wnd.GetWidth() / wnd.GetHeight(), ScreenNear, ScreenFar );
+		m_pCamera = new Camera( FOV, (float)ScreenWidth / ScreenHeight, ScreenNear, ScreenFar );
+		m_pCamera->SetPosition( 0.0f, 0.0f, -5.0f );
 
 		wnd.AddResizeListener( [=]( int width, int height )
 		{
 			Resize( width, height );
-			camera.SetAspectRatio( (float)width / height );
+			m_pCamera->SetAspectRatio( (float)width / height );
 		} );
 	}
 
 	Model* Graphics::CreateTexturedModel( const std::vector<TexVertex>& vertices, const std::vector<int>& indices, Texture& tex )
 	{
-		return new TexturedModel( d3d.GetDevice(), d3d.GetDeviceContext(), &texShader, &camera, &tex, vertices, indices );
+		TexMesh mesh( vertices, indices, &tex );
+		return new TexturedModel( mesh );
 	}
 
 	Texture Graphics::CreateTexture( const std::wstring& filename )
 	{
-		return Texture( d3d.GetDevice(), d3d.GetDeviceContext(), filename );
+		return Texture( filename );
 	}
 
 	Texture Graphics::CreateTexture( const Colour* pPixels, int width, int height )
 	{
-		return Texture( d3d.GetDevice(), d3d.GetDeviceContext(), pPixels, width, height );
+		return Texture( pPixels, width, height );
 	}
 
 	void Graphics::BeginFrame()
@@ -43,7 +45,7 @@ namespace Bat
 
 	void Graphics::EndFrame()
 	{
-		camera.Render();
+		m_pCamera->Render();
 		d3d.EndScene();
 	}
 }

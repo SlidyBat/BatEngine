@@ -1,1 +1,0 @@
-C:\Users\admin\Source\Repos\SlidyEngine\Engine\Engine\Colour.vs(11,1): error X3000: syntax error: unexpected token '}'

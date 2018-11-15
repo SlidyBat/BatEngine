@@ -6,26 +6,25 @@
 
 #include "Camera.h"
 #include "Texture.h"
-#include "TexVertex.h"
+#include "VertexTypes.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
-#include "IShader.h"
+#include "Mesh.h"
 
 namespace Bat
 {
+	class IShader;
+
 	class Model
 	{
 	public:
-		Model( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, IShader* pShader )
+		Model()
 			:
-			m_pDevice( pDevice ),
-			m_pDeviceContext( pDeviceContext ),
-			m_pShader( pShader ),
 			m_matWorldMatrix( DirectX::XMMatrixIdentity() )
 		{}
 		virtual ~Model() = default;
 
-		virtual void Draw() const = 0;
+		virtual void Draw( IShader* pShader ) const = 0;
 
 		DirectX::XMFLOAT3 GetPosition() const
 		{
@@ -84,22 +83,16 @@ namespace Bat
 		DirectX::XMFLOAT3 m_vecPosition = { 0.0f, 0.0f, 0.0f };
 		DirectX::XMFLOAT3 m_angRotation = { 0.0f, 0.0f, 0.0f };
 		DirectX::XMMATRIX m_matWorldMatrix;
-
-		ID3D11Device* m_pDevice;
-		ID3D11DeviceContext* m_pDeviceContext;
-		IShader* m_pShader;
 	};
 
 	class TexturedModel : public Model
 	{
 	public:
-		TexturedModel( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, IShader* pShader, Camera* pCamera, Texture* pTexture, const std::vector<TexVertex>& verts, const std::vector<int>& indices );
+		TexturedModel( TexMesh mesh );
+		TexturedModel( std::vector<TexMesh> meshes );
 
-		virtual void Draw() const override;
+		virtual void Draw( IShader* pShader ) const override;
 	private:
-		VertexBuffer<TexVertex> m_VertexBuffer;
-		Bat::IndexBuffer m_IndexBuffer;
-		Bat::Camera* m_pCamera;
-		Texture* m_pTexture;
+		std::vector<TexMesh> m_Meshes;
 	};
 }

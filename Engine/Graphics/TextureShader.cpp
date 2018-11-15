@@ -1,15 +1,15 @@
 #include "TextureShader.h"
-#include "TexVertex.h"
+#include "VertexTypes.h"
 #include <fstream>
 #include "COMException.h"
 #include "Graphics.h"
 
 namespace Bat
 {
-	TextureShader::TextureShader( ID3D11Device* pDevice, const std::wstring& vsFilename, const std::wstring& psFilename )
+	TextureShader::TextureShader( const std::wstring& vsFilename, const std::wstring& psFilename )
 		:
-		m_VertexShader( pDevice, vsFilename, TexVertex::InputLayout, TexVertex::Inputs ),
-		m_PixelShader( pDevice, psFilename )
+		m_VertexShader( vsFilename, TexVertex::InputLayout, TexVertex::Inputs ),
+		m_PixelShader( psFilename )
 	{
 		D3D11_SAMPLER_DESC samplerDesc;
 		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -26,19 +26,29 @@ namespace Bat
 		samplerDesc.MinLOD = 0;
 		samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-		m_PixelShader.AddSampler( pDevice, &samplerDesc );
+		m_PixelShader.AddSampler( &samplerDesc );
 
-		m_VertexShader.AddConstantBuffer<CB_Matrix>( pDevice );
+		m_VertexShader.AddConstantBuffer<CB_Matrix>();
 	}
 
-	void TextureShader::Render( ID3D11DeviceContext* pDeviceContext, IShaderParameters* pParameters )
+	void TextureShader::BindParameters( IShaderParameters* pParameters )
 	{
 		auto pTextureParameters = static_cast<TextureShaderParameters*>(pParameters);
-		m_VertexShader.Bind( pDeviceContext );
-		m_PixelShader.Bind( pDeviceContext );
-		m_VertexShader.GetConstantBuffer( 0 ).SetData( pDeviceContext, pTextureParameters->GetTransformMatrix() );
-		m_PixelShader.SetResource( pDeviceContext, 0, pTextureParameters->GetTextureView() );
+		m_VertexShader.Bind();
+		m_PixelShader.Bind();
+		m_VertexShader.GetConstantBuffer( 0 ).SetData( pTextureParameters->GetTransformMatrix() );
+		m_PixelShader.SetResource( 0, pTextureParameters->GetTextureView() );
+	}
 
-		pDeviceContext->DrawIndexed( pTextureParameters->GetIndexCount(), 0, 0 );
+	void TextureShader::Render( UINT vertexcount )
+	{
+		auto pDeviceContext = g_pGfx->GetDeviceContext();
+		pDeviceContext->Draw( vertexcount, 0 );
+	}
+
+	void TextureShader::RenderIndexed( UINT indexcount )
+	{
+		auto pDeviceContext = g_pGfx->GetDeviceContext();
+		pDeviceContext->DrawIndexed( indexcount, 0, 0 );
 	}
 }

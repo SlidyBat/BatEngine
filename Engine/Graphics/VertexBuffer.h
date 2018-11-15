@@ -4,6 +4,7 @@
 #include <wrl.h>
 
 #include "COMException.h"
+#include "IGraphics.h"
 
 namespace Bat
 {
@@ -11,10 +12,12 @@ namespace Bat
 	class VertexBuffer
 	{
 	public:
-		VertexBuffer( ID3D11Device* pDevice, const V* data, const UINT size )
+		VertexBuffer( const V* data, const UINT size )
 			:
 			size( size )
 		{
+			auto pDevice = g_pGfx->GetDevice();
+
 			D3D11_BUFFER_DESC vertexBufferDesc;
 			vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 			vertexBufferDesc.ByteWidth = UINT( sizeof( V ) * size );
@@ -30,9 +33,9 @@ namespace Bat
 
 			COM_ERROR_IF_FAILED( pDevice->CreateBuffer( &vertexBufferDesc, &vertexData, &m_pVertexBuffer ) );
 		}
-		VertexBuffer( ID3D11Device* pDevice, const std::vector<V>& vertices )
+		VertexBuffer( const std::vector<V>& vertices )
 			:
-			VertexBuffer( pDevice, vertices.data(), (UINT)vertices.size() )
+			VertexBuffer( vertices.data(), (UINT)vertices.size() )
 		{}
 
 		operator ID3D11Buffer*() const
@@ -45,11 +48,11 @@ namespace Bat
 			return m_pVertexBuffer.GetAddressOf();
 		}
 
-		void Bind( ID3D11DeviceContext* pDeviceContext ) const
+		void Bind() const
 		{
 			UINT stride = sizeof( V );
 			UINT offset = 0;
-			pDeviceContext->IASetVertexBuffers( 0, 1, m_pVertexBuffer.GetAddressOf(), &stride, &offset );
+			g_pGfx->GetDeviceContext()->IASetVertexBuffers( 0, 1, m_pVertexBuffer.GetAddressOf(), &stride, &offset );
 		}
 	private:
 		Microsoft::WRL::ComPtr<ID3D11Buffer>	m_pVertexBuffer;

@@ -4,13 +4,14 @@
 #include <wrl.h>
 
 #include "COMException.h"
+#include "IGraphics.h"
 
 namespace Bat
 {
 	class IndexBuffer
 	{
 	public:
-		IndexBuffer( ID3D11Device* pDevice, const int* data, const UINT size )
+		IndexBuffer( const int* data, const UINT size )
 			:
 			size( size )
 		{
@@ -27,11 +28,11 @@ namespace Bat
 			indexData.SysMemPitch = 0;
 			indexData.SysMemSlicePitch = 0;
 
-			COM_ERROR_IF_FAILED( pDevice->CreateBuffer( &indexBufferDesc, &indexData, &m_pIndexBuffer ) );
+			COM_ERROR_IF_FAILED( g_pGfx->GetDevice()->CreateBuffer( &indexBufferDesc, &indexData, &m_pIndexBuffer ) );
 		}
-		IndexBuffer( ID3D11Device* pDevice, const std::vector<int>& indices )
+		IndexBuffer( const std::vector<int>& indices )
 			:
-			IndexBuffer( pDevice, indices.data(), (UINT)indices.size() )
+			IndexBuffer( indices.data(), (UINT)indices.size() )
 		{}
 
 		operator ID3D11Buffer*() const
@@ -39,8 +40,9 @@ namespace Bat
 			return m_pIndexBuffer.Get();
 		}
 
-		void Bind( ID3D11DeviceContext* pDeviceContext ) const
+		void Bind() const
 		{
+			auto pDeviceContext = g_pGfx->GetDeviceContext();
 			pDeviceContext->IASetIndexBuffer( m_pIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0 );
 		}
 

@@ -78,14 +78,22 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\Dev\Assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>C:\Dev\Assimp\bin\x64;C:\Dev\Assimp\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\Dev\Assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>C:\Dev\Assimp\bin\x64;C:\Dev\Assimp\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -94,10 +102,12 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\Dev\Assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>C:\Dev\Assimp\bin\x64;C:\Dev\Assimp\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -107,17 +117,20 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\Dev\Assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>C:\Dev\Assimp\bin\x64;C:\Dev\Assimp\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Graphics\Camera.cpp" />
     <ClCompile Include="Graphics\ColourShader.cpp" />
     <ClCompile Include="Graphics\D3DClass.cpp" />
-    <ClCompile Include="TestScene.cpp" />
+    <ClCompile Include="ObjLoader.cpp" />
+    <ClCompile Include="MarioTestScene.cpp" />
     <ClCompile Include="Util\GDIPManager.cpp" />
     <ClCompile Include="Graphics\Graphics.cpp" />
     <ClCompile Include="Input.cpp" />
@@ -132,11 +145,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BatAssert.h" />
+    <ClInclude Include="Graphics\IGraphics.h" />
     <ClInclude Include="ClassDef.h" />
     <ClInclude Include="Graphics\Camera.h" />
     <ClInclude Include="Graphics\Colour.h" />
     <ClInclude Include="Graphics\ColourShader.h" />
-    <ClInclude Include="TestScene.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="ObjLoader.h" />
+    <ClInclude Include="MarioTestScene.h" />
     <ClInclude Include="Util\COMException.h" />
     <ClInclude Include="Graphics\ConstantBuffer.h" />
     <ClInclude Include="Graphics\D3DClass.h" />
@@ -149,12 +165,11 @@
     <ClInclude Include="Graphics\PixelShader.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Graphics\Texture.h" />
-    <ClInclude Include="Graphics\TexVertex.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Graphics\TextureShader.h" />
     <ClInclude Include="BatWinAPI.h" />
     <ClInclude Include="Util\MathLib.h" />
-    <ClInclude Include="Graphics\Vertex.h" />
+    <ClInclude Include="Graphics\VertexTypes.h" />
     <ClInclude Include="Graphics\VertexBuffer.h" />
     <ClInclude Include="Graphics\VertexShader.h" />
     <ClInclude Include="Window.h" />

@@ -11,11 +11,15 @@ namespace Gdiplus
 	using std::max;
 }
 #include <gdiplus.h>
+#include "Graphics.h"
 
 namespace Bat
 {
-	Texture::Texture( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::wstring& filename )
+	Texture::Texture( const std::wstring& filename )
 	{
+		auto pDevice = g_pGfx->GetDevice();
+		auto pDeviceContext = g_pGfx->GetDeviceContext();
+
 		Gdiplus::Bitmap bmp( filename.c_str() );
 		ASSERT( bmp.GetPixelFormat() == PixelFormat32bppARGB, "Unsupported BMP format" );
 
@@ -62,8 +66,11 @@ namespace Bat
 		delete[] pPixels;
 	}
 
-	Texture::Texture( ID3D11Device * pDevice, ID3D11DeviceContext * pDeviceContext, const Colour * pPixels, int width, int height )
+	Texture::Texture( const Colour * pPixels, int width, int height )
 	{
+		auto pDevice = g_pGfx->GetDevice();
+		auto pDeviceContext = g_pGfx->GetDeviceContext();
+
 		D3D11_TEXTURE2D_DESC textureDesc;
 		textureDesc.Width = width;
 		textureDesc.Height = height;

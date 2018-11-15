@@ -9,16 +9,14 @@ namespace Bat
 	class IScene
 	{
 	public:
-		IScene( Window& wnd, Graphics& gfx )
+		IScene( Window& wnd )
 			:
-			wnd( wnd ),
-			gfx( gfx )
+			wnd( wnd )
 		{}
 
 		virtual void OnUpdate() = 0;
 		virtual void OnRender() = 0;
 	protected:
 		Window& wnd;
-		Graphics& gfx;
 	};
 }
