@@ -13,7 +13,7 @@
 
 namespace Bat
 {
-	class IShader;
+	class IPipeline;
 
 	class Model
 	{
@@ -24,7 +24,7 @@ namespace Bat
 		{}
 		virtual ~Model() = default;
 
-		virtual void Draw( IShader* pShader ) const = 0;
+		virtual void Draw( IPipeline* pPipeline ) const = 0;
 
 		DirectX::XMFLOAT3 GetPosition() const
 		{
@@ -83,16 +83,5 @@ namespace Bat
 		DirectX::XMFLOAT3 m_vecPosition = { 0.0f, 0.0f, 0.0f };
 		DirectX::XMFLOAT3 m_angRotation = { 0.0f, 0.0f, 0.0f };
 		DirectX::XMMATRIX m_matWorldMatrix;
-	};
-
-	class TexturedModel : public Model
-	{
-	public:
-		TexturedModel( TexMesh mesh );
-		TexturedModel( std::vector<TexMesh> meshes );
-
-		virtual void Draw( IShader* pShader ) const override;
-	private:
-		std::vector<TexMesh> m_Meshes;
 	};
 }

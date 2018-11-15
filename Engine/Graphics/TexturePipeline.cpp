@@ -1,4 +1,4 @@
-#include "TextureShader.h"
+#include "TexturePipeline.h"
 #include "VertexTypes.h"
 #include <fstream>
 #include "COMException.h"
@@ -6,7 +6,30 @@
 
 namespace Bat
 {
-	TextureShader::TextureShader( const std::wstring& vsFilename, const std::wstring& psFilename )
+	TexturedModel::TexturedModel( TexMesh mesh )
+	{
+		m_Meshes.emplace_back( mesh );
+	}
+	TexturedModel::TexturedModel( std::vector<TexMesh> meshes )
+		:
+		m_Meshes( std::move( meshes ) )
+	{}
+
+	void TexturedModel::Draw( IPipeline* pPipeline ) const
+	{
+		auto vp = DirectX::XMMatrixTranspose( g_pGfx->GetCamera()->GetViewMatrix() * g_pGfx->GetCamera()->GetProjectionMatrix() );
+		auto w = DirectX::XMMatrixTranspose( GetWorldMatrix() );
+
+		for( const auto& mesh : m_Meshes )
+		{
+			mesh.Bind();
+			TexturePipelineParameters params( w, vp, mesh.GetTexture() );
+			pPipeline->BindParameters( &params );
+			pPipeline->RenderIndexed( (UINT)mesh.GetIndexCount() );
+		}
+	}
+
+	TexturePipeline::TexturePipeline( const std::wstring& vsFilename, const std::wstring& psFilename )
 		:
 		m_VertexShader( vsFilename, TexVertex::InputLayout, TexVertex::Inputs ),
 		m_PixelShader( psFilename )
@@ -28,25 +51,25 @@ namespace Bat
 
 		m_PixelShader.AddSampler( &samplerDesc );
 
-		m_VertexShader.AddConstantBuffer<CB_Matrix>();
+		m_VertexShader.AddConstantBuffer<CB_TexturePipelineMatrix>();
 	}
 
-	void TextureShader::BindParameters( IShaderParameters* pParameters )
+	void TexturePipeline::BindParameters( IPipelineParameters* pParameters )
 	{
-		auto pTextureParameters = static_cast<TextureShaderParameters*>(pParameters);
+		auto pTextureParameters = static_cast<TexturePipelineParameters*>(pParameters);
 		m_VertexShader.Bind();
 		m_PixelShader.Bind();
 		m_VertexShader.GetConstantBuffer( 0 ).SetData( pTextureParameters->GetTransformMatrix() );
 		m_PixelShader.SetResource( 0, pTextureParameters->GetTextureView() );
 	}
 
-	void TextureShader::Render( UINT vertexcount )
+	void TexturePipeline::Render( UINT vertexcount )
 	{
 		auto pDeviceContext = g_pGfx->GetDeviceContext();
 		pDeviceContext->Draw( vertexcount, 0 );
 	}
 
-	void TextureShader::RenderIndexed( UINT indexcount )
+	void TexturePipeline::RenderIndexed( UINT indexcount )
 	{
 		auto pDeviceContext = g_pGfx->GetDeviceContext();
 		pDeviceContext->DrawIndexed( indexcount, 0, 0 );

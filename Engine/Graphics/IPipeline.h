@@ -6,18 +6,18 @@
 
 namespace Bat
 {
-	class IShaderParameters
+	class IPipelineParameters
 	{
 	public:
-		virtual ~IShaderParameters() = default;
+		virtual ~IPipelineParameters() = default;
 	};
 
-	class IShader
+	class IPipeline
 	{
 	public:
-		virtual ~IShader() = default;
+		virtual ~IPipeline() = default;
 
-		virtual void BindParameters( IShaderParameters* pParameters ) = 0;
+		virtual void BindParameters( IPipelineParameters* pParameters ) = 0;
 		virtual void Render( UINT vertexcount ) = 0;
 		virtual void RenderIndexed( UINT indexcount ) = 0;
 	};

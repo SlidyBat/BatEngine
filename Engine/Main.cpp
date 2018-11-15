@@ -2,6 +2,7 @@
 #include "Window.h"
 #include "Graphics.h"
 #include "MarioTestScene.h"
+#include "ColourTestScene.h"
 #include <string>
 
 using namespace Bat;
@@ -14,7 +15,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 		Graphics gfx( wnd );
 		//IGraphics::RegisterGraphics( gfx );
 
-		IScene* pScene = new MarioTestScene( wnd );
+		IScene* pScene = new ColourTestScene( wnd );
 		while( wnd.ProcessMessage() )
 		{
 			pScene->OnUpdate();

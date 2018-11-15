@@ -13,7 +13,7 @@ namespace Bat
 
 	class Camera;
 	class Model;
-	class IShader;
+	class IPipeline;
 
 	class IGraphics
 	{
@@ -31,10 +31,10 @@ namespace Bat
 		virtual ID3D11Device* GetDevice() = 0;
 		virtual ID3D11DeviceContext* GetDeviceContext() = 0;
 
-		IShader* GetShader( const std::string& name )
+		IPipeline* GetPipeline( const std::string& name )
 		{
-			auto it = m_mapShaders.find( name );
-			if( it == m_mapShaders.end() )
+			auto it = m_mapPipelines.find( name );
+			if( it == m_mapPipelines.end() )
 			{
 				return nullptr;
 			}
@@ -44,6 +44,7 @@ namespace Bat
 
 		virtual Texture CreateTexture( const std::wstring& filename ) = 0;
 		virtual Texture CreateTexture( const Bat::Colour* pPixels, int width, int height ) = 0;
+		virtual Model* CreateColouredModel( const std::vector<ColourVertex>& vertices, const std::vector<int>& indices ) = 0;
 		virtual Model* CreateTexturedModel( const std::vector<TexVertex>& vertices, const std::vector<int>& indices, Texture& tex ) = 0;
 
 		Camera* GetCamera() const
@@ -55,12 +56,12 @@ namespace Bat
 			m_pCamera = pCamera;
 		}
 	protected:
-		void AddShader( const std::string& name, IShader* pShader )
+		void AddShader( const std::string& name, IPipeline* pPipeline )
 		{
-			m_mapShaders[name] = pShader;
+			m_mapPipelines[name] = pPipeline;
 		}
 	protected:
 		Camera* m_pCamera;
-		std::unordered_map<std::string, IShader*> m_mapShaders;
+		std::unordered_map<std::string, IPipeline*> m_mapPipelines;
 	};
 }

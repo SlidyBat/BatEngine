@@ -1,4 +1,4 @@
-#include "MarioTestScene.h"
+#include "ColourTestScene.h"
 
 #include "Window.h"
 #include "Graphics.h"
@@ -6,21 +6,21 @@
 
 using namespace Bat;
 
-MarioTestScene::MarioTestScene( Window& wnd )
+ColourTestScene::ColourTestScene( Window& wnd )
 	:
 	BaseClass( wnd )
 {
-	mariotex = g_pGfx->CreateTexture( L"Assets/mario.png" );
+	Vec4 red( 1.0f, 0.0f, 0.0f, 1.0f );
 
-	TexVertex v1( { -0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f } );
-	TexVertex v2( { -0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f } );
-	TexVertex v3( { 0.5f,  0.5f, 0.0f }, { 1.0f, 0.0f } );
-	TexVertex v4( { 0.5f, -0.5f, 0.0f }, { 1.0f, 1.0f } );
+	ColourVertex v1( { -0.5f, -0.5f, 0.0f }, red );
+	ColourVertex v2( { -0.5f,  0.5f, 0.0f }, red );
+	ColourVertex v3( { 0.5f,  0.5f, 0.0f }, red );
+	ColourVertex v4( { 0.5f, -0.5f, 0.0f }, red );
 
-	pMario = g_pGfx->CreateTexturedModel( { v1, v2, v3, v4 }, { 0,1,2, 2,3,0 }, mariotex );
+	pRedSquare = g_pGfx->CreateColouredModel( { v1, v2, v3, v4 }, { 0,1,2, 2,3,0 } );
 }
 
-void MarioTestScene::OnUpdate()
+void ColourTestScene::OnUpdate()
 {
 	Camera* pCamera = g_pGfx->GetCamera();
 
@@ -62,8 +62,8 @@ void MarioTestScene::OnUpdate()
 	}
 }
 
-void MarioTestScene::OnRender()
+void ColourTestScene::OnRender()
 {
-	auto pPipeline = g_pGfx->GetPipeline( "texture" );
-	pMario->Draw( pPipeline );
+	auto pPipeline = g_pGfx->GetPipeline( "colour" );
+	pRedSquare->Draw( pPipeline );
 }

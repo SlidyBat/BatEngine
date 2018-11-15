@@ -11,9 +11,6 @@
 #include "VertexTypes.h"
 #include "Model.h"
 #include "Camera.h"
-#include "TextureShader.h"
-//#include "ColourShader.h"
-
 
 #include <memory>
 
@@ -33,6 +30,7 @@ namespace Bat
 			d3d.Resize( width, height );
 		}
 
+		Model* CreateColouredModel( const std::vector<ColourVertex>& vertices, const std::vector<int>& indices ) override;
 		Model* CreateTexturedModel( const std::vector<TexVertex>& vertices, const std::vector<int>& indices, Texture& tex ) override;
 
 		Texture CreateTexture( const std::wstring& filename ) override;

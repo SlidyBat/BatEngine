@@ -1,5 +1,7 @@
 #include "Graphics.h"
 #include "VertexTypes.h"
+#include "TexturePipeline.h"
+#include "ColourPipeline.h"
 
 namespace Bat
 {
@@ -10,7 +12,8 @@ namespace Bat
 		d3d( wnd, VSyncEnabled, ScreenFar, ScreenNear )
 	{
 		IGraphics::RegisterGraphics( this );
-		AddShader( "texture", new TextureShader( L"Graphics/Shaders/TextureVS.hlsl", L"Graphics/Shaders/TexturePS.hlsl" ) );
+		AddShader( "texture", new TexturePipeline( L"Graphics/Shaders/TextureVS.hlsl", L"Graphics/Shaders/TexturePS.hlsl" ) );
+		AddShader( "colour", new ColourPipeline( L"Graphics/Shaders/ColourVS.hlsl", L"Graphics/Shaders/ColourPS.hlsl" ) );
 
 		m_pCamera = new Camera( FOV, (float)ScreenWidth / ScreenHeight, ScreenNear, ScreenFar );
 		m_pCamera->SetPosition( 0.0f, 0.0f, -5.0f );
@@ -20,6 +23,12 @@ namespace Bat
 			Resize( width, height );
 			m_pCamera->SetAspectRatio( (float)width / height );
 		} );
+	}
+
+	Model* Graphics::CreateColouredModel( const std::vector<ColourVertex>& vertices, const std::vector<int>& indices )
+	{
+		ColourMesh mesh( vertices, indices, nullptr );
+		return new ColouredModel( mesh );
 	}
 
 	Model* Graphics::CreateTexturedModel( const std::vector<TexVertex>& vertices, const std::vector<int>& indices, Texture& tex )

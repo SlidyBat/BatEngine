@@ -25,6 +25,12 @@
     <Filter Include="Source Files\Graphics">
       <UniqueIdentifier>{0c704564-5c80-4352-a32b-c52bf76e2a11}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\TestScenes">
+      <UniqueIdentifier>{c88ff9af-100a-427d-ad4e-b555a3a34b7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\TestScenes">
+      <UniqueIdentifier>{6c320c9c-e7e6-446b-9a09-30e44e154ad5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -39,25 +45,16 @@
     <ClCompile Include="Graphics\Camera.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\ColourShader.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\D3DClass.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Graphics.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Model.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\PixelShader.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Texture.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\TextureShader.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\VertexShader.cpp">
@@ -72,8 +69,17 @@
     <ClCompile Include="ObjLoader.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\TexturePipeline.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ColourPipeline.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
     <ClCompile Include="MarioTestScene.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\TestScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="ColourTestScene.cpp">
+      <Filter>Source Files\TestScenes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -92,9 +98,6 @@
     <ClInclude Include="Graphics\Colour.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\ColourShader.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\ConstantBuffer.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
@@ -107,9 +110,6 @@
     <ClInclude Include="Graphics\IndexBuffer.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\IShader.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\Model.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
@@ -117,9 +117,6 @@
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Texture.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\TextureShader.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\VertexBuffer.h">
@@ -161,8 +158,20 @@
     <ClInclude Include="Graphics\IGraphics.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\IPipeline.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\TexturePipeline.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ColourPipeline.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
     <ClInclude Include="MarioTestScene.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\TestScenes</Filter>
+    </ClInclude>
+    <ClInclude Include="ColourTestScene.h">
+      <Filter>Header Files\TestScenes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
