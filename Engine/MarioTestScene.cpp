@@ -1,8 +1,10 @@
 #include "MarioTestScene.h"
 
 #include "Window.h"
-#include "Graphics.h"
+#include "IGraphics.h"
+#include "Camera.h"
 #include "MathLib.h"
+#include "IModel.h"
 
 using namespace Bat;
 
@@ -10,14 +12,14 @@ MarioTestScene::MarioTestScene( Window& wnd )
 	:
 	BaseClass( wnd )
 {
-	mariotex = g_pGfx->CreateTexture( L"Assets/mario.png" );
+	pMarioTex = g_pGfx->CreateTexture( L"Assets/mario.png" );
 
 	TexVertex v1( { -0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f } );
 	TexVertex v2( { -0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f } );
 	TexVertex v3( { 0.5f,  0.5f, 0.0f }, { 1.0f, 0.0f } );
 	TexVertex v4( { 0.5f, -0.5f, 0.0f }, { 1.0f, 1.0f } );
 
-	pMario = g_pGfx->CreateTexturedModel( { v1, v2, v3, v4 }, { 0,1,2, 2,3,0 }, mariotex );
+	pMario = g_pGfx->CreateTexturedModel( { v1, v2, v3, v4 }, { 0,1,2, 2,3,0 }, *pMarioTex );
 }
 
 void MarioTestScene::OnUpdate()

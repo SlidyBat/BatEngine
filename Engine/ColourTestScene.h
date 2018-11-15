@@ -4,6 +4,12 @@
 #include "Texture.h"
 #include "ClassDef.h"
 
+namespace Bat
+{
+	class Window;
+	class IModel;
+}
+
 class ColourTestScene : public Bat::IScene
 {
 	DECLARE_CLASS( ColourTestScene, IScene );
@@ -13,5 +19,5 @@ public:
 	virtual void OnUpdate() override;
 	virtual void OnRender() override;
 private:
-	Bat::Model* pRedSquare;
+	Bat::IModel* pRedSquare;
 };

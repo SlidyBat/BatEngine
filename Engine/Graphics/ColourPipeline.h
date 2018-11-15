@@ -4,7 +4,7 @@
 #include "Colour.h"
 #include "VertexShader.h"
 #include "PixelShader.h"
-#include "Model.h"
+#include "IModel.h"
 #include "Mesh.h"
 
 namespace Bat
@@ -15,7 +15,7 @@ namespace Bat
 		DirectX::XMMATRIX viewproj;
 	};
 
-	class ColouredModel : public Model
+	class ColouredModel : public IModel
 	{
 	public:
 		ColouredModel( ColourMesh mesh );

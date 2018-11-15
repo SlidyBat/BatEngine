@@ -4,6 +4,12 @@
 #include "Texture.h"
 #include "ClassDef.h"
 
+namespace Bat
+{
+	class Window;
+	class IModel;
+}
+
 class MarioTestScene : public Bat::IScene
 {
 	DECLARE_CLASS( MarioTestScene, IScene );
@@ -13,6 +19,6 @@ public:
 	virtual void OnUpdate() override;
 	virtual void OnRender() override;
 private:
-	Bat::Model* pMario;
-	Bat::Texture mariotex;
+	Bat::IModel* pMario;
+	Bat::Texture* pMarioTex;
 };

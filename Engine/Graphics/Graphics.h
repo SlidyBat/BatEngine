@@ -4,18 +4,19 @@
 #include "D3DClass.h"
 
 #include "IGraphics.h"
-#include "Window.h"
 #include "GDIPManager.h"
 #include "Colour.h"
 #include "Texture.h"
 #include "VertexTypes.h"
-#include "Model.h"
 #include "Camera.h"
 
 #include <memory>
 
 namespace Bat
 {
+	class Window;
+	class Model;
+
 	class Graphics : public IGraphics
 	{
 	public:
@@ -30,11 +31,12 @@ namespace Bat
 			d3d.Resize( width, height );
 		}
 
-		Model* CreateColouredModel( const std::vector<ColourVertex>& vertices, const std::vector<int>& indices ) override;
-		Model* CreateTexturedModel( const std::vector<TexVertex>& vertices, const std::vector<int>& indices, Texture& tex ) override;
+		IModel* CreateColouredModel( const std::vector<ColourVertex>& vertices, const std::vector<int>& indices ) override;
+		IModel* CreateTexturedModel( const std::vector<TexVertex>& vertices, const std::vector<int>& indices, Texture& tex ) override;
+		IModel* CreateModel( const std::vector<Vertex>& vertices, const std::vector<int>& indices, Texture& tex ) override;
 
-		Texture CreateTexture( const std::wstring& filename ) override;
-		Texture CreateTexture( const Bat::Colour* pPixels, int width, int height ) override;
+		Texture* CreateTexture( const std::wstring& filename ) override;
+		Texture* CreateTexture( const Bat::Colour* pPixels, int width, int height ) override;
 
 		void BeginFrame();
 		void EndFrame();

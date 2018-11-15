@@ -1,8 +1,10 @@
 #include "ColourTestScene.h"
 
 #include "Window.h"
-#include "Graphics.h"
+#include "IGraphics.h"
+#include "Camera.h"
 #include "MathLib.h"
+#include "IModel.h"
 
 using namespace Bat;
 

@@ -31,6 +31,12 @@
     <Filter Include="Source Files\TestScenes">
       <UniqueIdentifier>{6c320c9c-e7e6-446b-9a09-30e44e154ad5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Graphics\Pipelines">
+      <UniqueIdentifier>{ddb3803c-2064-4e55-9290-d26a9c6a3fde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Pipelines">
+      <UniqueIdentifier>{137f1696-2e44-46f0-8684-31bb145873e9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -66,19 +72,25 @@
     <ClCompile Include="Util\GDIPManager.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="ObjLoader.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\TexturePipeline.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\ColourPipeline.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="MarioTestScene.cpp">
       <Filter>Source Files\TestScenes</Filter>
     </ClCompile>
     <ClCompile Include="ColourTestScene.cpp">
+      <Filter>Source Files\TestScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\TexturePipeline.cpp">
+      <Filter>Source Files\Graphics\Pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ColourPipeline.cpp">
+      <Filter>Source Files\Graphics\Pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="LightPipeline.cpp">
+      <Filter>Source Files\Graphics\Pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelLoader.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelTestScene.cpp">
       <Filter>Source Files\TestScenes</Filter>
     </ClCompile>
   </ItemGroup>
@@ -108,9 +120,6 @@
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\IndexBuffer.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Model.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\PixelShader.h">
@@ -146,9 +155,6 @@
     <ClInclude Include="IScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ObjLoader.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Mesh.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
@@ -161,16 +167,28 @@
     <ClInclude Include="Graphics\IPipeline.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\TexturePipeline.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ColourPipeline.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="MarioTestScene.h">
       <Filter>Header Files\TestScenes</Filter>
     </ClInclude>
     <ClInclude Include="ColourTestScene.h">
+      <Filter>Header Files\TestScenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ColourPipeline.h">
+      <Filter>Header Files\Graphics\Pipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\TexturePipeline.h">
+      <Filter>Header Files\Graphics\Pipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="LightPipeline.h">
+      <Filter>Header Files\Graphics\Pipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelLoader.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\IModel.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelTestScene.h">
       <Filter>Header Files\TestScenes</Filter>
     </ClInclude>
   </ItemGroup>
@@ -198,6 +216,12 @@
       <Filter>Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\TextureVS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\LightVS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\LightPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

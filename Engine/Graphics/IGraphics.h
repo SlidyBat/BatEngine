@@ -12,7 +12,7 @@ namespace Bat
 	extern IGraphics* g_pGfx;
 
 	class Camera;
-	class Model;
+	class IModel;
 	class IPipeline;
 
 	class IGraphics
@@ -42,10 +42,11 @@ namespace Bat
 			return it->second;
 		}
 
-		virtual Texture CreateTexture( const std::wstring& filename ) = 0;
-		virtual Texture CreateTexture( const Bat::Colour* pPixels, int width, int height ) = 0;
-		virtual Model* CreateColouredModel( const std::vector<ColourVertex>& vertices, const std::vector<int>& indices ) = 0;
-		virtual Model* CreateTexturedModel( const std::vector<TexVertex>& vertices, const std::vector<int>& indices, Texture& tex ) = 0;
+		virtual Texture* CreateTexture( const std::wstring& filename ) = 0;
+		virtual Texture* CreateTexture( const Bat::Colour* pPixels, int width, int height ) = 0;
+		virtual IModel* CreateColouredModel( const std::vector<ColourVertex>& vertices, const std::vector<int>& indices ) = 0;
+		virtual IModel* CreateTexturedModel( const std::vector<TexVertex>& vertices, const std::vector<int>& indices, Texture& tex ) = 0;
+		virtual IModel* CreateModel( const std::vector<Vertex>& vertices, const std::vector<int>& indices, Texture& tex ) = 0;
 
 		Camera* GetCamera() const
 		{

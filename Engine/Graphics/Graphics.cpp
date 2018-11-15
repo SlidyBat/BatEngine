@@ -1,7 +1,10 @@
 #include "Graphics.h"
 #include "VertexTypes.h"
 #include "TexturePipeline.h"
+#include "LightPipeline.h"
 #include "ColourPipeline.h"
+#include "IModel.h"
+#include "Window.h"
 
 namespace Bat
 {
@@ -14,6 +17,7 @@ namespace Bat
 		IGraphics::RegisterGraphics( this );
 		AddShader( "texture", new TexturePipeline( L"Graphics/Shaders/TextureVS.hlsl", L"Graphics/Shaders/TexturePS.hlsl" ) );
 		AddShader( "colour", new ColourPipeline( L"Graphics/Shaders/ColourVS.hlsl", L"Graphics/Shaders/ColourPS.hlsl" ) );
+		AddShader( "light", new LightPipeline( L"Graphics/Shaders/LightVS.hlsl", L"Graphics/Shaders/LightPS.hlsl" ) );
 
 		m_pCamera = new Camera( FOV, (float)ScreenWidth / ScreenHeight, ScreenNear, ScreenFar );
 		m_pCamera->SetPosition( 0.0f, 0.0f, -5.0f );
@@ -25,31 +29,37 @@ namespace Bat
 		} );
 	}
 
-	Model* Graphics::CreateColouredModel( const std::vector<ColourVertex>& vertices, const std::vector<int>& indices )
+	IModel* Graphics::CreateColouredModel( const std::vector<ColourVertex>& vertices, const std::vector<int>& indices )
 	{
 		ColourMesh mesh( vertices, indices, nullptr );
 		return new ColouredModel( mesh );
 	}
 
-	Model* Graphics::CreateTexturedModel( const std::vector<TexVertex>& vertices, const std::vector<int>& indices, Texture& tex )
+	IModel* Graphics::CreateTexturedModel( const std::vector<TexVertex>& vertices, const std::vector<int>& indices, Texture& tex )
 	{
 		TexMesh mesh( vertices, indices, &tex );
 		return new TexturedModel( mesh );
 	}
 
-	Texture Graphics::CreateTexture( const std::wstring& filename )
+	IModel* Graphics::CreateModel( const std::vector<Vertex>& vertices, const std::vector<int>& indices, Texture& tex )
 	{
-		return Texture( filename );
+		Mesh mesh( vertices, indices, &tex );
+		return new LightModel( mesh );
 	}
 
-	Texture Graphics::CreateTexture( const Colour* pPixels, int width, int height )
+	Texture* Graphics::CreateTexture( const std::wstring& filename )
 	{
-		return Texture( pPixels, width, height );
+		return new Texture( filename );
+	}
+
+	Texture* Graphics::CreateTexture( const Colour* pPixels, int width, int height )
+	{
+		return new Texture( pPixels, width, height );
 	}
 
 	void Graphics::BeginFrame()
 	{
-		d3d.BeginScene( 0.0f, 0.0f, 0.0f, 1.0f );
+		d3d.BeginScene( 0.4f, 0.4f, 0.4f, 1.0f );
 	}
 
 	void Graphics::EndFrame()

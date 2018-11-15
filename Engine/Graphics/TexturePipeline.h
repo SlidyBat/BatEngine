@@ -10,7 +10,7 @@
 #include "Texture.h"
 #include "VertexShader.h"
 #include "PixelShader.h"
-#include "Model.h"
+#include "IModel.h"
 #include "Mesh.h"
 
 namespace Bat
@@ -21,7 +21,7 @@ namespace Bat
 		DirectX::XMMATRIX viewproj;
 	};
 
-	class TexturedModel : public Model
+	class TexturedModel : public IModel
 	{
 	public:
 		TexturedModel( TexMesh mesh );
