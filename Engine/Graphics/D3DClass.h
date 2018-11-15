@@ -40,5 +40,8 @@ namespace Bat
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext>			m_pDeviceContext;
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_pRenderTargetView;
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState>		m_pRasterState;
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilView>		m_pDepthStencilView;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pDepthStencilBuffer;
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilState>		m_pDepthStencilState;
 	};
 }

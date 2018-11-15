@@ -119,8 +119,25 @@ namespace Bat
 
 		pBackBuffer->Release();
 		pBackBuffer = nullptr;
+		
+		//Describe our Depth/Stencil Buffer
+		D3D11_TEXTURE2D_DESC depthStencilDesc;
+		depthStencilDesc.Width = (UINT)wnd.GetWidth();
+		depthStencilDesc.Height = (UINT)wnd.GetHeight();
+		depthStencilDesc.MipLevels = 1;
+		depthStencilDesc.ArraySize = 1;
+		depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthStencilDesc.SampleDesc.Count = 1;
+		depthStencilDesc.SampleDesc.Quality = 0;
+		depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		depthStencilDesc.CPUAccessFlags = 0;
+		depthStencilDesc.MiscFlags = 0;
 
-		m_pDeviceContext->OMSetRenderTargets( 1, m_pRenderTargetView.GetAddressOf(), NULL );
+		COM_ERROR_IF_FAILED( m_pDevice->CreateTexture2D( &depthStencilDesc, NULL, &m_pDepthStencilBuffer ) );
+		COM_ERROR_IF_FAILED( m_pDevice->CreateDepthStencilView( m_pDepthStencilBuffer.Get(), NULL, &m_pDepthStencilView ) );
+
+		m_pDeviceContext->OMSetRenderTargets( 1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get() );
 
 		// set up raster description
 		D3D11_RASTERIZER_DESC rasterDesc;
@@ -136,6 +153,15 @@ namespace Bat
 		rasterDesc.SlopeScaledDepthBias = 0.0f;
 
 		COM_ERROR_IF_FAILED( m_pDevice->CreateRasterizerState( &rasterDesc, &m_pRasterState ) );
+
+		//Create depth stencil state
+		D3D11_DEPTH_STENCIL_DESC depthstencildesc{};
+
+		depthstencildesc.DepthEnable = true;
+		depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
+		depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
+
+		COM_ERROR_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilState ) );
 
 		m_pDeviceContext->RSSetState( m_pRasterState.Get() );
 
@@ -154,8 +180,8 @@ namespace Bat
 	void D3DClass::BeginScene( float red, float green, float blue, float alpha )
 	{
 		const float colour[4] = { red, green, blue, alpha };
-
 		m_pDeviceContext->ClearRenderTargetView( m_pRenderTargetView.Get(), colour );
+		m_pDeviceContext->ClearDepthStencilView( m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
 	}
 
 	void D3DClass::EndScene()
@@ -172,20 +198,6 @@ namespace Bat
 
 	void D3DClass::Resize( int width, int height )
 	{
-		m_pDeviceContext->OMSetRenderTargets( 0, NULL, NULL );
-
-		m_pRenderTargetView.Reset();
-
-		HRESULT hr;
-		COM_ERROR_IF_FAILED( hr = m_pSwapChain->ResizeBuffers( 0, width, height, DXGI_FORMAT_UNKNOWN, 0 ) );
-
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> pBuffer;
-		COM_ERROR_IF_FAILED( m_pSwapChain->GetBuffer( 0, __uuidof(ID3D11Texture2D), (void**)&pBuffer ) );
-
-		COM_ERROR_IF_FAILED( m_pDevice->CreateRenderTargetView( pBuffer.Get(), NULL, &m_pRenderTargetView ) );
-
-		m_pDeviceContext->OMSetRenderTargets( 1, m_pRenderTargetView.GetAddressOf(), NULL );
-
 		if( width == 0 && height == 0 )
 		{
 			DXGI_SWAP_CHAIN_DESC desc;
@@ -199,6 +211,38 @@ namespace Bat
 			width = rect.right - rect.left;
 			height = rect.bottom - rect.top;
 		}
+
+		m_pDeviceContext->OMSetRenderTargets( 0, NULL, NULL );
+
+		m_pRenderTargetView.Reset();
+		m_pDepthStencilView.Reset();
+		m_pDepthStencilBuffer.Reset();
+
+		HRESULT hr;
+		COM_ERROR_IF_FAILED( hr = m_pSwapChain->ResizeBuffers( 0, width, height, DXGI_FORMAT_UNKNOWN, 0 ) );
+
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> pBuffer;
+		COM_ERROR_IF_FAILED( m_pSwapChain->GetBuffer( 0, __uuidof(ID3D11Texture2D), (void**)&pBuffer ) );
+
+		D3D11_TEXTURE2D_DESC depthStencilDesc;
+		depthStencilDesc.Width = (UINT)width;
+		depthStencilDesc.Height = (UINT)height;
+		depthStencilDesc.MipLevels = 1;
+		depthStencilDesc.ArraySize = 1;
+		depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthStencilDesc.SampleDesc.Count = 1;
+		depthStencilDesc.SampleDesc.Quality = 0;
+		depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		depthStencilDesc.CPUAccessFlags = 0;
+		depthStencilDesc.MiscFlags = 0;
+
+		COM_ERROR_IF_FAILED( m_pDevice->CreateTexture2D( &depthStencilDesc, NULL, &m_pDepthStencilBuffer ) );
+		COM_ERROR_IF_FAILED( m_pDevice->CreateDepthStencilView( m_pDepthStencilBuffer.Get(), NULL, &m_pDepthStencilView ) );
+
+		COM_ERROR_IF_FAILED( m_pDevice->CreateRenderTargetView( pBuffer.Get(), NULL, &m_pRenderTargetView ) );
+
+		m_pDeviceContext->OMSetRenderTargets( 1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get() );
 
 		D3D11_VIEWPORT viewport;
 		viewport.Width = (float)width;
