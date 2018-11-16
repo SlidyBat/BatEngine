@@ -15,7 +15,7 @@
 		__debugbreak(); \
 	}
 #else
-#define ASSERT(expr)
+#define ASSERT( expr, msg )
 #endif
 
 namespace Bat

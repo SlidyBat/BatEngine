@@ -39,5 +39,5 @@ float4 main(PixelInputType input) : SV_TARGET
     float3 specular = specularStrength * spec * lightColour;
 
 
-    return float4((ambient + diffuse + specular) * (float3) objColour, 1.0f);
+    return float4((ambient + diffuse + specular) * (float3)objColour, 1.0f);
 }

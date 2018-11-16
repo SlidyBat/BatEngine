@@ -163,6 +163,7 @@ namespace Bat
 
 		COM_ERROR_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilState ) );
 
+		m_pDeviceContext->OMSetDepthStencilState( m_pDepthStencilState.Get(), 0 );
 		m_pDeviceContext->RSSetState( m_pRasterState.Get() );
 
 		// set up viewport
@@ -182,6 +183,7 @@ namespace Bat
 		const float colour[4] = { red, green, blue, alpha };
 		m_pDeviceContext->ClearRenderTargetView( m_pRenderTargetView.Get(), colour );
 		m_pDeviceContext->ClearDepthStencilView( m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
+		m_pDeviceContext->OMSetDepthStencilState( m_pDepthStencilState.Get(), 0 );
 	}
 
 	void D3DClass::EndScene()
