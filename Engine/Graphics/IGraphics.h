@@ -48,6 +48,11 @@ namespace Bat
 		virtual IModel* CreateTexturedModel( const std::vector<TexVertex>& vertices, const std::vector<int>& indices, Texture& tex ) = 0;
 		virtual IModel* CreateModel( const std::vector<Vertex>& vertices, const std::vector<int>& indices, Texture& tex ) = 0;
 
+		virtual bool IsDepthStencilEnabled() const = 0;
+		virtual void SetDepthStencilEnabled( bool enable ) = 0;
+		void EnableDepthStencil() { SetDepthStencilEnabled( true ); }
+		void DisableDepthStencil() { SetDepthStencilEnabled( true ); }
+
 		Camera* GetCamera() const
 		{
 			return m_pCamera;
@@ -62,7 +67,7 @@ namespace Bat
 			m_mapPipelines[name] = pPipeline;
 		}
 	protected:
-		Camera* m_pCamera;
+		Camera* m_pCamera = nullptr;
 		std::unordered_map<std::string, IPipeline*> m_mapPipelines;
 	};
 }

@@ -19,9 +19,6 @@ namespace Bat
 		AddShader( "colour", new ColourPipeline( L"Graphics/Shaders/ColourVS.hlsl", L"Graphics/Shaders/ColourPS.hlsl" ) );
 		AddShader( "light", new LightPipeline( L"Graphics/Shaders/LightVS.hlsl", L"Graphics/Shaders/LightPS.hlsl" ) );
 
-		m_pCamera = new Camera( FOV, (float)ScreenWidth / ScreenHeight, ScreenNear, ScreenFar );
-		m_pCamera->SetPosition( 0.0f, 0.0f, -5.0f );
-
 		wnd.AddResizeListener( [=]( int width, int height )
 		{
 			Resize( width, height );
@@ -55,6 +52,16 @@ namespace Bat
 	Texture* Graphics::CreateTexture( const Colour* pPixels, int width, int height )
 	{
 		return new Texture( pPixels, width, height );
+	}
+
+	bool Graphics::IsDepthStencilEnabled() const
+	{
+		return d3d.IsDepthStencilEnabled();
+	}
+
+	void Graphics::SetDepthStencilEnabled( bool enable )
+	{
+		d3d.SetDepthStencilEnabled( enable );
 	}
 
 	void Graphics::BeginFrame()

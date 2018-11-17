@@ -7,6 +7,8 @@
 #include "IModel.h"
 #include "ModelLoader.h"
 #include "LightPipeline.h"
+#include <SpriteBatch.h>
+#include <SpriteFont.h>
 
 using namespace Bat;
 
@@ -14,65 +16,30 @@ ModelTestScene::ModelTestScene( Window& wnd )
 	:
 	BaseClass( wnd )
 {
-	pNanoSuit = new LightModel( ModelLoader::LoadModel( "Assets/NanoSuit/nanosuit.obj" ) );
+	m_Camera.SetPosition( 0.0f, 0.0f, -5.0f );
+	g_pGfx->SetCamera( &m_Camera );
+
+	m_pNanoSuit = std::make_unique<LightModel>( ModelLoader::LoadModel( "Assets/NanoSuit/nanosuit.obj" ) );
+
+	m_pSpriteBatch = std::make_unique<DirectX::SpriteBatch>( g_pGfx->GetDeviceContext() );
+	m_pFont = std::make_unique<DirectX::SpriteFont>( g_pGfx->GetDevice(), L"Assets/Fonts/consolas.spritefont" );
 }
 
 void ModelTestScene::OnUpdate( float deltatime )
 {
-	Camera* pCamera = g_pGfx->GetCamera();
-
-	Vec3 forward = pCamera->GetForwardVector();
-	Vec3 right = pCamera->GetRightVector();
-
-	const float speed = 20.0f;
-	const float angSpeed = 200.0f;
-
-	if( wnd.input.IsKeyPressed( 'A' ) )
-	{
-		pCamera->MoveBy( -right * speed * deltatime );
-	}
-	if( wnd.input.IsKeyPressed( 'D' ) )
-	{
-		pCamera->MoveBy( right * speed * deltatime );
-	}
-	if( wnd.input.IsKeyPressed( 'W' ) )
-	{
-		pCamera->MoveBy( forward * speed * deltatime );
-	}
-	if( wnd.input.IsKeyPressed( 'S' ) )
-	{
-		pCamera->MoveBy( -forward * speed * deltatime );
-	}
-
-	if( wnd.input.IsKeyPressed( VK_UP ) )
-	{
-		pCamera->RotateBy( -angSpeed * deltatime, 0.0f, 0.0f );
-	}
-	if( wnd.input.IsKeyPressed( VK_DOWN ) )
-	{
-		pCamera->RotateBy( angSpeed * deltatime, 0.0f, 0.0f );
-	}
-	if( wnd.input.IsKeyPressed( VK_LEFT ) )
-	{
-		pCamera->RotateBy( 0.0f, -angSpeed * deltatime, 0.0f );
-	}
-	if( wnd.input.IsKeyPressed( VK_RIGHT ) )
-	{
-		pCamera->RotateBy( 0.0f, angSpeed * deltatime, 0.0f );
-	}
-
-	if( wnd.input.IsKeyPressed( VK_SPACE ) )
-	{
-		pCamera->MoveBy( 0.0f, speed * deltatime, 0.0f );
-	}
-	if( wnd.input.IsKeyPressed( VK_SHIFT ) )
-	{
-		pCamera->MoveBy( 0.0f, -speed * deltatime, 0.0f );
-	}
+	m_Camera.Update( wnd.input, deltatime );
 }
 
 void ModelTestScene::OnRender()
 {
+	g_pGfx->EnableDepthStencil();
+
 	auto pPipeline = g_pGfx->GetPipeline( "light" );
-	pNanoSuit->Draw( pPipeline );
+	m_pNanoSuit->Draw( pPipeline );
+
+	m_pSpriteBatch->Begin();
+	Vec3 campos = m_Camera.GetPosition();
+	std::wstring pos = L"Pos: " + std::to_wstring( campos.x ) + L" " + std::to_wstring( campos.y ) + L" " + std::to_wstring( campos.z );
+	m_pFont->DrawString( m_pSpriteBatch.get(), pos.c_str(), DirectX::XMFLOAT2{ 15.0f, 30.0f } );
+	m_pSpriteBatch->End();
 }

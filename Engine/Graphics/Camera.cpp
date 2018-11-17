@@ -1,7 +1,5 @@
 #include "Camera.h"
 
-#include "MathLib.h"
-
 namespace Bat
 {
 	Camera::Camera( const Vec3& pos, const Vec3& rot, float fov, float ar, float screen_near, float screen_far )

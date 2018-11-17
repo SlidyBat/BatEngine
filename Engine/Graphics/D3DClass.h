@@ -29,6 +29,9 @@ namespace Bat
 		ID3D11DeviceContext* GetDeviceContext() const;
 
 		void GetVideoCardInfo( std::wstring& cardName, int& memory ) const;
+
+		bool IsDepthStencilEnabled() const;
+		void SetDepthStencilEnabled( bool enable );
 	private:
 		bool						m_bVSyncEnabled;
 
@@ -36,12 +39,16 @@ namespace Bat
 		std::wstring				m_szVideoCardDescription;
 
 		Microsoft::WRL::ComPtr<IDXGISwapChain>				m_pSwapChain;
+
 		Microsoft::WRL::ComPtr<ID3D11Device>				m_pDevice;
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext>			m_pDeviceContext;
+
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_pRenderTargetView;
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState>		m_pRasterState;
+
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilView>		m_pDepthStencilView;
 		Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pDepthStencilBuffer;
-		Microsoft::WRL::ComPtr<ID3D11DepthStencilState>		m_pDepthStencilState;
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilState>		m_pDepthStencilEnabledState;
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilState>		m_pDepthStencilDisabledState;
 	};
 }

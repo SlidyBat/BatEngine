@@ -38,6 +38,9 @@ namespace Bat
 		Texture* CreateTexture( const std::wstring& filename ) override;
 		Texture* CreateTexture( const Bat::Colour* pPixels, int width, int height ) override;
 
+		bool IsDepthStencilEnabled() const override;
+		void SetDepthStencilEnabled( bool enable ) override;
+
 		void BeginFrame();
 		void EndFrame();
 

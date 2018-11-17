@@ -16,7 +16,7 @@ struct PixelInputType
 
 float4 main(PixelInputType input) : SV_TARGET
 {
-    float x = 5.0f + sin(time) * 10.0f;
+    float x = sin(time) * 5.0f;
     float y = sin(time / 2.0f) * 5.0f;
     float3 lightPos = float3(x, y, 0.0f);
     float3 lightDir = normalize(lightPos - (float3) input.normal);

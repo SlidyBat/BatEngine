@@ -53,26 +53,28 @@ namespace Bat
 			y = src.y;
 		}
 
-		Vec2 operator=( const DirectX::XMFLOAT2& src )
+		Vec2& operator=( const DirectX::XMFLOAT2& src )
 		{
 			x = src.x;
 			y = src.y;
 
 			return *this;
 		}
-		Vec2& operator*( float scalar )
+		Vec2 operator*( float scalar ) const
 		{
-			x *= scalar;
-			y *= scalar;
+			Vec2 res;
+			res.x = x * scalar;
+			res.y = y * scalar;
 
-			return *this;
+			return res;
 		}
-		Vec2& operator-()
+		Vec2 operator-() const
 		{
-			x = -x;
-			y = -y;
+			Vec2 res;
+			res.x = -x;
+			res.y = -y;
 
-			return *this;
+			return res;
 		}
 	};
 
@@ -91,7 +93,7 @@ namespace Bat
 			z = src.z;
 		}
 
-		Vec3 operator=( const DirectX::XMFLOAT3& src )
+		Vec3& operator=( const DirectX::XMFLOAT3& src )
 		{
 			x = src.x;
 			y = src.y;
@@ -99,21 +101,23 @@ namespace Bat
 
 			return *this;
 		}
-		Vec3& operator*( float scalar )
+		Vec3 operator*( float scalar ) const
 		{
-			x *= scalar;
-			y *= scalar;
-			z *= scalar;
+			Vec3 res;
+			res.x = x * scalar;
+			res.y = y * scalar;
+			res.z = z * scalar;
 
-			return *this;
+			return res;
 		}
-		Vec3& operator-()
+		Vec3 operator-() const
 		{
-			x = -x;
-			y = -y;
-			z = -z;
+			Vec3 res;
+			res.x = -x;
+			res.y = -y;
+			res.z = -z;
 
-			return *this;
+			return res;
 		}
 	};
 
@@ -132,7 +136,7 @@ namespace Bat
 			z = src.z;
 		}
 
-		Vec4 operator=( const DirectX::XMFLOAT4& src )
+		Vec4& operator=( const DirectX::XMFLOAT4& src )
 		{
 			x = src.x;
 			y = src.y;
@@ -140,21 +144,25 @@ namespace Bat
 
 			return *this;
 		}
-		Vec4& operator*( float scalar )
+		Vec4 operator*( float scalar ) const
 		{
-			x *= scalar;
-			y *= scalar;
-			z *= scalar;
+			Vec4 res;
+			res.x = x * scalar;
+			res.y = y * scalar;
+			res.z = z * scalar;
+			res.w = w * scalar;
 
-			return *this;
+			return res;
 		}
-		Vec4& operator-()
+		Vec4 operator-() const
 		{
-			x = -x;
-			y = -y;
-			z = -z;
+			Vec4 res;
+			res.x = -x;
+			res.y = -y;
+			res.z = -z;
+			res.w = -w;
 
-			return *this;
+			return res;
 		}
 	};
 }

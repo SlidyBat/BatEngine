@@ -7,22 +7,6 @@
 
 namespace Bat
 {
-	ID3D11Device* D3DClass::GetDevice() const
-	{
-		return m_pDevice.Get();
-	}
-
-	ID3D11DeviceContext* D3DClass::GetDeviceContext() const
-	{
-		return m_pDeviceContext.Get();
-	}
-
-	void D3DClass::GetVideoCardInfo( std::wstring& cardName, int& memory ) const
-	{
-		cardName = m_szVideoCardDescription;
-		memory = m_iVideoCardMemory;
-	}
-
 	D3DClass::D3DClass( Window& wnd, bool vsyncEnabled, float screendepth, float screennear )
 	{
 		m_bVSyncEnabled = vsyncEnabled;
@@ -119,7 +103,7 @@ namespace Bat
 
 		pBackBuffer->Release();
 		pBackBuffer = nullptr;
-		
+
 		//Describe our Depth/Stencil Buffer
 		D3D11_TEXTURE2D_DESC depthStencilDesc;
 		depthStencilDesc.Width = (UINT)wnd.GetWidth();
@@ -154,16 +138,20 @@ namespace Bat
 
 		COM_ERROR_IF_FAILED( m_pDevice->CreateRasterizerState( &rasterDesc, &m_pRasterState ) );
 
-		//Create depth stencil state
+		//Create depth stencil state enabled/disabled states
 		D3D11_DEPTH_STENCIL_DESC depthstencildesc{};
 
 		depthstencildesc.DepthEnable = true;
 		depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
 		depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
 
-		COM_ERROR_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilState ) );
+		COM_ERROR_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilEnabledState ) );
 
-		m_pDeviceContext->OMSetDepthStencilState( m_pDepthStencilState.Get(), 0 );
+		depthstencildesc.DepthEnable = false;
+
+		COM_ERROR_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilDisabledState ) );
+
+		m_pDeviceContext->OMSetDepthStencilState( m_pDepthStencilEnabledState.Get(), 0 );
 		m_pDeviceContext->RSSetState( m_pRasterState.Get() );
 
 		// set up viewport
@@ -178,12 +166,52 @@ namespace Bat
 		m_pDeviceContext->RSSetViewports( 1, &viewport );
 	}
 
+	ID3D11Device* D3DClass::GetDevice() const
+	{
+		return m_pDevice.Get();
+	}
+
+	ID3D11DeviceContext* D3DClass::GetDeviceContext() const
+	{
+		return m_pDeviceContext.Get();
+	}
+
+	void D3DClass::GetVideoCardInfo( std::wstring& cardName, int& memory ) const
+	{
+		cardName = m_szVideoCardDescription;
+		memory = m_iVideoCardMemory;
+	}
+
+	bool D3DClass::IsDepthStencilEnabled() const
+	{
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> pState = nullptr;
+		UINT stencilref = 0;
+		m_pDeviceContext->OMGetDepthStencilState( &pState, &stencilref );
+
+		D3D11_DEPTH_STENCIL_DESC desc;
+		pState->GetDesc( &desc );
+
+		return desc.DepthEnable;
+	}
+
+	void D3DClass::SetDepthStencilEnabled( bool enable )
+	{
+		if( enable )
+		{
+			m_pDeviceContext->OMSetDepthStencilState( m_pDepthStencilEnabledState.Get(), 0 );
+		}
+		else
+		{
+			m_pDeviceContext->OMSetDepthStencilState( m_pDepthStencilDisabledState.Get(), 0 );
+		}
+	}
+
 	void D3DClass::BeginScene( float red, float green, float blue, float alpha )
 	{
 		const float colour[4] = { red, green, blue, alpha };
 		m_pDeviceContext->ClearRenderTargetView( m_pRenderTargetView.Get(), colour );
 		m_pDeviceContext->ClearDepthStencilView( m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
-		m_pDeviceContext->OMSetDepthStencilState( m_pDepthStencilState.Get(), 0 );
+		m_pDeviceContext->OMSetDepthStencilState( m_pDepthStencilEnabledState.Get(), 0 );
 	}
 
 	void D3DClass::EndScene()

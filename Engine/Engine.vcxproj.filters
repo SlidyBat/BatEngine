@@ -102,6 +102,9 @@
     <ClCompile Include="Util\FrameTimer.cpp">
       <Filter>Source Files\Util</Filter>
     </ClCompile>
+    <ClCompile Include="MoveableCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input.h">
@@ -207,6 +210,9 @@
       <Filter>Header Files\Util</Filter>
     </ClInclude>
     <ClInclude Include="StringLib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MoveableCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -131,6 +131,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ColourTestScene.cpp" />
+    <ClCompile Include="MoveableCamera.cpp" />
     <ClCompile Include="Util\FrameTimer.cpp" />
     <ClCompile Include="Globals.cpp" />
     <ClCompile Include="Graphics\Camera.cpp" />
@@ -154,6 +155,7 @@
   <ItemGroup>
     <ClInclude Include="BatAssert.h" />
     <ClInclude Include="ColourTestScene.h" />
+    <ClInclude Include="MoveableCamera.h" />
     <ClInclude Include="StringLib.h" />
     <ClInclude Include="Util\FrameTimer.h" />
     <ClInclude Include="Globals.h" />
