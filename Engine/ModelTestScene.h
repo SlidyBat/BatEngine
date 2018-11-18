@@ -4,6 +4,7 @@
 #include "Texture.h"
 #include "ClassDef.h"
 #include "MoveableCamera.h"
+#include "Light.h"
 
 namespace Bat
 {
@@ -31,4 +32,6 @@ private:
 
 	std::unique_ptr<DirectX::SpriteBatch> m_pSpriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> m_pFont;
+
+	Bat::Light m_Light;
 };

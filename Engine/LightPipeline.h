@@ -15,6 +15,8 @@
 
 namespace Bat
 {
+	class Light;
+
 	struct CB_LightPipelineMatrix
 	{
 		DirectX::XMMATRIX world;
@@ -25,6 +27,14 @@ namespace Bat
 	{
 		Vec3 cameraPos;
 		float time;
+	};
+
+	struct CB_LightPipelineLight
+	{
+		Vec3 lightPos;
+		Vec3 lightAmbient;
+		Vec3 lightDiffuse;
+		Vec3 lightSpecular;
 	};
 
 	class LightModel : public IModel
@@ -69,8 +79,13 @@ namespace Bat
 		void BindParameters( IPipelineParameters* pParameters ) override;
 		void Render( UINT vertexcount ) override;
 		void RenderIndexed( UINT indexcount ) override;
+
+		Light* GetLight() const { return m_pLight; }
+		void SetLight( Light* pLight ) { m_pLight = pLight; }
 	private:
 		VertexShader m_VertexShader;
 		PixelShader m_PixelShader;
+
+		Light* m_pLight = nullptr;
 	};
 }

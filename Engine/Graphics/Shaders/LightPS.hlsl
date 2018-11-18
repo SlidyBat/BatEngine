@@ -7,6 +7,14 @@ cbuffer LightingParameters
     float time;
 };
 
+cbuffer Light
+{
+    float3 lightPosition;
+    float3 lightAmbient;
+    float3 lightDiffuse;
+    float3 lightSpecular;
+};
+
 struct PixelInputType
 {
     float4 position : SV_POSITION;
@@ -16,27 +24,21 @@ struct PixelInputType
 
 float4 main(PixelInputType input) : SV_TARGET
 {
-    float x = sin(time) * 5.0f;
-    float y = sin(time / 2.0f) * 5.0f;
-    float3 lightPos = float3(x, y, 0.0f);
-    float3 lightDir = normalize(lightPos - (float3) input.normal);
-    float3 lightColour = float3(1.0f, 1.0f, 1.0f);
+    float3 lightDir = normalize(lightPosition - (float3) input.normal);
     float4 objColour = shaderTexture.Sample(SampleType, input.tex);
 
     // ambient
-    float ambientStrength = 0.2f;
-    float3 ambient = ambientStrength * lightColour;
+    float3 ambient = lightAmbient;
 
     // diffuse
     float diff = max(dot((float3) input.normal, lightDir), 0.0f);
-    float3 diffuse = diff * lightColour;
+    float3 diffuse = diff * lightDiffuse;
 
     // specular
-    float specularStrength = 0.5f;
     float3 viewDir = normalize(cameraPos - (float3)input.position);
     float3 reflectDir = reflect(-lightDir, (float3)input.normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 32);
-    float3 specular = specularStrength * spec * lightColour;
+    float3 specular = spec * lightSpecular;
 
 
     return float4((ambient + diffuse + specular) * (float3)objColour, 1.0f);

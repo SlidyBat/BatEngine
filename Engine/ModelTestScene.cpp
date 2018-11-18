@@ -9,6 +9,7 @@
 #include "LightPipeline.h"
 #include <SpriteBatch.h>
 #include <SpriteFont.h>
+#include "LightPipeline.h"
 
 using namespace Bat;
 
@@ -16,6 +17,7 @@ ModelTestScene::ModelTestScene( Window& wnd )
 	:
 	BaseClass( wnd )
 {
+	m_Light.SetPosition( { 0.0f, 0.0f, -5.0f } );
 	m_Camera.SetPosition( 0.0f, 0.0f, -5.0f );
 	g_pGfx->SetCamera( &m_Camera );
 
@@ -34,7 +36,9 @@ void ModelTestScene::OnRender()
 {
 	g_pGfx->EnableDepthStencil();
 
-	auto pPipeline = g_pGfx->GetPipeline( "light" );
+	auto pPipeline = static_cast<LightPipeline*>(g_pGfx->GetPipeline( "light" ));
+	pPipeline->SetLight( &m_Light );
+
 	m_pNanoSuit->Draw( pPipeline );
 
 	m_pSpriteBatch->Begin();

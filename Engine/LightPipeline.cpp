@@ -4,6 +4,7 @@
 #include "COMException.h"
 #include "IGraphics.h"
 #include "Globals.h"
+#include "Light.h"
 
 namespace Bat
 {
@@ -54,6 +55,7 @@ namespace Bat
 
 		m_VertexShader.AddConstantBuffer<CB_LightPipelineMatrix>();
 		m_PixelShader.AddConstantBuffer<CB_LightPipelineLightingParams>();
+		m_PixelShader.AddConstantBuffer<CB_LightPipelineLight>();
 	}
 
 	void LightPipeline::BindParameters( IPipelineParameters* pParameters )
@@ -62,11 +64,19 @@ namespace Bat
 		ps_params.cameraPos = g_pGfx->GetCamera()->GetPosition();
 		ps_params.time = g_pGlobals->elapsed_time;
 
+		const float time = g_pGlobals->elapsed_time;
+		CB_LightPipelineLight ps_light;
+		ps_light.lightPos = m_pLight->GetPosition();
+		ps_light.lightAmbient = m_pLight->GetAmbient();
+		ps_light.lightDiffuse = m_pLight->GetDiffuse();
+		ps_light.lightSpecular = m_pLight->GetSpecular();
+
 		auto pTextureParameters = static_cast<LightPipelineParameters*>(pParameters);
 		m_VertexShader.Bind();
 		m_PixelShader.Bind();
 		m_VertexShader.GetConstantBuffer( 0 ).SetData( pTextureParameters->GetTransformMatrix() );
 		m_PixelShader.GetConstantBuffer( 0 ).SetData( &ps_params );
+		m_PixelShader.GetConstantBuffer( 1 ).SetData( &ps_light );
 		m_PixelShader.SetResource( 0, pTextureParameters->GetTextureView() );
 	}
 
