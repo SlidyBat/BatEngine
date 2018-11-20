@@ -14,6 +14,7 @@ struct VertexInputType
 struct PixelInputType
 {
     float4 position : SV_POSITION;
+    float4 world_pos : POSITION;
     float4 normal : NORMAL;
     float2 tex : TEXCOORD0;
 };
@@ -27,7 +28,8 @@ PixelInputType main(VertexInputType input)
 
     float4x4 wvp = mul(world, viewproj);
     output.position = mul(input.position, wvp);
-    output.normal = normalize(mul(input.normal, wvp));
+    output.world_pos = mul(input.position, world);
+    output.normal = normalize(mul(input.normal, world));
     output.tex = input.tex;
 
     return output;

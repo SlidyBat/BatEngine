@@ -84,10 +84,17 @@ namespace Bat
 	void Graphics::BeginFrame()
 	{
 		d3d.BeginScene( 0.1f, 0.1f, 0.1f, 1.0f );
+
+		ImGui_ImplDX11_NewFrame();
+		ImGui_ImplWin32_NewFrame();
+		ImGui::NewFrame();
 	}
 
 	void Graphics::EndFrame()
 	{
+		ImGui::Render();
+		ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );
+
 		m_pCamera->Render();
 		d3d.EndScene();
 	}

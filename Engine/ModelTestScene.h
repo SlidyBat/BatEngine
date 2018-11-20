@@ -35,8 +35,8 @@ private:
 
 	Bat::Light m_Light;
 
-	float lightPos[3] = { 0.0f };
-	float lightAmb[3] = { 0.2f };
-	float lightDiff[3] = { 0.5f };
-	float lightSpec[3] = { 1.0f };
+	float lightPos[3] = { 0.0f, 0.0f, -5.0f };
+	float lightAmb[3] = { 0.2f, 0.2f, 0.2f };
+	float lightDiff[3] = { 0.5f, 0.5f, 0.5f };
+	float lightSpec[3] = { 1.0f, 1.0f, 1.0f };
 };

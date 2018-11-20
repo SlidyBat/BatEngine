@@ -18,13 +18,14 @@ cbuffer Light
 struct PixelInputType
 {
     float4 position : SV_POSITION;
+    float4 world_pos : POSITION;
     float4 normal : NORMAL;
     float2 tex : TEXCOORD0;
 };
 
 float4 main(PixelInputType input) : SV_TARGET
 {
-    float3 lightDir = normalize(lightPosition - (float3) input.normal);
+    float3 lightDir = normalize(lightPosition - (float3) input.world_pos);
     float4 objColour = shaderTexture.Sample(SampleType, input.tex);
 
     // ambient
@@ -35,7 +36,7 @@ float4 main(PixelInputType input) : SV_TARGET
     float3 diffuse = diff * lightDiffuse;
 
     // specular
-    float3 viewDir = normalize(cameraPos - (float3)input.position);
+    float3 viewDir = normalize(cameraPos - (float3) input.world_pos);
     float3 reflectDir = reflect(-lightDir, (float3)input.normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 32);
     float3 specular = spec * lightSpecular;
