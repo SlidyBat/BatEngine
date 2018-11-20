@@ -5,6 +5,9 @@
 #include "ColourPipeline.h"
 #include "IModel.h"
 #include "Window.h"
+#include "imgui.h"
+#include "imgui_impl_dx11.h"
+#include "imgui_impl_win32.h"
 
 namespace Bat
 {
@@ -24,6 +27,20 @@ namespace Bat
 			Resize( width, height );
 			m_pCamera->SetAspectRatio( (float)width / height );
 		} );
+
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		ImGui_ImplWin32_Init( wnd.GetHandle() );
+		ImGui_ImplDX11_Init( GetDevice(), GetDeviceContext() );
+		ImGui::StyleColorsDark();
+	}
+
+	Graphics::~Graphics()
+	{
+		ImGui_ImplDX11_Shutdown();
+		ImGui_ImplWin32_Shutdown();
+		ImGui::DestroyContext();
 	}
 
 	IModel* Graphics::CreateColouredModel( const std::vector<ColourVertex>& vertices, const std::vector<int>& indices )

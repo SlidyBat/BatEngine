@@ -2,6 +2,8 @@
 #include "Resource.h"
 #include "BatAssert.h"
 
+extern LRESULT ImGui_ImplWin32_WndProcHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
+
 namespace Bat
 {
 	Window::Window( const Vei2& pos, int width, int height, const std::string& name, bool fullscreen )
@@ -152,6 +154,11 @@ namespace Bat
 
 	LRESULT Window::HandleMsg( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 	{
+		if( ImGui_ImplWin32_WndProcHandler( hWnd, uMsg, wParam, lParam ) )
+		{
+			return true;
+		}
+
 		switch( uMsg )
 		{
 		case WM_DESTROY:

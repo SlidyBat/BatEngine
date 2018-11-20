@@ -10,6 +10,9 @@
 #include <SpriteBatch.h>
 #include <SpriteFont.h>
 #include "LightPipeline.h"
+#include "imgui.h"
+#include "imgui_impl_dx11.h"
+#include "imgui_impl_win32.h"
 
 using namespace Bat;
 
@@ -29,6 +32,10 @@ ModelTestScene::ModelTestScene( Window& wnd )
 
 void ModelTestScene::OnUpdate( float deltatime )
 {
+	m_Light.SetPosition( { lightPos[0], lightPos[1], lightPos[2] } );
+	m_Light.SetAmbient( { lightAmb[0], lightAmb[1], lightAmb[2] } );
+	m_Light.SetDiffuse( { lightDiff[0], lightDiff[1], lightDiff[2] } );
+	m_Light.SetSpecular( { lightSpec[0], lightSpec[1], lightSpec[2] } );
 	m_Camera.Update( wnd.input, deltatime );
 }
 
@@ -46,4 +53,18 @@ void ModelTestScene::OnRender()
 	std::wstring pos = L"Pos: " + std::to_wstring( campos.x ) + L" " + std::to_wstring( campos.y ) + L" " + std::to_wstring( campos.z );
 	m_pFont->DrawString( m_pSpriteBatch.get(), pos.c_str(), DirectX::XMFLOAT2{ 15.0f, 30.0f } );
 	m_pSpriteBatch->End();
+
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	ImGui::Begin("Light Controls");
+	ImGui::SliderFloat3( "Position", lightPos, -20.0f, 20.0f );
+	ImGui::SliderFloat3( "Ambient", lightAmb, 0.0f, 1.0f );
+	ImGui::SliderFloat3( "Diffuse", lightDiff, 0.0f, 1.0f );
+	ImGui::SliderFloat3( "Specular", lightSpec, 0.0f, 1.0f );
+	ImGui::End();
+
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );
 }

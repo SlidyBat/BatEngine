@@ -26,6 +26,8 @@ namespace Bat
 		Graphics( Graphics&& donor ) = delete;
 		Graphics& operator=( Graphics&& donor ) = delete;
 
+		~Graphics() override;
+
 		void Resize( int width = 0, int height = 0 )
 		{
 			d3d.Resize( width, height );
