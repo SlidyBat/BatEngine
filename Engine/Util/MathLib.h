@@ -134,6 +134,7 @@ namespace Bat
 			x = src.x;
 			y = src.y;
 			z = src.z;
+			w = src.w;
 		}
 
 		Vec4& operator=( const DirectX::XMFLOAT4& src )
@@ -141,6 +142,16 @@ namespace Bat
 			x = src.x;
 			y = src.y;
 			z = src.z;
+			w = src.w;
+
+			return *this;
+		}
+		Vec4& operator=( const DirectX::XMFLOAT3& src )
+		{
+			x = src.x;
+			y = src.y;
+			z = src.z;
+			w = 1.0f;
 
 			return *this;
 		}

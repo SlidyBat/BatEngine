@@ -31,6 +31,7 @@ float4 main(PixelInputType input) : SV_TARGET
     // ambient
     float3 ambient = lightAmbient;
 
+    input.normal = normalize(input.normal);
     // diffuse
     float diff = max(dot((float3) input.normal, lightDir), 0.0f);
     float3 diffuse = diff * lightDiffuse;

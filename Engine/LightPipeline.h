@@ -29,12 +29,17 @@ namespace Bat
 		float time;
 	};
 
+
 	struct CB_LightPipelineLight
 	{
 		Vec3 lightPos;
+		float pad1;
 		Vec3 lightAmbient;
+		float pad2;
 		Vec3 lightDiffuse;
+		float pad3;
 		Vec3 lightSpecular;
+		float pad4;
 	};
 
 	class LightModel : public IModel
