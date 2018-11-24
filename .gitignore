@@ -12,3 +12,4 @@ Engine.VC.db
 /Engine/Engine.vcxproj.user
 /Build
 *.cso
+imgui.ini
