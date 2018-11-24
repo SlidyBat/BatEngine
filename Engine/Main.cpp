@@ -29,7 +29,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 		auto sb = std::make_unique<DirectX::SpriteBatch>( gfx.GetDeviceContext() );
 		auto font = std::make_unique<DirectX::SpriteFont>( gfx.GetDevice(), L"Assets/Fonts/consolas.spritefont" );
 
-		IScene* pScene = new ModelTestScene( wnd );
+		IScene* pScene = new CarTestScene( wnd );
 		while( wnd.ProcessMessage() )
 		{
 			static int fpsCounter = 0;
