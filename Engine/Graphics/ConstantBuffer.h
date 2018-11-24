@@ -24,7 +24,7 @@ namespace Bat
 			desc.StructureByteStride = 0;
 
 			auto pDevice = g_pGfx->GetDevice();
-			COM_ERROR_IF_FAILED( pDevice->CreateBuffer( &desc, NULL, &m_pConstantBuffer ) );
+			COM_THROW_IF_FAILED( pDevice->CreateBuffer( &desc, NULL, &m_pConstantBuffer ) );
 		}
 		ConstantBuffer( const void* pData, const size_t size )
 		{
@@ -44,7 +44,7 @@ namespace Bat
 			data.SysMemSlicePitch = 0;
 
 			auto pDevice = g_pGfx->GetDevice();
-			COM_ERROR_IF_FAILED( pDevice->CreateBuffer( &desc, &data, &m_pConstantBuffer ) );
+			COM_THROW_IF_FAILED( pDevice->CreateBuffer( &desc, &data, &m_pConstantBuffer ) );
 		}
 
 		void SetData( const void* pData )
@@ -52,7 +52,7 @@ namespace Bat
 			auto pDeviceContext = g_pGfx->GetDeviceContext();
 
 			D3D11_MAPPED_SUBRESOURCE resource;
-			COM_ERROR_IF_FAILED( pDeviceContext->Map( m_pConstantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource ) );
+			COM_THROW_IF_FAILED( pDeviceContext->Map( m_pConstantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource ) );
 			memcpy( resource.pData, pData, (UINT)m_iSize );
 			pDeviceContext->Unmap( m_pConstantBuffer.Get(), 0 );
 		}

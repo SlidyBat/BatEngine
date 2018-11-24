@@ -12,20 +12,20 @@ namespace Bat
 		m_bVSyncEnabled = vsyncEnabled;
 
 		Microsoft::WRL::ComPtr<IDXGIFactory> factory;
-		COM_ERROR_IF_FAILED( CreateDXGIFactory( __uuidof(IDXGIFactory), (void**)&factory ) );
+		COM_THROW_IF_FAILED( CreateDXGIFactory( __uuidof(IDXGIFactory), (void**)&factory ) );
 
 		Microsoft::WRL::ComPtr<IDXGIAdapter> adapter;
-		COM_ERROR_IF_FAILED( factory->EnumAdapters( 0, &adapter ) );
+		COM_THROW_IF_FAILED( factory->EnumAdapters( 0, &adapter ) );
 
 		Microsoft::WRL::ComPtr<IDXGIOutput> adapterOutput;
-		COM_ERROR_IF_FAILED( adapter->EnumOutputs( 0, &adapterOutput ) );
+		COM_THROW_IF_FAILED( adapter->EnumOutputs( 0, &adapterOutput ) );
 
 		UINT numModes;
-		COM_ERROR_IF_FAILED( adapterOutput->GetDisplayModeList( DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL ) );
+		COM_THROW_IF_FAILED( adapterOutput->GetDisplayModeList( DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL ) );
 
 		DXGI_MODE_DESC* displayModes = new DXGI_MODE_DESC[numModes];
 
-		COM_ERROR_IF_FAILED( adapterOutput->GetDisplayModeList( DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModes ) );
+		COM_THROW_IF_FAILED( adapterOutput->GetDisplayModeList( DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModes ) );
 
 		UINT numerator = 0, denominator = 1;
 		for( UINT i = 0; i < numModes; i++ )
@@ -40,7 +40,7 @@ namespace Bat
 		delete[] displayModes;
 
 		DXGI_ADAPTER_DESC adapterDesc;
-		COM_ERROR_IF_FAILED( adapter->GetDesc( &adapterDesc ) );
+		COM_THROW_IF_FAILED( adapter->GetDesc( &adapterDesc ) );
 
 		m_szVideoCardDescription = adapterDesc.Description;
 		m_iVideoCardMemory = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024); // in mb
@@ -86,7 +86,7 @@ namespace Bat
 #endif
 
 		//D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
-		COM_ERROR_IF_FAILED( D3D11CreateDeviceAndSwapChain(
+		COM_THROW_IF_FAILED( D3D11CreateDeviceAndSwapChain(
 			NULL,
 			D3D_DRIVER_TYPE_HARDWARE,
 			NULL,
@@ -97,9 +97,9 @@ namespace Bat
 			&m_pDevice, NULL, &m_pDeviceContext ) );
 
 		ID3D11Texture2D* pBackBuffer;
-		COM_ERROR_IF_FAILED( m_pSwapChain->GetBuffer( 0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer ) );
+		COM_THROW_IF_FAILED( m_pSwapChain->GetBuffer( 0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer ) );
 
-		COM_ERROR_IF_FAILED( m_pDevice->CreateRenderTargetView( pBackBuffer, NULL, &m_pRenderTargetView ) );
+		COM_THROW_IF_FAILED( m_pDevice->CreateRenderTargetView( pBackBuffer, NULL, &m_pRenderTargetView ) );
 
 		pBackBuffer->Release();
 		pBackBuffer = nullptr;
@@ -118,8 +118,8 @@ namespace Bat
 		depthStencilDesc.CPUAccessFlags = 0;
 		depthStencilDesc.MiscFlags = 0;
 
-		COM_ERROR_IF_FAILED( m_pDevice->CreateTexture2D( &depthStencilDesc, NULL, &m_pDepthStencilBuffer ) );
-		COM_ERROR_IF_FAILED( m_pDevice->CreateDepthStencilView( m_pDepthStencilBuffer.Get(), NULL, &m_pDepthStencilView ) );
+		COM_THROW_IF_FAILED( m_pDevice->CreateTexture2D( &depthStencilDesc, NULL, &m_pDepthStencilBuffer ) );
+		COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilView( m_pDepthStencilBuffer.Get(), NULL, &m_pDepthStencilView ) );
 
 		m_pDeviceContext->OMSetRenderTargets( 1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get() );
 
@@ -136,7 +136,7 @@ namespace Bat
 		rasterDesc.ScissorEnable = false;
 		rasterDesc.SlopeScaledDepthBias = 0.0f;
 
-		COM_ERROR_IF_FAILED( m_pDevice->CreateRasterizerState( &rasterDesc, &m_pRasterState ) );
+		COM_THROW_IF_FAILED( m_pDevice->CreateRasterizerState( &rasterDesc, &m_pRasterState ) );
 
 		//Create depth stencil state enabled/disabled states
 		D3D11_DEPTH_STENCIL_DESC depthstencildesc{};
@@ -145,11 +145,11 @@ namespace Bat
 		depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
 		depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
 
-		COM_ERROR_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilEnabledState ) );
+		COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilEnabledState ) );
 
 		depthstencildesc.DepthEnable = false;
 
-		COM_ERROR_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilDisabledState ) );
+		COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilDisabledState ) );
 
 		m_pDeviceContext->OMSetDepthStencilState( m_pDepthStencilEnabledState.Get(), 0 );
 		m_pDeviceContext->RSSetState( m_pRasterState.Get() );
@@ -249,10 +249,10 @@ namespace Bat
 		m_pDepthStencilBuffer.Reset();
 
 		HRESULT hr;
-		COM_ERROR_IF_FAILED( hr = m_pSwapChain->ResizeBuffers( 0, width, height, DXGI_FORMAT_UNKNOWN, 0 ) );
+		COM_THROW_IF_FAILED( hr = m_pSwapChain->ResizeBuffers( 0, width, height, DXGI_FORMAT_UNKNOWN, 0 ) );
 
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> pBuffer;
-		COM_ERROR_IF_FAILED( m_pSwapChain->GetBuffer( 0, __uuidof(ID3D11Texture2D), (void**)&pBuffer ) );
+		COM_THROW_IF_FAILED( m_pSwapChain->GetBuffer( 0, __uuidof(ID3D11Texture2D), (void**)&pBuffer ) );
 
 		D3D11_TEXTURE2D_DESC depthStencilDesc;
 		depthStencilDesc.Width = (UINT)width;
@@ -267,10 +267,10 @@ namespace Bat
 		depthStencilDesc.CPUAccessFlags = 0;
 		depthStencilDesc.MiscFlags = 0;
 
-		COM_ERROR_IF_FAILED( m_pDevice->CreateTexture2D( &depthStencilDesc, NULL, &m_pDepthStencilBuffer ) );
-		COM_ERROR_IF_FAILED( m_pDevice->CreateDepthStencilView( m_pDepthStencilBuffer.Get(), NULL, &m_pDepthStencilView ) );
+		COM_THROW_IF_FAILED( m_pDevice->CreateTexture2D( &depthStencilDesc, NULL, &m_pDepthStencilBuffer ) );
+		COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilView( m_pDepthStencilBuffer.Get(), NULL, &m_pDepthStencilView ) );
 
-		COM_ERROR_IF_FAILED( m_pDevice->CreateRenderTargetView( pBuffer.Get(), NULL, &m_pRenderTargetView ) );
+		COM_THROW_IF_FAILED( m_pDevice->CreateRenderTargetView( pBuffer.Get(), NULL, &m_pRenderTargetView ) );
 
 		m_pDeviceContext->OMSetRenderTargets( 1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get() );
 

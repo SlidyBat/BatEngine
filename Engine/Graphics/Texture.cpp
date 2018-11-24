@@ -11,7 +11,7 @@ namespace Bat
 		auto pDevice = g_pGfx->GetDevice();
 		auto pDeviceContext = g_pGfx->GetDeviceContext();
 
-		COM_ERROR_IF_FAILED(
+		COM_THROW_IF_FAILED(
 			DirectX::CreateWICTextureFromFile( pDevice, pDeviceContext, filename.c_str(), &m_pTexture, &m_pTextureView )
 		);
 	}
@@ -21,7 +21,7 @@ namespace Bat
 		auto pDevice = g_pGfx->GetDevice();
 		auto pDeviceContext = g_pGfx->GetDeviceContext();
 
-		COM_ERROR_IF_FAILED(
+		COM_THROW_IF_FAILED(
 			DirectX::CreateWICTextureFromMemory( pDevice, pDeviceContext, pData, size, &m_pTexture, &m_pTextureView )
 		);
 	}
@@ -45,7 +45,7 @@ namespace Bat
 		textureDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
 		ID3D11Texture2D* p2DTexture;
-		COM_ERROR_IF_FAILED( pDevice->CreateTexture2D( &textureDesc, NULL, &p2DTexture ) );
+		COM_THROW_IF_FAILED( pDevice->CreateTexture2D( &textureDesc, NULL, &p2DTexture ) );
 
 		m_pTexture = static_cast<ID3D11Resource*>(p2DTexture);
 		pDeviceContext->UpdateSubresource( m_pTexture.Get(), 0, NULL, pPixels, width * sizeof( *pPixels ), 0 );
@@ -80,7 +80,7 @@ namespace Bat
 		textureDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
 		ID3D11Texture2D* p2DTexture;
-		COM_ERROR_IF_FAILED( pDevice->CreateTexture2D( &textureDesc, NULL, &p2DTexture ) );
+		COM_THROW_IF_FAILED( pDevice->CreateTexture2D( &textureDesc, NULL, &p2DTexture ) );
 
 		m_pTexture = static_cast<ID3D11Resource*>(p2DTexture);
 		pDeviceContext->UpdateSubresource( m_pTexture.Get(), 0, NULL, pPixels, width * sizeof( *pPixels ), 0 );

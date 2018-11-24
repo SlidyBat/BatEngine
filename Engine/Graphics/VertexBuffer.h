@@ -31,7 +31,7 @@ namespace Bat
 			vertexData.SysMemPitch = 0;
 			vertexData.SysMemSlicePitch = 0;
 
-			COM_ERROR_IF_FAILED( pDevice->CreateBuffer( &vertexBufferDesc, &vertexData, &m_pVertexBuffer ) );
+			COM_THROW_IF_FAILED( pDevice->CreateBuffer( &vertexBufferDesc, &vertexData, &m_pVertexBuffer ) );
 		}
 		VertexBuffer( const std::vector<V>& vertices )
 			:

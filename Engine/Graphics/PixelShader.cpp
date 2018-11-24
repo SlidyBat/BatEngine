@@ -16,7 +16,7 @@ namespace Bat
 		if( filename.find( L".cso" ) != std::wstring::npos )
 		{
 			auto bytes = MemoryStream::FromFile( filename );
-			COM_ERROR_IF_FAILED( pDevice->CreatePixelShader( bytes.Base(), bytes.Size(), NULL, &m_pPixelShader ) );
+			COM_THROW_IF_FAILED( pDevice->CreatePixelShader( bytes.Base(), bytes.Size(), NULL, &m_pPixelShader ) );
 		}
 		// not compiled, lets compile ourselves
 		else
@@ -45,7 +45,7 @@ namespace Bat
 				}
 			}
 
-			COM_ERROR_IF_FAILED( pDevice->CreatePixelShader( pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader ) );
+			COM_THROW_IF_FAILED( pDevice->CreatePixelShader( pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader ) );
 		}
 	}
 
@@ -74,7 +74,7 @@ namespace Bat
 		auto pDevice = g_pGfx->GetDevice();
 
 		ID3D11SamplerState* pSamplerState;
-		COM_ERROR_IF_FAILED( pDevice->CreateSamplerState( pSamplerDesc, &pSamplerState ) );
+		COM_THROW_IF_FAILED( pDevice->CreateSamplerState( pSamplerDesc, &pSamplerState ) );
 		m_pSamplerStates.emplace_back( pSamplerState );
 
 		ASSERT( m_pSamplerStates.size() < D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, "Too many samplers!" );

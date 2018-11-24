@@ -28,7 +28,7 @@ namespace Bat
 			indexData.SysMemPitch = 0;
 			indexData.SysMemSlicePitch = 0;
 
-			COM_ERROR_IF_FAILED( g_pGfx->GetDevice()->CreateBuffer( &indexBufferDesc, &indexData, &m_pIndexBuffer ) );
+			COM_THROW_IF_FAILED( g_pGfx->GetDevice()->CreateBuffer( &indexBufferDesc, &indexData, &m_pIndexBuffer ) );
 		}
 		IndexBuffer( const std::vector<int>& indices )
 			:
