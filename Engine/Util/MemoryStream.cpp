@@ -26,7 +26,7 @@ void MemoryStream::Seek( SeekPosition where )
 	}
 	else if( where == SeekPosition::End )
 	{
-		m_iCurrentByte = m_Bytes.size() - 1;
+		m_iCurrentByte = m_Bytes.size();
 	}
 }
 
@@ -38,7 +38,8 @@ void MemoryStream::Seek( size_t pos, SeekPosition dir )
 		m_iCurrentByte = pos;
 		break;
 	case SeekPosition::End:
-		m_iCurrentByte = m_Bytes.size() + m_iCurrentByte;
+		assert( pos < m_Bytes.size() );
+		m_iCurrentByte = m_Bytes.size() - pos;
 		break;
 	case SeekPosition::Current:
 		m_iCurrentByte += pos;
@@ -93,10 +94,11 @@ void MemoryStream::WriteByte( const char byte )
 	m_Bytes[m_iCurrentByte++] = byte;
 }
 
-void MemoryStream::WriteBytes( const char * pBytes, const size_t size )
+void MemoryStream::WriteBytes( const char* pBytes, const size_t size )
 {
 	if( EndOfStream() )
 	{
+		m_Bytes.reserve( m_Bytes.size() + size );
 		for( size_t i = 0; i < size; i++ )
 		{
 			m_Bytes.emplace_back( pBytes[i] );
