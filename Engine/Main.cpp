@@ -1,4 +1,5 @@
 #include "BatWinAPI.h"
+#include "COMInitialize.h"
 #include "Window.h"
 #include "Graphics.h"
 #include "MarioTestScene.h"
@@ -19,11 +20,10 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 {
 	try
 	{
-		COM_ERROR_IF_FAILED( CoInitialize( NULL ) );
+		COMInitialize coinit;
 
 		Window wnd( { 50, 50 }, Graphics::ScreenWidth, Graphics::ScreenHeight, "Bat Engine", Graphics::FullScreen );
 		Graphics gfx( wnd );
-		//IGraphics::RegisterGraphics( gfx );
 
 		FrameTimer ft;
 		auto sb = std::make_unique<DirectX::SpriteBatch>( gfx.GetDeviceContext() );
@@ -63,7 +63,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 	}
 	catch( const std::exception& e )
 	{
-		MessageBox( NULL, e.what(), "Error", MB_OK );
+		MessageBox( NULL, e.what(), "Error", MB_ICONWARNING | MB_OK );
 	}
 
 	return 0;

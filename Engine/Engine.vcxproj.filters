@@ -138,6 +138,9 @@
     <ClCompile Include="Util\MemoryStream.cpp">
       <Filter>Source Files\Util</Filter>
     </ClCompile>
+    <ClCompile Include="COMInitialize.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input.h">
@@ -283,6 +286,9 @@
     </ClInclude>
     <ClInclude Include="Util\MemoryStream.h">
       <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="COMInitialize.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

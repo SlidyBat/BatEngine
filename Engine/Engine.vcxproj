@@ -144,6 +144,7 @@
   <ItemGroup>
     <ClCompile Include="CarTestScene.cpp" />
     <ClCompile Include="ColourTestScene.cpp" />
+    <ClCompile Include="COMInitialize.cpp" />
     <ClCompile Include="Graphics\Light.cpp" />
     <ClCompile Include="MoveableCamera.cpp" />
     <ClCompile Include="ThirdParty\ImGui\imgui.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="BatAssert.h" />
     <ClInclude Include="CarTestScene.h" />
     <ClInclude Include="ColourTestScene.h" />
+    <ClInclude Include="COMInitialize.h" />
     <ClInclude Include="Graphics\Light.h" />
     <ClInclude Include="Graphics\Material.h" />
     <ClInclude Include="MoveableCamera.h" />
