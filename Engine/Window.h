@@ -20,7 +20,7 @@ namespace Bat
 		{}
 		~Window() noexcept;
 
-		void Kill( int exitcode = 0 ) const;
+		void Kill();
 		bool IsActive() const;
 		bool IsMinimized() const;
 		void ShowMessageBox( const std::string& title, const std::string& msg, UINT type ) const;
@@ -67,11 +67,11 @@ namespace Bat
 
 		bool m_bFullscreen;
 
+		bool m_bDestroyed = false;
+
 		std::string	m_szApplicationName;
 		HINSTANCE	m_hInstance;
 		HWND		m_hWnd;
-
-		bool m_bDestroyed = false;
 
 		std::vector<std::function<void( int, int )>> m_ResizeListeners;
 	};

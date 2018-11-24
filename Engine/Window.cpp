@@ -109,9 +109,9 @@ namespace Bat
 		m_hInstance = NULL;
 	}
 
-	void Window::Kill( int exitcode /* = 0 */ ) const
+	void Window::Kill()
 	{
-		PostQuitMessage( exitcode );
+		m_bDestroyed = true;
 	}
 
 	bool Window::IsActive() const
@@ -131,6 +131,11 @@ namespace Bat
 
 	bool Window::ProcessMessage()
 	{
+		if( m_bDestroyed )
+		{
+			return false;
+		}
+
 		MSG msg;
 
 		while( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )

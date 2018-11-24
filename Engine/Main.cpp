@@ -63,16 +63,6 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 	}
 	catch( const std::exception& e )
 	{
-		// HACK: Flush message queue so the message box appears
-		// Not sure why this is needed, maybe doing something
-		// wrong with window initialization/deinitialization?
-		MSG msg = { 0 };
-		while( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
-		{
-			TranslateMessage( &msg );
-			DispatchMessage( &msg );
-		}
-
 		MessageBox( NULL, e.what(), "Error", MB_ICONWARNING | MB_OK );
 	}
 
