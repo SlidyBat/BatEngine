@@ -73,6 +73,18 @@
     <IntDir>$(SolutionDir)Build\Obj\$(Configuration)-$(Platform)\</IntDir>
     <IncludePath>$(ProjectDir)Util;$(ProjectDir);$(ProjectDir)Graphics;$(IncludePath)</IncludePath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)Build\$(Configuration)-$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Build\Obj\$(Configuration)-$(Platform)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)Build\$(Configuration)-$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Build\Obj\$(Configuration)-$(Platform)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)Build\$(Configuration)-$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Build\Obj\$(Configuration)-$(Platform)\</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -130,8 +142,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CarTestScene.cpp" />
     <ClCompile Include="ColourTestScene.cpp" />
-    <ClCompile Include="Light.cpp" />
+    <ClCompile Include="Graphics\Light.cpp" />
     <ClCompile Include="MoveableCamera.cpp" />
     <ClCompile Include="ThirdParty\ImGui\imgui.cpp" />
     <ClCompile Include="ThirdParty\ImGui\imgui_demo.cpp" />
@@ -145,7 +158,7 @@
     <ClCompile Include="Graphics\ColourPipeline.cpp" />
     <ClCompile Include="Graphics\D3DClass.cpp" />
     <ClCompile Include="LightPipeline.cpp" />
-    <ClCompile Include="ModelLoader.cpp" />
+    <ClCompile Include="Graphics\ModelLoader.cpp" />
     <ClCompile Include="MarioTestScene.cpp" />
     <ClCompile Include="ModelTestScene.cpp" />
     <ClCompile Include="Util\GDIPManager.cpp" />
@@ -157,12 +170,15 @@
     <ClCompile Include="Graphics\TexturePipeline.cpp" />
     <ClCompile Include="Graphics\VertexShader.cpp" />
     <ClCompile Include="Util\MathLib.cpp" />
+    <ClCompile Include="Util\MemoryStream.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BatAssert.h" />
+    <ClInclude Include="CarTestScene.h" />
     <ClInclude Include="ColourTestScene.h" />
-    <ClInclude Include="Light.h" />
+    <ClInclude Include="Graphics\Light.h" />
+    <ClInclude Include="Graphics\Material.h" />
     <ClInclude Include="MoveableCamera.h" />
     <ClInclude Include="StringLib.h" />
     <ClInclude Include="ThirdParty\ImGui\imconfig.h" />
@@ -181,8 +197,8 @@
     <ClInclude Include="Graphics\Colour.h" />
     <ClInclude Include="Graphics\ColourPipeline.h" />
     <ClInclude Include="LightPipeline.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="ModelLoader.h" />
+    <ClInclude Include="Graphics\Mesh.h" />
+    <ClInclude Include="Graphics\ModelLoader.h" />
     <ClInclude Include="MarioTestScene.h" />
     <ClInclude Include="ModelTestScene.h" />
     <ClInclude Include="Util\COMException.h" />
@@ -204,6 +220,7 @@
     <ClInclude Include="Graphics\VertexTypes.h" />
     <ClInclude Include="Graphics\VertexBuffer.h" />
     <ClInclude Include="Graphics\VertexShader.h" />
+    <ClInclude Include="Util\MemoryStream.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
@@ -223,6 +240,10 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\ColourVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
@@ -233,6 +254,10 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\TexturePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -243,6 +268,10 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\TextureVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
@@ -253,6 +282,10 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\LightPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -263,6 +296,10 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\LightVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
@@ -273,6 +310,10 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

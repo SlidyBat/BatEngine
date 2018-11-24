@@ -4,6 +4,7 @@
 #include "MarioTestScene.h"
 #include "ColourTestScene.h"
 #include "ModelTestScene.h"
+#include "CarTestScene.h"
 #include "COMException.h"
 #include <string>
 #include "FrameTimer.h"
@@ -62,7 +63,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 	}
 	catch( const std::exception& e )
 	{
-		MessageBox( NULL, e.what(), "Error", MB_ICONWARNING );
+		MessageBox( NULL, e.what(), "Error", MB_OK );
 	}
 
 	return 0;

@@ -8,16 +8,17 @@
 namespace Bat
 {
 	class Texture;
+	class Material;
 
 	template <typename T>
 	class _Mesh
 	{
 	public:
-		_Mesh( const std::vector<T>& vertices, const std::vector<int>& indices, Texture* pTexture )
+		_Mesh( const std::vector<T>& vertices, const std::vector<int>& indices, Material* pMaterial )
 			:
 			vertices(vertices),
 			indices(indices),
-			m_pTexture(pTexture),
+			m_pMaterial(pMaterial),
 			m_VertexBuffer(vertices),
 			m_IndexBuffer(indices)
 		{}
@@ -29,9 +30,9 @@ namespace Bat
 			m_IndexBuffer.Bind();
 		}
 
-		Texture* GetTexture() const
+		Material* GetMaterial() const
 		{
-			return m_pTexture;
+			return m_pMaterial;
 		}
 		size_t GetVertexCount() const
 		{
@@ -47,7 +48,7 @@ namespace Bat
 	private:
 		VertexBuffer<T> m_VertexBuffer;
 		IndexBuffer m_IndexBuffer;
-		Texture* m_pTexture;
+		Material* m_pMaterial;
 	};
 
 	using ColourMesh = _Mesh<ColourVertex>;

@@ -35,24 +35,16 @@ namespace Bat
 	class TexturePipelineParameters : public IPipelineParameters
 	{
 	public:
-		TexturePipelineParameters( const DirectX::XMMATRIX& world, const DirectX::XMMATRIX& viewproj, Texture* pTexture )
+		TexturePipelineParameters( const DirectX::XMMATRIX& world, const DirectX::XMMATRIX& viewproj, Material* pMaterial )
 			:
-			pTexture( pTexture )
+			material( pMaterial )
 		{
 			transform.world = world;
 			transform.viewproj = viewproj;
 		}
-		CB_TexturePipelineMatrix* GetTransformMatrix()
-		{
-			return &transform;
-		}
-		ID3D11ShaderResourceView* GetTextureView() const
-		{
-			return pTexture->GetTextureView();
-		}
-	private:
+	public:
 		CB_TexturePipelineMatrix transform;
-		Texture* pTexture;
+		Material* material;
 	};
 
 	class TexturePipeline : public IPipeline

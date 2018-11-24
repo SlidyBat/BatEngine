@@ -3,6 +3,7 @@
 #include <fstream>
 #include "COMException.h"
 #include "Graphics.h"
+#include "Material.h"
 
 namespace Bat
 {
@@ -23,7 +24,7 @@ namespace Bat
 		for( const auto& mesh : m_Meshes )
 		{
 			mesh.Bind();
-			TexturePipelineParameters params( w, vp, mesh.GetTexture() );
+			TexturePipelineParameters params( w, vp, mesh.GetMaterial() );
 			pPipeline->BindParameters( &params );
 			pPipeline->RenderIndexed( (UINT)mesh.GetIndexCount() );
 		}
@@ -59,8 +60,8 @@ namespace Bat
 		auto pTextureParameters = static_cast<TexturePipelineParameters*>(pParameters);
 		m_VertexShader.Bind();
 		m_PixelShader.Bind();
-		m_VertexShader.GetConstantBuffer( 0 ).SetData( pTextureParameters->GetTransformMatrix() );
-		m_PixelShader.SetResource( 0, pTextureParameters->GetTextureView() );
+		m_VertexShader.GetConstantBuffer( 0 ).SetData( &pTextureParameters->transform );
+		m_PixelShader.SetResource( 0, pTextureParameters->material->GetDiffuseTexture()->GetTextureView() );
 	}
 
 	void TexturePipeline::Render( UINT vertexcount )

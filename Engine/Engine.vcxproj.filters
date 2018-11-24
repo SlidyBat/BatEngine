@@ -96,9 +96,6 @@
     <ClCompile Include="LightPipeline.cpp">
       <Filter>Source Files\Graphics\Pipelines</Filter>
     </ClCompile>
-    <ClCompile Include="ModelLoader.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="ModelTestScene.cpp">
       <Filter>Source Files\TestScenes</Filter>
     </ClCompile>
@@ -109,9 +106,6 @@
       <Filter>Source Files\Util</Filter>
     </ClCompile>
     <ClCompile Include="MoveableCamera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ThirdParty\ImGui\imgui.cpp">
@@ -131,6 +125,18 @@
     </ClCompile>
     <ClCompile Include="ThirdParty\ImGui\imgui_widgets.cpp">
       <Filter>Source Files\Graphics\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="CarTestScene.cpp">
+      <Filter>Source Files\TestScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ModelLoader.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\MemoryStream.cpp">
+      <Filter>Source Files\Util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -194,9 +200,6 @@
     <ClInclude Include="IScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\VertexTypes.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
@@ -221,9 +224,6 @@
     <ClInclude Include="LightPipeline.h">
       <Filter>Header Files\Graphics\Pipelines</Filter>
     </ClInclude>
-    <ClInclude Include="ModelLoader.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\IModel.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
@@ -241,9 +241,6 @@
     </ClInclude>
     <ClInclude Include="MoveableCamera.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Light.h">
-      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\ImGui\imconfig.h">
       <Filter>Header Files\Graphics\ImGui</Filter>
@@ -268,6 +265,24 @@
     </ClInclude>
     <ClInclude Include="ThirdParty\ImGui\imstb_truetype.h">
       <Filter>Header Files\Graphics\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="CarTestScene.h">
+      <Filter>Header Files\TestScenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Material.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Mesh.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ModelLoader.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Light.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\MemoryStream.h">
+      <Filter>Header Files\Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

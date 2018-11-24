@@ -4,6 +4,7 @@
 #include <d3dcompiler.h>
 #include "COMException.h"
 #include "Graphics.h"
+#include "MemoryStream.h"
 
 namespace Bat
 {
@@ -11,24 +12,34 @@ namespace Bat
 	{
 		auto pDevice = g_pGfx->GetDevice();
 
-		HRESULT hr;
-		Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
-		Microsoft::WRL::ComPtr<ID3DBlob> pixelShaderBuffer;
-		if( FAILED( hr = D3DCompileFromFile( filename.c_str(), NULL, NULL, "main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage ) ) )
+		// compiled shader object
+		if( filename.find( L".cso" ) != std::wstring::npos )
 		{
-			std::string filename_converted( filename.begin(), filename.end() );
-			if( errorMessage )
-			{
-				std::string error = (char*)errorMessage->GetBufferPointer();
-				THROW_COM_ERROR( hr, "Failed to compile pixel shader file '" + filename_converted + "'\n" + error );
-			}
-			else
-			{
-				THROW_COM_ERROR( hr, "Failed to compile pixel shader file '" + filename_converted + "'" );
-			}
+			auto bytes = MemoryStream::FromFile( filename );
+			COM_ERROR_IF_FAILED( pDevice->CreatePixelShader( bytes.Base(), bytes.Size(), NULL, &m_pPixelShader ) );
 		}
+		// not compiled, lets compile ourselves
+		else
+		{
+			HRESULT hr;
+			Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
+			Microsoft::WRL::ComPtr<ID3DBlob> pixelShaderBuffer;
+			if( FAILED( hr = D3DCompileFromFile( filename.c_str(), NULL, NULL, "main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage ) ) )
+			{
+				std::string filename_converted( filename.begin(), filename.end() );
+				if( errorMessage )
+				{
+					std::string error = (char*)errorMessage->GetBufferPointer();
+					THROW_COM_ERROR( hr, "Failed to compile pixel shader file '" + filename_converted + "'\n" + error );
+				}
+				else
+				{
+					THROW_COM_ERROR( hr, "Failed to compile pixel shader file '" + filename_converted + "'" );
+				}
+			}
 
-		COM_ERROR_IF_FAILED( pDevice->CreatePixelShader( pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader ) );
+			COM_ERROR_IF_FAILED( pDevice->CreatePixelShader( pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader ) );
+		}
 	}
 
 	PixelShader::~PixelShader()

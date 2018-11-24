@@ -8,6 +8,7 @@
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
+#include "Material.h"
 
 namespace Bat
 {
@@ -18,9 +19,9 @@ namespace Bat
 		d3d( wnd, VSyncEnabled, ScreenFar, ScreenNear )
 	{
 		IGraphics::RegisterGraphics( this );
-		AddShader( "texture", new TexturePipeline( L"Graphics/Shaders/TextureVS.hlsl", L"Graphics/Shaders/TexturePS.hlsl" ) );
-		AddShader( "colour", new ColourPipeline( L"Graphics/Shaders/ColourVS.hlsl", L"Graphics/Shaders/ColourPS.hlsl" ) );
-		AddShader( "light", new LightPipeline( L"Graphics/Shaders/LightVS.hlsl", L"Graphics/Shaders/LightPS.hlsl" ) );
+		AddShader( "texture", new TexturePipeline( L"Graphics/Shaders/Build/TextureVS.cso", L"Graphics/Shaders/Build/TexturePS.cso" ) );
+		AddShader( "colour", new ColourPipeline( L"Graphics/Shaders/Build/ColourVS.cso", L"Graphics/Shaders/Build/ColourPS.cso" ) );
+		AddShader( "light", new LightPipeline( L"Graphics/Shaders/Build/LightVS.cso", L"Graphics/Shaders/Build/LightPS.cso" ) );
 
 		wnd.AddResizeListener( [=]( int width, int height )
 		{
@@ -51,13 +52,15 @@ namespace Bat
 
 	IModel* Graphics::CreateTexturedModel( const std::vector<TexVertex>& vertices, const std::vector<int>& indices, Texture& tex )
 	{
-		TexMesh mesh( vertices, indices, &tex );
+		Material* pMaterial = new Material();
+		pMaterial->SetDiffuseTexture( &tex );
+		TexMesh mesh( vertices, indices, pMaterial );
 		return new TexturedModel( mesh );
 	}
 
-	IModel* Graphics::CreateModel( const std::vector<Vertex>& vertices, const std::vector<int>& indices, Texture& tex )
+	IModel* Graphics::CreateModel( const std::vector<Vertex>& vertices, const std::vector<int>& indices, Material& mat )
 	{
-		Mesh mesh( vertices, indices, &tex );
+		Mesh mesh( vertices, indices, &mat );
 		return new LightModel( mesh );
 	}
 
@@ -83,7 +86,7 @@ namespace Bat
 
 	void Graphics::BeginFrame()
 	{
-		d3d.BeginScene( 0.1f, 0.1f, 0.1f, 1.0f );
+		d3d.BeginScene( 0.3f, 0.3f, 0.3f, 1.0f );
 
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();

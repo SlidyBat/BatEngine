@@ -14,6 +14,7 @@ namespace Bat
 		Texture( const std::wstring& filename );
 		Texture( const uint8_t* pData, size_t size );
 		Texture( const Colour* pPixels, int width, int height );
+		Texture( const D3DCOLORVALUE* pPixels, int width, int height );
 
 		ID3D11ShaderResourceView* GetTextureView() const;
 	private:

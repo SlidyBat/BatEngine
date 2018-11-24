@@ -35,7 +35,7 @@ namespace Bat
 
 		IModel* CreateColouredModel( const std::vector<ColourVertex>& vertices, const std::vector<int>& indices ) override;
 		IModel* CreateTexturedModel( const std::vector<TexVertex>& vertices, const std::vector<int>& indices, Texture& tex ) override;
-		IModel* CreateModel( const std::vector<Vertex>& vertices, const std::vector<int>& indices, Texture& tex ) override;
+		IModel* CreateModel( const std::vector<Vertex>& vertices, const std::vector<int>& indices, Material& mat ) override;
 
 		Texture* CreateTexture( const std::wstring& filename ) override;
 		Texture* CreateTexture( const Bat::Colour* pPixels, int width, int height ) override;

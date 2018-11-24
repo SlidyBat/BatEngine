@@ -16,6 +16,7 @@
 namespace Bat
 {
 	class Light;
+	class Material;
 
 	struct CB_LightPipelineMatrix
 	{
@@ -27,8 +28,8 @@ namespace Bat
 	{
 		Vec3 cameraPos;
 		float time;
+		float shininess;
 	};
-
 
 	struct CB_LightPipelineLight
 	{
@@ -56,24 +57,16 @@ namespace Bat
 	class LightPipelineParameters : public IPipelineParameters
 	{
 	public:
-		LightPipelineParameters( const DirectX::XMMATRIX& world, const DirectX::XMMATRIX& viewproj, Texture* pTexture )
+		LightPipelineParameters( const DirectX::XMMATRIX& world, const DirectX::XMMATRIX& viewproj, Material* pMaterial )
 			:
-			pTexture( pTexture )
+			material( pMaterial )
 		{
 			transform.world = world;
 			transform.viewproj = viewproj;
 		}
-		CB_LightPipelineMatrix* GetTransformMatrix()
-		{
-			return &transform;
-		}
-		ID3D11ShaderResourceView* GetTextureView() const
-		{
-			return pTexture->GetTextureView();
-		}
-	private:
+	public:
 		CB_LightPipelineMatrix transform;
-		Texture* pTexture;
+		Material* material;
 	};
 
 	class LightPipeline : public IPipeline

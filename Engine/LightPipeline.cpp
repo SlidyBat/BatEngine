@@ -5,6 +5,7 @@
 #include "IGraphics.h"
 #include "Globals.h"
 #include "Light.h"
+#include "Material.h"
 
 namespace Bat
 {
@@ -25,7 +26,7 @@ namespace Bat
 		for( const auto& mesh : m_Meshes )
 		{
 			mesh.Bind();
-			LightPipelineParameters params( w, vp, mesh.GetTexture() );
+			LightPipelineParameters params( w, vp, mesh.GetMaterial() );
 			pPipeline->BindParameters( &params );
 			pPipeline->RenderIndexed( (UINT)mesh.GetIndexCount() );
 		}
@@ -60,9 +61,12 @@ namespace Bat
 
 	void LightPipeline::BindParameters( IPipelineParameters* pParameters )
 	{
+		auto pTextureParameters = static_cast<LightPipelineParameters*>(pParameters);
+
 		CB_LightPipelineLightingParams ps_params;
 		ps_params.cameraPos = g_pGfx->GetCamera()->GetPosition();
 		ps_params.time = g_pGlobals->elapsed_time;
+		ps_params.shininess = pTextureParameters->material->GetShininess();
 
 		const float time = g_pGlobals->elapsed_time;
 		CB_LightPipelineLight ps_light;
@@ -71,13 +75,14 @@ namespace Bat
 		ps_light.lightDiffuse = m_pLight->GetDiffuse();
 		ps_light.lightSpecular = m_pLight->GetSpecular();
 
-		auto pTextureParameters = static_cast<LightPipelineParameters*>(pParameters);
 		m_VertexShader.Bind();
 		m_PixelShader.Bind();
-		m_VertexShader.GetConstantBuffer( 0 ).SetData( pTextureParameters->GetTransformMatrix() );
+		m_VertexShader.GetConstantBuffer( 0 ).SetData( &pTextureParameters->transform );
 		m_PixelShader.GetConstantBuffer( 0 ).SetData( &ps_params );
 		m_PixelShader.GetConstantBuffer( 1 ).SetData( &ps_light );
-		m_PixelShader.SetResource( 0, pTextureParameters->GetTextureView() );
+		m_PixelShader.SetResource( 0, pTextureParameters->material->GetDiffuseTexture()->GetTextureView() );
+		m_PixelShader.SetResource( 1, pTextureParameters->material->GetSpecularTexture()->GetTextureView() );
+		m_PixelShader.SetResource( 2, pTextureParameters->material->GetAmbientTexture()->GetTextureView() );
 	}
 
 	void LightPipeline::Render( UINT vertexcount )

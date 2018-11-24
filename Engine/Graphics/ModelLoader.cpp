@@ -4,20 +4,22 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include "Material.h"
 
 namespace Bat
 {
 	enum class TextureStorageType
 	{
+		None,
 		EmbeddedCompressed,
 		EmbeddedNonCompressed,
 		Disk
 	};
 
-	TextureStorageType DetermineTextureStorageType( const aiScene* pScene, aiMaterial* pMat )
+	TextureStorageType DetermineTextureStorageType( const aiScene* pScene, aiMaterial* pMat, aiTextureType type )
 	{
 		aiString textypec;
-		pMat->GetTexture( aiTextureType_DIFFUSE, 0, &textypec );
+		pMat->GetTexture( type, 0, &textypec );
 		std::string textype = textypec.C_Str();
 		if( textype == "*0" || textype == "*1" || textype == "*2" || textype == "*3" || textype == "*4" || textype == "*5" )
 		{
@@ -35,8 +37,7 @@ namespace Bat
 			return TextureStorageType::Disk;
 		}
 
-		ASSERT( false, "Unknown texture storage type" );
-		return TextureStorageType::Disk; // default to disk and let it fail
+		return TextureStorageType::None; // default to disk and let it fail
 	}
 
 	static int GetTextureIndex( aiString* pStr )
@@ -55,14 +56,60 @@ namespace Bat
 		return new Texture( reinterpret_cast<uint8_t*>(pScene->mTextures[idx]->pcData), size );
 	}
 
-	static Texture* LoadMaterialTexture( aiMaterial* pMaterial, aiTextureType type, const std::string& typeName, const aiScene* pScene, const TextureStorageType textype, const std::string& dir )
+	static Texture* LoadMaterialTexture( aiMaterial* pMaterial, aiTextureType type, const aiScene* pScene, const std::string& dir )
 	{
+		auto storetype = DetermineTextureStorageType( pScene, pMaterial, type );
+		if( storetype == TextureStorageType::None )
+		{
+			aiColor3D aiColour( 0.0f, 0.0f, 0.0f );
+			switch( type )
+			{
+			case aiTextureType_AMBIENT:
+			{
+				pMaterial->Get( AI_MATKEY_COLOR_AMBIENT, aiColour );
+				break;
+			}
+			case aiTextureType_DIFFUSE:
+				pMaterial->Get( AI_MATKEY_COLOR_DIFFUSE, aiColour );
+				// no diffuse is uggo, just use light diffuse
+				if( aiColour.IsBlack() )
+				{
+					aiColour.r = 1.0f;
+					aiColour.g = 1.0f;
+					aiColour.b = 1.0f;
+				}
+				break;
+			case aiTextureType_SPECULAR:
+				pMaterial->Get( AI_MATKEY_COLOR_SPECULAR, aiColour );
+				// no specular is uggo, just use light specular
+				if( aiColour.IsBlack() )
+				{
+					aiColour.r = 1.0f;
+					aiColour.g = 1.0f;
+					aiColour.b = 1.0f;
+				}
+				break;
+			case aiTextureType_EMISSIVE:
+				pMaterial->Get( AI_MATKEY_COLOR_EMISSIVE, aiColour );
+				break;
+			default:
+				ASSERT( false, "Unknown texture type" );
+			}
+			Colour colour;
+			colour.SetA( 255 );
+			colour.SetR( (unsigned char)(aiColour.r * 255) );
+			colour.SetG( (unsigned char)(aiColour.g * 255) );
+			colour.SetB( (unsigned char)(aiColour.b * 255) );
+
+			return new Texture( &colour, 1, 1 );
+		}
+
 		for( UINT i = 0; i < pMaterial->GetTextureCount( type ) && i < 1; i++ )
 		{
 			aiString str;
 			pMaterial->GetTexture( type, i, &str );
 
-			if( textype == TextureStorageType::EmbeddedCompressed )
+			if( storetype == TextureStorageType::EmbeddedCompressed )
 			{
 				int idx = GetTextureIndex( &str );
 				return GetTextureFromModel( pScene, idx );
@@ -82,7 +129,7 @@ namespace Bat
 	{
 		std::vector<Vertex> vertices;
 		std::vector<int> indices;
-		Texture* texture = nullptr;
+		Material* pMeshMaterial = new Material();
 		
 		if( pMesh->mMaterialIndex >= 0 )
 		{
@@ -125,12 +172,27 @@ namespace Bat
 		if( pMesh->mMaterialIndex >= 0 )
 		{
 			aiMaterial* pMaterial = pScene->mMaterials[pMesh->mMaterialIndex];
+			Texture* pTexture = nullptr;
 
-			auto storetype = DetermineTextureStorageType( pScene, pMaterial );
-			texture = LoadMaterialTexture( pMaterial, aiTextureType_DIFFUSE, "texture_diffuse", pScene, storetype, dir );
+			pTexture = LoadMaterialTexture( pMaterial, aiTextureType_AMBIENT, pScene, dir );
+			pMeshMaterial->SetAmbientTexture( pTexture );
+			pTexture = LoadMaterialTexture( pMaterial, aiTextureType_DIFFUSE, pScene, dir );
+			pMeshMaterial->SetDiffuseTexture( pTexture );
+			pTexture = LoadMaterialTexture( pMaterial, aiTextureType_SPECULAR, pScene, dir );
+			pMeshMaterial->SetSpecularTexture( pTexture );
+			pTexture = LoadMaterialTexture( pMaterial, aiTextureType_EMISSIVE, pScene, dir );
+			pMeshMaterial->SetEmissiveTexture( pTexture );
+
+			float shininess = 0.0f;
+			pMaterial->Get( AI_MATKEY_SHININESS, shininess );
+			if( shininess == 0.0f )
+			{
+				shininess = 32.0f;
+			}
+			pMeshMaterial->SetShininess( shininess );
 		}
 
-		return Mesh( vertices, indices, texture );
+		return Mesh( vertices, indices, pMeshMaterial );
 	}
 
 	static void ProcessNode( aiNode* pNode, const aiScene* pScene, std::vector<Mesh>& meshes, const std::string& dir )

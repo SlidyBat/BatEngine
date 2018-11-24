@@ -4,6 +4,7 @@
 #include <d3dcompiler.h>
 #include "COMException.h"
 #include "Graphics.h"
+#include "MemoryStream.h"
 
 namespace Bat
 {
@@ -11,26 +12,43 @@ namespace Bat
 	{
 		auto pDevice = g_pGfx->GetDevice();
 
-		HRESULT hr;
-		Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
-		Microsoft::WRL::ComPtr<ID3DBlob> vertexShaderBuffer;
-
-		if( FAILED( hr = D3DCompileFromFile( filename.c_str(), NULL, NULL, "main", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage ) ) )
+		// compiled shader object
+		if( filename.find( L".cso" ) != std::wstring::npos )
 		{
-			std::string filename_converted( filename.begin(), filename.end() );
-			if( errorMessage )
-			{
-				std::string error = (char*)errorMessage->GetBufferPointer();
-				THROW_COM_ERROR( hr, "Failed to compile vertex shader file '" + filename_converted + "'\n" + error );
-			}
-			else
-			{
-				THROW_COM_ERROR( hr, "Failed to compile vertex shader file '" + filename_converted + "'" );
-			}
+			auto bytes = MemoryStream::FromFile( filename );
+			COM_ERROR_IF_FAILED( pDevice->CreateVertexShader( bytes.Base(), bytes.Size(), NULL, &m_pVertexShader ) );
+			COM_ERROR_IF_FAILED( pDevice->CreateInputLayout( pInputElementsDesc, elements, bytes.Base(), bytes.Size(), &m_pInputLayout ) );
 		}
+		// not compiled, lets compile ourselves
+		else
+		{
+			HRESULT hr;
+			Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
+			Microsoft::WRL::ComPtr<ID3DBlob> vertexShaderBuffer;
 
-		COM_ERROR_IF_FAILED( pDevice->CreateVertexShader( vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_pVertexShader ) );
-		COM_ERROR_IF_FAILED( pDevice->CreateInputLayout( pInputElementsDesc, elements, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_pInputLayout ) );
+#ifdef _DEBUG
+			const UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG;
+#else
+			const UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
+#endif
+
+			if( FAILED( hr = D3DCompileFromFile( filename.c_str(), NULL, NULL, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage ) ) )
+			{
+				std::string filename_converted( filename.begin(), filename.end() );
+				if( errorMessage )
+				{
+					std::string error = (char*)errorMessage->GetBufferPointer();
+					THROW_COM_ERROR( hr, "Failed to compile vertex shader file '" + filename_converted + "'\n" + error );
+				}
+				else
+				{
+					THROW_COM_ERROR( hr, "Failed to compile vertex shader file '" + filename_converted + "'" );
+				}
+			}
+
+			COM_ERROR_IF_FAILED( pDevice->CreateVertexShader( vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_pVertexShader ) );
+			COM_ERROR_IF_FAILED( pDevice->CreateInputLayout( pInputElementsDesc, elements, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_pInputLayout ) );
+		}
 	}
 
 	VertexShader::~VertexShader()
