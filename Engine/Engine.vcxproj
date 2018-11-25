@@ -91,6 +91,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\DirectXTK\Bin\Debug-x86;C:\Dev\Assimp\bin\x64;C:\Dev\Assimp\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -117,6 +118,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

@@ -181,3 +181,147 @@ MemoryStream MemoryStream::FromFile( const std::wstring & filename )
 {
 	return FromStream( std::ifstream( filename, std::ios::binary ) );
 }
+
+int64_t MemoryStream::ReadInt64()
+{
+	return Read<int64_t>();
+}
+
+int32_t MemoryStream::ReadInt32()
+{
+	return Read<int32_t>();
+}
+
+int16_t MemoryStream::ReadInt16()
+{
+	return Read<int16_t>();
+}
+
+uint64_t MemoryStream::ReadUInt64()
+{
+	return Read<uint64_t>();
+}
+
+uint32_t MemoryStream::ReadUInt32()
+{
+	return Read<uint32_t>();
+}
+
+uint16_t MemoryStream::ReadUInt16()
+{
+	return Read<uint16_t>();
+}
+
+char MemoryStream::ReadChar()
+{
+	return ReadByte();
+}
+
+short MemoryStream::ReadShort()
+{
+	return Read<short>();
+}
+
+int MemoryStream::ReadInt()
+{
+	return Read<int>();
+}
+
+float MemoryStream::ReadFloat()
+{
+	return Read<float>();
+}
+
+double MemoryStream::ReadDouble()
+{
+	return Read<double>();
+}
+
+bool MemoryStream::ReadBool()
+{
+	return Read<bool>();
+}
+
+std::string MemoryStream::ReadString( char delimiter/* = '\0'*/ )
+{
+	std::string str;
+	while( char c = ReadChar() )
+	{
+		if( c == delimiter )
+		{
+			break;
+		}
+		str += c;
+	}
+
+	return str;
+}
+
+void MemoryStream::WriteInt64( int64_t val )
+{
+	Write( val );
+}
+
+void MemoryStream::WriteInt32( int32_t val )
+{
+	Write( val );
+}
+
+void MemoryStream::WriteInt16( int16_t val )
+{
+	Write( val );
+}
+
+void MemoryStream::WriteUInt64( uint64_t val )
+{
+	Write( val );
+}
+
+void MemoryStream::WriteUInt32( uint32_t val )
+{
+	Write( val );
+}
+
+void MemoryStream::WrtieUInt16( uint16_t val )
+{
+	Write( val );
+}
+
+void MemoryStream::WriteChar( char val )
+{
+	Write( val );
+}
+
+void MemoryStream::WriteShort( short val )
+{
+	Write( val );
+}
+
+void MemoryStream::WriteInt( int val )
+{
+	Write( val );
+}
+
+void MemoryStream::WriteFloat( float val )
+{
+	Write( val );
+}
+
+void MemoryStream::WriteDouble( double val )
+{
+	Write( val );
+}
+
+void MemoryStream::WriteBool( bool val )
+{
+	Write( val );
+}
+
+void MemoryStream::WriteString( std::string_view str, bool terminate/* = true */ )
+{
+	WriteBytes( str.data(), str.size() );
+	if( terminate )
+	{
+		WriteChar( '\0' );
+	}
+}
