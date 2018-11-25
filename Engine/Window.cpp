@@ -145,6 +145,7 @@ namespace Bat
 
 			if( msg.message == WM_QUIT )
 			{
+				PostQuitMessage( msg.wParam );
 				return false;
 			}
 		}
