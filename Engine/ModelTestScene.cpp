@@ -30,10 +30,6 @@ ModelTestScene::ModelTestScene( Window& wnd )
 
 void ModelTestScene::OnUpdate( float deltatime )
 {
-	m_Light.SetPosition( { lightPos[0], lightPos[1], lightPos[2] } );
-	m_Light.SetAmbient( { lightAmb[0], lightAmb[1], lightAmb[2] } );
-	m_Light.SetDiffuse( { lightDiff[0], lightDiff[1], lightDiff[2] } );
-	m_Light.SetSpecular( { lightSpec[0], lightSpec[1], lightSpec[2] } );
 	m_Camera.Update( wnd.input, deltatime );
 
 	if( wnd.input.IsKeyPressed( 'N' ) )
@@ -44,6 +40,19 @@ void ModelTestScene::OnUpdate( float deltatime )
 	{
 		m_bUseBumpMap = false;
 	}
+
+	if( wnd.input.IsKeyPressed( 'C' ) )
+	{
+		const Vec3 pos = m_Camera.GetPosition();
+		lightPos[0] = pos.x;
+		lightPos[1] = pos.y;
+		lightPos[2] = pos.z;
+	}
+
+	m_Light.SetPosition( { lightPos[0], lightPos[1], lightPos[2] } );
+	m_Light.SetAmbient( { lightAmb[0], lightAmb[1], lightAmb[2] } );
+	m_Light.SetDiffuse( { lightDiff[0], lightDiff[1], lightDiff[2] } );
+	m_Light.SetSpecular( { lightSpec[0], lightSpec[1], lightSpec[2] } );
 }
 
 void ModelTestScene::OnRender()
