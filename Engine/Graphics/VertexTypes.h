@@ -13,6 +13,7 @@ namespace Bat
 		Normal,
 		UV,
 		Tangent,
+		Bitangent,
 		TotalAttributes
 	};
 
@@ -21,20 +22,21 @@ namespace Bat
 	public:
 		static VertexAttribute SemanticToAttribute( const std::string& semantic )
 		{
-			static std::unordered_map<std::string, VertexAttribute> m_mapConvert;
+			static std::unordered_map<std::string, VertexAttribute> s_mapConvert;
 			static bool initialized = false;
 			if( !initialized )
 			{
 				initialized = true;
-				m_mapConvert["POSITION"] = VertexAttribute::Position;
-				m_mapConvert["COLOR"] = VertexAttribute::Colour;
-				m_mapConvert["NORMAL"] = VertexAttribute::Normal;
-				m_mapConvert["TEXCOORD"] = VertexAttribute::UV;
-				m_mapConvert["TANGENT"] = VertexAttribute::Tangent;
+				s_mapConvert["POSITION"] = VertexAttribute::Position;
+				s_mapConvert["COLOR"] = VertexAttribute::Colour;
+				s_mapConvert["NORMAL"] = VertexAttribute::Normal;
+				s_mapConvert["TEXCOORD"] = VertexAttribute::UV;
+				s_mapConvert["TANGENT"] = VertexAttribute::Tangent;
+				s_mapConvert["BITANGENT"] = VertexAttribute::Bitangent;
 			}
 
-			auto it = m_mapConvert.find( semantic );
-			if( it == m_mapConvert.end() )
+			auto it = s_mapConvert.find( semantic );
+			if( it == s_mapConvert.end() )
 			{
 				return VertexAttribute::Invalid;
 			}
@@ -44,20 +46,21 @@ namespace Bat
 
 		static std::string AttributeToSemantic( const VertexAttribute attribute )
 		{
-			static std::unordered_map<VertexAttribute, std::string> m_mapConvert;
+			static std::unordered_map<VertexAttribute, std::string> s_mapConvert;
 			static bool initialized = false;
 			if( !initialized )
 			{
 				initialized = true;
-				m_mapConvert[VertexAttribute::Position] = "POSITION";
-				m_mapConvert[VertexAttribute::Colour] = "COLOR";
-				m_mapConvert[VertexAttribute::Normal] = "NORMAL";
-				m_mapConvert[VertexAttribute::UV] = "TEXCOORD";
-				m_mapConvert[VertexAttribute::Tangent] = "TANGENT";
+				s_mapConvert[VertexAttribute::Position] = "POSITION";
+				s_mapConvert[VertexAttribute::Colour] = "COLOR";
+				s_mapConvert[VertexAttribute::Normal] = "NORMAL";
+				s_mapConvert[VertexAttribute::UV] = "TEXCOORD";
+				s_mapConvert[VertexAttribute::Tangent] = "TANGENT";
+				s_mapConvert[VertexAttribute::Bitangent] = "BITANGENT";
 			}
 
-			auto it = m_mapConvert.find( attribute );
-			if( it == m_mapConvert.end() )
+			auto it = s_mapConvert.find( attribute );
+			if( it == s_mapConvert.end() )
 			{
 				return "";
 			}

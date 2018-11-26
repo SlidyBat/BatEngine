@@ -1,6 +1,7 @@
-Texture2D diffuseTexture;
-Texture2D specularTexture;
-Texture2D emissiveTexture;
+Texture2D diffuseTexture : register(t0);
+Texture2D specularTexture : register(t1);
+Texture2D emissiveTexture : register(t2);
+Texture2D bumpMap : register(t3);
 SamplerState SampleType;
 
 cbuffer LightingParameters
@@ -22,8 +23,10 @@ struct PixelInputType
 {
     float4 position : SV_POSITION;
     float4 world_pos : POSITION;
-    float4 normal : NORMAL;
-    float2 tex : TEXCOORD0;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 bitangent : BITANGENT;
+    float2 tex : TEXCOORD;
 };
 
 float4 main(PixelInputType input) : SV_TARGET
@@ -32,19 +35,22 @@ float4 main(PixelInputType input) : SV_TARGET
     float3 objDiffuse = diffuseTexture.Sample(SampleType, input.tex).xyz;
     float3 objSpecular = specularTexture.Sample(SampleType, input.tex).xyz;
     float3 objEmissive = emissiveTexture.Sample(SampleType, input.tex).xyz;
+    float3 normal = bumpMap.Sample(SampleType, input.tex).xyz;
+    normal = normalize((normal * 2.0f) - 1.0f);
+    float3x3 tbn = float3x3(input.tangent, input.bitangent, input.normal);
+    normal = normalize(mul(normal, tbn));
 
     // ambient
     float3 ambient = lightAmbient * objDiffuse;
-
-    input.normal = normalize(input.normal);
+    
     // diffuse
-    float diff = saturate(dot((float3) input.normal, lightDir));
+    float diff = saturate(dot(normal, lightDir));
     float3 diffuse = lightDiffuse * (diff * objDiffuse);
 
     // specular
     float3 viewDir = normalize(cameraPos - (float3) input.world_pos);
-    float3 reflectDir = reflect(-lightDir, (float3) input.normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 32.0f);
+    float3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(saturate(dot(viewDir, reflectDir)), 32.0f);
     float3 specular = lightSpecular * (spec * objSpecular);
 
 

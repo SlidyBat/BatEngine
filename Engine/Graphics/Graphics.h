@@ -33,6 +33,8 @@ namespace Bat
 			d3d.Resize( width, height );
 		}
 
+		virtual IPipeline* GetPipeline( const std::string& name ) const override;
+
 		bool IsDepthStencilEnabled() const override;
 		void SetDepthStencilEnabled( bool enable ) override;
 
@@ -48,9 +50,11 @@ namespace Bat
 			return d3d.GetDeviceContext();
 		}
 	private:
+		void AddShader( const std::string& name, std::unique_ptr<IPipeline> pPipeline );
+	private:
 		D3DClass d3d;
 
-		GDIPManager gdip;
+		std::unordered_map<std::string, std::unique_ptr<IPipeline>> m_mapPipelines;
 	public:
 		static constexpr bool	FullScreen = false;
 		static constexpr int	VSyncEnabled = false;

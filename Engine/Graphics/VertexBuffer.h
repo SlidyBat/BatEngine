@@ -45,7 +45,7 @@ namespace Bat
 
 		void SetData( const std::vector<V>& vertices )
 		{
-			SetData( vertices.data(), vertices.size() );
+			SetData( vertices.data(), (UINT)vertices.size() );
 		}
 
 		operator ID3D11Buffer*() const

@@ -9,10 +9,7 @@
 #include "LightPipeline.h"
 #include <SpriteBatch.h>
 #include <SpriteFont.h>
-#include "LightPipeline.h"
 #include "imgui.h"
-#include "imgui_impl_dx11.h"
-#include "imgui_impl_win32.h"
 
 using namespace Bat;
 
@@ -44,7 +41,7 @@ void CarTestScene::OnRender()
 {
 	g_pGfx->EnableDepthStencil();
 
-	auto pPipeline = static_cast<LightPipeline*>(g_pGfx->GetPipeline( "light" ));
+	auto pPipeline = dynamic_cast<LightPipeline*>(g_pGfx->GetPipeline( "bumpmap" ));
 	pPipeline->SetLight( &m_Light );
 
 	m_pCar->Draw( pPipeline );

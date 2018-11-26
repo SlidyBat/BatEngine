@@ -46,7 +46,7 @@ namespace Bat
 	class LightModel : public IModel
 	{
 	public:
-		LightModel( Mesh mesh );
+		LightModel( const Mesh& mesh );
 		LightModel( std::vector<Mesh> meshes );
 
 		virtual void Draw( IPipeline* pPipeline ) const override;
@@ -80,7 +80,7 @@ namespace Bat
 
 		Light* GetLight() const { return m_pLight; }
 		void SetLight( Light* pLight ) { m_pLight = pLight; }
-	private:
+	protected:
 		Light* m_pLight = nullptr;
 	};
 }

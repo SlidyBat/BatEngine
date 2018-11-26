@@ -18,7 +18,10 @@ namespace Bat
 
 		Texture* GetEmissiveTexture() const { return m_pEmissive; }
 		void SetEmissiveTexture( Texture* pTexture ) { m_pEmissive = pTexture; }
-		
+
+		Texture* GetBumpMapTexture() const { return m_pBumpMap; }
+		void SetBumpMapTexture( Texture* pTexture ) { m_pBumpMap = pTexture; }
+
 		float GetShininess() const { return m_fShininess; }
 		void SetShininess( const float shininess ) { m_fShininess = shininess; }
 	private:
@@ -26,6 +29,7 @@ namespace Bat
 		Texture* m_pDiffuse = nullptr;
 		Texture* m_pSpecular = nullptr;
 		Texture* m_pEmissive = nullptr;
+		Texture* m_pBumpMap = nullptr;
 		float m_fShininess = 32.0f;
 	};
 }

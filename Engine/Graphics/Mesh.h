@@ -19,6 +19,7 @@ namespace Bat
 		std::vector<Vec4> normal;
 		std::vector<Vec2> uv;
 		std::vector<Vec4> tangent;
+		std::vector<Vec4> bitangent;
 	};
 
 	class Mesh
@@ -49,12 +50,17 @@ namespace Bat
 			{
 				m_bufTangent.SetData( params.tangent );
 			}
+			if( !params.bitangent.empty() )
+			{
+				m_bufBitangent.SetData( params.bitangent );
+			}
 		}
 
 		void Bind( IPipeline* pPipeline ) const
 		{
 			// TODO: support other primitives?
 			g_pGfx->GetDeviceContext()->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+
 			// bind buffers
 			UINT curslot = 0;
 			if( pPipeline->RequiresVertexAttribute( VertexAttribute::Position ) )
@@ -82,6 +88,11 @@ namespace Bat
 				ASSERT( m_bufTangent.GetVertexCount() > 0, "Shader requires model to have vertex tangent data" );
 				m_bufTangent.Bind( curslot++ );
 			}
+			if( pPipeline->RequiresVertexAttribute( VertexAttribute::Bitangent ) )
+			{
+				ASSERT( m_bufTangent.GetVertexCount() > 0, "Shader requires model to have vertex bitangent data" );
+				m_bufBitangent.Bind( curslot++ );
+			}
 
 			m_bufIndices.Bind();
 		}
@@ -104,6 +115,7 @@ namespace Bat
 		VertexBuffer<Vec4> m_bufNormal;
 		VertexBuffer<Vec2> m_bufUV;
 		VertexBuffer<Vec4> m_bufTangent;
+		VertexBuffer<Vec4> m_bufBitangent;
 		IndexBuffer m_bufIndices;
 		Material* m_pMaterial;
 	};

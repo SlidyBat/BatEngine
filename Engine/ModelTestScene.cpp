@@ -7,12 +7,10 @@
 #include "IModel.h"
 #include "ModelLoader.h"
 #include "LightPipeline.h"
+#include "BumpMapPipeline.h"
 #include <SpriteBatch.h>
 #include <SpriteFont.h>
-#include "LightPipeline.h"
 #include "imgui.h"
-#include "imgui_impl_dx11.h"
-#include "imgui_impl_win32.h"
 
 using namespace Bat;
 
@@ -24,7 +22,7 @@ ModelTestScene::ModelTestScene( Window& wnd )
 	m_Camera.SetPosition( 0.0f, 0.0f, -5.0f );
 	g_pGfx->SetCamera( &m_Camera );
 
-	m_pNanoSuit = std::make_unique<LightModel>( ModelLoader::LoadModel( "Assets/NanoSuit/nanosuit.obj" ) );
+	m_pNanoSuit = std::make_unique<LightModel>( ModelLoader::LoadModel( "Assets/Sword/scene.gltf" ) );
 
 	m_pSpriteBatch = std::make_unique<DirectX::SpriteBatch>( g_pGfx->GetDeviceContext() );
 	m_pFont = std::make_unique<DirectX::SpriteFont>( g_pGfx->GetDevice(), L"Assets/Fonts/consolas.spritefont" );
@@ -37,13 +35,30 @@ void ModelTestScene::OnUpdate( float deltatime )
 	m_Light.SetDiffuse( { lightDiff[0], lightDiff[1], lightDiff[2] } );
 	m_Light.SetSpecular( { lightSpec[0], lightSpec[1], lightSpec[2] } );
 	m_Camera.Update( wnd.input, deltatime );
+
+	if( wnd.input.IsKeyPressed( 'N' ) )
+	{
+		m_bUseBumpMap = true;
+	}
+	else if( wnd.input.IsKeyPressed( 'M' ) )
+	{
+		m_bUseBumpMap = false;
+	}
 }
 
 void ModelTestScene::OnRender()
 {
 	g_pGfx->EnableDepthStencil();
 
-	auto pPipeline = static_cast<LightPipeline*>(g_pGfx->GetPipeline( "light" ));
+	LightPipeline* pPipeline;
+	if( m_bUseBumpMap )
+	{
+		pPipeline = static_cast<LightPipeline*>(g_pGfx->GetPipeline( "bumpmap" ));
+	}
+	else
+	{
+		pPipeline = static_cast<LightPipeline*>(g_pGfx->GetPipeline( "light" ));
+	}
 	pPipeline->SetLight( &m_Light );
 
 	m_pNanoSuit->Draw( pPipeline );

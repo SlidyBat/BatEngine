@@ -141,6 +141,9 @@
     <ClCompile Include="COMInitialize.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BumpMapPipeline.cpp">
+      <Filter>Source Files\Graphics\Pipelines</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input.h">
@@ -290,6 +293,9 @@
     <ClInclude Include="COMInitialize.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BumpMapPipeline.h">
+      <Filter>Header Files\Graphics\Pipelines</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\mario.png">
@@ -321,6 +327,12 @@
       <Filter>Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\LightPS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\BumpMapPS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\BumpMapVS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

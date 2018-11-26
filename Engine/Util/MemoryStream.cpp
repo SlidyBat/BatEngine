@@ -162,6 +162,7 @@ void MemoryStream::Clear()
 
 MemoryStream MemoryStream::FromStream( std::istream& stream )
 {
+	assert( stream );
 	stream.seekg( 0, std::ios::end );
 	size_t size = (size_t)stream.tellg();
 	stream.seekg( 0, std::ios::beg );

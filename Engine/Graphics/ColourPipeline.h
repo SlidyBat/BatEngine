@@ -50,6 +50,5 @@ namespace Bat
 		void BindParameters( IPipelineParameters* pParameters ) override;
 		void Render( UINT vertexcount ) override;
 		void RenderIndexed( UINT indexcount ) override;
-	private:
 	};
 }

@@ -3,12 +3,15 @@
 #include "TexturePipeline.h"
 #include "LightPipeline.h"
 #include "ColourPipeline.h"
+#include "BumpMapPipeline.h"
 #include "IModel.h"
 #include "Window.h"
+#include "Material.h"
+#include "IPipeline.h"
+
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
-#include "Material.h"
 
 namespace Bat
 {
@@ -19,9 +22,10 @@ namespace Bat
 		d3d( wnd, VSyncEnabled, ScreenFar, ScreenNear )
 	{
 		IGraphics::RegisterGraphics( this );
-		AddShader( "texture", new TexturePipeline( L"Graphics/Shaders/Build/TextureVS.cso", L"Graphics/Shaders/Build/TexturePS.cso" ) );
-		AddShader( "colour", new ColourPipeline( L"Graphics/Shaders/Build/ColourVS.cso", L"Graphics/Shaders/Build/ColourPS.cso" ) );
-		AddShader( "light", new LightPipeline( L"Graphics/Shaders/Build/LightVS.cso", L"Graphics/Shaders/Build/LightPS.cso" ) );
+		AddShader( "texture", std::make_unique<TexturePipeline>( L"Graphics/Shaders/Build/TextureVS.cso", L"Graphics/Shaders/Build/TexturePS.cso" ) );
+		AddShader( "colour", std::make_unique <ColourPipeline>( L"Graphics/Shaders/Build/ColourVS.cso", L"Graphics/Shaders/Build/ColourPS.cso" ) );
+		AddShader( "light", std::make_unique<LightPipeline>( L"Graphics/Shaders/Build/LightVS.cso", L"Graphics/Shaders/Build/LightPS.cso" ) );
+		AddShader( "bumpmap", std::make_unique<BumpMapPipeline>( L"Graphics/Shaders/Build/BumpMapVS.cso", L"Graphics/Shaders/Build/BumpMapPS.cso" ) );
 
 		wnd.AddResizeListener( [=]( int width, int height )
 		{
@@ -42,6 +46,17 @@ namespace Bat
 		ImGui_ImplDX11_Shutdown();
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
+	}
+
+	IPipeline* Graphics::GetPipeline( const std::string & name ) const
+	{
+		auto it = m_mapPipelines.find( name );
+		if( it == m_mapPipelines.end() )
+		{
+			return nullptr;
+		}
+
+		return it->second.get();
 	}
 
 	bool Graphics::IsDepthStencilEnabled() const
@@ -70,5 +85,10 @@ namespace Bat
 
 		m_pCamera->Render();
 		d3d.EndScene();
+	}
+
+	void Graphics::AddShader( const std::string & name, std::unique_ptr<IPipeline> pPipeline )
+	{
+		m_mapPipelines[name] = std::move( pPipeline );
 	}
 }

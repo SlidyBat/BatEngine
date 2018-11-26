@@ -35,6 +35,8 @@ private:
 
 	Bat::Light m_Light;
 
+	bool m_bUseBumpMap = false;
+
 	float lightPos[3] = { 0.0f, 0.0f, -5.0f };
 	float lightAmb[3] = { 0.2f, 0.2f, 0.2f };
 	float lightDiff[3] = { 0.5f, 0.5f, 0.5f };

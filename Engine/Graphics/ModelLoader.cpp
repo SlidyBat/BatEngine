@@ -92,6 +92,9 @@ namespace Bat
 			case aiTextureType_EMISSIVE:
 				pMaterial->Get( AI_MATKEY_COLOR_EMISSIVE, aiColour );
 				break;
+			case aiTextureType_NORMALS:
+			case aiTextureType_HEIGHT:
+				return nullptr; // we don't create default bumpmaps
 			default:
 				ASSERT( false, "Unknown texture type" );
 			}
@@ -172,6 +175,13 @@ namespace Bat
 				tangent.x = pMesh->mTangents[i].x;
 				tangent.w = 0.0f;
 				params.tangent.emplace_back( tangent );
+
+				Vec4 bitangent;
+				bitangent.x = pMesh->mTangents[i].x;
+				bitangent.y = pMesh->mTangents[i].y;
+				bitangent.z = pMesh->mTangents[i].z;
+				tangent.w = 0.0f;
+				params.bitangent.emplace_back( bitangent );
 			}
 
 			if( pMesh->HasVertexColors(0) )
@@ -208,6 +218,12 @@ namespace Bat
 			pMeshMaterial->SetSpecularTexture( pTexture );
 			pTexture = LoadMaterialTexture( pMaterial, aiTextureType_EMISSIVE, pScene, dir );
 			pMeshMaterial->SetEmissiveTexture( pTexture );
+			pTexture = LoadMaterialTexture( pMaterial, aiTextureType_NORMALS, pScene, dir );
+			if( !pTexture )
+			{
+				pTexture = LoadMaterialTexture( pMaterial, aiTextureType_HEIGHT, pScene, dir );
+			}
+			pMeshMaterial->SetBumpMapTexture( pTexture );
 
 			float shininess = 0.0f;
 			pMaterial->Get( AI_MATKEY_SHININESS, shininess );
@@ -241,7 +257,7 @@ namespace Bat
 		std::string directory = filename.substr( 0, filename.find_last_of( '/' ) );
 
 		Assimp::Importer importer;
-		const aiScene* pScene = importer.ReadFile( filename, aiProcess_ConvertToLeftHanded | aiProcess_Triangulate );
+		const aiScene* pScene = importer.ReadFile( filename, aiProcess_ConvertToLeftHanded | aiProcess_Triangulate | aiProcess_CalcTangentSpace );
 
 		if( pScene == nullptr )
 		{

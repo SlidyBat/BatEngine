@@ -9,7 +9,7 @@
 
 namespace Bat
 {
-	LightModel::LightModel( Mesh mesh )
+	LightModel::LightModel( const Mesh& mesh )
 	{
 		m_Meshes.emplace_back( mesh );
 	}
@@ -79,8 +79,11 @@ namespace Bat
 		m_VertexShader.GetConstantBuffer( 0 ).SetData( &pTextureParameters->transform );
 		m_PixelShader.GetConstantBuffer( 0 ).SetData( &ps_params );
 		m_PixelShader.GetConstantBuffer( 1 ).SetData( &ps_light );
+		ASSERT( pTextureParameters->material->GetDiffuseTexture(), "Material doesn't have diffuse texture" );
 		m_PixelShader.SetResource( 0, pTextureParameters->material->GetDiffuseTexture()->GetTextureView() );
+		ASSERT( pTextureParameters->material->GetSpecularTexture(), "Material doesn't have specular texture" );
 		m_PixelShader.SetResource( 1, pTextureParameters->material->GetSpecularTexture()->GetTextureView() );
+		ASSERT( pTextureParameters->material->GetAmbientTexture(), "Material doesn't have ambient texture" );
 		m_PixelShader.SetResource( 2, pTextureParameters->material->GetAmbientTexture()->GetTextureView() );
 	}
 
