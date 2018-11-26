@@ -6,7 +6,7 @@
 #include "MathLib.h"
 #include "IModel.h"
 #include "ModelLoader.h"
-#include "LightPipeline.h"
+#include "BumpMapPipeline.h"
 #include <SpriteBatch.h>
 #include <SpriteFont.h>
 #include "imgui.h"
@@ -22,7 +22,7 @@ CarTestScene::CarTestScene( Window& wnd )
 	m_Camera.SetPosition( 0.0f, 0.0f, -5.0f );
 	g_pGfx->SetCamera( &m_Camera );
 
-	m_pCar = std::make_unique<LightModel>( ModelLoader::LoadModel( "Assets/Car/Pony_cartoon.obj" ) );
+	m_pCar = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/Car/scene.gltf" ) );
 
 	m_pSpriteBatch = std::make_unique<DirectX::SpriteBatch>( g_pGfx->GetDeviceContext() );
 	m_pFont = std::make_unique<DirectX::SpriteFont>( g_pGfx->GetDevice(), L"Assets/Fonts/consolas.spritefont" );

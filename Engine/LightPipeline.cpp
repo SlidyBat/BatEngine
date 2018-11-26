@@ -13,6 +13,7 @@ namespace Bat
 	{
 		m_Meshes.emplace_back( mesh );
 	}
+
 	LightModel::LightModel( std::vector<Mesh> meshes )
 		:
 		m_Meshes( std::move( meshes ) )
@@ -83,8 +84,8 @@ namespace Bat
 		m_PixelShader.SetResource( 0, pTextureParameters->material->GetDiffuseTexture()->GetTextureView() );
 		ASSERT( pTextureParameters->material->GetSpecularTexture(), "Material doesn't have specular texture" );
 		m_PixelShader.SetResource( 1, pTextureParameters->material->GetSpecularTexture()->GetTextureView() );
-		ASSERT( pTextureParameters->material->GetAmbientTexture(), "Material doesn't have ambient texture" );
-		m_PixelShader.SetResource( 2, pTextureParameters->material->GetAmbientTexture()->GetTextureView() );
+		ASSERT( pTextureParameters->material->GetEmissiveTexture(), "Material doesn't have emissive texture" );
+		m_PixelShader.SetResource( 2, pTextureParameters->material->GetEmissiveTexture()->GetTextureView() );
 	}
 
 	void LightPipeline::Render( UINT vertexcount )

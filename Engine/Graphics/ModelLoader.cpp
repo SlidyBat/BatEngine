@@ -210,13 +210,15 @@ namespace Bat
 			aiMaterial* pMaterial = pScene->mMaterials[pMesh->mMaterialIndex];
 			Texture* pTexture = nullptr;
 
-			pTexture = LoadMaterialTexture( pMaterial, aiTextureType_AMBIENT, pScene, dir );
-			pMeshMaterial->SetAmbientTexture( pTexture );
 			pTexture = LoadMaterialTexture( pMaterial, aiTextureType_DIFFUSE, pScene, dir );
 			pMeshMaterial->SetDiffuseTexture( pTexture );
 			pTexture = LoadMaterialTexture( pMaterial, aiTextureType_SPECULAR, pScene, dir );
 			pMeshMaterial->SetSpecularTexture( pTexture );
 			pTexture = LoadMaterialTexture( pMaterial, aiTextureType_EMISSIVE, pScene, dir );
+			if( !pTexture )
+			{
+				pTexture = LoadMaterialTexture( pMaterial, aiTextureType_AMBIENT, pScene, dir );
+			}
 			pMeshMaterial->SetEmissiveTexture( pTexture );
 			pTexture = LoadMaterialTexture( pMaterial, aiTextureType_NORMALS, pScene, dir );
 			if( !pTexture )

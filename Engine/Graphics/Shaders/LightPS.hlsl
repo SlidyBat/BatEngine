@@ -1,6 +1,6 @@
-Texture2D diffuseTexture;
-Texture2D specularTexture;
-Texture2D emissiveTexture;
+Texture2D diffuseTexture : register(t0);
+Texture2D specularTexture : register(t1);
+Texture2D emissiveTexture : register(t2);
 SamplerState SampleType;
 
 cbuffer LightingParameters
