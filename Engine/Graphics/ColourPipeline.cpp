@@ -6,11 +6,11 @@
 
 namespace Bat
 {
-	ColouredModel::ColouredModel( ColourMesh mesh )
+	ColouredModel::ColouredModel( const Mesh& mesh )
 	{
 		m_Meshes.emplace_back( mesh );
 	}
-	ColouredModel::ColouredModel( std::vector<ColourMesh> meshes )
+	ColouredModel::ColouredModel( std::vector<Mesh> meshes )
 		:
 		m_Meshes( std::move( meshes ) )
 	{}
@@ -22,7 +22,7 @@ namespace Bat
 
 		for( const auto& mesh : m_Meshes )
 		{
-			mesh.Bind();
+			mesh.Bind( pPipeline );
 			ColourPipelineParameters params( w, vp );
 			pPipeline->BindParameters( &params );
 			pPipeline->RenderIndexed( (UINT)mesh.GetIndexCount() );
@@ -31,8 +31,7 @@ namespace Bat
 
 	ColourPipeline::ColourPipeline( const std::wstring& vsFilename, const std::wstring& psFilename )
 		:
-		m_VertexShader( vsFilename, ColourVertex::InputLayout, ColourVertex::Inputs ),
-		m_PixelShader( psFilename )
+		IPipeline( vsFilename, psFilename )
 	{
 		m_VertexShader.AddConstantBuffer<CB_ColourPipelineMatrix>();
 	}

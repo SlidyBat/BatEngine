@@ -81,9 +81,6 @@ namespace Bat
 		Light* GetLight() const { return m_pLight; }
 		void SetLight( Light* pLight ) { m_pLight = pLight; }
 	private:
-		VertexShader m_VertexShader;
-		PixelShader m_PixelShader;
-
 		Light* m_pLight = nullptr;
 	};
 }

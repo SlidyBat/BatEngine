@@ -12,10 +12,19 @@ namespace Bat
 	class VertexBuffer
 	{
 	public:
-		VertexBuffer( const V* data, const UINT size )
-			:
-			size( size )
+		VertexBuffer() = default;
+		VertexBuffer( const V* pData, const UINT size )
 		{
+			SetData( pData, size );
+		}
+		VertexBuffer( const std::vector<V>& vertices )
+			:
+			VertexBuffer( vertices.data(), (UINT)vertices.size() )
+		{}
+
+		void SetData( const V* pData, const UINT size )
+		{
+			m_iSize = size;
 			auto pDevice = g_pGfx->GetDevice();
 
 			D3D11_BUFFER_DESC vertexBufferDesc;
@@ -27,16 +36,17 @@ namespace Bat
 			vertexBufferDesc.StructureByteStride = 0;
 
 			D3D11_SUBRESOURCE_DATA vertexData;
-			vertexData.pSysMem = data;
+			vertexData.pSysMem = pData;
 			vertexData.SysMemPitch = 0;
 			vertexData.SysMemSlicePitch = 0;
 
 			COM_THROW_IF_FAILED( pDevice->CreateBuffer( &vertexBufferDesc, &vertexData, &m_pVertexBuffer ) );
 		}
-		VertexBuffer( const std::vector<V>& vertices )
-			:
-			VertexBuffer( vertices.data(), (UINT)vertices.size() )
-		{}
+
+		void SetData( const std::vector<V>& vertices )
+		{
+			SetData( vertices.data(), vertices.size() );
+		}
 
 		operator ID3D11Buffer*() const
 		{
@@ -48,14 +58,19 @@ namespace Bat
 			return m_pVertexBuffer.GetAddressOf();
 		}
 
-		void Bind() const
+		size_t GetVertexCount() const
+		{
+			return (size_t)m_iSize;
+		}
+
+		void Bind( UINT slot ) const
 		{
 			UINT stride = sizeof( V );
 			UINT offset = 0;
-			g_pGfx->GetDeviceContext()->IASetVertexBuffers( 0, 1, m_pVertexBuffer.GetAddressOf(), &stride, &offset );
+			g_pGfx->GetDeviceContext()->IASetVertexBuffers( slot, 1, m_pVertexBuffer.GetAddressOf(), &stride, &offset );
 		}
 	private:
-		Microsoft::WRL::ComPtr<ID3D11Buffer>	m_pVertexBuffer;
-		UINT size;
+		Microsoft::WRL::ComPtr<ID3D11Buffer> m_pVertexBuffer = nullptr;
+		UINT m_iSize = 0;
 	};
 }

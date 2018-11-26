@@ -7,11 +7,11 @@
 
 namespace Bat
 {
-	TexturedModel::TexturedModel( TexMesh mesh )
+	TexturedModel::TexturedModel( const Mesh& mesh )
 	{
 		m_Meshes.emplace_back( mesh );
 	}
-	TexturedModel::TexturedModel( std::vector<TexMesh> meshes )
+	TexturedModel::TexturedModel( std::vector<Mesh> meshes )
 		:
 		m_Meshes( std::move( meshes ) )
 	{}
@@ -23,7 +23,7 @@ namespace Bat
 
 		for( const auto& mesh : m_Meshes )
 		{
-			mesh.Bind();
+			mesh.Bind( pPipeline );
 			TexturePipelineParameters params( w, vp, mesh.GetMaterial() );
 			pPipeline->BindParameters( &params );
 			pPipeline->RenderIndexed( (UINT)mesh.GetIndexCount() );
@@ -32,8 +32,7 @@ namespace Bat
 
 	TexturePipeline::TexturePipeline( const std::wstring& vsFilename, const std::wstring& psFilename )
 		:
-		m_VertexShader( vsFilename, TexVertex::InputLayout, TexVertex::Inputs ),
-		m_PixelShader( psFilename )
+		IPipeline( vsFilename, psFilename )
 	{
 		D3D11_SAMPLER_DESC samplerDesc;
 		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;

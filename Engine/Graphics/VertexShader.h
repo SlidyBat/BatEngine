@@ -6,18 +6,19 @@
 #include <wrl.h>
 
 #include "ConstantBuffer.h"
+#include "VertexTypes.h"
 
 namespace Bat
 {
 	class VertexShader
 	{
 	public:
-		VertexShader( const std::wstring& filename, const D3D11_INPUT_ELEMENT_DESC* pInputElementsDesc, UINT elements );
+		VertexShader( const std::wstring& filename );
 		~VertexShader();
 
 		void Bind();
 		void AddSampler( const D3D11_SAMPLER_DESC* pSamplerDesc );
-		void SetResource( int slot, ID3D11ShaderResourceView* const pResource );
+		void SetResource( const int slot, ID3D11ShaderResourceView* const pResource );
 
 		template <typename T>
 		void AddConstantBuffer()
@@ -30,13 +31,21 @@ namespace Bat
 			m_ConstantBuffers.emplace_back( pData, sizeof( T ) );
 		}
 
-		ConstantBuffer& GetConstantBuffer( int slot )
+		ConstantBuffer& GetConstantBuffer( const int slot )
 		{
 			return m_ConstantBuffers[slot];
 		}
+
+		bool RequiresVertexAttribute( const VertexAttribute attribute )
+		{
+			return m_bUsesAttribute[(int)attribute];
+		}
+	private:
+		void CreateInputLayoutDescFromVertexShaderSignature( const void* pCodeBytes, const size_t size );
 	private:
 		Microsoft::WRL::ComPtr<ID3D11VertexShader>	m_pVertexShader;
 		Microsoft::WRL::ComPtr<ID3D11InputLayout>	m_pInputLayout;
+		bool m_bUsesAttribute[(int)VertexAttribute::TotalAttributes];
 		std::vector<ID3D11SamplerState*> m_pSamplerStates;
 		std::vector<ConstantBuffer> m_ConstantBuffers;
 	};

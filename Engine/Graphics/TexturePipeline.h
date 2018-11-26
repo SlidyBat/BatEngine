@@ -24,12 +24,12 @@ namespace Bat
 	class TexturedModel : public IModel
 	{
 	public:
-		TexturedModel( TexMesh mesh );
-		TexturedModel( std::vector<TexMesh> meshes );
+		TexturedModel( const Mesh& mesh );
+		TexturedModel( std::vector<Mesh> meshes );
 
 		virtual void Draw( IPipeline* pPipeline ) const override;
 	private:
-		std::vector<TexMesh> m_Meshes;
+		std::vector<Mesh> m_Meshes;
 	};
 
 	class TexturePipelineParameters : public IPipelineParameters
@@ -55,8 +55,5 @@ namespace Bat
 		void BindParameters( IPipelineParameters* pParameters ) override;
 		void Render( UINT vertexcount ) override;
 		void RenderIndexed( UINT indexcount ) override;
-	private:
-		VertexShader m_VertexShader;
-		PixelShader m_PixelShader;
 	};
 }

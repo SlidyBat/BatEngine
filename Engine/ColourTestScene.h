@@ -2,6 +2,7 @@
 
 #include "IScene.h"
 #include "Texture.h"
+#include "MoveableCamera.h"
 #include "ClassDef.h"
 
 namespace Bat
@@ -19,5 +20,6 @@ public:
 	virtual void OnUpdate( float deltatime ) override;
 	virtual void OnRender() override;
 private:
-	Bat::IModel* pRedSquare;
+	Bat::MoveableCamera m_Camera;
+	std::unique_ptr<Bat::IModel> m_pRedSquare;
 };

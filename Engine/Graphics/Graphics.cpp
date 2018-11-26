@@ -44,36 +44,6 @@ namespace Bat
 		ImGui::DestroyContext();
 	}
 
-	IModel* Graphics::CreateColouredModel( const std::vector<ColourVertex>& vertices, const std::vector<int>& indices )
-	{
-		ColourMesh mesh( vertices, indices, nullptr );
-		return new ColouredModel( mesh );
-	}
-
-	IModel* Graphics::CreateTexturedModel( const std::vector<TexVertex>& vertices, const std::vector<int>& indices, Texture& tex )
-	{
-		Material* pMaterial = new Material();
-		pMaterial->SetDiffuseTexture( &tex );
-		TexMesh mesh( vertices, indices, pMaterial );
-		return new TexturedModel( mesh );
-	}
-
-	IModel* Graphics::CreateModel( const std::vector<Vertex>& vertices, const std::vector<int>& indices, Material& mat )
-	{
-		Mesh mesh( vertices, indices, &mat );
-		return new LightModel( mesh );
-	}
-
-	Texture* Graphics::CreateTexture( const std::wstring& filename )
-	{
-		return new Texture( filename );
-	}
-
-	Texture* Graphics::CreateTexture( const Colour* pPixels, int width, int height )
-	{
-		return new Texture( pPixels, width, height );
-	}
-
 	bool Graphics::IsDepthStencilEnabled() const
 	{
 		return d3d.IsDepthStencilEnabled();

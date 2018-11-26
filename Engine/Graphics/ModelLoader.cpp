@@ -127,7 +127,7 @@ namespace Bat
 
 	static Mesh ProcessMesh( aiMesh* pMesh, const aiScene* pScene, const std::string& dir )
 	{
-		std::vector<Vertex> vertices;
+		MeshParameters params;
 		std::vector<int> indices;
 		Material* pMeshMaterial = new Material();
 		
@@ -138,25 +138,51 @@ namespace Bat
 
 		for( UINT i = 0; i < pMesh->mNumVertices; i++ )
 		{
-			Vertex vertex;
-			vertex.position.x = pMesh->mVertices[i].x;
-			vertex.position.y = pMesh->mVertices[i].y;
-			vertex.position.z = pMesh->mVertices[i].z;
-			vertex.normal.x = pMesh->mNormals[i].x;
-			vertex.normal.y = pMesh->mNormals[i].y;
-			vertex.normal.z = pMesh->mNormals[i].z;
+			Vec4 position;
+			position.x = pMesh->mVertices[i].x;
+			position.y = pMesh->mVertices[i].y;
+			position.z = pMesh->mVertices[i].z;
+			position.w = 1.0f;
+			params.position.emplace_back( position );
 
+			Vec4 normal;
+			normal.x = pMesh->mNormals[i].x;
+			normal.y = pMesh->mNormals[i].y;
+			normal.z = pMesh->mNormals[i].z;
+			normal.w = 0.0f;
+			params.normal.emplace_back( normal );
+
+			Vec2 texcoord;
 			if( pMesh->mTextureCoords[0] )
 			{
-				vertex.texcoord.x = pMesh->mTextureCoords[0][i].x;
-				vertex.texcoord.y = pMesh->mTextureCoords[0][i].y;
+				texcoord.x = pMesh->mTextureCoords[0][i].x;
+				texcoord.y = pMesh->mTextureCoords[0][i].y;
 			}
 			else
 			{
-				vertex.texcoord = { 0.0f, 0.0f };
+				texcoord = { 0.0f, 0.0f };
+			}
+			params.uv.emplace_back( texcoord );
+
+			if( pMesh->HasTangentsAndBitangents() )
+			{
+				Vec4 tangent;
+				tangent.x = pMesh->mTangents[i].x;
+				tangent.x = pMesh->mTangents[i].x;
+				tangent.x = pMesh->mTangents[i].x;
+				tangent.w = 0.0f;
+				params.tangent.emplace_back( tangent );
 			}
 
-			vertices.emplace_back( vertex );
+			if( pMesh->HasVertexColors(0) )
+			{
+				Vec4 colour;
+				colour.x = pMesh->mColors[0]->r;
+				colour.y = pMesh->mColors[0]->g;
+				colour.z = pMesh->mColors[0]->b;
+				colour.w = pMesh->mColors[0]->a;
+				params.colour.emplace_back( colour );
+			}
 		}
 
 		for( UINT i = 0; i < pMesh->mNumFaces; i++ )
@@ -192,7 +218,7 @@ namespace Bat
 			pMeshMaterial->SetShininess( shininess );
 		}
 
-		return Mesh( vertices, indices, pMeshMaterial );
+		return Mesh( params, indices, pMeshMaterial );
 	}
 
 	static void ProcessNode( aiNode* pNode, const aiScene* pScene, std::vector<Mesh>& meshes, const std::string& dir )

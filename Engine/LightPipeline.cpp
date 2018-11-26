@@ -25,7 +25,7 @@ namespace Bat
 
 		for( const auto& mesh : m_Meshes )
 		{
-			mesh.Bind();
+			mesh.Bind( pPipeline );
 			LightPipelineParameters params( w, vp, mesh.GetMaterial() );
 			pPipeline->BindParameters( &params );
 			pPipeline->RenderIndexed( (UINT)mesh.GetIndexCount() );
@@ -34,8 +34,7 @@ namespace Bat
 
 	LightPipeline::LightPipeline( const std::wstring& vsFilename, const std::wstring& psFilename )
 		:
-		m_VertexShader( vsFilename, Vertex::InputLayout, Vertex::Inputs ),
-		m_PixelShader( psFilename )
+		IPipeline( vsFilename, psFilename )
 	{
 		D3D11_SAMPLER_DESC samplerDesc;
 		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;

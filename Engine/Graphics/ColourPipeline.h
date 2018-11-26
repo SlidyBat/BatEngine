@@ -18,12 +18,12 @@ namespace Bat
 	class ColouredModel : public IModel
 	{
 	public:
-		ColouredModel( ColourMesh mesh );
-		ColouredModel( std::vector<ColourMesh> meshes );
+		ColouredModel( const Mesh& mesh );
+		ColouredModel( std::vector<Mesh> meshes );
 
 		virtual void Draw( IPipeline* pPipeline ) const override;
 	private:
-		std::vector<ColourMesh> m_Meshes;
+		std::vector<Mesh> m_Meshes;
 	};
 
 	class ColourPipelineParameters : public IPipelineParameters
@@ -51,7 +51,5 @@ namespace Bat
 		void Render( UINT vertexcount ) override;
 		void RenderIndexed( UINT indexcount ) override;
 	private:
-		VertexShader m_VertexShader;
-		PixelShader m_PixelShader;
 	};
 }

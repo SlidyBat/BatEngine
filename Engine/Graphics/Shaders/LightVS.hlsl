@@ -8,7 +8,7 @@ struct VertexInputType
 {
     float4 position : POSITION;
     float4 normal : NORMAL;
-    float2 tex : TEXCOORD0;
+    float2 tex : TEXCOORD;
 };
 
 struct PixelInputType
@@ -16,7 +16,7 @@ struct PixelInputType
     float4 position : SV_POSITION;
     float4 world_pos : POSITION;
     float4 normal : NORMAL;
-    float2 tex : TEXCOORD0;
+    float2 tex : TEXCOORD;
 };
 
 PixelInputType main(VertexInputType input)

@@ -14,6 +14,8 @@ namespace Bat
 			wnd( wnd )
 		{}
 
+		virtual ~IScene() = default;
+
 		virtual void OnUpdate( float deltatime ) = 0;
 		virtual void OnRender() = 0;
 	protected:
