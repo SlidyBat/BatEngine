@@ -22,7 +22,7 @@ ModelTestScene::ModelTestScene( Window& wnd )
 	m_Camera.SetPosition( 0.0f, 0.0f, -5.0f );
 	g_pGfx->SetCamera( &m_Camera );
 
-	m_pNanoSuit = std::make_unique<LightModel>( ModelLoader::LoadModel( "Assets/Sword/scene.gltf" ) );
+	m_pNanoSuit = std::make_unique<LightModel>( ModelLoader::LoadModel( "Assets/NanoSuit/nanosuit.obj" ) );
 
 	m_pSpriteBatch = std::make_unique<DirectX::SpriteBatch>( g_pGfx->GetDeviceContext() );
 	m_pFont = std::make_unique<DirectX::SpriteFont>( g_pGfx->GetDevice(), L"Assets/Fonts/consolas.spritefont" );

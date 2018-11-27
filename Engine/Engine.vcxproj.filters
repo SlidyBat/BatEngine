@@ -93,9 +93,6 @@
     <ClCompile Include="Graphics\ColourPipeline.cpp">
       <Filter>Source Files\Graphics\Pipelines</Filter>
     </ClCompile>
-    <ClCompile Include="LightPipeline.cpp">
-      <Filter>Source Files\Graphics\Pipelines</Filter>
-    </ClCompile>
     <ClCompile Include="ModelTestScene.cpp">
       <Filter>Source Files\TestScenes</Filter>
     </ClCompile>
@@ -143,6 +140,18 @@
     </ClCompile>
     <ClCompile Include="BumpMapPipeline.cpp">
       <Filter>Source Files\Graphics\Pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ConstantBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\LightPipeline.cpp">
+      <Filter>Source Files\Graphics\Pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RenderTexture.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GenericPostProcess.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -227,9 +236,6 @@
     <ClInclude Include="Graphics\TexturePipeline.h">
       <Filter>Header Files\Graphics\Pipelines</Filter>
     </ClInclude>
-    <ClInclude Include="LightPipeline.h">
-      <Filter>Header Files\Graphics\Pipelines</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\IModel.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
@@ -296,6 +302,18 @@
     <ClInclude Include="BumpMapPipeline.h">
       <Filter>Header Files\Graphics\Pipelines</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\IPostProcess.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\LightPipeline.h">
+      <Filter>Header Files\Graphics\Pipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RenderTexture.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GenericPostProcess.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\mario.png">
@@ -333,6 +351,9 @@
       <Filter>Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\BumpMapVS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\PostProcessPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

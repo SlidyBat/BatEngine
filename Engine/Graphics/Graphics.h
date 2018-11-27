@@ -9,6 +9,7 @@
 #include "Texture.h"
 #include "VertexTypes.h"
 #include "Camera.h"
+#include "RenderTexture.h"
 
 #include <memory>
 
@@ -28,33 +29,68 @@ namespace Bat
 
 		~Graphics() override;
 
-		void Resize( int width = 0, int height = 0 )
+		void Resize( int width, int height )
 		{
+			m_iScreenWidth = width;
+			m_iScreenHeight = height;
+			m_matOrtho = DirectX::XMMatrixOrthographicLH(
+				(float)width,
+				(float)height,
+				Graphics::ScreenNear,
+				Graphics::ScreenFar
+			);
+
 			d3d.Resize( width, height );
+			if( !m_PostProcesses.empty() )
+			{
+				m_PostProcessRenderTexture.Resize( width, height );
+			}
 		}
+
+		virtual int GetScreenWidth() const override;
+		virtual int GetScreenHeight() const override;
 
 		virtual IPipeline* GetPipeline( const std::string& name ) const override;
 
-		bool IsDepthStencilEnabled() const override;
-		void SetDepthStencilEnabled( bool enable ) override;
+		virtual void AddPostProcess( std::unique_ptr<IPostProcess> pPostProcess ) override;
 
-		void BeginFrame();
-		void EndFrame();
+		virtual bool IsDepthStencilEnabled() const override;
+		virtual void SetDepthStencilEnabled( bool enable ) override;
 
-		ID3D11Device* GetDevice() override
+		virtual void BeginFrame() override;
+		virtual void EndFrame() override;
+
+		virtual DirectX::XMMATRIX GetOrthoMatrix() const;
+
+		virtual ID3D11Device* GetDevice() const override
 		{
 			return d3d.GetDevice();
 		}
-		ID3D11DeviceContext* GetDeviceContext() override
+		virtual ID3D11DeviceContext* GetDeviceContext() const override
 		{
 			return d3d.GetDeviceContext();
+		}
+		virtual ID3D11RenderTargetView* GetRenderTargetView() const override
+		{
+			return d3d.GetRenderTargetView();
+		}
+		virtual ID3D11DepthStencilView* GetDepthStencilView() const override
+		{
+			return d3d.GetDepthStencilView();
 		}
 	private:
 		void AddShader( const std::string& name, std::unique_ptr<IPipeline> pPipeline );
 	private:
 		D3DClass d3d;
 
+		DirectX::XMMATRIX m_matOrtho;
+
 		std::unordered_map<std::string, std::unique_ptr<IPipeline>> m_mapPipelines;
+		std::vector<std::unique_ptr<IPostProcess>> m_PostProcesses;
+		RenderTexture m_PostProcessRenderTexture;
+
+		int m_iScreenWidth = InitialScreenWidth;
+		int m_iScreenHeight = InitialScreenHeight;
 	public:
 		static constexpr bool	FullScreen = false;
 		static constexpr int	VSyncEnabled = false;
@@ -64,7 +100,7 @@ namespace Bat
 		static constexpr float  FOVRadians = FOV * (DirectX::XM_PI / 180.0f);
 
 		// only used when not in fullscreen
-		static constexpr int	ScreenWidth = 800;
-		static constexpr int	ScreenHeight = 600;
+		static constexpr int	InitialScreenWidth = 800;
+		static constexpr int	InitialScreenHeight = 600;
 	};
 }

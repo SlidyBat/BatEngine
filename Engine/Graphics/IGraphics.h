@@ -12,6 +12,7 @@ namespace Bat
 	class IModel;
 	class Material;
 	class IPipeline;
+	class IPostProcess;
 
 	class IGraphics;
 	extern IGraphics* g_pGfx;
@@ -26,13 +27,22 @@ namespace Bat
 	public:
 		virtual ~IGraphics() = default;
 
+		virtual int GetScreenWidth() const = 0;
+		virtual int GetScreenHeight() const = 0;
+
 		virtual void BeginFrame() = 0;
 		virtual void EndFrame() = 0;
 
-		virtual ID3D11Device* GetDevice() = 0;
-		virtual ID3D11DeviceContext* GetDeviceContext() = 0;
+		virtual ID3D11Device* GetDevice() const = 0;
+		virtual ID3D11DeviceContext* GetDeviceContext() const = 0;
+		virtual ID3D11RenderTargetView* GetRenderTargetView() const = 0;
+		virtual ID3D11DepthStencilView* GetDepthStencilView() const = 0;
+
+		virtual DirectX::XMMATRIX GetOrthoMatrix() const = 0;
 
 		virtual IPipeline* GetPipeline( const std::string& name ) const = 0;
+
+		virtual void AddPostProcess( std::unique_ptr<IPostProcess> pPostProcess ) = 0;
 
 		virtual bool IsDepthStencilEnabled() const = 0;
 		virtual void SetDepthStencilEnabled( bool enable ) = 0;

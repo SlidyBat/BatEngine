@@ -24,10 +24,57 @@ namespace Bat
 		for( const auto& mesh : m_Meshes )
 		{
 			mesh.Bind( pPipeline );
-			TexturePipelineParameters params( w, vp, mesh.GetMaterial() );
+			TexturePipelineParameters params( w, vp, mesh.GetMaterial()->GetDiffuseTexture()->GetTextureView() );
 			pPipeline->BindParameters( &params );
 			pPipeline->RenderIndexed( (UINT)mesh.GetIndexCount() );
 		}
+	}
+
+
+	ScreenQuadModel::ScreenQuadModel( ID3D11ShaderResourceView* pTexture )
+		:
+		m_pTexture( pTexture )
+	{
+		const float width = (float)g_pGfx->GetScreenWidth();
+		const float height = (float)g_pGfx->GetScreenHeight();
+
+		const float left = -width / 2;
+		const float right = width / 2;
+		const float top = height / 2;
+		const float bottom = -height / 2;
+
+		const std::vector<Vec4> positions = {
+			{ left, bottom, 1.0f, 1.0f },
+			{ left, top, 1.0f, 1.0f },
+			{ right, top, 1.0f, 1.0f },
+			{ right, bottom, 1.0f, 1.0f }
+		};
+
+		const std::vector<Vec2> uvs = {
+			{ 0.0f, 1.0f },
+			{ 0.0f, 0.0f },
+			{ 1.0f, 0.0f },
+			{ 1.0f, 1.0f }
+		};
+
+		const std::vector<int> indices = { 0, 1, 2,  2, 3, 0 };
+
+		MeshParameters params;
+		params.position = positions;
+		params.uv = uvs;
+		m_Mesh.SetData( params );
+		m_Mesh.SetIndices( indices );
+	}
+
+	void ScreenQuadModel::Draw( IPipeline* pPipeline ) const
+	{
+		auto vp = DirectX::XMMatrixTranspose( g_pGfx->GetOrthoMatrix() );
+		auto w = DirectX::XMMatrixIdentity();
+
+		m_Mesh.Bind( pPipeline );
+		TexturePipelineParameters params( w, vp, m_pTexture );
+		pPipeline->BindParameters( &params );
+		pPipeline->RenderIndexed( (UINT)m_Mesh.GetIndexCount() );
 	}
 
 	TexturePipeline::TexturePipeline( const std::wstring& vsFilename, const std::wstring& psFilename )
@@ -60,7 +107,7 @@ namespace Bat
 		m_VertexShader.Bind();
 		m_PixelShader.Bind();
 		m_VertexShader.GetConstantBuffer( 0 ).SetData( &pTextureParameters->transform );
-		m_PixelShader.SetResource( 0, pTextureParameters->material->GetDiffuseTexture()->GetTextureView() );
+		m_PixelShader.SetResource( 0, pTextureParameters->texture );
 	}
 
 	void TexturePipeline::Render( UINT vertexcount )

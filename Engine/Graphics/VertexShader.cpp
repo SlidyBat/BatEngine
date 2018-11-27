@@ -70,7 +70,7 @@ namespace Bat
 			inputLayoutDesc.push_back( elementDesc );
 		}
 
-		g_pGfx->GetDevice()->CreateInputLayout( inputLayoutDesc.data(), inputLayoutDesc.size(), pCodeBytes, size, &m_pInputLayout );
+		g_pGfx->GetDevice()->CreateInputLayout( inputLayoutDesc.data(), (UINT)inputLayoutDesc.size(), pCodeBytes, size, &m_pInputLayout );
 	}
 
 	VertexShader::VertexShader( const std::wstring& filename )

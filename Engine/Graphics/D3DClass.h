@@ -21,17 +21,21 @@ namespace Bat
 		D3DClass( D3DClass&& donor ) = delete;
 		D3DClass& operator=( D3DClass&& donor ) = delete;
 
-		void BeginScene( float red, float green, float blue, float alpha );
-		void EndScene();
+		void ClearScene( float red, float green, float blue, float alpha );
+		void PresentScene();
 		void Resize( int width = 0, int height = 0 );
 
 		ID3D11Device* GetDevice() const;
 		ID3D11DeviceContext* GetDeviceContext() const;
+		ID3D11RenderTargetView* GetRenderTargetView() const;
+		ID3D11DepthStencilView* GetDepthStencilView() const;
 
 		void GetVideoCardInfo( std::wstring& cardName, int& memory ) const;
 
 		bool IsDepthStencilEnabled() const;
 		void SetDepthStencilEnabled( bool enable );
+
+		void BindBackBuffer() const;
 	private:
 		bool						m_bVSyncEnabled;
 

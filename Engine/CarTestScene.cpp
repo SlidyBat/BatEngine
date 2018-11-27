@@ -10,6 +10,7 @@
 #include <SpriteBatch.h>
 #include <SpriteFont.h>
 #include "imgui.h"
+#include "GenericPostProcess.h"
 
 using namespace Bat;
 
@@ -26,6 +27,8 @@ CarTestScene::CarTestScene( Window& wnd )
 
 	m_pSpriteBatch = std::make_unique<DirectX::SpriteBatch>( g_pGfx->GetDeviceContext() );
 	m_pFont = std::make_unique<DirectX::SpriteFont>( g_pGfx->GetDevice(), L"Assets/Fonts/consolas.spritefont" );
+
+	g_pGfx->AddPostProcess( std::make_unique<GenericPostProcess>( L"Graphics/Shaders/Build/PostProcessPS.cso" ) );
 }
 
 void CarTestScene::OnUpdate( float deltatime )

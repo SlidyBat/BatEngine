@@ -8,6 +8,7 @@
 #include "Window.h"
 #include "Material.h"
 #include "IPipeline.h"
+#include "IPostProcess.h"
 
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
@@ -33,6 +34,13 @@ namespace Bat
 			m_pCamera->SetAspectRatio( (float)width / height );
 		} );
 
+		m_matOrtho = DirectX::XMMatrixOrthographicLH(
+			(float)wnd.GetWidth(),
+			(float)wnd.GetHeight(),
+			Graphics::ScreenNear,
+			Graphics::ScreenFar
+		);
+
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -48,6 +56,16 @@ namespace Bat
 		ImGui::DestroyContext();
 	}
 
+	int Graphics::GetScreenWidth() const
+	{
+		return m_iScreenWidth;
+	}
+
+	int Graphics::GetScreenHeight() const
+	{
+		return m_iScreenHeight;
+	}
+
 	IPipeline* Graphics::GetPipeline( const std::string & name ) const
 	{
 		auto it = m_mapPipelines.find( name );
@@ -57,6 +75,17 @@ namespace Bat
 		}
 
 		return it->second.get();
+	}
+
+	void Graphics::AddPostProcess( std::unique_ptr<IPostProcess> pPostProcess )
+	{
+		if( m_PostProcesses.empty() )
+		{
+			// only allocate render texture once we have a postprocess
+			m_PostProcessRenderTexture.Resize( m_iScreenWidth, m_iScreenHeight );
+		}
+
+		m_PostProcesses.emplace_back( std::move( pPostProcess ) );
 	}
 
 	bool Graphics::IsDepthStencilEnabled() const
@@ -71,11 +100,21 @@ namespace Bat
 
 	void Graphics::BeginFrame()
 	{
-		d3d.BeginScene( 0.3f, 0.3f, 0.3f, 1.0f );
-
+		m_pCamera->Render();
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
+
+		if( !m_PostProcesses.empty() )
+		{
+			m_PostProcessRenderTexture.Bind(); // draw to texture
+			m_PostProcessRenderTexture.Clear( 0.3f, 0.3f, 0.3f, 1.0f );
+		}
+		else
+		{
+			d3d.BindBackBuffer(); // draw directly to screen
+			d3d.ClearScene( 0.3f, 0.3f, 0.3f, 1.0f );
+		}
 	}
 
 	void Graphics::EndFrame()
@@ -83,8 +122,33 @@ namespace Bat
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );
 
-		m_pCamera->Render();
-		d3d.EndScene();
+		if( !m_PostProcesses.empty() )
+		{
+			DisableDepthStencil();
+
+			ID3D11ShaderResourceView* pCurrentTexture = m_PostProcessRenderTexture.GetTextureView();
+			for( size_t i = 0; i < m_PostProcesses.size(); i++ )
+			{
+				m_PostProcesses[i]->BeginFrame( m_iScreenWidth, m_iScreenHeight );
+				m_PostProcesses[i]->Render( pCurrentTexture );
+				m_PostProcesses[i]->EndFrame();
+
+				pCurrentTexture = m_PostProcesses[i]->GetTextureView();
+			}
+
+			d3d.BindBackBuffer();
+			ScreenQuadModel screenmodel( pCurrentTexture );
+			screenmodel.Draw( GetPipeline( "texture" ) );
+
+			EnableDepthStencil();
+		}
+
+		d3d.PresentScene();
+	}
+
+	DirectX::XMMATRIX Graphics::GetOrthoMatrix() const
+	{
+		return m_matOrtho;
 	}
 
 	void Graphics::AddShader( const std::string & name, std::unique_ptr<IPipeline> pPipeline )

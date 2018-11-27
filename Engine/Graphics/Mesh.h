@@ -25,35 +25,13 @@ namespace Bat
 	class Mesh
 	{
 	public:
+		Mesh() = default;
 		Mesh( const MeshParameters& params, const std::vector<int>& indices, Material* pMaterial )
 			:
 			m_bufIndices( indices ),
 			m_pMaterial( pMaterial )
 		{
-			if( !params.position.empty() )
-			{
-				m_bufPosition.SetData( params.position );
-			}
-			if( !params.colour.empty() )
-			{
-				m_bufColour.SetData( params.colour );
-			}
-			if( !params.normal.empty() )
-			{
-				m_bufNormal.SetData( params.normal );
-			}
-			if( !params.uv.empty() )
-			{
-				m_bufUV.SetData( params.uv );
-			}
-			if( !params.tangent.empty() )
-			{
-				m_bufTangent.SetData( params.tangent );
-			}
-			if( !params.bitangent.empty() )
-			{
-				m_bufBitangent.SetData( params.bitangent );
-			}
+			SetData( params );
 		}
 
 		void Bind( IPipeline* pPipeline ) const
@@ -97,9 +75,44 @@ namespace Bat
 			m_bufIndices.Bind();
 		}
 
+		void SetData( const MeshParameters& params )
+		{
+			if( !params.position.empty() )
+			{
+				m_bufPosition.SetData( params.position );
+			}
+			if( !params.colour.empty() )
+			{
+				m_bufColour.SetData( params.colour );
+			}
+			if( !params.normal.empty() )
+			{
+				m_bufNormal.SetData( params.normal );
+			}
+			if( !params.uv.empty() )
+			{
+				m_bufUV.SetData( params.uv );
+			}
+			if( !params.tangent.empty() )
+			{
+				m_bufTangent.SetData( params.tangent );
+			}
+			if( !params.bitangent.empty() )
+			{
+				m_bufBitangent.SetData( params.bitangent );
+			}
+		}
+		void SetIndices( const std::vector<int>& indices )
+		{
+			m_bufIndices.SetData( indices );
+		}
 		Material* GetMaterial() const
 		{
 			return m_pMaterial;
+		}
+		void SetMaterial( Material* pMaterial )
+		{
+			m_pMaterial = pMaterial;
 		}
 		size_t GetVertexCount() const
 		{
@@ -117,6 +130,6 @@ namespace Bat
 		VertexBuffer<Vec4> m_bufTangent;
 		VertexBuffer<Vec4> m_bufBitangent;
 		IndexBuffer m_bufIndices;
-		Material* m_pMaterial;
+		Material* m_pMaterial = nullptr;
 	};
 }

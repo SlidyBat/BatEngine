@@ -11,10 +11,20 @@ namespace Bat
 	class IndexBuffer
 	{
 	public:
-		IndexBuffer( const int* data, const UINT size )
-			:
-			size( size )
+		IndexBuffer() = default;
+		IndexBuffer( const int* pData, const UINT size )
 		{
+			SetData( pData, size );
+		}
+		IndexBuffer( const std::vector<int>& indices )
+			:
+			IndexBuffer( indices.data(), (UINT)indices.size() )
+		{}
+
+		void SetData( const int* pData, const UINT size )
+		{
+			m_iSize = size;
+
 			D3D11_BUFFER_DESC indexBufferDesc;
 			indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 			indexBufferDesc.ByteWidth = UINT( sizeof( unsigned long ) * size );
@@ -24,16 +34,16 @@ namespace Bat
 			indexBufferDesc.StructureByteStride = 0;
 
 			D3D11_SUBRESOURCE_DATA indexData;
-			indexData.pSysMem = data;
+			indexData.pSysMem = pData;
 			indexData.SysMemPitch = 0;
 			indexData.SysMemSlicePitch = 0;
 
 			COM_THROW_IF_FAILED( g_pGfx->GetDevice()->CreateBuffer( &indexBufferDesc, &indexData, &m_pIndexBuffer ) );
 		}
-		IndexBuffer( const std::vector<int>& indices )
-			:
-			IndexBuffer( indices.data(), (UINT)indices.size() )
-		{}
+		void SetData( const std::vector<int>& indices )
+		{
+			SetData( indices.data(), (UINT)indices.size() );
+		}
 
 		operator ID3D11Buffer*() const
 		{
@@ -48,10 +58,10 @@ namespace Bat
 
 		UINT GetIndexCount() const
 		{
-			return size;
+			return m_iSize;
 		}
 	private:
 		Microsoft::WRL::ComPtr<ID3D11Buffer>	m_pIndexBuffer;
-		UINT size;
+		UINT m_iSize = 0;
 	};
 }

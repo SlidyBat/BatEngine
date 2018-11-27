@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include "COMException.h"
+#include "RenderTexture.h"
 
 namespace Bat
 {
@@ -176,6 +177,16 @@ namespace Bat
 		return m_pDeviceContext.Get();
 	}
 
+	ID3D11RenderTargetView * D3DClass::GetRenderTargetView() const
+	{
+		return m_pRenderTargetView.Get();
+	}
+
+	ID3D11DepthStencilView * D3DClass::GetDepthStencilView() const
+	{
+		return m_pDepthStencilView.Get();
+	}
+
 	void D3DClass::GetVideoCardInfo( std::wstring& cardName, int& memory ) const
 	{
 		cardName = m_szVideoCardDescription;
@@ -206,15 +217,19 @@ namespace Bat
 		}
 	}
 
-	void D3DClass::BeginScene( float red, float green, float blue, float alpha )
+	void D3DClass::BindBackBuffer() const
+	{
+		m_pDeviceContext->OMSetRenderTargets( 1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get() );
+	}
+
+	void D3DClass::ClearScene( float red, float green, float blue, float alpha )
 	{
 		const float colour[4] = { red, green, blue, alpha };
 		m_pDeviceContext->ClearRenderTargetView( m_pRenderTargetView.Get(), colour );
 		m_pDeviceContext->ClearDepthStencilView( m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
-		m_pDeviceContext->OMSetDepthStencilState( m_pDepthStencilEnabledState.Get(), 0 );
 	}
 
-	void D3DClass::EndScene()
+	void D3DClass::PresentScene()
 	{
 		if( m_bVSyncEnabled )
 		{

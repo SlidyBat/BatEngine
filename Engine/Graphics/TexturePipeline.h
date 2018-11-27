@@ -32,19 +32,31 @@ namespace Bat
 		std::vector<Mesh> m_Meshes;
 	};
 
+	class ScreenQuadModel : public IModel
+	{
+	public:
+		ScreenQuadModel( ID3D11ShaderResourceView* pTexture );
+
+		virtual void Draw( IPipeline* pPipeline ) const override;
+		Mesh GetMesh() const { return m_Mesh; }
+	private:
+		ID3D11ShaderResourceView* m_pTexture;
+		Mesh m_Mesh;
+	};
+
 	class TexturePipelineParameters : public IPipelineParameters
 	{
 	public:
-		TexturePipelineParameters( const DirectX::XMMATRIX& world, const DirectX::XMMATRIX& viewproj, Material* pMaterial )
+		TexturePipelineParameters( const DirectX::XMMATRIX& world, const DirectX::XMMATRIX& viewproj, ID3D11ShaderResourceView* pTexture )
 			:
-			material( pMaterial )
+			texture( pTexture )
 		{
 			transform.world = world;
 			transform.viewproj = viewproj;
 		}
 	public:
 		CB_TexturePipelineMatrix transform;
-		Material* material;
+		ID3D11ShaderResourceView* texture;
 	};
 
 	class TexturePipeline : public IPipeline
