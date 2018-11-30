@@ -75,9 +75,14 @@ namespace Bat
 		);
 
 		d3d.Resize( width, height );
-		if( !m_PostProcesses.empty() )
+		const size_t size = m_PostProcesses.size();
+		if( size == 0 )
 		{
 			m_PostProcessRenderTexture.Resize( width, height );
+		}
+		else if( size == 1 )
+		{
+			m_AlternatePostProcessRenderTexture.Resize( width, height );
 		}
 	}
 
@@ -104,10 +109,16 @@ namespace Bat
 
 	void Graphics::AddPostProcess( std::unique_ptr<IPostProcess> pPostProcess )
 	{
-		if( m_PostProcesses.empty() )
+		const size_t size = m_PostProcesses.size();
+		if( size == 0 )
 		{
 			// only allocate render texture once we have a postprocess
 			m_PostProcessRenderTexture.Resize( m_iScreenWidth, m_iScreenHeight );
+		}
+		else if( size == 1 )
+		{
+			// allocate second render texture for the multiple postprocesses to ping-pong between
+			m_AlternatePostProcessRenderTexture.Resize( m_iScreenWidth, m_iScreenHeight );
 		}
 
 		m_PostProcesses.emplace_back( std::move( pPostProcess ) );
@@ -147,8 +158,6 @@ namespace Bat
 	{
 		if( m_pSkybox )
 		{
-			EnableDepthStencil();
-
 			auto pos = GetCamera()->GetPosition();
 			auto w = DirectX::XMMatrixTranslation( pos.x, pos.y, pos.z );
 			auto t = DirectX::XMMatrixTranspose( w * GetCamera()->GetViewMatrix() * GetCamera()->GetProjectionMatrix() );
@@ -164,18 +173,33 @@ namespace Bat
 			DisableDepthStencil();
 
 			ID3D11ShaderResourceView* pCurrentTexture = m_PostProcessRenderTexture.GetTextureView();
-			for( size_t i = 0; i < m_PostProcesses.size(); i++ )
+			if( m_PostProcesses.size() > 1 )
 			{
-				m_PostProcesses[i]->BeginFrame( m_iScreenWidth, m_iScreenHeight );
-				m_PostProcesses[i]->Render( pCurrentTexture );
-				m_PostProcesses[i]->EndFrame();
+				m_AlternatePostProcessRenderTexture.Clear( 0.0f, 0.0f, 0.0f, 1.0f );
+				m_AlternatePostProcessRenderTexture.Bind();
 
-				pCurrentTexture = m_PostProcesses[i]->GetTextureView();
+				for( size_t i = 0; i < m_PostProcesses.size() - 1; i++ )
+				{
+					m_PostProcesses[i]->Render( pCurrentTexture );
+
+					if( i % 2 == 0 )
+					{
+						pCurrentTexture = m_AlternatePostProcessRenderTexture.GetTextureView();
+						m_PostProcessRenderTexture.Clear( 0.0f, 0.0f, 0.0f, 1.0f );
+						m_PostProcessRenderTexture.Bind();
+					}
+					else
+					{
+						pCurrentTexture = m_PostProcessRenderTexture.GetTextureView();
+						m_AlternatePostProcessRenderTexture.Clear( 0.0f, 0.0f, 0.0f, 1.0f );
+						m_AlternatePostProcessRenderTexture.Bind();
+					}
+				}
 			}
 
+			// render last post process directly to screen
 			d3d.BindBackBuffer();
-			ScreenQuadModel screenmodel( pCurrentTexture );
-			screenmodel.Draw( GetPipeline( "texture" ) );
+			m_PostProcesses.back()->Render( pCurrentTexture );
 
 			EnableDepthStencil();
 		}

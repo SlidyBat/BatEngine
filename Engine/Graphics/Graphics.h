@@ -69,6 +69,7 @@ namespace Bat
 		std::unordered_map<std::string, std::unique_ptr<IPipeline>> m_mapPipelines;
 		std::vector<std::unique_ptr<IPostProcess>> m_PostProcesses;
 		RenderTexture m_PostProcessRenderTexture;
+		RenderTexture m_AlternatePostProcessRenderTexture;
 		Texture* m_pSkybox = nullptr;
 
 		int m_iScreenWidth = InitialScreenWidth;

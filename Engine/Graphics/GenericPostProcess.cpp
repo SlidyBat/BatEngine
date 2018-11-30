@@ -2,6 +2,7 @@
 
 #include "IGraphics.h"
 #include "TexturePipeline.h"
+#include "RenderTexture.h"
 
 namespace Bat
 {
