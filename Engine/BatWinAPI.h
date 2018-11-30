@@ -1,6 +1,7 @@
 #pragma once
 
-#include <string>
+// Make sure to make this the first included file to ensure that
+// other includes that include Windows.h don't pollute namespace
 
 #ifndef FULL_WINTARD
 #define WIN32_LEAN_AND_MEAN
@@ -40,7 +41,7 @@
 
 #include <Windows.h>
 
-#undef DrawText // why is there a macro called DrawText?????
+#include <string>
 
 namespace Bat
 {

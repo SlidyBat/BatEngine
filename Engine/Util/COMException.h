@@ -1,10 +1,10 @@
 #pragma once
 
+#include "BatWinAPI.h"
+
 #include <exception>
 #include <string>
 #include <comdef.h>
-
-#include "BatWinAPI.h"
 
 #define THROW_COM_ERROR( hr, msg ) throw COMException( hr, msg, __FILE__, __FUNCTION__, __LINE__ )
 #define COM_THROW_IF_FAILED( hr ) if( FAILED( hr ) ) throw COMException( hr, __FILE__, __FUNCTION__, __LINE__ )

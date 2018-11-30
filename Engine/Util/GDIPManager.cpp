@@ -1,6 +1,6 @@
 #define FULL_WINTARD
-#include "GDIPManager.h"
 #include "BatWinAPI.h"
+#include "GDIPManager.h"
 
 #include <algorithm>
 namespace Gdiplus

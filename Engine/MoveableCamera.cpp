@@ -1,7 +1,7 @@
+#include "BatWinAPI.h"
 #include "MoveableCamera.h"
 
 #include "Input.h"
-#include "BatWinAPI.h"
 
 namespace Bat
 {
