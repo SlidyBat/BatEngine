@@ -20,6 +20,7 @@ namespace Bat
 		void Bind();
 		void AddSampler( const D3D11_SAMPLER_DESC* pSamplerDesc );
 		void SetResource( int slot, ID3D11ShaderResourceView* const pResource );
+		void SetResources( int startslot, ID3D11ShaderResourceView** const pResource, size_t size );
 
 		template <typename T>
 		void AddConstantBuffer()

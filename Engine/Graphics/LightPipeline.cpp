@@ -80,12 +80,18 @@ namespace Bat
 		m_VertexShader.GetConstantBuffer( 0 ).SetData( &pTextureParameters->transform );
 		m_PixelShader.GetConstantBuffer( 0 ).SetData( &ps_params );
 		m_PixelShader.GetConstantBuffer( 1 ).SetData( &ps_light );
+
 		ASSERT( pTextureParameters->material->GetDiffuseTexture(), "Material doesn't have diffuse texture" );
-		m_PixelShader.SetResource( 0, pTextureParameters->material->GetDiffuseTexture()->GetTextureView() );
 		ASSERT( pTextureParameters->material->GetSpecularTexture(), "Material doesn't have specular texture" );
-		m_PixelShader.SetResource( 1, pTextureParameters->material->GetSpecularTexture()->GetTextureView() );
 		ASSERT( pTextureParameters->material->GetEmissiveTexture(), "Material doesn't have emissive texture" );
-		m_PixelShader.SetResource( 2, pTextureParameters->material->GetEmissiveTexture()->GetTextureView() );
+
+		ID3D11ShaderResourceView* pTextures[] = {
+			pTextureParameters->material->GetDiffuseTexture()->GetTextureView(),
+			pTextureParameters->material->GetSpecularTexture()->GetTextureView(),
+			pTextureParameters->material->GetEmissiveTexture()->GetTextureView()
+		};
+
+		m_PixelShader.SetResources( 0, pTextures, 3 );
 	}
 
 	void LightPipeline::Render( UINT vertexcount )

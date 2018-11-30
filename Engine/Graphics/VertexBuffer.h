@@ -63,6 +63,11 @@ namespace Bat
 			return (size_t)m_iSize;
 		}
 
+		UINT GetStride() const
+		{
+			return sizeof( V );
+		}
+
 		void Bind( UINT slot ) const
 		{
 			UINT stride = sizeof( V );

@@ -63,10 +63,15 @@ namespace Bat
 
 		pDeviceContext->PSSetShader( m_pPixelShader.Get(), NULL, 0 );
 		pDeviceContext->PSSetSamplers( 0, (UINT)m_pSamplerStates.size(), m_pSamplerStates.data() );
-		for( UINT i = 0; i < m_ConstantBuffers.size(); i++ )
+
+		std::vector<ID3D11Buffer*> buffers;
+		buffers.reserve( m_ConstantBuffers.size() );
+		for( const auto& buffer : m_ConstantBuffers )
 		{
-			pDeviceContext->PSSetConstantBuffers( i, 1, m_ConstantBuffers[i].GetAddressOf() );
+			buffers.emplace_back( buffer );
 		}
+
+		pDeviceContext->PSSetConstantBuffers( 0, (UINT)buffers.size(), buffers.data() );
 	}
 
 	void PixelShader::AddSampler( const D3D11_SAMPLER_DESC* pSamplerDesc )
@@ -84,5 +89,11 @@ namespace Bat
 	{
 		auto pDeviceContext = g_pGfx->GetDeviceContext();
 		pDeviceContext->PSSetShaderResources( (UINT)slot, 1, &pResource );
+	}
+
+	void PixelShader::SetResources( int startslot, ID3D11ShaderResourceView ** const pResource, size_t size )
+	{
+		auto pDeviceContext = g_pGfx->GetDeviceContext();
+		pDeviceContext->PSSetShaderResources( (UINT)startslot, (UINT)size, pResource );
 	}
 }

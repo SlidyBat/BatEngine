@@ -40,38 +40,50 @@ namespace Bat
 			g_pGfx->GetDeviceContext()->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
 			// bind buffers
-			UINT curslot = 0;
+			std::vector<ID3D11Buffer*> buffers;
+			buffers.reserve( (int)VertexAttribute::TotalAttributes );
+			std::vector<UINT> strides;
+			strides.reserve( (int)VertexAttribute::TotalAttributes );
+
 			if( pPipeline->RequiresVertexAttribute( VertexAttribute::Position ) )
 			{
 				ASSERT( m_bufPosition.GetVertexCount() > 0, "Shader requires model to have vertex position data" );
-				m_bufPosition.Bind( curslot++ );
+				buffers.emplace_back( m_bufPosition );
+				strides.emplace_back( m_bufPosition.GetStride() );
 			}
 			if( pPipeline->RequiresVertexAttribute( VertexAttribute::Colour ) )
 			{
 				ASSERT( m_bufColour.GetVertexCount() > 0, "Shader requires model to have vertex colour data" );
-				m_bufColour.Bind( curslot++ );
+				buffers.emplace_back( m_bufColour );
+				strides.emplace_back( m_bufColour.GetStride() );
 			}
 			if( pPipeline->RequiresVertexAttribute( VertexAttribute::Normal ) )
 			{
 				ASSERT( m_bufNormal.GetVertexCount() > 0, "Shader requires model to have vertex normal data" );
-				m_bufNormal.Bind( curslot++ );
+				buffers.emplace_back( m_bufNormal );
+				strides.emplace_back( m_bufNormal.GetStride() );
 			}
 			if( pPipeline->RequiresVertexAttribute( VertexAttribute::UV ) )
 			{
 				ASSERT( m_bufUV.GetVertexCount() > 0, "Shader requires model to have vertex UV data" );
-				m_bufUV.Bind( curslot++ );
+				buffers.emplace_back( m_bufUV );
+				strides.emplace_back( m_bufUV.GetStride() );
 			}
 			if( pPipeline->RequiresVertexAttribute( VertexAttribute::Tangent ) )
 			{
 				ASSERT( m_bufTangent.GetVertexCount() > 0, "Shader requires model to have vertex tangent data" );
-				m_bufTangent.Bind( curslot++ );
+				buffers.emplace_back( m_bufTangent );
+				strides.emplace_back( m_bufTangent.GetStride() );
 			}
 			if( pPipeline->RequiresVertexAttribute( VertexAttribute::Bitangent ) )
 			{
 				ASSERT( m_bufTangent.GetVertexCount() > 0, "Shader requires model to have vertex bitangent data" );
-				m_bufBitangent.Bind( curslot++ );
+				buffers.emplace_back( m_bufBitangent );
+				strides.emplace_back( m_bufBitangent.GetStride() );
 			}
 
+			std::vector<UINT> offsets( buffers.size() );
+			g_pGfx->GetDeviceContext()->IASetVertexBuffers( 0, (UINT)buffers.size(), buffers.data(), strides.data(), offsets.data() );
 			m_bufIndices.Bind();
 		}
 

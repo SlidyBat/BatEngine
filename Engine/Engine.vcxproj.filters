@@ -138,9 +138,6 @@
     <ClCompile Include="COMInitialize.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BumpMapPipeline.cpp">
-      <Filter>Source Files\Graphics\Pipelines</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\ConstantBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -153,7 +150,10 @@
     <ClCompile Include="Graphics\GenericPostProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SkyboxPipeline.cpp">
+    <ClCompile Include="Graphics\BumpMapPipeline.cpp">
+      <Filter>Source Files\Graphics\Pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\SkyboxPipeline.cpp">
       <Filter>Source Files\Graphics\Pipelines</Filter>
     </ClCompile>
   </ItemGroup>
@@ -251,9 +251,6 @@
     <ClInclude Include="Util\FrameTimer.h">
       <Filter>Header Files\Util</Filter>
     </ClInclude>
-    <ClInclude Include="StringLib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MoveableCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -302,9 +299,6 @@
     <ClInclude Include="COMInitialize.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BumpMapPipeline.h">
-      <Filter>Header Files\Graphics\Pipelines</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\IPostProcess.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
@@ -317,8 +311,14 @@
     <ClInclude Include="Graphics\GenericPostProcess.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="SkyboxPipeline.h">
+    <ClInclude Include="Graphics\BumpMapPipeline.h">
       <Filter>Header Files\Graphics\Pipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\SkyboxPipeline.h">
+      <Filter>Header Files\Graphics\Pipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\StringLib.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -362,10 +362,10 @@
     <FxCompile Include="Graphics\Shaders\PostProcessPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
-    <FxCompile Include="SkyboxVS.hlsl">
+    <FxCompile Include="Graphics\Shaders\SkyboxPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
-    <FxCompile Include="SkyboxPS.hlsl">
+    <FxCompile Include="Graphics\Shaders\SkyboxVS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

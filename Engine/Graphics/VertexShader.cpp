@@ -138,10 +138,15 @@ namespace Bat
 		pDeviceContext->IASetInputLayout( m_pInputLayout.Get() );
 		pDeviceContext->VSSetShader( m_pVertexShader.Get(), NULL, 0 );
 		pDeviceContext->VSSetSamplers( 0, (UINT)m_pSamplerStates.size(), m_pSamplerStates.data() );
-		for( UINT i = 0; i < m_ConstantBuffers.size(); i++ )
+
+		std::vector<ID3D11Buffer*> buffers;
+		buffers.reserve( m_ConstantBuffers.size() );
+		for( const auto& buffer : m_ConstantBuffers )
 		{
-			pDeviceContext->VSSetConstantBuffers( i, 1, m_ConstantBuffers[i].GetAddressOf() );
+			buffers.emplace_back( buffer );
 		}
+
+		pDeviceContext->VSSetConstantBuffers( 0, (UINT)buffers.size(), buffers.data() );
 	}
 
 	void VertexShader::AddSampler( const D3D11_SAMPLER_DESC* pSamplerDesc )

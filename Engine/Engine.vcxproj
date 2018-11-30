@@ -158,7 +158,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BumpMapPipeline.cpp" />
+    <ClCompile Include="Graphics\BumpMapPipeline.cpp" />
     <ClCompile Include="CarTestScene.cpp" />
     <ClCompile Include="ColourTestScene.cpp" />
     <ClCompile Include="COMInitialize.cpp" />
@@ -167,7 +167,7 @@
     <ClCompile Include="Graphics\Light.cpp" />
     <ClCompile Include="MoveableCamera.cpp" />
     <ClCompile Include="Graphics\RenderTexture.cpp" />
-    <ClCompile Include="SkyboxPipeline.cpp" />
+    <ClCompile Include="Graphics\SkyboxPipeline.cpp" />
     <ClCompile Include="ThirdParty\ImGui\imgui.cpp" />
     <ClCompile Include="ThirdParty\ImGui\imgui_demo.cpp" />
     <ClCompile Include="ThirdParty\ImGui\imgui_draw.cpp" />
@@ -197,7 +197,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BatAssert.h" />
-    <ClInclude Include="BumpMapPipeline.h" />
+    <ClInclude Include="Graphics\BumpMapPipeline.h" />
     <ClInclude Include="CarTestScene.h" />
     <ClInclude Include="ColourTestScene.h" />
     <ClInclude Include="COMInitialize.h" />
@@ -207,8 +207,8 @@
     <ClInclude Include="Graphics\IPostProcess.h" />
     <ClInclude Include="MoveableCamera.h" />
     <ClInclude Include="Graphics\RenderTexture.h" />
-    <ClInclude Include="SkyboxPipeline.h" />
-    <ClInclude Include="StringLib.h" />
+    <ClInclude Include="Graphics\SkyboxPipeline.h" />
+    <ClInclude Include="Util\StringLib.h" />
     <ClInclude Include="ThirdParty\ImGui\imconfig.h" />
     <ClInclude Include="ThirdParty\ImGui\imgui.h" />
     <ClInclude Include="ThirdParty\ImGui\imgui_impl_dx11.h" />
@@ -385,7 +385,7 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
     </FxCompile>
-    <FxCompile Include="SkyboxPS.hlsl">
+    <FxCompile Include="Graphics\Shaders\SkyboxPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
@@ -399,7 +399,7 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Graphics/Shaders/Build/%(Filename).cso</ObjectFileOutput>
     </FxCompile>
-    <FxCompile Include="SkyboxVS.hlsl">
+    <FxCompile Include="Graphics\Shaders\SkyboxVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
