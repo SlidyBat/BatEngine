@@ -35,6 +35,8 @@ private:
 	std::unique_ptr<DirectX::SpriteBatch> m_pSpriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> m_pFont;
 
+	Bat::Texture m_Skybox;
+
 	Bat::Light m_Light;
 
 	float lightPos[3] = { -300.0f, 370.0f, 300.0f };

@@ -11,6 +11,7 @@
 #include <SpriteBatch.h>
 #include <SpriteFont.h>
 #include "imgui.h"
+#include "GenericPostProcess.h"
 
 using namespace Bat;
 
@@ -24,8 +25,13 @@ ModelTestScene::ModelTestScene( Window& wnd )
 
 	m_pNanoSuit = std::make_unique<LightModel>( ModelLoader::LoadModel( "Assets/NanoSuit/nanosuit.obj" ) );
 
+	m_Skybox = Texture::FromDDS( L"Assets/skybox.dds" );
+	g_pGfx->SetSkybox( &m_Skybox );
+
 	m_pSpriteBatch = std::make_unique<DirectX::SpriteBatch>( g_pGfx->GetDeviceContext() );
 	m_pFont = std::make_unique<DirectX::SpriteFont>( g_pGfx->GetDevice(), L"Assets/Fonts/consolas.spritefont" );
+
+	g_pGfx->AddPostProcess( std::make_unique<GenericPostProcess>( L"Graphics/Shaders/Build/PostProcessPS.cso" ) );
 }
 
 void ModelTestScene::OnUpdate( float deltatime )

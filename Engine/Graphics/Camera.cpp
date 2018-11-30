@@ -17,7 +17,6 @@ namespace Bat
 
 	Camera::Camera( float fov, float ar, float screen_near, float screen_far )
 		:
-
 		Camera( { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, fov, ar, screen_near, screen_far )
 	{}
 

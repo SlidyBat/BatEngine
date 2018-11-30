@@ -3,6 +3,7 @@
 #include "IGraphics.h"
 #include "COMException.h"
 #include <WICTextureLoader.h>
+#include <DDSTextureLoader.h>
 
 namespace Bat
 {
@@ -94,6 +95,19 @@ namespace Bat
 		pDevice->CreateShaderResourceView( m_pTexture.Get(), &srvDesc, &m_pTextureView );
 
 		pDeviceContext->GenerateMips( m_pTextureView.Get() );
+	}
+
+	Texture Texture::FromDDS( const std::wstring & filename )
+	{
+		auto pDevice = g_pGfx->GetDevice();
+		auto pDeviceContext = g_pGfx->GetDeviceContext();
+
+		Texture tex;
+		COM_THROW_IF_FAILED(
+			DirectX::CreateDDSTextureFromFile( pDevice, filename.c_str(), &tex.m_pTexture, &tex.m_pTextureView )
+		);
+
+		return tex;
 	}
 
 	ID3D11ShaderResourceView* Texture::GetTextureView() const

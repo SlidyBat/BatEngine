@@ -2,7 +2,7 @@
 #include "VertexTypes.h"
 #include <fstream>
 #include "COMException.h"
-#include "Graphics.h"
+#include "IGraphics.h"
 #include "Material.h"
 
 namespace Bat

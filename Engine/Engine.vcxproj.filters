@@ -153,6 +153,9 @@
     <ClCompile Include="Graphics\GenericPostProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SkyboxPipeline.cpp">
+      <Filter>Source Files\Graphics\Pipelines</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input.h">
@@ -314,6 +317,9 @@
     <ClInclude Include="Graphics\GenericPostProcess.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="SkyboxPipeline.h">
+      <Filter>Header Files\Graphics\Pipelines</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\mario.png">
@@ -354,6 +360,12 @@
       <Filter>Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\PostProcessPS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="SkyboxVS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="SkyboxPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

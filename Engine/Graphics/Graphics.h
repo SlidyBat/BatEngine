@@ -53,6 +53,7 @@ namespace Bat
 		virtual IPipeline* GetPipeline( const std::string& name ) const override;
 
 		virtual void AddPostProcess( std::unique_ptr<IPostProcess> pPostProcess ) override;
+		virtual void SetSkybox( Texture* pCubemap ) override { m_pSkybox = pCubemap; }
 
 		virtual bool IsDepthStencilEnabled() const override;
 		virtual void SetDepthStencilEnabled( bool enable ) override;
@@ -88,6 +89,7 @@ namespace Bat
 		std::unordered_map<std::string, std::unique_ptr<IPipeline>> m_mapPipelines;
 		std::vector<std::unique_ptr<IPostProcess>> m_PostProcesses;
 		RenderTexture m_PostProcessRenderTexture;
+		Texture* m_pSkybox = nullptr;
 
 		int m_iScreenWidth = InitialScreenWidth;
 		int m_iScreenHeight = InitialScreenHeight;

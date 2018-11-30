@@ -4,6 +4,7 @@
 #include "LightPipeline.h"
 #include "ColourPipeline.h"
 #include "BumpMapPipeline.h"
+#include "SkyboxPipeline.h"
 #include "IModel.h"
 #include "Window.h"
 #include "Material.h"
@@ -27,6 +28,7 @@ namespace Bat
 		AddShader( "colour", std::make_unique <ColourPipeline>( L"Graphics/Shaders/Build/ColourVS.cso", L"Graphics/Shaders/Build/ColourPS.cso" ) );
 		AddShader( "light", std::make_unique<LightPipeline>( L"Graphics/Shaders/Build/LightVS.cso", L"Graphics/Shaders/Build/LightPS.cso" ) );
 		AddShader( "bumpmap", std::make_unique<BumpMapPipeline>( L"Graphics/Shaders/Build/BumpMapVS.cso", L"Graphics/Shaders/Build/BumpMapPS.cso" ) );
+		AddShader( "skybox", std::make_unique<SkyboxPipeline>( L"Graphics/Shaders/Build/SkyboxVS.cso", L"Graphics/Shaders/Build/SkyboxPS.cso" ) );
 
 		wnd.AddResizeListener( [=]( int width, int height )
 		{
@@ -119,8 +121,19 @@ namespace Bat
 
 	void Graphics::EndFrame()
 	{
-		ImGui::Render();
-		ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );
+		if( m_pSkybox )
+		{
+			EnableDepthStencil();
+
+			auto pos = GetCamera()->GetPosition();
+			auto w = DirectX::XMMatrixTranslation( pos.x, pos.y, pos.z );
+			auto t = DirectX::XMMatrixTranspose( w * GetCamera()->GetViewMatrix() * GetCamera()->GetProjectionMatrix() );
+
+			SkyboxPipelineParameters params( t, m_pSkybox->GetTextureView() );
+			auto pPipeline = GetPipeline( "skybox" );
+			pPipeline->BindParameters( &params );
+			pPipeline->RenderIndexed( 0 ); // skybox uses its own index buffer & index count, doesnt matter what we pass in
+		}
 
 		if( !m_PostProcesses.empty() )
 		{
@@ -142,6 +155,9 @@ namespace Bat
 
 			EnableDepthStencil();
 		}
+
+		ImGui::Render();
+		ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );
 
 		d3d.PresentScene();
 	}

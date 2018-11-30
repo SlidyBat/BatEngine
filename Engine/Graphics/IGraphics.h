@@ -30,6 +30,8 @@ namespace Bat
 		virtual int GetScreenWidth() const = 0;
 		virtual int GetScreenHeight() const = 0;
 
+		virtual void SetSkybox( Texture* pCubemap ) = 0;
+
 		virtual void BeginFrame() = 0;
 		virtual void EndFrame() = 0;
 

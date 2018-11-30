@@ -30,6 +30,8 @@ private:
 	std::unique_ptr<Bat::IModel> m_pNanoSuit;
 	Bat::MoveableCamera m_Camera;
 
+	Bat::Texture m_Skybox;
+
 	std::unique_ptr<DirectX::SpriteBatch> m_pSpriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> m_pFont;
 
