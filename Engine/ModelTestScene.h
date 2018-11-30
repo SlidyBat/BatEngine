@@ -32,9 +32,6 @@ private:
 
 	Bat::Texture m_Skybox;
 
-	std::unique_ptr<DirectX::SpriteBatch> m_pSpriteBatch;
-	std::unique_ptr<DirectX::SpriteFont> m_pFont;
-
 	Bat::Light m_Light;
 
 	bool m_bUseBumpMap = false;

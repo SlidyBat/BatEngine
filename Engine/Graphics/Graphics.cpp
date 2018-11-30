@@ -10,6 +10,8 @@
 #include "Material.h"
 #include "IPipeline.h"
 #include "IPostProcess.h"
+#include "SpriteBatch.h"
+#include "SpriteFont.h"
 
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
@@ -29,6 +31,9 @@ namespace Bat
 		AddShader( "light", std::make_unique<LightPipeline>( L"Graphics/Shaders/Build/LightVS.cso", L"Graphics/Shaders/Build/LightPS.cso" ) );
 		AddShader( "bumpmap", std::make_unique<BumpMapPipeline>( L"Graphics/Shaders/Build/BumpMapVS.cso", L"Graphics/Shaders/Build/BumpMapPS.cso" ) );
 		AddShader( "skybox", std::make_unique<SkyboxPipeline>( L"Graphics/Shaders/Build/SkyboxVS.cso", L"Graphics/Shaders/Build/SkyboxPS.cso" ) );
+
+		m_pSpriteBatch = std::make_unique<DirectX::SpriteBatch>( GetDeviceContext() );
+		m_pFont = std::make_unique<DirectX::SpriteFont>( GetDevice(), L"Assets/Fonts/consolas.spritefont" );
 
 		wnd.AddResizeListener( [=]( int width, int height )
 		{
@@ -56,6 +61,24 @@ namespace Bat
 		ImGui_ImplDX11_Shutdown();
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
+	}
+
+	void Graphics::Resize( int width, int height )
+	{
+		m_iScreenWidth = width;
+		m_iScreenHeight = height;
+		m_matOrtho = DirectX::XMMatrixOrthographicLH(
+			(float)width,
+			(float)height,
+			Graphics::ScreenNear,
+			Graphics::ScreenFar
+		);
+
+		d3d.Resize( width, height );
+		if( !m_PostProcesses.empty() )
+		{
+			m_PostProcessRenderTexture.Resize( width, height );
+		}
 	}
 
 	int Graphics::GetScreenWidth() const
@@ -103,6 +126,7 @@ namespace Bat
 	void Graphics::BeginFrame()
 	{
 		m_pCamera->Render();
+		m_TextDrawCommands.clear();
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
@@ -156,15 +180,50 @@ namespace Bat
 			EnableDepthStencil();
 		}
 
+		if( !m_TextDrawCommands.empty() )
+		{
+			m_pSpriteBatch->Begin();
+			for( const auto& command : m_TextDrawCommands )
+			{
+				m_pFont->DrawString( m_pSpriteBatch.get(), command.text.c_str(), command.pos, command.col );
+			}
+			m_pSpriteBatch->End();
+		}
+
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );
 
 		d3d.PresentScene();
 	}
 
+	void Graphics::DrawText( std::wstring text, const Vec2& pos, const DirectX::FXMVECTOR col/* = DirectX::Colors::White */ )
+	{
+		m_TextDrawCommands.emplace_back( std::move( text ), pos, col );
+	}
+
 	DirectX::XMMATRIX Graphics::GetOrthoMatrix() const
 	{
 		return m_matOrtho;
+	}
+
+	ID3D11Device * Graphics::GetDevice() const
+	{
+		return d3d.GetDevice();
+	}
+
+	ID3D11DeviceContext * Graphics::GetDeviceContext() const
+	{
+		return d3d.GetDeviceContext();
+	}
+
+	ID3D11RenderTargetView * Graphics::GetRenderTargetView() const
+	{
+		return d3d.GetRenderTargetView();
+	}
+
+	ID3D11DepthStencilView * Graphics::GetDepthStencilView() const
+	{
+		return d3d.GetDepthStencilView();
 	}
 
 	void Graphics::AddShader( const std::string & name, std::unique_ptr<IPipeline> pPipeline )

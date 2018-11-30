@@ -13,6 +13,12 @@
 
 #include <memory>
 
+namespace DirectX
+{
+	class SpriteBatch;
+	class SpriteFont;
+}
+
 namespace Bat
 {
 	class Window;
@@ -29,23 +35,7 @@ namespace Bat
 
 		~Graphics() override;
 
-		void Resize( int width, int height )
-		{
-			m_iScreenWidth = width;
-			m_iScreenHeight = height;
-			m_matOrtho = DirectX::XMMatrixOrthographicLH(
-				(float)width,
-				(float)height,
-				Graphics::ScreenNear,
-				Graphics::ScreenFar
-			);
-
-			d3d.Resize( width, height );
-			if( !m_PostProcesses.empty() )
-			{
-				m_PostProcessRenderTexture.Resize( width, height );
-			}
-		}
+		void Resize( int width, int height );
 
 		virtual int GetScreenWidth() const override;
 		virtual int GetScreenHeight() const override;
@@ -61,24 +51,14 @@ namespace Bat
 		virtual void BeginFrame() override;
 		virtual void EndFrame() override;
 
+		virtual void DrawText( std::wstring text, const Vec2& pos, const DirectX::FXMVECTOR col = DirectX::Colors::White ) override;
+
 		virtual DirectX::XMMATRIX GetOrthoMatrix() const;
 
-		virtual ID3D11Device* GetDevice() const override
-		{
-			return d3d.GetDevice();
-		}
-		virtual ID3D11DeviceContext* GetDeviceContext() const override
-		{
-			return d3d.GetDeviceContext();
-		}
-		virtual ID3D11RenderTargetView* GetRenderTargetView() const override
-		{
-			return d3d.GetRenderTargetView();
-		}
-		virtual ID3D11DepthStencilView* GetDepthStencilView() const override
-		{
-			return d3d.GetDepthStencilView();
-		}
+		virtual ID3D11Device* GetDevice() const override;
+		virtual ID3D11DeviceContext* GetDeviceContext() const override;
+		virtual ID3D11RenderTargetView* GetRenderTargetView() const override;
+		virtual ID3D11DepthStencilView* GetDepthStencilView() const override;
 	private:
 		void AddShader( const std::string& name, std::unique_ptr<IPipeline> pPipeline );
 	private:
@@ -93,6 +73,24 @@ namespace Bat
 
 		int m_iScreenWidth = InitialScreenWidth;
 		int m_iScreenHeight = InitialScreenHeight;
+	private:
+		struct TextDrawCommand
+		{
+			TextDrawCommand( std::wstring text, Vec2 pos, DirectX::FXMVECTOR col )
+				:
+				text( std::move( text ) ),
+				pos( pos ),
+				col( col )
+			{}
+
+			std::wstring text;
+			Vec2 pos;
+			DirectX::FXMVECTOR col;
+		};
+
+		std::unique_ptr<DirectX::SpriteBatch> m_pSpriteBatch;
+		std::unique_ptr<DirectX::SpriteFont> m_pFont;
+		std::vector<TextDrawCommand> m_TextDrawCommands;
 	public:
 		static constexpr bool	FullScreen = false;
 		static constexpr int	VSyncEnabled = false;

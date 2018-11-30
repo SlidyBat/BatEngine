@@ -75,15 +75,20 @@ namespace Bat
 			value = (value & 0xFFFFFF00) | b;
 		}
 
-		unsigned int GetValue() const
+		constexpr unsigned int GetValue() const
 		{
 			return value;
 		}
-		void SetValue( unsigned int newval )
+		constexpr void SetValue( unsigned int newval )
 		{
 			value = newval;
 		}
 	private:
 		unsigned int value;
 	};
+
+	namespace Colours
+	{
+		static constexpr Colour White = Colour( 255, 255, 255 );
+	}
 }

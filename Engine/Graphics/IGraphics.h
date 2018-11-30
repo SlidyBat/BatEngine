@@ -5,6 +5,7 @@
 #include <string>
 #include "Texture.h"
 #include "VertexTypes.h"
+#include <DirectXColors.h>
 
 namespace Bat
 {
@@ -13,6 +14,7 @@ namespace Bat
 	class Material;
 	class IPipeline;
 	class IPostProcess;
+	class Vec2;
 
 	class IGraphics;
 	extern IGraphics* g_pGfx;
@@ -34,6 +36,8 @@ namespace Bat
 
 		virtual void BeginFrame() = 0;
 		virtual void EndFrame() = 0;
+		
+		virtual void DrawText( std::wstring text, const Vec2& pos, const DirectX::FXMVECTOR col = DirectX::Colors::White ) = 0;
 
 		virtual ID3D11Device* GetDevice() const = 0;
 		virtual ID3D11DeviceContext* GetDeviceContext() const = 0;

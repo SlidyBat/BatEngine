@@ -26,8 +26,6 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 		Graphics gfx( wnd );
 
 		FrameTimer ft;
-		auto sb = std::make_unique<DirectX::SpriteBatch>( gfx.GetDeviceContext() );
-		auto font = std::make_unique<DirectX::SpriteFont>( gfx.GetDevice(), L"Assets/Fonts/consolas.spritefont" );
 
 		auto pScene = std::make_unique<ModelTestScene>( wnd );
 		while( wnd.ProcessMessage() )
@@ -53,9 +51,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 			
 			pScene->OnRender();
 
-			sb->Begin();
-			font->DrawString( sb.get(), Bat::StringToWide( fpsString ).c_str(), DirectX::XMFLOAT2{ 15.0f, 15.0f } );
-			sb->End();
+			gfx.DrawText( Bat::StringToWide( fpsString ).c_str(), DirectX::XMFLOAT2{ 15.0f, 15.0f } );
 
 			gfx.EndFrame();
 		}

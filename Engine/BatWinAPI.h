@@ -40,6 +40,8 @@
 
 #include <Windows.h>
 
+#undef DrawText // why is there a macro called DrawText?????
+
 namespace Bat
 {
 	inline std::string GetLastWinErrorAsString()

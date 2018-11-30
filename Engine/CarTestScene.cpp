@@ -25,9 +25,6 @@ CarTestScene::CarTestScene( Window& wnd )
 
 	m_pCar = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/sword/scene.gltf" ) );
 
-	m_pSpriteBatch = std::make_unique<DirectX::SpriteBatch>( g_pGfx->GetDeviceContext() );
-	m_pFont = std::make_unique<DirectX::SpriteFont>( g_pGfx->GetDevice(), L"Assets/Fonts/consolas.spritefont" );
-
 	m_Skybox = Texture::FromDDS( L"Assets/skybox.dds" );
 	g_pGfx->SetSkybox( &m_Skybox );
 
@@ -53,11 +50,9 @@ void CarTestScene::OnRender()
 
 	m_pCar->Draw( pPipeline );
 
-	m_pSpriteBatch->Begin();
 	Vec3 campos = m_Camera.GetPosition();
 	std::wstring pos = L"Pos: " + std::to_wstring( campos.x ) + L" " + std::to_wstring( campos.y ) + L" " + std::to_wstring( campos.z );
-	m_pFont->DrawString( m_pSpriteBatch.get(), pos.c_str(), DirectX::XMFLOAT2{ 15.0f, 30.0f } );
-	m_pSpriteBatch->End();
+	g_pGfx->DrawText( pos.c_str(), { 15.0f, 30.0f } );
 
 	ImGui::Begin( "Light Controls" );
 	ImGui::SliderFloat3( "Position", lightPos, -1000.0f, 1000.0f );
