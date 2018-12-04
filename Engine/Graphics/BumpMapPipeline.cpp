@@ -21,12 +21,12 @@ namespace Bat
 
 	void BumpMappedModel::Draw( IPipeline* pPipeline ) const
 	{
-		auto vp = DirectX::XMMatrixTranspose( g_pGfx->GetCamera()->GetViewMatrix() * g_pGfx->GetCamera()->GetProjectionMatrix() );
+		auto vp = g_pGfx->GetCamera()->GetViewMatrix() * g_pGfx->GetCamera()->GetProjectionMatrix();
 		auto w = GetWorldMatrix();
 
 		for( const auto& mesh : m_Meshes )
 		{
-			LightPipelineParameters params( DirectX::XMMatrixTranspose( mesh.GetTransform() * w ), vp, mesh.GetMaterial() );
+			LightPipelineParameters params( mesh.GetTransform() * w, vp, mesh.GetMaterial() );
 
 			if( !mesh.GetMaterial()->GetBumpMapTexture() )
 			{

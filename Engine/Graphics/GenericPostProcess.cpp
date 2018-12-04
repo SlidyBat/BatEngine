@@ -71,7 +71,7 @@ namespace Bat
 	void GenericPostProcess::Render( ID3D11ShaderResourceView* pTexture )
 	{
 		CB_TexturePipelineMatrix transform;
-		transform.viewproj = DirectX::XMMatrixTranspose( g_pGfx->GetOrthoMatrix() );
+		transform.viewproj = g_pGfx->GetOrthoMatrix();
 		transform.world = DirectX::XMMatrixIdentity();
 		g_pGfx->GetDeviceContext()->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 

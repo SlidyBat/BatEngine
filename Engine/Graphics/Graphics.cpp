@@ -160,7 +160,7 @@ namespace Bat
 		{
 			auto pos = GetCamera()->GetPosition();
 			auto w = DirectX::XMMatrixTranslation( pos.x, pos.y, pos.z );
-			auto t = DirectX::XMMatrixTranspose( w * GetCamera()->GetViewMatrix() * GetCamera()->GetProjectionMatrix() );
+			auto t = w * GetCamera()->GetViewMatrix() * GetCamera()->GetProjectionMatrix();
 
 			SkyboxPipelineParameters params( t, m_pSkybox->GetTextureView() );
 			auto pPipeline = GetPipeline( "skybox" );

@@ -100,9 +100,9 @@ namespace Bat
 			Microsoft::WRL::ComPtr<ID3DBlob> vertexShaderBuffer;
 
 #ifdef _DEBUG
-			const UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG;
+			const UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG;
 #else
-			const UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
+			const UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS;
 #endif
 
 			if( FAILED( hr = D3DCompileFromFile( filename.c_str(), NULL, NULL, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage ) ) )

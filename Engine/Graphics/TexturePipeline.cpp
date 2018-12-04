@@ -18,8 +18,8 @@ namespace Bat
 
 	void TexturedModel::Draw( IPipeline* pPipeline ) const
 	{
-		auto vp = DirectX::XMMatrixTranspose( g_pGfx->GetCamera()->GetViewMatrix() * g_pGfx->GetCamera()->GetProjectionMatrix() );
-		auto w = DirectX::XMMatrixTranspose( GetWorldMatrix() );
+		auto vp = g_pGfx->GetCamera()->GetViewMatrix() * g_pGfx->GetCamera()->GetProjectionMatrix();
+		auto w = GetWorldMatrix();
 
 		for( const auto& mesh : m_Meshes )
 		{
@@ -68,7 +68,7 @@ namespace Bat
 
 	void ScreenQuadModel::Draw( IPipeline* pPipeline ) const
 	{
-		auto vp = DirectX::XMMatrixTranspose( g_pGfx->GetOrthoMatrix() );
+		auto vp = g_pGfx->GetOrthoMatrix();
 		auto w = DirectX::XMMatrixIdentity();
 
 		m_Mesh.Bind( pPipeline );

@@ -17,8 +17,8 @@ namespace Bat
 
 	void ColouredModel::Draw( IPipeline* pPipeline ) const
 	{
-		auto vp = DirectX::XMMatrixTranspose( g_pGfx->GetCamera()->GetViewMatrix() * g_pGfx->GetCamera()->GetProjectionMatrix() );
-		auto w = DirectX::XMMatrixTranspose( GetWorldMatrix() );
+		auto vp = g_pGfx->GetCamera()->GetViewMatrix() * g_pGfx->GetCamera()->GetProjectionMatrix();
+		auto w = GetWorldMatrix();
 
 		for( const auto& mesh : m_Meshes )
 		{
