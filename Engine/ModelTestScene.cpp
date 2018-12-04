@@ -29,7 +29,6 @@ ModelTestScene::ModelTestScene( Window& wnd )
 	g_pGfx->SetSkybox( &m_Skybox );
 
 	g_pGfx->AddPostProcess( std::make_unique<GenericPostProcess>( L"Graphics/Shaders/Build/PostProcessPS.cso" ) );
-	g_pGfx->AddPostProcess( std::make_unique<GenericPostProcess>( L"Graphics/Shaders/Build/PostProcessPS.cso" ) );
 }
 
 void ModelTestScene::OnUpdate( float deltatime )

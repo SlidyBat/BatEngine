@@ -3,9 +3,17 @@
 #include "IGraphics.h"
 #include "TexturePipeline.h"
 #include "RenderTexture.h"
+#include "Globals.h"
 
 namespace Bat
 {
+	struct CB_Globals
+	{
+		Vec2 resolution;
+		float time;
+		float pad;
+	};
+
 	GenericPostProcess::GenericPostProcess( const std::wstring& psFilename )
 		:
 		m_VertexShader( L"Graphics/Shaders/Build/TextureVS.cso" ),
@@ -29,6 +37,7 @@ namespace Bat
 		samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
 		m_PixelShader.AddSampler( &samplerDesc );
+		m_PixelShader.AddConstantBuffer<CB_Globals>();
 
 		const float width = (float)g_pGfx->GetScreenWidth();
 		const float height = (float)g_pGfx->GetScreenHeight();
@@ -66,6 +75,10 @@ namespace Bat
 		transform.world = DirectX::XMMatrixIdentity();
 		g_pGfx->GetDeviceContext()->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
+		CB_Globals psGlobals;
+		psGlobals.resolution = { (float)g_pGfx->GetScreenWidth(), (float)g_pGfx->GetScreenHeight() };
+		psGlobals.time = g_pGlobals->elapsed_time;
+
 		m_bufPosition.Bind( 0 );
 		m_bufUV.Bind( 1 );
 		m_bufIndices.Bind();
@@ -74,6 +87,7 @@ namespace Bat
 		m_PixelShader.Bind();
 		m_VertexShader.GetConstantBuffer( 0 ).SetData( &transform );
 		m_PixelShader.SetResource( 0, pTexture );
+		m_PixelShader.GetConstantBuffer( 0 ).SetData( &psGlobals );
 
 		g_pGfx->GetDeviceContext()->DrawIndexed( m_bufIndices.GetIndexCount(), 0, 0 );
 	}
