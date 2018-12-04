@@ -27,8 +27,6 @@ namespace Bat
 		void ShowMessageBox( const std::string& title, const std::string& msg, UINT type ) const;
 		bool ProcessMessage();
 
-		void AddResizeListener( const std::function<void( int, int )>& callback );
-
 		bool IsFullscreen() const
 		{
 			return m_bFullscreen;
@@ -73,7 +71,5 @@ namespace Bat
 		std::string	m_szApplicationName;
 		HINSTANCE	m_hInstance;
 		HWND		m_hWnd;
-
-		std::vector<std::function<void( int, int )>> m_ResizeListeners;
 	};
 }

@@ -12,6 +12,7 @@
 #include <SpriteFont.h>
 #include "imgui.h"
 #include "GenericPostProcess.h"
+#include "WindowEvents.h"
 
 using namespace Bat;
 
@@ -48,6 +49,11 @@ void CarTestScene::OnUpdate( float deltatime )
 	m_Light.SetDiffuse( { lightDiff[0], lightDiff[1], lightDiff[2] } );
 	m_Light.SetSpecular( { lightSpec[0], lightSpec[1], lightSpec[2] } );
 	m_Camera.Update( wnd.input, deltatime );
+
+	ON_EVENT_DISPATCHED( [=]( const WindowResizeEvent* e )
+	{
+		m_Camera.SetAspectRatio( (float)e->GetWidth() / e->GetHeight() );
+	} );
 }
 
 void CarTestScene::OnRender()

@@ -12,6 +12,7 @@
 #include "IPostProcess.h"
 #include "SpriteBatch.h"
 #include "SpriteFont.h"
+#include "WindowEvents.h"
 
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
@@ -35,10 +36,9 @@ namespace Bat
 		m_pSpriteBatch = std::make_unique<DirectX::SpriteBatch>( GetDeviceContext() );
 		m_pFont = std::make_unique<DirectX::SpriteFont>( GetDevice(), L"Assets/Fonts/consolas.spritefont" );
 
-		wnd.AddResizeListener( [=]( int width, int height )
+		ON_EVENT_DISPATCHED( [=]( const WindowResizeEvent* e )
 		{
-			Resize( width, height );
-			m_pCamera->SetAspectRatio( (float)width / height );
+			Resize( e->GetWidth(), e->GetHeight() );
 		} );
 
 		m_matOrtho = DirectX::XMMatrixOrthographicLH(

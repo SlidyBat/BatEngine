@@ -1,6 +1,7 @@
 #include "Window.h"
 #include "Resource.h"
 #include "BatAssert.h"
+#include "WindowEvents.h"
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
 
@@ -102,6 +103,8 @@ namespace Bat
 			ChangeDisplaySettings( NULL, 0 );
 		}
 
+		DISPATCH_EVENT( WindowClosedEvent() );
+
 		DestroyWindow( m_hWnd );
 		m_hWnd = NULL;
 
@@ -151,11 +154,6 @@ namespace Bat
 		}
 
 		return true;
-	}
-
-	void Window::AddResizeListener( const std::function<void( int, int )>& callback )
-	{
-		m_ResizeListeners.push_back( callback );
 	}
 
 	LRESULT Window::HandleMsg( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
@@ -268,10 +266,7 @@ namespace Bat
 			m_iWidth = LOWORD( lParam );
 			m_iHeight = HIWORD( lParam );
 
-			for( auto& cb : m_ResizeListeners )
-			{
-				cb( m_iWidth, m_iHeight );
-			}
+			DISPATCH_EVENT( WindowResizeEvent( m_iWidth, m_iHeight ) );
 
 			break;
 		}
@@ -279,6 +274,9 @@ namespace Bat
 		{
 			m_Pos.x = LOWORD( lParam );
 			m_Pos.y = HIWORD( lParam );
+
+			DISPATCH_EVENT( WindowMovedEvent( m_Pos.x, m_Pos.y ) );
+
 			break;
 		}
 		}

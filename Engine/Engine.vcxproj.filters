@@ -46,6 +46,12 @@
     <Filter Include="Source Files\Graphics\ImGui">
       <UniqueIdentifier>{a605465d-e279-415c-a58b-9ce1cebe2c9a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Events">
+      <UniqueIdentifier>{9876a579-3474-4cc2-9ae4-9c4caddde3b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Events">
+      <UniqueIdentifier>{cdc912b8-e264-403e-a09f-b064867fe5e4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -159,6 +165,9 @@
     <ClCompile Include="Util\StackAllocator.cpp">
       <Filter>Source Files\Util</Filter>
     </ClCompile>
+    <ClCompile Include="Events\Event.cpp">
+      <Filter>Source Files\Events</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input.h">
@@ -245,9 +254,6 @@
     <ClInclude Include="ModelTestScene.h">
       <Filter>Header Files\TestScenes</Filter>
     </ClInclude>
-    <ClInclude Include="Globals.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Util\FrameTimer.h">
       <Filter>Header Files\Util</Filter>
     </ClInclude>
@@ -328,6 +334,15 @@
     </ClInclude>
     <ClInclude Include="Util\MathLib.h">
       <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Globals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Events\Event.h">
+      <Filter>Header Files\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="Events\WindowEvents.h">
+      <Filter>Header Files\Events</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
