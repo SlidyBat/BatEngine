@@ -129,6 +129,14 @@ namespace Bat
 			:
 			DirectX::XMFLOAT4( x, y, z, w )
 		{}
+		Vec4( const Vec3& v3, const float vw )
+		{
+			x = v3.x;
+			y = v3.y;
+			z = v3.z;
+			w = vw;
+		}
+
 		Vec4( const DirectX::XMFLOAT4& src )
 		{
 			x = src.x;

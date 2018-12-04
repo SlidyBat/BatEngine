@@ -5,6 +5,7 @@
 #include "COMException.h"
 #include "Graphics.h"
 #include "MemoryStream.h"
+#include "StringLib.h"
 
 namespace Bat
 {
@@ -83,7 +84,7 @@ namespace Bat
 		auto pDevice = g_pGfx->GetDevice();
 
 		// compiled shader object
-		if( filename.find( L".cso" ) != std::wstring::npos )
+		if( Bat::GetFileExtension( filename ) == L"cso" )
 		{
 			auto bytes = MemoryStream::FromFile( filename );
 			CreateInputLayoutDescFromVertexShaderSignature( bytes.Base(), bytes.Size() );
