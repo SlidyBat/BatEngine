@@ -26,10 +26,11 @@ namespace Bat
 	{
 	public:
 		Mesh() = default;
-		Mesh( const MeshParameters& params, const std::vector<int>& indices, Material* pMaterial )
+		Mesh( const MeshParameters& params, const std::vector<int>& indices, Material* pMaterial, const DirectX::XMMATRIX& transform = DirectX::XMMatrixIdentity() )
 			:
 			m_bufIndices( indices ),
-			m_pMaterial( pMaterial )
+			m_pMaterial( pMaterial ),
+			m_matTransform( transform )
 		{
 			SetData( params );
 		}
@@ -134,6 +135,14 @@ namespace Bat
 		{
 			return m_bufIndices.GetIndexCount();
 		}
+		DirectX::XMMATRIX GetTransform() const
+		{
+			return m_matTransform;
+		}
+		void SetTransform( const DirectX::XMMATRIX& transform )
+		{
+			m_matTransform = transform;
+		}
 	private:
 		VertexBuffer<Vec4> m_bufPosition;
 		VertexBuffer<Vec4> m_bufColour;
@@ -143,5 +152,6 @@ namespace Bat
 		VertexBuffer<Vec4> m_bufBitangent;
 		IndexBuffer m_bufIndices;
 		Material* m_pMaterial = nullptr;
+		DirectX::XMMATRIX m_matTransform = DirectX::XMMatrixIdentity();
 	};
 }

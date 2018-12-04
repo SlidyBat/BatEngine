@@ -5,12 +5,15 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include "Material.h"
+#include "StringLib.h"
 
 namespace Bat
 {
 	enum class TextureStorageType
 	{
 		None,
+		IndexCompressed,
+		IndexNonCompressed,
 		EmbeddedCompressed,
 		EmbeddedNonCompressed,
 		Disk
@@ -25,6 +28,17 @@ namespace Bat
 		{
 			if( pScene->mTextures[0]->mHeight == 0 )
 			{
+				return TextureStorageType::IndexCompressed;
+			}
+			else
+			{
+				return TextureStorageType::IndexNonCompressed;
+			}
+		}
+		else if( auto pTex = pScene->GetEmbeddedTexture( textype.c_str() ) )
+		{
+			if( pTex->mHeight == 0 )
+			{
 				return TextureStorageType::EmbeddedCompressed;
 			}
 			else
@@ -32,7 +46,7 @@ namespace Bat
 				return TextureStorageType::EmbeddedNonCompressed;
 			}
 		}
-		if( textype.find( '.' ) != std::string::npos )
+		else if( textype.find( '.' ) != std::string::npos )
 		{
 			return TextureStorageType::Disk;
 		}
@@ -47,13 +61,6 @@ namespace Bat
 			return 0; // -1?
 		}
 		return pStr->C_Str()[0] - '0';
-	}
-
-	static Texture* GetTextureFromModel( const aiScene* pScene, int idx )
-	{
-		const int size = pScene->mTextures[idx]->mWidth;
-
-		return new Texture( reinterpret_cast<uint8_t*>(pScene->mTextures[idx]->pcData), size );
 	}
 
 	static Texture* LoadMaterialTexture( aiMaterial* pMaterial, aiTextureType type, const aiScene* pScene, const std::string& dir )
@@ -112,23 +119,40 @@ namespace Bat
 			aiString str;
 			pMaterial->GetTexture( type, i, &str );
 
-			if( storetype == TextureStorageType::EmbeddedCompressed )
+			if( storetype == TextureStorageType::IndexCompressed )
 			{
 				int idx = GetTextureIndex( &str );
-				return GetTextureFromModel( pScene, idx );
+				return new Texture( reinterpret_cast<uint8_t*>(pScene->mTextures[idx]->pcData),
+					pScene->mTextures[idx]->mWidth );
+			}
+			else if( storetype == TextureStorageType::IndexNonCompressed )
+			{
+				int idx = GetTextureIndex( &str );
+				return new Texture( reinterpret_cast<uint8_t*>(pScene->mTextures[idx]->pcData),
+					pScene->mTextures[idx]->mWidth * pScene->mTextures[idx]->mHeight );
+			}
+			else if( storetype == TextureStorageType::EmbeddedCompressed )
+			{
+				auto pTex = pScene->GetEmbeddedTexture( str.C_Str() );
+				return new Texture( reinterpret_cast<uint8_t*>(pTex->pcData), pTex->mWidth );
+			}
+
+			else if( storetype == TextureStorageType::EmbeddedCompressed )
+			{
+				auto pTex = pScene->GetEmbeddedTexture( str.C_Str() );
+				return new Texture( reinterpret_cast<uint8_t*>(pTex->pcData), pTex->mWidth * pTex->mHeight );
 			}
 			else
 			{
 				std::string filename = dir + '/' + str.C_Str();
-				std::wstring filenamews( filename.begin(), filename.end() );
-				return new Texture( filenamews );
+				return new Texture( Bat::StringToWide( filename ) );
 			}
 		}
 
 		return nullptr;
 	}
 
-	static Mesh ProcessMesh( aiMesh* pMesh, const aiScene* pScene, const std::string& dir )
+	static Mesh ProcessMesh( aiMesh* pMesh, const aiScene* pScene, const std::string& dir, const DirectX::XMMATRIX& transform )
 	{
 		MeshParameters params;
 		std::vector<int> indices;
@@ -236,20 +260,22 @@ namespace Bat
 			pMeshMaterial->SetShininess( shininess );
 		}
 
-		return Mesh( params, indices, pMeshMaterial );
+		return Mesh( params, indices, pMeshMaterial, transform );
 	}
 
-	static void ProcessNode( aiNode* pNode, const aiScene* pScene, std::vector<Mesh>& meshes, const std::string& dir )
+	static void ProcessNode( aiNode* pNode, const aiScene* pScene, std::vector<Mesh>& meshes, const std::string& dir, const DirectX::XMMATRIX& parent_transform )
 	{
+		const auto transform = DirectX::XMMatrixTranspose( DirectX::XMMATRIX( &pNode->mTransformation.a1 ) ) * parent_transform;
+
 		for( UINT i = 0; i < pNode->mNumMeshes; i++ )
 		{
 			aiMesh* pMesh = pScene->mMeshes[pNode->mMeshes[i]];
-			meshes.emplace_back( ProcessMesh( pMesh, pScene, dir ) );
+			meshes.emplace_back( ProcessMesh( pMesh, pScene, dir, transform ) );
 		}
 
 		for( UINT i = 0; i < pNode->mNumChildren; i++ )
 		{
-			ProcessNode( pNode->mChildren[i], pScene, meshes, dir );
+			ProcessNode( pNode->mChildren[i], pScene, meshes, dir, transform );
 		}
 	}
 
@@ -267,7 +293,7 @@ namespace Bat
 			return {};
 		}
 
-		ProcessNode( pScene->mRootNode, pScene, meshes, directory );
+		ProcessNode( pScene->mRootNode, pScene, meshes, directory, DirectX::XMMatrixIdentity() );
 
 		return meshes;
 	}

@@ -22,13 +22,14 @@ ModelTestScene::ModelTestScene( Window& wnd )
 	m_Light.SetPosition( { 0.0f, 0.0f, -5.0f } );
 	m_Camera.SetPosition( 0.0f, 0.0f, -5.0f );
 	g_pGfx->SetCamera( &m_Camera );
+	m_Camera.SetSpeed( 100.0f );
 
-	m_pNanoSuit = std::make_unique<LightModel>( ModelLoader::LoadModel( "Assets/NanoSuit/nanosuit.obj" ) );
+	m_pNanoSuit = std::make_unique<LightModel>( ModelLoader::LoadModel( "Assets/Dodge_Chellenger_SRT10_FBX.FBX" ) );
 
 	m_Skybox = Texture::FromDDS( L"Assets/skybox.dds" );
 	g_pGfx->SetSkybox( &m_Skybox );
 
-	g_pGfx->AddPostProcess( std::make_unique<GenericPostProcess>( L"Graphics/Shaders/Build/PostProcessPS.cso" ) );
+	//g_pGfx->AddPostProcess( std::make_unique<GenericPostProcess>( L"Graphics/Shaders/Build/PostProcessPS.cso" ) );
 }
 
 void ModelTestScene::OnUpdate( float deltatime )

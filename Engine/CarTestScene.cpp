@@ -24,7 +24,7 @@ CarTestScene::CarTestScene( Window& wnd )
 	m_Camera.SetPosition( 0.0f, 0.0f, -5.0f );
 	g_pGfx->SetCamera( &m_Camera );
 
-	m_pCar = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/sword/scene.gltf" ) );
+	m_pCar = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/Car/scene.gltf" ) );
 
 	m_Skybox = Texture::FromDDS( L"Assets/skybox.dds" );
 	g_pGfx->SetSkybox( &m_Skybox );
@@ -35,6 +35,14 @@ CarTestScene::CarTestScene( Window& wnd )
 
 void CarTestScene::OnUpdate( float deltatime )
 {
+	if( wnd.input.IsKeyPressed( 'C' ) )
+	{
+		const Vec3 pos = m_Camera.GetPosition();
+		lightPos[0] = pos.x;
+		lightPos[1] = pos.y;
+		lightPos[2] = pos.z;
+	}
+
 	m_Light.SetPosition( { lightPos[0], lightPos[1], lightPos[2] } );
 	m_Light.SetAmbient( { lightAmb[0], lightAmb[1], lightAmb[2] } );
 	m_Light.SetDiffuse( { lightDiff[0], lightDiff[1], lightDiff[2] } );

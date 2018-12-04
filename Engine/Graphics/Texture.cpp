@@ -4,6 +4,7 @@
 #include "COMException.h"
 #include <WICTextureLoader.h>
 #include <DDSTextureLoader.h>
+#include <fstream>
 
 namespace Bat
 {
@@ -12,9 +13,17 @@ namespace Bat
 		auto pDevice = g_pGfx->GetDevice();
 		auto pDeviceContext = g_pGfx->GetDeviceContext();
 
-		COM_THROW_IF_FAILED(
-			DirectX::CreateWICTextureFromFile( pDevice, pDeviceContext, filename.c_str(), &m_pTexture, &m_pTextureView )
-		);
+
+		if( !std::ifstream( filename ) )
+		{
+			DirectX::CreateWICTextureFromFile( pDevice, pDeviceContext, L"Assets/error.png", &m_pTexture, &m_pTextureView );
+		}
+		else
+		{
+			COM_THROW_IF_FAILED(
+				DirectX::CreateWICTextureFromFile( pDevice, pDeviceContext, filename.c_str(), &m_pTexture, &m_pTextureView )
+			);
+		}
 	}
 
 	Texture::Texture( const uint8_t* pData, size_t size )
