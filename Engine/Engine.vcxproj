@@ -168,6 +168,7 @@
     <ClCompile Include="MoveableCamera.cpp" />
     <ClCompile Include="Graphics\RenderTexture.cpp" />
     <ClCompile Include="Graphics\SkyboxPipeline.cpp" />
+    <ClCompile Include="Util\StackAllocator.cpp" />
     <ClCompile Include="ThirdParty\ImGui\imgui.cpp" />
     <ClCompile Include="ThirdParty\ImGui\imgui_demo.cpp" />
     <ClCompile Include="ThirdParty\ImGui\imgui_draw.cpp" />
@@ -208,6 +209,8 @@
     <ClInclude Include="MoveableCamera.h" />
     <ClInclude Include="Graphics\RenderTexture.h" />
     <ClInclude Include="Graphics\SkyboxPipeline.h" />
+    <ClInclude Include="Util\PoolAllocator.h" />
+    <ClInclude Include="Util\StackAllocator.h" />
     <ClInclude Include="Util\StringLib.h" />
     <ClInclude Include="ThirdParty\ImGui\imconfig.h" />
     <ClInclude Include="ThirdParty\ImGui\imgui.h" />

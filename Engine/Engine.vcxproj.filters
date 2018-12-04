@@ -147,14 +147,17 @@
     <ClCompile Include="Graphics\RenderTexture.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\GenericPostProcess.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\BumpMapPipeline.cpp">
       <Filter>Source Files\Graphics\Pipelines</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\SkyboxPipeline.cpp">
       <Filter>Source Files\Graphics\Pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GenericPostProcess.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\StackAllocator.cpp">
+      <Filter>Source Files\Util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -199,9 +202,6 @@
     </ClInclude>
     <ClInclude Include="Util\COMException.h">
       <Filter>Header Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\MathLib.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BatAssert.h">
       <Filter>Header Files\Util</Filter>
@@ -317,8 +317,17 @@
     <ClInclude Include="Graphics\SkyboxPipeline.h">
       <Filter>Header Files\Graphics\Pipelines</Filter>
     </ClInclude>
-    <ClInclude Include="Util\StringLib.h">
+    <ClInclude Include="Util\StackAllocator.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\PoolAllocator.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\StringLib.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\MathLib.h">
+      <Filter>Header Files\Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
