@@ -57,7 +57,7 @@
 // Uncomment if logger name logging is not needed.
 // This will prevent spdlog from copying the logger name on each log call.
 //
-// #define SPDLOG_NO_NAME
+#define SPDLOG_NO_NAME
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -72,7 +72,7 @@
 // Use only if your code never modifies a logger's log levels concurrently by
 // different threads.
 //
-// #define SPDLOG_NO_ATOMIC_LEVELS
+#define SPDLOG_NO_ATOMIC_LEVELS
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -117,20 +117,23 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Uncomment to customize level names (e.g. "MT TRACE")
 //
-// #define SPDLOG_LEVEL_NAMES { "MY TRACE", "MY DEBUG", "MY INFO", "MY WARNING",
-// "MY ERROR", "MY CRITICAL", "OFF" }
+#define SPDLOG_LEVEL_NAMES { "TRACE", "DEBUG", "INFO", "WARNING", "WARNING", "ERROR", "OFF" }
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
 // Uncomment to disable default logger creation.
 // This might save some (very) small initialization time if no default logger is needed.
 //
-// #define SPDLOG_DISABLE_DEFAULT_LOGGER
+#define SPDLOG_DISABLE_DEFAULT_LOGGER
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
 // Uncomment and set to compile time level with zero cost (default is INFO).
 // Macros like SPDLOG_DEBUG(..), SPDLOG_INFO(..)  will expand to empty statements if not enabled
 //
-// #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
+#ifdef _DEBUG
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
+#else
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
+#endif
 ///////////////////////////////////////////////////////////////////////////////

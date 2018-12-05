@@ -3,15 +3,17 @@
 #include "spdlog/spdlog.h"
 
 #ifdef _DEBUG
-#define BAT_TRACE(...) Logger::GetLogger()->debug(__VA_ARGS__)
-#define BAT_LOG(...) Logger::GetLogger()->trace(__VA_ARGS__)
-#define BAT_WARN(...) Logger::GetLogger()->warn(__VA_ARGS__)
-#define BAT_ERROR(...) Logger::GetLogger()->error(__VA_ARGS__)
+#define BAT_DEBUG(...) Logger::GetLogger()->debug(__VA_ARGS__)
+#define BAT_TRACE(...) Logger::GetLogger()->trace(__VA_ARGS__)
+#define BAT_LOG(...) Logger::GetLogger()->info(__VA_ARGS__)
+#define BAT_WARN(...) Logger::GetLogger()->error(__VA_ARGS__)
+#define BAT_ERROR(...) Logger::GetLogger()->critical(__VA_ARGS__)
 #else
-#define TRACE(...)
-#define LOG(...) Logger::GetLogger()->trace(__VA_ARGS__)
-#define WARN(...) Logger::GetLogger()->warn(__VA_ARGS__)
-#define ERROR(...) Logger::GetLogger()->error(__VA_ARGS__)
+#define BAT_DEBUG(...)
+#define BAT_TRACE(...)
+#define BAT_LOG(...) Logger::GetLogger()->trace(__VA_ARGS__)
+#define BAT_WARN(...) Logger::GetLogger()->error(__VA_ARGS__)
+#define BAT_ERROR(...) Logger::GetLogger()->critical(__VA_ARGS__)
 #endif
 
 namespace Bat
