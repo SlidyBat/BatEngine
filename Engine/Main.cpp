@@ -13,6 +13,7 @@
 #include "StringLib.h"
 #include <SpriteBatch.h>
 #include <SpriteFont.h>
+#include "Log.h"
 
 using namespace Bat;
 
@@ -21,13 +22,15 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 	try
 	{
 		COMInitialize coinit;
+		Logger::Init();
+		BAT_TRACE( "Initialized logger" );
 
 		Window wnd( { 50, 50 }, Graphics::InitialScreenWidth, Graphics::InitialScreenHeight, "Bat Engine", Graphics::FullScreen );
 		Graphics gfx( wnd );
 
 		FrameTimer ft;
 
-		auto pScene = std::make_unique<CarTestScene>( wnd );
+		auto pScene = std::make_unique<ModelTestScene>( wnd );
 		while( wnd.ProcessMessage() )
 		{
 			static int fpsCounter = 0;

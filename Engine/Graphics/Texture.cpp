@@ -5,6 +5,8 @@
 #include <WICTextureLoader.h>
 #include <DDSTextureLoader.h>
 #include <fstream>
+#include "StringLib.h"
+#include "Log.h"
 
 namespace Bat
 {
@@ -16,6 +18,7 @@ namespace Bat
 
 		if( !std::ifstream( filename ) )
 		{
+			BAT_WARN( "Could not open texture '{}', defaulting to 'error.png'", Bat::WideToString( filename ) );
 			DirectX::CreateWICTextureFromFile( pDevice, pDeviceContext, L"Assets/error.png", &m_pTexture, &m_pTextureView );
 		}
 		else
