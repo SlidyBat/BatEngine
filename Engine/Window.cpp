@@ -172,92 +172,117 @@ namespace Bat
 		}
 		case WM_KEYDOWN:
 		{
-			input.KeyDown( (size_t)wParam );
+			input.OnKeyDown( (size_t)wParam );
 			break;
 		}
 		case WM_KEYUP:
 		{
-			input.KeyUp( (size_t)wParam );
+			input.OnKeyUp( (size_t)wParam );
+			break;
+		}
+		case WM_MOUSEMOVE:
+		{
+			POINTS pos = MAKEPOINTS( lParam );
+			input.OnMouseMoved( { pos.y, pos.x } );
+			break;
+		}
+		case WM_MOUSEWHEEL:
+		{
+			POINTS pos = MAKEPOINTS( lParam );
+			short delta = GET_WHEEL_DELTA_WPARAM( wParam );
+			input.OnMouseWheelScrolled( { pos.y, pos.x }, delta );
 			break;
 		}
 		case WM_LBUTTONDOWN:
 		{
-			input.MouseButtonDown( Input::MouseButton::Left );
+			POINTS pos = MAKEPOINTS( lParam );
+			input.OnMouseButtonDown( { pos.y, pos.x }, Input::MouseButton::Left );
 			break;
 		}
 		case WM_LBUTTONUP:
 		{
-			input.MouseButtonUp( Input::MouseButton::Left );
+			POINTS pos = MAKEPOINTS( lParam );
+			input.OnMouseButtonUp( { pos.y, pos.x }, Input::MouseButton::Left );
 			break;
 		}
 		case WM_LBUTTONDBLCLK:
 		{
-			input.MouseButtonDblClick( Input::MouseButton::Left );
+			POINTS pos = MAKEPOINTS( lParam );
+			input.OnMouseButtonDblClick( { pos.y, pos.x }, Input::MouseButton::Left );
 			break;
 		}
 		case WM_RBUTTONDOWN:
 		{
-			input.MouseButtonDown( Input::MouseButton::Right );
+			POINTS pos = MAKEPOINTS( lParam );
+			input.OnMouseButtonDown( { pos.y, pos.x }, Input::MouseButton::Right );
 			break;
 		}
 		case WM_RBUTTONUP:
 		{
-			input.MouseButtonUp( Input::MouseButton::Right );
+			POINTS pos = MAKEPOINTS( lParam );
+			input.OnMouseButtonUp( { pos.y, pos.x }, Input::MouseButton::Right );
 			break;
 		}
 		case WM_RBUTTONDBLCLK:
 		{
-			input.MouseButtonDblClick( Input::MouseButton::Right );
+			POINTS pos = MAKEPOINTS( lParam );
+			input.OnMouseButtonDblClick( { pos.y, pos.x }, Input::MouseButton::Right );
 			break;
 		}
 		case WM_MBUTTONDOWN:
 		{
-			input.MouseButtonDown( Input::MouseButton::Middle );
+			POINTS pos = MAKEPOINTS( lParam );
+			input.OnMouseButtonDown( { pos.y, pos.x }, Input::MouseButton::Middle );
 			break;
 		}
 		case WM_MBUTTONUP:
 		{
-			input.MouseButtonUp( Input::MouseButton::Middle );
+			POINTS pos = MAKEPOINTS( lParam );
+			input.OnMouseButtonUp( { pos.y, pos.x }, Input::MouseButton::Middle );
 			break;
 		}
 		case WM_MBUTTONDBLCLK:
 		{
-			input.MouseButtonDblClick( Input::MouseButton::Middle );
+			POINTS pos = MAKEPOINTS( lParam );
+			input.OnMouseButtonDblClick( { pos.y, pos.x }, Input::MouseButton::Middle );
 			break;
 		}
 		case WM_XBUTTONDOWN:
 		{
+			POINTS pos = MAKEPOINTS( lParam );
 			if( GET_XBUTTON_WPARAM( wParam ) == XBUTTON1 )
 			{
-				input.MouseButtonDown( Input::MouseButton::X1 );
+				input.OnMouseButtonDown( { pos.y, pos.x }, Input::MouseButton::X1 );
 			}
 			else if( GET_XBUTTON_WPARAM( wParam ) == XBUTTON2 )
 			{
-				input.MouseButtonDown( Input::MouseButton::X2 );
+				input.OnMouseButtonDown( { pos.y, pos.x }, Input::MouseButton::X2 );
 			}
 			break;
 		}
 		case WM_XBUTTONUP:
 		{
+			POINTS pos = MAKEPOINTS( lParam );
 			if( GET_XBUTTON_WPARAM( wParam ) == XBUTTON1 )
 			{
-				input.MouseButtonUp( Input::MouseButton::X1 );
+				input.OnMouseButtonUp( { pos.y, pos.x }, Input::MouseButton::X1 );
 			}
 			else if( GET_XBUTTON_WPARAM( wParam ) == XBUTTON2 )
 			{
-				input.MouseButtonUp( Input::MouseButton::X2 );
+				input.OnMouseButtonUp( { pos.y, pos.x }, Input::MouseButton::X2 );
 			}
 			break;
 		}
 		case WM_XBUTTONDBLCLK:
 		{
+			POINTS pos = MAKEPOINTS( lParam );
 			if( GET_XBUTTON_WPARAM( wParam ) == XBUTTON1 )
 			{
-				input.MouseButtonDblClick( Input::MouseButton::X1 );
+				input.OnMouseButtonDblClick( { pos.y, pos.x }, Input::MouseButton::X1 );
 			}
 			else if( GET_XBUTTON_WPARAM( wParam ) == XBUTTON2 )
 			{
-				input.MouseButtonDblClick( Input::MouseButton::X2 );
+				input.OnMouseButtonDblClick( { pos.y, pos.x }, Input::MouseButton::X2 );
 			}
 			break;
 		}

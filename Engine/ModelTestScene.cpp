@@ -1,3 +1,4 @@
+#include "BatWinAPI.h"
 #include "ModelTestScene.h"
 
 #include "Window.h"

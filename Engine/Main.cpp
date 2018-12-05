@@ -35,6 +35,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 			static std::string fpsString = "FPS: 0";
 
 			float dt = ft.Mark();
+			g_pGlobals->deltatime = dt;
 			elapsedTime += dt;
 			fpsCounter += 1;
 			if( elapsedTime > 1.0f )

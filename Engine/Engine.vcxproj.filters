@@ -344,6 +344,12 @@
     <ClInclude Include="Events\WindowEvents.h">
       <Filter>Header Files\Events</Filter>
     </ClInclude>
+    <ClInclude Include="MouseEvents.h">
+      <Filter>Header Files\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyboardEvents.h">
+      <Filter>Header Files\Events</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\mario.png">

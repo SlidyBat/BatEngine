@@ -28,6 +28,7 @@ public:
 
 	virtual void OnUpdate( float deltatime ) override;
 	virtual void OnRender() override;
+	void OnMouseMoved( const Bat::Vei2& delta );
 private:
 	std::unique_ptr<Bat::IModel> m_pCar;
 	Bat::MoveableCamera m_Camera;

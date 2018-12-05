@@ -31,6 +31,11 @@ namespace Bat
 	class _Vec2
 	{
 	public:
+		_Vec2 operator-( const _Vec2& rhs ) const
+		{
+			return { x - rhs.x, y - rhs.y };
+		}
+	public:
 		T x;
 		T y;
 	};

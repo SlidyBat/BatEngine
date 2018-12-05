@@ -1,5 +1,7 @@
 #include "Input.h"
 #include "BatAssert.h"
+#include "MouseEvents.h"
+#include "KeyboardEvents.h"
 
 namespace Bat
 {
@@ -11,20 +13,24 @@ namespace Bat
 		}
 	}
 
-	void Input::KeyDown( const size_t key )
+	void Input::OnKeyDown( const size_t key )
 	{
 		ASSERT( key >= 0, "Invalid keyboard key" );
 		ASSERT( key < MaxKeys, "Invalid keyboard key" );
 
 		m_bKeyIsPressed[key] = true;
+
+		DISPATCH_EVENT( KeyPressedEvent( key ) );
 	}
 
-	void Input::KeyUp( const size_t key )
+	void Input::OnKeyUp( const size_t key )
 	{
 		ASSERT( key >= 0, "Invalid keyboard key" );
 		ASSERT( key < MaxKeys, "Invalid keyboard key" );
 
 		m_bKeyIsPressed[key] = false;
+
+		DISPATCH_EVENT( KeyReleasedEvent( key ) );
 	}
 
 	bool Input::IsKeyPressed( const size_t key ) const
@@ -32,19 +38,47 @@ namespace Bat
 		return m_bKeyIsPressed[key];
 	}
 
-	void Input::MouseButtonDown( const MouseButton mb )
+	void Input::OnMouseMoved( const Vei2& pos )
 	{
+		DISPATCH_EVENT( MouseMovedEvent( pos, m_vecMousePosition ) );
+
+		m_vecMousePosition = pos;
+	}
+
+	void Input::OnMouseWheelScrolled( const Vei2& pos, const short delta )
+	{
+		m_vecMousePosition = pos;
+
+		DISPATCH_EVENT( MouseScrolledEvent( pos, delta ) );
+	}
+
+	void Input::OnMouseButtonDown( const Vei2& pos, const MouseButton mb )
+	{
+		m_vecMousePosition = pos;
 		m_bMouseButtonIsDown[(int)mb] = true;
+
+		DISPATCH_EVENT( MouseButtonPressedEvent( pos, mb ) );
 	}
 
-	void Input::MouseButtonUp( const MouseButton mb )
+	void Input::OnMouseButtonUp( const Vei2& pos, const MouseButton mb )
 	{
+		m_vecMousePosition = pos;
 		m_bMouseButtonIsDown[(int)mb] = false;
+
+		DISPATCH_EVENT( MouseButtonReleasedEvent( pos, mb ) );
 	}
 
-	void Input::MouseButtonDblClick( const MouseButton mb )
+	void Input::OnMouseButtonDblClick( const Vei2& pos, const MouseButton mb )
 	{
-		m_bMouseButtonIsDown[(int)mb] = true; // might do more with double click later, but for now it just means mouse down
+		m_vecMousePosition = pos;
+		m_bMouseButtonIsDown[(int)mb] = true;
+
+		DISPATCH_EVENT( MouseButtonDoubleClickEvent( pos, mb ) );
+	}
+
+	Vei2 Input::GetMousePosition() const
+	{
+		return m_vecMousePosition;
 	}
 
 	bool Input::IsMouseButtonDown( const MouseButton mb ) const

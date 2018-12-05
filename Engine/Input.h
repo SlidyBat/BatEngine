@@ -1,22 +1,24 @@
 #pragma once
 
+#include "MathLib.h"
+
 namespace Bat
 {
 	class Input
 	{
+		friend class Window;
 	public:
 		Input();
 		Input( const Input& src ) = delete;
 		Input& operator=( const Input& src ) = delete;
 		Input( Input&& donor ) = delete;
 		Input& operator=( Input&& donor ) = delete;
-
-		// keyboard
-		void KeyDown( const size_t key );
-		void KeyUp( const size_t key );
-		bool IsKeyPressed( const size_t key ) const;
-		// mouse
+	private: // keyboard		
+		void OnKeyDown( const size_t key );
+		void OnKeyUp( const size_t key );
 	public:
+		bool IsKeyPressed( const size_t key ) const;
+	public: // mouse
 		enum class MouseButton
 		{
 			Left,
@@ -26,10 +28,14 @@ namespace Bat
 			X2,
 			TOTAL_MOUSE_BUTTONS
 		};
+	private:
+		void OnMouseMoved( const Vei2& pos );
+		void OnMouseWheelScrolled( const Vei2& pos, const short delta );
+		void OnMouseButtonDown( const Vei2& pos, const MouseButton mb );
+		void OnMouseButtonUp( const Vei2& pos, const MouseButton mb );
+		void OnMouseButtonDblClick( const Vei2& pos, const MouseButton mb );
 	public:
-		void MouseButtonDown( const MouseButton mb );
-		void MouseButtonUp( const MouseButton mb );
-		void MouseButtonDblClick( const MouseButton mb );
+		Vei2 GetMousePosition() const;
 		bool IsMouseButtonDown( const MouseButton mb ) const;
 
 		bool IsLeftDown() const;
@@ -41,6 +47,7 @@ namespace Bat
 		static constexpr int MaxKeys = 256;
 		bool m_bKeyIsPressed[MaxKeys];
 
+		Vei2 m_vecMousePosition;
 		bool m_bMouseButtonIsDown[(int)MouseButton::TOTAL_MOUSE_BUTTONS];
 	};
 }

@@ -13,6 +13,8 @@
 #include "imgui.h"
 #include "GenericPostProcess.h"
 #include "WindowEvents.h"
+#include "MouseEvents.h"
+#include "Globals.h"
 
 using namespace Bat;
 
@@ -30,8 +32,16 @@ CarTestScene::CarTestScene( Window& wnd )
 	m_Skybox = Texture::FromDDS( L"Assets/skybox.dds" );
 	g_pGfx->SetSkybox( &m_Skybox );
 
-	//g_pGfx->AddPostProcess( std::make_unique<GenericPostProcess>( L"Graphics/Shaders/Build/PostProcessPS.cso" ) );
+	ON_EVENT_DISPATCHED( [=]( const WindowResizeEvent* e )
+	{
+		m_Camera.SetAspectRatio( (float)e->GetWidth() / e->GetHeight() );
+	} );
 
+	ON_EVENT_DISPATCHED( [=]( const MouseMovedEvent* e )
+	{
+		OnMouseMoved( e->GetDeltaPosition() );
+	} );
+	//g_pGfx->AddPostProcess( std::make_unique<GenericPostProcess>( L"Graphics/Shaders/Build/PostProcessPS.cso" ) );
 }
 
 void CarTestScene::OnUpdate( float deltatime )
@@ -49,11 +59,6 @@ void CarTestScene::OnUpdate( float deltatime )
 	m_Light.SetDiffuse( { lightDiff[0], lightDiff[1], lightDiff[2] } );
 	m_Light.SetSpecular( { lightSpec[0], lightSpec[1], lightSpec[2] } );
 	m_Camera.Update( wnd.input, deltatime );
-
-	ON_EVENT_DISPATCHED( [=]( const WindowResizeEvent* e )
-	{
-		m_Camera.SetAspectRatio( (float)e->GetWidth() / e->GetHeight() );
-	} );
 }
 
 void CarTestScene::OnRender()
@@ -75,4 +80,15 @@ void CarTestScene::OnRender()
 	ImGui::SliderFloat3( "Diffuse", lightDiff, 0.0f, 1.0f );
 	ImGui::SliderFloat3( "Specular", lightSpec, 0.0f, 1.0f );
 	ImGui::End();
+}
+
+void CarTestScene::OnMouseMoved( const Vei2& delta )
+{
+	if( wnd.input.IsLeftDown() )
+	{
+		float dpitch = delta.x * g_pGlobals->deltatime * m_Camera.GetAngularSpeed();
+		float dyaw = delta.y * g_pGlobals->deltatime * m_Camera.GetAngularSpeed();
+
+		m_Camera.RotateBy( dpitch, dyaw, 0.0f );
+	}
 }

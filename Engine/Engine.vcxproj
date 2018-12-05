@@ -220,6 +220,8 @@
     <ClInclude Include="Graphics\Material.h" />
     <ClInclude Include="Graphics\GenericPostProcess.h" />
     <ClInclude Include="Graphics\IPostProcess.h" />
+    <ClInclude Include="KeyboardEvents.h" />
+    <ClInclude Include="MouseEvents.h" />
     <ClInclude Include="MoveableCamera.h" />
     <ClInclude Include="Graphics\RenderTexture.h" />
     <ClInclude Include="Graphics\SkyboxPipeline.h" />
