@@ -13,7 +13,7 @@ namespace Bat
 
 		g_pLogger = spdlog::stdout_color_st( "console" );
 		
-		spdlog::set_pattern( "[%I:%M:%S] [%^%l%$] %v" );
+		spdlog::set_pattern( "[%I:%M:%S] - [%^%l%$] %v" );
 	}
 
 	std::shared_ptr<spdlog::logger> Logger::GetLogger()

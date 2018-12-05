@@ -13,6 +13,7 @@
 #include "SpriteBatch.h"
 #include "SpriteFont.h"
 #include "WindowEvents.h"
+#include "Log.h"
 
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
@@ -54,6 +55,7 @@ namespace Bat
 		ImGui_ImplWin32_Init( wnd.GetHandle() );
 		ImGui_ImplDX11_Init( GetDevice(), GetDeviceContext() );
 		ImGui::StyleColorsDark();
+		BAT_TRACE( "ImGui initialized" );
 	}
 
 	Graphics::~Graphics()
@@ -61,6 +63,7 @@ namespace Bat
 		ImGui_ImplDX11_Shutdown();
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
+		BAT_TRACE( "ImGui shut down" );
 	}
 
 	void Graphics::Resize( int width, int height )

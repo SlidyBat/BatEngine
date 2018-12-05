@@ -11,7 +11,7 @@
 #else
 #define BAT_DEBUG(...)
 #define BAT_TRACE(...)
-#define BAT_LOG(...) Logger::GetLogger()->trace(__VA_ARGS__)
+#define BAT_LOG(...) Logger::GetLogger()->info(__VA_ARGS__)
 #define BAT_WARN(...) Logger::GetLogger()->error(__VA_ARGS__)
 #define BAT_ERROR(...) Logger::GetLogger()->critical(__VA_ARGS__)
 #endif

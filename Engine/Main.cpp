@@ -23,16 +23,12 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 	{
 		COMInitialize coinit;
 		Logger::Init();
-
 		BAT_LOG( "Initialized logger" );
-		BAT_DEBUG( "Debug message" );
-		BAT_TRACE( "Trace message" );
-		BAT_LOG( "Log message" );
-		BAT_WARN( "Warning message" );
-		BAT_ERROR( "Error message" );
 
 		Window wnd( { 50, 50 }, Graphics::InitialScreenWidth, Graphics::InitialScreenHeight, "Bat Engine", Graphics::FullScreen );
+		BAT_TRACE( "Initialized window" );
 		Graphics gfx( wnd );
+		BAT_TRACE( "Initialized graphics" );
 
 		FrameTimer ft;
 

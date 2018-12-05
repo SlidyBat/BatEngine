@@ -152,6 +152,10 @@ namespace Bat
 				PostQuitMessage( (int)msg.wParam );
 				return false;
 			}
+			if( m_bDestroyed )
+			{
+				return false;
+			}
 		}
 
 		return true;
