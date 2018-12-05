@@ -30,7 +30,7 @@ namespace Bat
 		};
 	private:
 		void OnMouseMoved( const Vei2& pos );
-		void OnMouseWheelScrolled( const Vei2& pos, const short delta );
+		void OnMouseWheelScrolled( const Vei2& pos, const float delta );
 		void OnMouseButtonDown( const Vei2& pos, const MouseButton mb );
 		void OnMouseButtonUp( const Vei2& pos, const MouseButton mb );
 		void OnMouseButtonDblClick( const Vei2& pos, const MouseButton mb );

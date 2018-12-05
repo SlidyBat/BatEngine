@@ -26,17 +26,17 @@ namespace Bat
 	class MouseScrolledEvent : public IEvent
 	{
 	public:
-		MouseScrolledEvent( const Vei2& pos, const short delta )
+		MouseScrolledEvent( const Vei2& pos, const float delta )
 			:
 			m_vecPos( pos ),
-			m_iDelta( delta )
+			m_fDelta( delta )
 		{}
 
 		Vei2 GetPosition() const { return m_vecPos; }
-		short GetDelta() const { return m_iDelta; }
+		float GetDelta() const { return m_fDelta; }
 	private:
 		Vei2 m_vecPos;
-		short m_iDelta;
+		float m_fDelta;
 	};
 
 	class MouseButtonPressedEvent : public IEvent

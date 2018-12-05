@@ -2,6 +2,7 @@
 #include "Resource.h"
 #include "BatAssert.h"
 #include "WindowEvents.h"
+#include "Log.h"
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
 
@@ -189,7 +190,7 @@ namespace Bat
 		case WM_MOUSEWHEEL:
 		{
 			POINTS pos = MAKEPOINTS( lParam );
-			short delta = GET_WHEEL_DELTA_WPARAM( wParam );
+			float delta = (float)GET_WHEEL_DELTA_WPARAM( wParam ) / WHEEL_DELTA;
 			input.OnMouseWheelScrolled( { pos.y, pos.x }, delta );
 			break;
 		}

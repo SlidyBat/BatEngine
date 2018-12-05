@@ -45,7 +45,7 @@ namespace Bat
 		m_vecMousePosition = pos;
 	}
 
-	void Input::OnMouseWheelScrolled( const Vei2& pos, const short delta )
+	void Input::OnMouseWheelScrolled( const Vei2& pos, const float delta )
 	{
 		m_vecMousePosition = pos;
 
