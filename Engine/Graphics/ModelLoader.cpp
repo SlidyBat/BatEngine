@@ -6,6 +6,7 @@
 #include <assimp/postprocess.h>
 #include "Material.h"
 #include "StringLib.h"
+#include "Log.h"
 
 namespace Bat
 {
@@ -281,6 +282,13 @@ namespace Bat
 
 	std::vector<Mesh> ModelLoader::LoadModel( const std::string& filename )
 	{
+		if( !std::ifstream( filename ) )
+		{
+			BAT_WARN( "Could not open model file '{}'", filename );
+			ASSERT( false, "Could not open model file" );
+			return {};
+		}
+
 		std::vector<Mesh> meshes;
 		std::string directory = filename.substr( 0, filename.find_last_of( '/' ) );
 

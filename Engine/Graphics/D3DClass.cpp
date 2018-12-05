@@ -5,6 +5,8 @@
 
 #include "COMException.h"
 #include "RenderTexture.h"
+#include "Log.h"
+#include "StringLib.h"
 
 namespace Bat
 {
@@ -16,9 +18,23 @@ namespace Bat
 		COM_THROW_IF_FAILED( CreateDXGIFactory( __uuidof(IDXGIFactory), (void**)&factory ) );
 
 		Microsoft::WRL::ComPtr<IDXGIAdapter> adapter;
-		COM_THROW_IF_FAILED( factory->EnumAdapters( 0, &adapter ) );
+		{
+			Microsoft::WRL::ComPtr<IDXGIAdapter> a;
+			SIZE_T max_vram = 0;
+			for( int i = 0; SUCCEEDED( factory->EnumAdapters( i, &a ) ); i++ )
+			{
+				DXGI_ADAPTER_DESC adapterDesc;
+				COM_THROW_IF_FAILED( a->GetDesc( &adapterDesc ) );
 
-		Microsoft::WRL::ComPtr<IDXGIOutput> adapterOutput;
+				if( adapterDesc.DedicatedVideoMemory >= max_vram )
+				{
+					max_vram = adapterDesc.DedicatedVideoMemory;
+					adapter = a;
+				}
+			}
+		}
+
+		/*Microsoft::WRL::ComPtr<IDXGIOutput> adapterOutput;
 		COM_THROW_IF_FAILED( adapter->EnumOutputs( 0, &adapterOutput ) );
 
 		UINT numModes;
@@ -27,9 +43,9 @@ namespace Bat
 		DXGI_MODE_DESC* displayModes = new DXGI_MODE_DESC[numModes];
 
 		COM_THROW_IF_FAILED( adapterOutput->GetDisplayModeList( DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModes ) );
-
+		*/
 		UINT numerator = 0, denominator = 1;
-		for( UINT i = 0; i < numModes; i++ )
+		/*for( UINT i = 0; i < numModes; i++ )
 		{
 			if( displayModes[i].Width == (UINT)wnd.GetWidth() && displayModes[i].Height == (UINT)wnd.GetHeight() )
 			{
@@ -38,14 +54,14 @@ namespace Bat
 			}
 		}
 
-		delete[] displayModes;
+		delete[] displayModes;*/
 
 		DXGI_ADAPTER_DESC adapterDesc;
 		COM_THROW_IF_FAILED( adapter->GetDesc( &adapterDesc ) );
 
 		m_szVideoCardDescription = adapterDesc.Description;
 		m_iVideoCardMemory = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024); // in mb
-
+		BAT_LOG( "Using video card '{}' with {}MB VRAM", Bat::WideToString( m_szVideoCardDescription ), m_iVideoCardMemory );
 
 		DXGI_SWAP_CHAIN_DESC swapChainDesc;
 		ZeroMemory( &swapChainDesc, sizeof( swapChainDesc ) );
@@ -88,8 +104,8 @@ namespace Bat
 
 		//D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
 		COM_THROW_IF_FAILED( D3D11CreateDeviceAndSwapChain(
-			NULL,
-			D3D_DRIVER_TYPE_HARDWARE,
+			adapter.Get(),
+			D3D_DRIVER_TYPE_UNKNOWN,
 			NULL,
 			flags,
 			NULL, 0,
