@@ -14,6 +14,7 @@
 #include <SpriteBatch.h>
 #include <SpriteFont.h>
 #include "Log.h"
+#include "JobSystem.h"
 
 using namespace Bat;
 
@@ -24,11 +25,15 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 		COMInitialize coinit;
 		Logger::Init();
 		BAT_LOG( "Initialized logger" );
+		JobSystem::Initialize();
+		BAT_TRACE("Initialized job system");
 
 		Window wnd( { 50, 50 }, Graphics::InitialScreenWidth, Graphics::InitialScreenHeight, "Bat Engine", Graphics::FullScreen );
 		BAT_TRACE( "Initialized window" );
 		Graphics gfx( wnd );
 		BAT_TRACE( "Initialized graphics" );
+
+		BAT_LOG( "Cores available: {}", std::thread::hardware_concurrency() );
 
 		FrameTimer ft;
 

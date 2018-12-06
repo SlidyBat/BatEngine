@@ -7,6 +7,7 @@
 #include "Material.h"
 #include "StringLib.h"
 #include "Log.h"
+#include "FrameTimer.h"
 
 namespace Bat
 {
@@ -288,12 +289,17 @@ namespace Bat
 			ASSERT( false, "Could not open model file" );
 			return {};
 		}
+		
+		FrameTimer ft;
 
 		std::vector<Mesh> meshes;
 		std::string directory = filename.substr( 0, filename.find_last_of( '/' ) );
 
 		Assimp::Importer importer;
 		const aiScene* pScene = importer.ReadFile( filename, aiProcess_ConvertToLeftHanded | aiProcess_Triangulate | aiProcess_CalcTangentSpace );
+		meshes.reserve( pScene->mNumMeshes );
+
+		float time = ft.Mark();
 
 		if( pScene == nullptr )
 		{
@@ -302,6 +308,8 @@ namespace Bat
 		}
 
 		ProcessNode( pScene->mRootNode, pScene, meshes, directory, DirectX::XMMatrixIdentity() );
+
+		BAT_LOG( "Loaded model '{}' in {}s", filename, time );
 
 		return meshes;
 	}

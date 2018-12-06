@@ -178,6 +178,7 @@
     <ClCompile Include="Graphics\GenericPostProcess.cpp" />
     <ClCompile Include="Graphics\ConstantBuffer.cpp" />
     <ClCompile Include="Graphics\Light.cpp" />
+    <ClCompile Include="Util\JobSystem.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="MoveableCamera.cpp" />
     <ClCompile Include="Graphics\RenderTexture.cpp" />
@@ -221,6 +222,7 @@
     <ClInclude Include="Graphics\Material.h" />
     <ClInclude Include="Graphics\GenericPostProcess.h" />
     <ClInclude Include="Graphics\IPostProcess.h" />
+    <ClInclude Include="Util\JobSystem.h" />
     <ClInclude Include="KeyboardEvents.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="MouseEvents.h" />

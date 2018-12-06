@@ -13,6 +13,9 @@
 #include <SpriteFont.h>
 #include "imgui.h"
 #include "GenericPostProcess.h"
+#include "JobSystem.h"
+#include "FrameTimer.h"
+#include "Log.h"
 
 using namespace Bat;
 
@@ -25,7 +28,24 @@ ModelTestScene::ModelTestScene( Window& wnd )
 	g_pGfx->SetCamera( &m_Camera );
 	m_Camera.SetSpeed( 20 );
 
-	m_pNanoSuit = std::make_unique<LightModel>( ModelLoader::LoadModel( "Assets/NanoSuit/nanosuit.obj" ) );
+	FrameTimer ft;
+
+	JobSystem::Execute( [this]()
+	{
+		m_pCar1 = std::make_unique<BumpMappedModel>(ModelLoader::LoadModel("Assets/Dodge_Chellenger_SRT10_FBX.FBX"));
+	} );
+	JobSystem::Execute( [this]()
+	{
+		m_pCar2 = std::make_unique<BumpMappedModel>(ModelLoader::LoadModel("Assets/Dodge_Chellenger_SRT10_FBX.FBX"));
+	} );
+	JobSystem::Execute( [this]()
+	{
+		m_pCar3 = std::make_unique<BumpMappedModel>(ModelLoader::LoadModel("Assets/Dodge_Chellenger_SRT10_FBX.FBX"));
+	} );
+	JobSystem::Wait();
+
+	float time = ft.Mark();
+	BAT_LOG( "Loading models for scene took {}s", time );
 
 	m_Skybox = Texture::FromDDS( L"Assets/skybox.dds" );
 	g_pGfx->SetSkybox( &m_Skybox );
@@ -75,7 +95,7 @@ void ModelTestScene::OnRender()
 	}
 	pPipeline->SetLight( &m_Light );
 
-	m_pNanoSuit->Draw( pPipeline );
+	m_pCar1->Draw( pPipeline );
 
 	Vec3 campos = m_Camera.GetPosition();
 	std::wstring pos = L"Pos: " + std::to_wstring( campos.x ) + L" " + std::to_wstring( campos.y ) + L" " + std::to_wstring( campos.z );
