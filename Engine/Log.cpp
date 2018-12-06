@@ -11,7 +11,7 @@ namespace Bat
 		AllocConsole();
 		SetConsoleTitleA( "Bat Engine Console" );
 
-		g_pLogger = spdlog::stdout_color_st( "console" );
+		g_pLogger = spdlog::stdout_color_mt( "console" );
 		
 		spdlog::set_pattern( "[%I:%M:%S] - [%^%l%$] %v" );
 	}
