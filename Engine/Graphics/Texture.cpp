@@ -19,7 +19,9 @@ namespace Bat
 		if( !std::ifstream( filename ) )
 		{
 			BAT_WARN( "Could not open texture '{}', defaulting to 'error.png'", Bat::WideToString( filename ) );
-			DirectX::CreateWICTextureFromFile( pDevice, pDeviceContext, L"Assets/error.png", &m_pTexture, &m_pTextureView );
+			COM_THROW_IF_FAILED(
+				DirectX::CreateWICTextureFromFile( pDevice, pDeviceContext, L"Assets/error.png", &m_pTexture, &m_pTextureView )
+			);
 		}
 		else
 		{

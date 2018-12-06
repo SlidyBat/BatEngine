@@ -27,9 +27,7 @@ public:
 	virtual void OnUpdate( float deltatime ) override;
 	virtual void OnRender() override;
 private:
-	std::unique_ptr<Bat::IModel> m_pCar1;
-	std::unique_ptr<Bat::IModel> m_pCar2;
-	std::unique_ptr<Bat::IModel> m_pCar3;
+	std::unique_ptr<Bat::IModel> m_pModel;
 	Bat::MoveableCamera m_Camera;
 
 	Bat::Texture m_Skybox;
