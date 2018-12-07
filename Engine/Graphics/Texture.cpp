@@ -51,34 +51,16 @@ namespace Bat
 		auto pDevice = g_pGfx->GetDevice();
 		auto pDeviceContext = g_pGfx->GetDeviceContext();
 
-		D3D11_TEXTURE2D_DESC textureDesc;
-		textureDesc.Width = width;
-		textureDesc.Height = height;
-		textureDesc.MipLevels = 0;
-		textureDesc.ArraySize = 1;
-		textureDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-		textureDesc.SampleDesc.Count = 1;
-		textureDesc.SampleDesc.Quality = 0;
-		textureDesc.Usage = D3D11_USAGE_DEFAULT;
-		textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-		textureDesc.CPUAccessFlags = 0;
-		textureDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
-
+		CD3D11_TEXTURE2D_DESC textureDesc( DXGI_FORMAT_B8G8R8A8_UNORM, width, height );
 		ID3D11Texture2D* p2DTexture;
 		COM_THROW_IF_FAILED( pDevice->CreateTexture2D( &textureDesc, NULL, &p2DTexture ) );
-
-		m_pTexture = static_cast<ID3D11Resource*>(p2DTexture);
+		m_pTexture = static_cast<ID3D11Resource*>( p2DTexture );
 		pDeviceContext->UpdateSubresource( m_pTexture.Get(), 0, NULL, pPixels, width * sizeof( *pPixels ), 0 );
 
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-		srvDesc.Format = textureDesc.Format;
-		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MipLevels = -1;
-		srvDesc.Texture2D.MostDetailedMip = 0;
-
-		pDevice->CreateShaderResourceView( m_pTexture.Get(), &srvDesc, &m_pTextureView );
-
-		pDeviceContext->GenerateMips( m_pTextureView.Get() );
+		CD3D11_SHADER_RESOURCE_VIEW_DESC srvDesc( D3D11_SRV_DIMENSION_TEXTURE2D, textureDesc.Format );
+		COM_THROW_IF_FAILED(
+			pDevice->CreateShaderResourceView( m_pTexture.Get(), &srvDesc, &m_pTextureView )
+		);
 	}
 
 	Texture::Texture( const D3DCOLORVALUE* pPixels, int width, int height )
@@ -86,34 +68,16 @@ namespace Bat
 		auto pDevice = g_pGfx->GetDevice();
 		auto pDeviceContext = g_pGfx->GetDeviceContext();
 
-		D3D11_TEXTURE2D_DESC textureDesc;
-		textureDesc.Width = width;
-		textureDesc.Height = height;
-		textureDesc.MipLevels = 0;
-		textureDesc.ArraySize = 1;
-		textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		textureDesc.SampleDesc.Count = 1;
-		textureDesc.SampleDesc.Quality = 0;
-		textureDesc.Usage = D3D11_USAGE_DEFAULT;
-		textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-		textureDesc.CPUAccessFlags = 0;
-		textureDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
-
+		CD3D11_TEXTURE2D_DESC textureDesc( DXGI_FORMAT_R32G32B32A32_FLOAT, width, height );
 		ID3D11Texture2D* p2DTexture;
 		COM_THROW_IF_FAILED( pDevice->CreateTexture2D( &textureDesc, NULL, &p2DTexture ) );
-
-		m_pTexture = static_cast<ID3D11Resource*>(p2DTexture);
+		m_pTexture = static_cast<ID3D11Resource*>( p2DTexture );
 		pDeviceContext->UpdateSubresource( m_pTexture.Get(), 0, NULL, pPixels, width * sizeof( *pPixels ), 0 );
 
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-		srvDesc.Format = textureDesc.Format;
-		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MipLevels = -1;
-		srvDesc.Texture2D.MostDetailedMip = 0;
-
-		pDevice->CreateShaderResourceView( m_pTexture.Get(), &srvDesc, &m_pTextureView );
-
-		pDeviceContext->GenerateMips( m_pTextureView.Get() );
+		CD3D11_SHADER_RESOURCE_VIEW_DESC srvDesc( D3D11_SRV_DIMENSION_TEXTURE2D, textureDesc.Format );
+		COM_THROW_IF_FAILED(
+			pDevice->CreateShaderResourceView( m_pTexture.Get(), &srvDesc, &m_pTextureView )
+		);
 	}
 
 	Texture Texture::FromDDS( const std::wstring & filename )

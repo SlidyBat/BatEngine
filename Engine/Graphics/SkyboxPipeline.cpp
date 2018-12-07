@@ -9,7 +9,7 @@ namespace Bat
 	SkyboxPipeline::SkyboxPipeline( const std::wstring& vsFilename, const std::wstring& psFilename )
 		:
 		IPipeline( vsFilename, psFilename )
-	{
+	{	
 		D3D11_SAMPLER_DESC samplerDesc;
 		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
