@@ -28,7 +28,44 @@ ModelTestScene::ModelTestScene( Window& wnd )
 	g_pGfx->SetCamera( &m_Camera );
 	m_Camera.SetSpeed( 20 );
 
-	m_pModel = std::make_unique<BumpMappedModel>(ModelLoader::LoadModel("Assets/Dodge_Chellenger_SRT10_FBX.FBX"));
+	FrameTimer ft;
+
+	std::thread t1( [this]()
+	{
+		m_pModel1 = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/dodge1.FBX" ) );
+	} );
+	std::thread t2( [this]()
+	{
+		m_pModel2 = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/dodge2.FBX" ) );
+	} );
+	std::thread t3( [this]()
+	{
+		m_pModel3 = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/dodge3.FBX" ) );
+	} );
+	t1.join();
+	t2.join();
+	t3.join();
+
+	float thread_time = ft.Mark();
+
+	JobSystem::Execute( [this]()
+	{
+		m_pModel1 = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/dodge1.FBX" ) );
+	} );
+	JobSystem::Execute( [this]()
+	{
+		m_pModel2 = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/dodge2.FBX" ) );
+	} );
+	JobSystem::Execute( [this]()
+	{
+		m_pModel3 = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/dodge3.FBX" ) );
+	} );
+	JobSystem::Wait();
+
+	float job_time = ft.Mark();
+
+	BAT_LOG( "Total std::thread execution time: {}", thread_time );
+	BAT_LOG( "Total JobSystem execution time: {}", job_time );
 
 	m_Skybox = Texture::FromDDS( L"Assets/skybox.dds" );
 	g_pGfx->SetSkybox( &m_Skybox );
@@ -78,7 +115,7 @@ void ModelTestScene::OnRender()
 	}
 	pPipeline->SetLight( &m_Light );
 
-	m_pModel->Draw( pPipeline );
+	m_pModel1->Draw( pPipeline );
 
 	Vec3 campos = m_Camera.GetPosition();
 	std::wstring pos = L"Pos: " + std::to_wstring( campos.x ) + L" " + std::to_wstring( campos.y ) + L" " + std::to_wstring( campos.z );

@@ -18,6 +18,21 @@
 
 using namespace Bat;
 
+using namespace std;
+
+void Spin( float milliseconds )
+{
+	milliseconds /= 1000.0f;
+	chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
+	double ms = 0;
+	while( ms < milliseconds )
+	{
+		chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
+		chrono::duration<double> time_span = chrono::duration_cast<chrono::duration<double>>( t2 - t1 );
+		ms = time_span.count();
+	}
+}
+
 int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow )
 {
 	try
@@ -27,7 +42,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 		BAT_LOG( "Initialized logger" );
 		JobSystem::Initialize();
 		BAT_TRACE("Initialized job system");
-
+		
 		Window wnd( { 50, 50 }, Graphics::InitialScreenWidth, Graphics::InitialScreenHeight, "Bat Engine", Graphics::FullScreen );
 		BAT_TRACE( "Initialized window" );
 		Graphics gfx( wnd );

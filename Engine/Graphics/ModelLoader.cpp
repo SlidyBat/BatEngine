@@ -8,9 +8,12 @@
 #include "StringLib.h"
 #include "Log.h"
 #include "FrameTimer.h"
+#include <mutex>
 
 namespace Bat
 {
+	static std::mutex device_lock;
+
 	enum class TextureStorageType
 	{
 		None,
@@ -307,7 +310,14 @@ namespace Bat
 			return {};
 		}
 
-		ProcessNode( pScene->mRootNode, pScene, meshes, directory, DirectX::XMMatrixIdentity() );
+		{
+			BAT_LOG( "pre-ENTER LOCK GUARD {} ", filename );
+			std::lock_guard<std::mutex> lock( device_lock );
+			BAT_LOG( "ENTER LOCK GUARD {}", filename );
+			ProcessNode( pScene->mRootNode, pScene, meshes, directory, DirectX::XMMatrixIdentity() );
+			BAT_LOG( "Loaded model '{}' in {}s", filename, time );
+			BAT_LOG( "EXIT LOCK GUARD {}", filename );
+		}
 
 		BAT_LOG( "Loaded model '{}' in {}s", filename, time );
 

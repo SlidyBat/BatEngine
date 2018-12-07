@@ -20,13 +20,13 @@ namespace Bat
 		{
 			BAT_WARN( "Could not open texture '{}', defaulting to 'error.png'", Bat::WideToString( filename ) );
 			COM_THROW_IF_FAILED(
-				DirectX::CreateWICTextureFromFile( pDevice, pDeviceContext, L"Assets/error.png", &m_pTexture, &m_pTextureView )
+				DirectX::CreateWICTextureFromFile( pDevice, L"Assets/error.png", &m_pTexture, &m_pTextureView )
 			);
 		}
 		else
 		{
 			COM_THROW_IF_FAILED(
-				DirectX::CreateWICTextureFromFile( pDevice, pDeviceContext, filename.c_str(), &m_pTexture, &m_pTextureView )
+				DirectX::CreateWICTextureFromFile( pDevice, nullptr, filename.c_str(), &m_pTexture, &m_pTextureView )
 			);
 		}
 	}
@@ -37,7 +37,7 @@ namespace Bat
 		auto pDeviceContext = g_pGfx->GetDeviceContext();
 
 		COM_THROW_IF_FAILED(
-			DirectX::CreateWICTextureFromMemory( pDevice, pDeviceContext, pData, size, &m_pTexture, &m_pTextureView )
+			DirectX::CreateWICTextureFromMemory( pDevice, nullptr, pData, size, &m_pTexture, &m_pTextureView )
 		);
 	}
 
