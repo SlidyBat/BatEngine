@@ -1,8 +1,6 @@
 #pragma once
 
-#include <d3d11.h>
-#include <string>
-#include <vector>
+#include "PCH.h"
 #include <wrl.h>
 
 #include "ConstantBuffer.h"

@@ -1,7 +1,6 @@
 #pragma once
 
-#include <DirectXMath.h>
-#include "MathLib.h"
+#include "PCH.h"
 
 namespace Bat
 {

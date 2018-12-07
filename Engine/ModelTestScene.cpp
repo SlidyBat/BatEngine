@@ -1,10 +1,9 @@
-#include "BatWinAPI.h"
+#include "PCH.h"
 #include "ModelTestScene.h"
 
 #include "Window.h"
 #include "IGraphics.h"
 #include "Camera.h"
-#include "MathLib.h"
 #include "IModel.h"
 #include "ModelLoader.h"
 #include "LightPipeline.h"
@@ -15,7 +14,6 @@
 #include "GenericPostProcess.h"
 #include "JobSystem.h"
 #include "FrameTimer.h"
-#include "Log.h"
 
 using namespace Bat;
 
@@ -48,9 +46,19 @@ ModelTestScene::ModelTestScene( Window& wnd )
 	
 	float thread_time = ft.Mark();
 
-	m_pModel1 = std::make_unique<BumpMappedModel>( "Assets/dodge1.FBX" );
-	m_pModel2 = std::make_unique<BumpMappedModel>( "Assets/dodge1.FBX" );
-	m_pModel3 = std::make_unique<BumpMappedModel>( "Assets/dodge1.FBX" );
+	JobSystem::Execute( [this]()
+	{
+		m_pModel1 = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/dodge1.FBX" ) );
+	} );
+	JobSystem::Execute( [this]()
+	{
+		m_pModel2 = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/dodge2.FBX" ) );
+	} );
+	JobSystem::Execute( [this]()
+	{
+		m_pModel3 = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/dodge3.FBX" ) );
+	} );
+	JobSystem::Wait();
 
 	float job_time = ft.Mark();
 

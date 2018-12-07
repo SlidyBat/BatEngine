@@ -1,6 +1,7 @@
+#include "PCH.h"
 #include "SkyboxPipeline.h"
+
 #include "VertexTypes.h"
-#include <fstream>
 #include "COMException.h"
 
 namespace Bat

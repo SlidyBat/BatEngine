@@ -1,10 +1,9 @@
-#include "BatWinAPI.h"
+#include "PCH.h"
 #include "CarTestScene.h"
 
 #include "Window.h"
 #include "IGraphics.h"
 #include "Camera.h"
-#include "MathLib.h"
 #include "IModel.h"
 #include "ModelLoader.h"
 #include "BumpMapPipeline.h"

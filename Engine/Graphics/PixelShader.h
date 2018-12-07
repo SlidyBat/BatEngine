@@ -1,13 +1,11 @@
 #pragma once
 
-#pragma once
+#include "PCH.h"
 
-#include <d3d11.h>
-#include <vector>
-#include <string>
 #include <wrl.h>
-
 #include "ConstantBuffer.h"
+
+struct ID3D11PixelShader;
 
 namespace Bat
 {
@@ -18,9 +16,9 @@ namespace Bat
 		~PixelShader();
 
 		void Bind();
-		void AddSampler( const D3D11_SAMPLER_DESC* pSamplerDesc );
-		void SetResource( int slot, ID3D11ShaderResourceView* const pResource );
-		void SetResources( int startslot, ID3D11ShaderResourceView** const pResource, size_t size );
+		void AddSampler( const struct D3D11_SAMPLER_DESC* pSamplerDesc );
+		void SetResource( int slot, struct ID3D11ShaderResourceView* const pResource );
+		void SetResources( int startslot, struct ID3D11ShaderResourceView** const pResource, size_t size );
 
 		template <typename T>
 		void AddConstantBuffer()

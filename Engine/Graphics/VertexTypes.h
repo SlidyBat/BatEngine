@@ -1,8 +1,7 @@
 #pragma once
 
+#include "PCH.h"
 #include <d3d11.h>
-#include <DirectXMath.h>
-#include <unordered_map>
 
 namespace Bat
 {

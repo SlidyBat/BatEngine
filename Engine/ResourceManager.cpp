@@ -1,9 +1,8 @@
+#include "PCH.h"
+
 #include "ResourceManager.h"
 
-#include <unordered_map>
-#include "StringLib.h"
 #include "ModelLoader.h"
-
 #include "Texture.h"
 #include "Mesh.h"
 #include "VertexShader.h"

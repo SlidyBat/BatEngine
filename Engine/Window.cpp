@@ -1,8 +1,8 @@
+#include "PCH.h"
+
 #include "Window.h"
 #include "Resource.h"
-#include "BatAssert.h"
 #include "WindowEvents.h"
-#include "Log.h"
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
 

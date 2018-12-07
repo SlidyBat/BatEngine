@@ -1,11 +1,6 @@
 #pragma once
 
-#include <string_view>
-#include <functional>
-#include <unordered_map>
-#include <vector>
-#include <typeindex>
-#include "BatAssert.h"
+#include "PCH.h"
 
 #define ON_EVENT_DISPATCHED( cb ) Bat::EventManager::AddListener( std::function( cb ) )
 #define DISPATCH_EVENT( e ) Bat::EventManager::Dispatch( e )

@@ -1,9 +1,9 @@
+#include "PCH.h"
 #include "ColourTestScene.h"
 
 #include "Window.h"
 #include "IGraphics.h"
 #include "Camera.h"
-#include "MathLib.h"
 #include "IModel.h"
 #include "ColourPipeline.h"
 

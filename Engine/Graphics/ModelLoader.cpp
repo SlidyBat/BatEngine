@@ -1,14 +1,11 @@
+#include "PCH.h"
 #include "ModelLoader.h"
 
-#include "BatAssert.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include "Material.h"
-#include "StringLib.h"
-#include "Log.h"
 #include "FrameTimer.h"
-#include <mutex>
 
 namespace Bat
 {

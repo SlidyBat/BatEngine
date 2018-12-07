@@ -1,12 +1,9 @@
+#include "PCH.h"
 #include "D3DClass.h"
 
-#include <vector>
-#include <algorithm>
-
+#include <d3d11.h>
 #include "COMException.h"
 #include "RenderTexture.h"
-#include "Log.h"
-#include "StringLib.h"
 
 namespace Bat
 {

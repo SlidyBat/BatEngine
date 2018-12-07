@@ -1,6 +1,6 @@
 #pragma once
 
-#include <d3d11.h>
+struct ID3D11ShaderResourceView;
 
 namespace Bat
 {

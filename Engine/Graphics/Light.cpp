@@ -1,3 +1,4 @@
+#include "PCH.h"
 #include "Light.h"
 
 Bat::Light::Light( const Vec3& pos )

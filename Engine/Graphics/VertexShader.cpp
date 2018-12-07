@@ -1,11 +1,11 @@
+#include "PCH.h"
 #include "VertexShader.h"
 
-#include "BatAssert.h"
+#include <d3d11.h>
 #include <d3dcompiler.h>
 #include "COMException.h"
 #include "Graphics.h"
 #include "MemoryStream.h"
-#include "StringLib.h"
 
 namespace Bat
 {

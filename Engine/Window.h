@@ -1,13 +1,7 @@
 #pragma once
 
-#include "BatWinAPI.h"
-
-#include <string>
-#include <vector>
-#include <functional>
-
+#include "PCH.h"
 #include "Input.h"
-#include "MathLib.h"
 
 namespace Bat
 {

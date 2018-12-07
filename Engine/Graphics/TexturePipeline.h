@@ -2,8 +2,6 @@
 
 #include <d3d11.h>
 #include <d3dcompiler.h>
-#include <DirectXMath.h>
-#include <string>
 #include <wrl.h>
 
 #include "IPipeline.h"

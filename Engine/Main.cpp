@@ -1,4 +1,4 @@
-#include "BatWinAPI.h"
+#include "PCH.h"
 #include "COMInitialize.h"
 #include "Window.h"
 #include "Graphics.h"
@@ -7,14 +7,12 @@
 #include "ModelTestScene.h"
 #include "CarTestScene.h"
 #include "COMException.h"
-#include <string>
 #include "FrameTimer.h"
 #include "Globals.h"
-#include "StringLib.h"
 #include <SpriteBatch.h>
 #include <SpriteFont.h>
-#include "Log.h"
 #include "JobSystem.h"
+#include "ResourceManager.h"
 
 using namespace Bat;
 
@@ -37,6 +35,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 {
 	try
 	{
+
 		COMInitialize coinit;
 		Logger::Init();
 		BAT_LOG( "Initialized logger" );
@@ -86,6 +85,8 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 	{
 		MessageBox( NULL, e.what(), "Error", MB_ICONWARNING | MB_OK );
 	}
+
+	ResourceManager::CleanUp();
 
 	return 0;
 }

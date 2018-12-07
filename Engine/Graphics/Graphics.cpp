@@ -1,10 +1,15 @@
+#include "PCH.h"
 #include "Graphics.h"
+
+#include <d3d11.h>
+
 #include "VertexTypes.h"
 #include "TexturePipeline.h"
 #include "LightPipeline.h"
 #include "ColourPipeline.h"
 #include "BumpMapPipeline.h"
 #include "SkyboxPipeline.h"
+
 #include "IModel.h"
 #include "Window.h"
 #include "Material.h"
@@ -13,7 +18,6 @@
 #include "SpriteBatch.h"
 #include "SpriteFont.h"
 #include "WindowEvents.h"
-#include "Log.h"
 
 #include "imgui.h"
 #include "imgui_impl_dx11.h"

@@ -1,3 +1,4 @@
+#include "PCH.h"
 #include "Globals.h"
 
 GlobalValues g_Globals;

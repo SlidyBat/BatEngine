@@ -1,6 +1,5 @@
+#include "PCH.h"
 #include "Camera.h"
-#include "Event.h"
-#include <functional>
 
 namespace Bat
 {

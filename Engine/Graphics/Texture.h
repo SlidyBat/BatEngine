@@ -1,9 +1,11 @@
 #pragma once
 
-#include <d3d11.h>
-#include <string>
+#include <dxgitype.h>
 #include <wrl.h>
 #include "Colour.h"
+
+struct ID3D11Resource;
+struct ID3D11ShaderResourceView;
 
 namespace Bat
 {

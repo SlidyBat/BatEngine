@@ -1,12 +1,11 @@
+#include "PCH.h"
 #include "Texture.h"
-#include "BatAssert.h"
+
+#include <d3d11.h>
 #include "IGraphics.h"
 #include "COMException.h"
 #include <WICTextureLoader.h>
 #include <DDSTextureLoader.h>
-#include <fstream>
-#include "StringLib.h"
-#include "Log.h"
 
 namespace Bat
 {

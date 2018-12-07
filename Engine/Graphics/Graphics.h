@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BatWinAPI.h"
+#include "PCH.h"
 #include "D3DClass.h"
 
 #include "IGraphics.h"
@@ -10,8 +10,6 @@
 #include "VertexTypes.h"
 #include "Camera.h"
 #include "RenderTexture.h"
-
-#include <memory>
 
 namespace DirectX
 {

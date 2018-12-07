@@ -1,9 +1,7 @@
 #pragma once
 
-#include "MathLib.h"
+#include "PCH.h"
 #include "Mesh.h"
-#include <fstream>
-#include <vector>
 
 namespace Bat
 {

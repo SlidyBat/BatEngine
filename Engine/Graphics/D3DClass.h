@@ -4,11 +4,19 @@
 #pragma comment( lib, "dxgi.lib" )
 #pragma comment( lib, "d3dcompiler.lib" )
 
+#include "PCH.h"
+
 #include "Window.h"
-#include <d3d11.h>
-#include <DirectXMath.h>
-#include <string>
 #include <wrl.h>
+
+struct IDXGISwapChain;
+struct ID3D11Device;
+struct ID3D11DeviceContext;
+struct ID3D11RenderTargetView;
+struct ID3D11RasterizerState;
+struct ID3D11DepthStencilView;
+struct ID3D11Texture2D;
+struct ID3D11DepthStencilState;
 
 namespace Bat
 {

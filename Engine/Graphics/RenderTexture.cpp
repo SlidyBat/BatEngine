@@ -1,6 +1,9 @@
+#include "PCH.h"
 #include "RenderTexture.h"
+
 #include "IGraphics.h"
 #include "COMException.h"
+#include <d3d11.h>
 
 namespace Bat
 {

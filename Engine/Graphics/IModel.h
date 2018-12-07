@@ -1,8 +1,6 @@
 #pragma once
 
-#include <d3d11.h>
-#include <DirectXMath.h>
-#include <vector>
+#include "PCH.h"
 
 #include "Camera.h"
 #include "Texture.h"

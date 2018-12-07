@@ -1,6 +1,7 @@
+#include "PCH.h"
+
 #include "BumpMapPipeline.h"
 #include "VertexTypes.h"
-#include <fstream>
 #include "COMException.h"
 #include "IGraphics.h"
 #include "Globals.h"

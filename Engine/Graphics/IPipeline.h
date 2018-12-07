@@ -2,7 +2,6 @@
 
 #include "VertexShader.h"
 #include "PixelShader.h"
-#include <DirectXMath.h>
 
 namespace Bat
 {

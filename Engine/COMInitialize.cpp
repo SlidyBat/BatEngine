@@ -1,3 +1,4 @@
+#include "PCH.h"
 #include "COMInitialize.h"
 
 #include <objbase.h>

@@ -1,11 +1,19 @@
 #pragma once
 
-#include <d3d11.h>
-#include <unordered_map>
-#include <string>
+#include "PCH.h"
+
 #include "Texture.h"
 #include "VertexTypes.h"
 #include <DirectXColors.h>
+
+struct IDXGISwapChain;
+struct ID3D11Device;
+struct ID3D11DeviceContext;
+struct ID3D11RenderTargetView;
+struct ID3D11RasterizerState;
+struct ID3D11DepthStencilView;
+struct ID3D11Texture2D;
+struct ID3D11DepthStencilState;
 
 namespace Bat
 {
