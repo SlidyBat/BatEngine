@@ -23,10 +23,16 @@ namespace Bat
 				DirectX::CreateWICTextureFromFile( pDevice, L"Assets/error.png", &m_pTexture, &m_pTextureView )
 			);
 		}
-		else
+		else if( Bat::GetFileExtension( filename ) != L"dds" )
 		{
 			COM_THROW_IF_FAILED(
 				DirectX::CreateWICTextureFromFile( pDevice, nullptr, filename.c_str(), &m_pTexture, &m_pTextureView )
+			);
+		}
+		else
+		{
+			COM_THROW_IF_FAILED(
+				DirectX::CreateDDSTextureFromFile( pDevice, filename.c_str(), &m_pTexture, &m_pTextureView )
 			);
 		}
 	}
@@ -114,7 +120,6 @@ namespace Bat
 	Texture Texture::FromDDS( const std::wstring & filename )
 	{
 		auto pDevice = g_pGfx->GetDevice();
-		auto pDeviceContext = g_pGfx->GetDeviceContext();
 
 		Texture tex;
 		COM_THROW_IF_FAILED(
