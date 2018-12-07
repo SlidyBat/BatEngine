@@ -5,6 +5,7 @@
 #include "VertexTypes.h"
 #include "IPipeline.h"
 #include <vector>
+#include "MathLib.h"
 #include "BatAssert.h"
 
 namespace Bat

@@ -92,6 +92,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\DirectXTK\Bin\Debug-x86;C:\Dev\Assimp\bin\x64;C:\Dev\Assimp\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -111,6 +112,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\Assimp\lib\x64;C:\Dev\Assimp\lib\x64;$(ProjectDir)ThirdParty\DirectXTK\Bin\Debug-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -132,6 +134,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -155,6 +158,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -178,6 +182,7 @@
     <ClCompile Include="Graphics\GenericPostProcess.cpp" />
     <ClCompile Include="Graphics\ConstantBuffer.cpp" />
     <ClCompile Include="Graphics\Light.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Util\JobSystem.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="MoveableCamera.cpp" />
@@ -222,6 +227,7 @@
     <ClInclude Include="Graphics\Material.h" />
     <ClInclude Include="Graphics\GenericPostProcess.h" />
     <ClInclude Include="Graphics\IPostProcess.h" />
+    <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Util\JobSystem.h" />
     <ClInclude Include="KeyboardEvents.h" />
     <ClInclude Include="Log.h" />
