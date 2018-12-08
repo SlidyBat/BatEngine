@@ -65,7 +65,7 @@ namespace Bat
 		return pStr->C_Str()[0] - '0';
 	}
 
-	static Texture* LoadMaterialTexture( aiMaterial* pMaterial, aiTextureType type, const aiScene* pScene, const std::string& dir )
+	static Resource<Texture> LoadMaterialTexture( aiMaterial* pMaterial, aiTextureType type, const aiScene* pScene, const std::string& dir )
 	{
 		auto storetype = DetermineTextureStorageType( pScene, pMaterial, type );
 		if( storetype == TextureStorageType::None )
@@ -113,7 +113,7 @@ namespace Bat
 			colour.SetG( (unsigned char)(aiColour.g * 255) );
 			colour.SetB( (unsigned char)(aiColour.b * 255) );
 
-			return new Texture( &colour, 1, 1 );
+			return ResourceManager::GetColourTexture( colour );
 		}
 
 		for( UINT i = 0; i < pMaterial->GetTextureCount( type ) && i < 1; i++ )
@@ -124,30 +124,30 @@ namespace Bat
 			if( storetype == TextureStorageType::IndexCompressed )
 			{
 				int idx = GetTextureIndex( &str );
-				return new Texture( reinterpret_cast<uint8_t*>(pScene->mTextures[idx]->pcData),
+				return std::make_shared<Texture>( reinterpret_cast<uint8_t*>(pScene->mTextures[idx]->pcData),
 					pScene->mTextures[idx]->mWidth );
 			}
 			else if( storetype == TextureStorageType::IndexNonCompressed )
 			{
 				int idx = GetTextureIndex( &str );
-				return new Texture( reinterpret_cast<uint8_t*>(pScene->mTextures[idx]->pcData),
+				return std::make_shared<Texture>( reinterpret_cast<uint8_t*>(pScene->mTextures[idx]->pcData),
 					pScene->mTextures[idx]->mWidth * pScene->mTextures[idx]->mHeight );
 			}
 			else if( storetype == TextureStorageType::EmbeddedCompressed )
 			{
 				auto pTex = pScene->GetEmbeddedTexture( str.C_Str() );
-				return new Texture( reinterpret_cast<uint8_t*>(pTex->pcData), pTex->mWidth );
+				return std::make_shared<Texture>( reinterpret_cast<uint8_t*>(pTex->pcData), pTex->mWidth );
 			}
 
 			else if( storetype == TextureStorageType::EmbeddedCompressed )
 			{
 				auto pTex = pScene->GetEmbeddedTexture( str.C_Str() );
-				return new Texture( reinterpret_cast<uint8_t*>(pTex->pcData), pTex->mWidth * pTex->mHeight );
+				return std::make_shared<Texture>( reinterpret_cast<uint8_t*>(pTex->pcData), pTex->mWidth * pTex->mHeight );
 			}
 			else
 			{
-				std::string filename = dir + '/' + str.C_Str();
-				return new Texture( Bat::StringToWide( filename ) );
+				const std::string filename = dir + '/' + str.C_Str();
+				return ResourceManager::GetTexture( filename );
 			}
 		}
 
@@ -234,7 +234,7 @@ namespace Bat
 		if( pMesh->mMaterialIndex >= 0 )
 		{
 			aiMaterial* pMaterial = pScene->mMaterials[pMesh->mMaterialIndex];
-			Texture* pTexture = nullptr;
+			Resource<Texture> pTexture = nullptr;
 
 			pTexture = LoadMaterialTexture( pMaterial, aiTextureType_DIFFUSE, pScene, dir );
 			pMeshMaterial->SetDiffuseTexture( pTexture );
@@ -299,23 +299,15 @@ namespace Bat
 		const aiScene* pScene = importer.ReadFile( filename, aiProcess_ConvertToLeftHanded | aiProcess_Triangulate | aiProcess_CalcTangentSpace );
 		meshes.reserve( pScene->mNumMeshes );
 
-		float time = ft.Mark();
-
 		if( pScene == nullptr )
 		{
 			ASSERT( false, "Failed to load model" );
 			return {};
 		}
 
-		{
-			BAT_LOG( "pre-ENTER LOCK GUARD {} ", filename );
-			std::lock_guard<std::mutex> lock( device_lock );
-			BAT_LOG( "ENTER LOCK GUARD {}", filename );
-			ProcessNode( pScene->mRootNode, pScene, meshes, directory, DirectX::XMMatrixIdentity() );
-			BAT_LOG( "Loaded model '{}' in {}s", filename, time );
-			BAT_LOG( "EXIT LOCK GUARD {}", filename );
-		}
+		ProcessNode( pScene->mRootNode, pScene, meshes, directory, DirectX::XMMatrixIdentity() );
 
+		float time = ft.Mark();
 		BAT_LOG( "Loaded model '{}' in {}s", filename, time );
 
 		return meshes;

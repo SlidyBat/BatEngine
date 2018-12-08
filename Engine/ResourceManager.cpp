@@ -4,6 +4,7 @@
 
 #include "ModelLoader.h"
 #include "Texture.h"
+#include "Colour.h"
 #include "Mesh.h"
 #include "VertexShader.h"
 #include "PixelShader.h"
@@ -11,12 +12,14 @@
 namespace Bat
 {
 	template<typename T>
-	using ResourceMap = std::unordered_map<std::string, std::shared_ptr<T>>;
+	using ResourceMap = std::unordered_map<std::string, Resource<T>>;
 
 	static ResourceMap<Texture>        g_mapTextures;
 	static ResourceMap<MeshCollection> g_mapMeshes;
 	static ResourceMap<VertexShader>   g_mapVShaders;
 	static ResourceMap<PixelShader>    g_mapPShaders;
+
+	static std::unordered_map<unsigned int, Resource<Texture>>        g_mapColours;
 
 	Resource<Texture> ResourceManager::GetTexture( const std::string& filename )
 	{
@@ -25,6 +28,19 @@ namespace Bat
 		{
 			auto pResource = std::make_shared<Texture>( StringToWide( filename ) );
 			g_mapTextures[filename] = pResource;
+			return pResource;
+		}
+
+		return it->second;
+	}
+
+	Resource<Texture> ResourceManager::GetColourTexture( const Colour& colour )
+	{
+		auto it = g_mapColours.find( colour.GetValue() );
+		if( it == g_mapColours.end() )
+		{
+			auto pResource = std::make_shared<Texture>( &colour, 1, 1 );
+			g_mapColours[colour.GetValue()] = pResource;
 			return pResource;
 		}
 

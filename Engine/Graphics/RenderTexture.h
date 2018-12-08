@@ -11,6 +11,8 @@ namespace Bat
 	class RenderTexture
 	{
 	public:
+		static void BindMultiple( const RenderTexture* pRenderTargets, const size_t count );
+	public:
 		RenderTexture() = default;
 		RenderTexture( int width, int height );
 

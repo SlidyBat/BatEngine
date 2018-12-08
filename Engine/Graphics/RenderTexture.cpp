@@ -7,6 +7,19 @@
 
 namespace Bat
 {
+	void RenderTexture::BindMultiple( const RenderTexture* pRenderTargets, const size_t count )
+	{
+		ASSERT( count <= D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, "Too many render targets!" );
+
+		std::vector<ID3D11RenderTargetView*> pRenderTargetViews;
+		pRenderTargetViews.reserve( count );
+		for( size_t i = 0; i < count; i++ )
+		{
+			pRenderTargetViews.emplace_back( pRenderTargets->m_pRenderTargetView.Get() );
+		}
+		g_pGfx->GetDeviceContext()->OMSetRenderTargets( (UINT)count, pRenderTargetViews.data(), g_pGfx->GetDepthStencilView() );
+	}
+
 	RenderTexture::RenderTexture( int width, int height )
 	{
 		Resize( width, height );

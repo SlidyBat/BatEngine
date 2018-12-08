@@ -292,6 +292,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BatAssert.h" />
+    <ClInclude Include="Console.h" />
     <ClInclude Include="PCH.h" />
     <ClInclude Include="Events\Event.h" />
     <ClInclude Include="Graphics\BumpMapPipeline.h" />
