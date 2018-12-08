@@ -51,7 +51,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 
 		FrameTimer ft;
 
-		auto pScene = std::make_unique<MarioTestScene>( wnd );
+		auto pScene = std::make_unique<CarTestScene>( wnd );
 		while( wnd.ProcessMessage() )
 		{
 			static int fpsCounter = 0;
