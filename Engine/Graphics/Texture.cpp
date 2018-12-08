@@ -49,13 +49,15 @@ namespace Bat
 	Texture::Texture( const Colour* pPixels, int width, int height )
 	{
 		auto pDevice = g_pGfx->GetDevice();
-		auto pDeviceContext = g_pGfx->GetDeviceContext();
 
 		CD3D11_TEXTURE2D_DESC textureDesc( DXGI_FORMAT_B8G8R8A8_UNORM, width, height );
+
 		ID3D11Texture2D* p2DTexture;
-		COM_THROW_IF_FAILED( pDevice->CreateTexture2D( &textureDesc, NULL, &p2DTexture ) );
+		D3D11_SUBRESOURCE_DATA initialData{};
+		initialData.pSysMem = pPixels;
+		initialData.SysMemPitch = width * sizeof( *pPixels );
+		COM_THROW_IF_FAILED( pDevice->CreateTexture2D( &textureDesc, &initialData, &p2DTexture ) );
 		m_pTexture = static_cast<ID3D11Resource*>( p2DTexture );
-		pDeviceContext->UpdateSubresource( m_pTexture.Get(), 0, NULL, pPixels, width * sizeof( *pPixels ), 0 );
 
 		CD3D11_SHADER_RESOURCE_VIEW_DESC srvDesc( D3D11_SRV_DIMENSION_TEXTURE2D, textureDesc.Format );
 		COM_THROW_IF_FAILED(
@@ -66,13 +68,15 @@ namespace Bat
 	Texture::Texture( const D3DCOLORVALUE* pPixels, int width, int height )
 	{
 		auto pDevice = g_pGfx->GetDevice();
-		auto pDeviceContext = g_pGfx->GetDeviceContext();
 
 		CD3D11_TEXTURE2D_DESC textureDesc( DXGI_FORMAT_R32G32B32A32_FLOAT, width, height );
+
 		ID3D11Texture2D* p2DTexture;
-		COM_THROW_IF_FAILED( pDevice->CreateTexture2D( &textureDesc, NULL, &p2DTexture ) );
+		D3D11_SUBRESOURCE_DATA initialData{};
+		initialData.pSysMem = pPixels;
+		initialData.SysMemPitch = width * sizeof( *pPixels );
+		COM_THROW_IF_FAILED( pDevice->CreateTexture2D( &textureDesc, &initialData, &p2DTexture ) );
 		m_pTexture = static_cast<ID3D11Resource*>( p2DTexture );
-		pDeviceContext->UpdateSubresource( m_pTexture.Get(), 0, NULL, pPixels, width * sizeof( *pPixels ), 0 );
 
 		CD3D11_SHADER_RESOURCE_VIEW_DESC srvDesc( D3D11_SRV_DIMENSION_TEXTURE2D, textureDesc.Format );
 		COM_THROW_IF_FAILED(
