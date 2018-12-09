@@ -138,8 +138,7 @@ namespace Bat
 				auto pTex = pScene->GetEmbeddedTexture( str.C_Str() );
 				return std::make_shared<Texture>( reinterpret_cast<uint8_t*>(pTex->pcData), pTex->mWidth );
 			}
-
-			else if( storetype == TextureStorageType::EmbeddedCompressed )
+			else if( storetype == TextureStorageType::EmbeddedNonCompressed )
 			{
 				auto pTex = pScene->GetEmbeddedTexture( str.C_Str() );
 				return std::make_shared<Texture>( reinterpret_cast<uint8_t*>(pTex->pcData), pTex->mWidth * pTex->mHeight );
