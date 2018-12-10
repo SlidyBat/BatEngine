@@ -20,13 +20,14 @@ using namespace Bat;
 CarTestScene::CarTestScene( Window& wnd )
 	:
 	BaseClass( wnd ),
-	m_Camera( 100.0f )
+	m_Camera( 10.0f )
 {
 	m_Light.SetPosition( { 0.0f, 0.0f, -5.0f } );
 	m_Camera.SetPosition( 0.0f, 0.0f, -5.0f );
 	g_pGfx->SetCamera( &m_Camera );
 
-	m_pCar = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/Car/scene.gltf" ) );
+	m_pCar = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/TRex/TrexByJoel3d.fbx" ) );
+	m_pCar->SetScale( 100.0f );
 
 	m_Skybox = Texture::FromDDS( L"Assets/skybox.dds" );
 	g_pGfx->SetSkybox( &m_Skybox );

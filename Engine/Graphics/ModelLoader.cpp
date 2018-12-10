@@ -23,10 +23,14 @@ namespace Bat
 
 	TextureStorageType DetermineTextureStorageType( const aiScene* pScene, aiMaterial* pMat, aiTextureType type )
 	{
-		aiString textypec;
-		pMat->GetTexture( type, 0, &textypec );
-		std::string textype = textypec.C_Str();
-		if( textype == "*0" || textype == "*1" || textype == "*2" || textype == "*3" || textype == "*4" || textype == "*5" )
+		if( !pMat->GetTextureCount( type ) )
+		{
+			return TextureStorageType::None;
+		}
+
+		aiString textype;
+		pMat->GetTexture( type, 0, &textype );
+		if( textype.C_Str()[0] == '*' )
 		{
 			if( pScene->mTextures[0]->mHeight == 0 )
 			{
@@ -37,7 +41,7 @@ namespace Bat
 				return TextureStorageType::IndexNonCompressed;
 			}
 		}
-		else if( auto pTex = pScene->GetEmbeddedTexture( textype.c_str() ) )
+		else if( auto pTex = pScene->GetEmbeddedTexture( textype.C_Str() ) )
 		{
 			if( pTex->mHeight == 0 )
 			{
@@ -48,7 +52,7 @@ namespace Bat
 				return TextureStorageType::EmbeddedNonCompressed;
 			}
 		}
-		else if( textype.find( '.' ) != std::string::npos )
+		else if( std::string( textype.C_Str() ).find( '.' ) != std::string::npos )
 		{
 			return TextureStorageType::Disk;
 		}
@@ -58,11 +62,12 @@ namespace Bat
 
 	static int GetTextureIndex( aiString* pStr )
 	{
-		if( !pStr->length )
+		if( !pStr->length || pStr->C_Str()[0] != '*' )
 		{
-			return 0; // -1?
+			ASSERT( false, "Invalid texture index" );
+			return -1;
 		}
-		return pStr->C_Str()[0] - '0';
+		return std::stoi( &pStr->C_Str()[1] );
 	}
 
 	static Resource<Texture> LoadMaterialTexture( aiMaterial* pMaterial, aiTextureType type, const aiScene* pScene, const std::string& dir )
@@ -296,14 +301,15 @@ namespace Bat
 
 		Assimp::Importer importer;
 		const aiScene* pScene = importer.ReadFile( filename, aiProcess_ConvertToLeftHanded | aiProcess_Triangulate | aiProcess_CalcTangentSpace );
-		meshes.reserve( pScene->mNumMeshes );
 
 		if( pScene == nullptr )
 		{
 			ASSERT( false, "Failed to load model" );
+			BAT_WARN( "Failed to load model '{}'", filename );
 			return {};
 		}
 
+		meshes.reserve( pScene->mNumMeshes );
 		ProcessNode( pScene->mRootNode, pScene, meshes, directory, DirectX::XMMatrixIdentity() );
 
 		float time = ft.Mark();

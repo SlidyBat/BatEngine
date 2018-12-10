@@ -41,6 +41,26 @@ namespace Bat
 		m_flAspectRatio = ar;
 	}
 
+	float Camera::GetNear() const
+	{
+		return m_flScreenNear;
+	}
+
+	void Camera::SetNear( const float screen_near )
+	{
+		m_flScreenNear = screen_near;
+	}
+
+	float Camera::GetFar() const
+	{
+		return m_flScreenFar;
+	}
+
+	void Camera::SetFar( const float screen_far )
+	{
+		m_flScreenFar = screen_far;
+	}
+
 	void Camera::MoveBy( const float dx, const float dy, const float dz )
 	{
 		m_vecPosition.x += dx;

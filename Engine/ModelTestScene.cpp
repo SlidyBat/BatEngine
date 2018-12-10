@@ -30,7 +30,7 @@ ModelTestScene::ModelTestScene( Window& wnd )
 
 	std::thread t1( [this]()
 	{
-		m_pModel1 = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/dodge1.FBX" ) );
+		m_pModel1 = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/test.blend" ) );
 	} );
 	std::thread t2( [this]()
 	{
@@ -48,7 +48,7 @@ ModelTestScene::ModelTestScene( Window& wnd )
 
 	JobSystem::Execute( [this]()
 	{
-		m_pModel1 = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/dodge1.FBX" ) );
+		m_pModel1 = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/test.blend" ) );
 	} );
 	JobSystem::Execute( [this]()
 	{

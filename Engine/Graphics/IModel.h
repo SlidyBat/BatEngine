@@ -67,6 +67,15 @@ namespace Bat
 			m_angRotation.z += droll;
 			UpdateWorldMatrix();
 		}
+
+		float GetScale() const
+		{
+			return m_flScale;
+		}
+		void SetScale( const float scale )
+		{
+			m_flScale = scale;
+		}
 	protected:
 		DirectX::XMMATRIX GetWorldMatrix() const
 		{
@@ -75,11 +84,13 @@ namespace Bat
 		void UpdateWorldMatrix()
 		{
 			m_matWorldMatrix = DirectX::XMMatrixRotationRollPitchYaw( m_angRotation.x, m_angRotation.y, m_angRotation.z ) *
+				DirectX::XMMatrixScaling( m_flScale, m_flScale, m_flScale ) *
 				DirectX::XMMatrixTranslation( m_vecPosition.x, m_vecPosition.y, m_vecPosition.z );
 		}
 	protected:
-		DirectX::XMFLOAT3 m_vecPosition = { 0.0f, 0.0f, 0.0f };
-		DirectX::XMFLOAT3 m_angRotation = { 0.0f, 0.0f, 0.0f };
 		DirectX::XMMATRIX m_matWorldMatrix;
+		DirectX::XMFLOAT3 m_vecPosition = { 0.0f, 0.0f, 0.0f };
+		float m_flScale;
+		DirectX::XMFLOAT3 m_angRotation = { 0.0f, 0.0f, 0.0f };
 	};
 }

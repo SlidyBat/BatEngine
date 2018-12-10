@@ -18,6 +18,10 @@ namespace Bat
 		void SetFOV( float fov );
 		float GetAspectRatio() const;
 		void SetAspectRatio( float ar );
+		float GetNear() const;
+		void SetNear( const float screen_near );
+		float GetFar() const;
+		void SetFar( const float screen_far );
 
 		void MoveBy( const float dx, const float dy, const float dz );
 		void MoveBy( const Vec3& pos );
