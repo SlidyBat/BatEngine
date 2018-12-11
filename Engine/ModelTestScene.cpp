@@ -28,9 +28,25 @@ ModelTestScene::ModelTestScene( Window& wnd )
 
 	FrameTimer ft;
 
+	JobSystem::Execute( [this]()
+	{
+		m_pModel1 = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/dodge1.FBX" ) );
+	} );
+	JobSystem::Execute( [this]()
+	{
+		m_pModel2 = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/dodge2.FBX" ) );
+	} );
+	JobSystem::Execute( [this]()
+	{
+		m_pModel3 = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/dodge3.FBX" ) );
+	} );
+	JobSystem::Wait();
+
+	float job_time = ft.Mark();
+
 	std::thread t1( [this]()
 	{
-		m_pModel1 = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/test.blend" ) );
+		m_pModel1 = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/dodge1.FBX" ) );
 	} );
 	std::thread t2( [this]()
 	{
@@ -46,24 +62,8 @@ ModelTestScene::ModelTestScene( Window& wnd )
 	
 	float thread_time = ft.Mark();
 
-	JobSystem::Execute( [this]()
-	{
-		m_pModel1 = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/test.blend" ) );
-	} );
-	JobSystem::Execute( [this]()
-	{
-		m_pModel2 = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/dodge2.FBX" ) );
-	} );
-	JobSystem::Execute( [this]()
-	{
-		m_pModel3 = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/dodge3.FBX" ) );
-	} );
-	JobSystem::Wait();
-
-	float job_time = ft.Mark();
-
 	BAT_LOG( "Total std::thread execution time: {}", thread_time );
-	BAT_LOG( "Total resource managed execution time: {}", job_time );
+	BAT_LOG( "Total JobSystem execution time: {}", job_time );
 
 	m_Skybox = Texture::FromDDS( L"Assets/skybox.dds" );
 	g_pGfx->SetSkybox( &m_Skybox );

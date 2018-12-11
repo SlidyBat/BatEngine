@@ -14,7 +14,7 @@ namespace Bat
 	public:
 		GenericPostProcess( const std::wstring& filename );
 
-		virtual void Render( ID3D11ShaderResourceView* pTexture ) override;
+		virtual void Render( RenderTexture& pRenderTexture ) override;
 	protected:
 		VertexShader m_VertexShader;
 		PixelShader m_PixelShader;

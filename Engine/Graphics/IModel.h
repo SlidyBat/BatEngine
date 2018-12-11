@@ -75,6 +75,7 @@ namespace Bat
 		void SetScale( const float scale )
 		{
 			m_flScale = scale;
+			UpdateWorldMatrix();
 		}
 	protected:
 		DirectX::XMMATRIX GetWorldMatrix() const
@@ -83,8 +84,8 @@ namespace Bat
 		}
 		void UpdateWorldMatrix()
 		{
-			m_matWorldMatrix = DirectX::XMMatrixRotationRollPitchYaw( m_angRotation.x, m_angRotation.y, m_angRotation.z ) *
-				DirectX::XMMatrixScaling( m_flScale, m_flScale, m_flScale ) *
+			m_matWorldMatrix = DirectX::XMMatrixScaling( m_flScale, m_flScale, m_flScale ) *
+				DirectX::XMMatrixRotationRollPitchYaw( m_angRotation.x, m_angRotation.y, m_angRotation.z ) *
 				DirectX::XMMatrixTranslation( m_vecPosition.x, m_vecPosition.y, m_vecPosition.z );
 		}
 	protected:

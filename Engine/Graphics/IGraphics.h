@@ -58,6 +58,9 @@ namespace Bat
 
 		virtual void AddPostProcess( std::unique_ptr<IPostProcess> pPostProcess ) = 0;
 
+		virtual bool IsBloomEnabled() const { return m_bBloomEnabled; };
+		virtual void SetBloomEnabled( const bool enable ) { m_bBloomEnabled = enable; }
+
 		virtual bool IsDepthStencilEnabled() const = 0;
 		virtual void SetDepthStencilEnabled( bool enable ) = 0;
 		void EnableDepthStencil() { SetDepthStencilEnabled( true ); }
@@ -73,5 +76,6 @@ namespace Bat
 		}
 	protected:
 		Camera* m_pCamera = nullptr;
+		bool m_bBloomEnabled = true;
 	};
 }

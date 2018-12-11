@@ -11,6 +11,6 @@ namespace Bat
 	public:
 		virtual ~IPostProcess() = default;
 
-		virtual void Render( ID3D11ShaderResourceView* pTexture ) = 0;
+		virtual void Render( RenderTexture& v ) = 0;
 	};
 }

@@ -69,7 +69,7 @@ namespace Bat
 		finishedLabel.store(0);
 
 		// Retrieve the number of hardware threads in this system:
-		auto numCores = std::thread::hardware_concurrency();
+		auto numCores = 3u; // std::thread::hardware_concurrency();
 
 		// Calculate the actual number of worker threads we want:
 		numThreads = std::max(1u, numCores);

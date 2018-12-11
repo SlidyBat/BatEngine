@@ -69,7 +69,7 @@ namespace Bat
 		m_bufIndices.SetData( indices );
 	}
 
-	void GenericPostProcess::Render( ID3D11ShaderResourceView* pTexture )
+	void GenericPostProcess::Render( RenderTexture& pRenderTexture )
 	{
 		CB_TexturePipelineMatrix transform;
 		transform.viewproj = g_pGfx->GetOrthoMatrix();
@@ -87,7 +87,7 @@ namespace Bat
 		m_VertexShader.Bind();
 		m_PixelShader.Bind();
 		m_VertexShader.GetConstantBuffer( 0 ).SetData( &transform );
-		m_PixelShader.SetResource( 0, pTexture );
+		m_PixelShader.SetResource( 0, pRenderTexture.GetTextureView() );
 		m_PixelShader.GetConstantBuffer( 0 ).SetData( &psGlobals );
 
 		g_pGfx->GetDeviceContext()->DrawIndexed( m_bufIndices.GetIndexCount(), 0, 0 );

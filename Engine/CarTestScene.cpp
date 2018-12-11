@@ -20,14 +20,15 @@ using namespace Bat;
 CarTestScene::CarTestScene( Window& wnd )
 	:
 	BaseClass( wnd ),
-	m_Camera( 10.0f )
+	m_Camera( 1.0f )
 {
-	m_Light.SetPosition( { 0.0f, 0.0f, -5.0f } );
-	m_Camera.SetPosition( 0.0f, 0.0f, -5.0f );
+	m_Light.SetPosition( { 0.0f, 0.0f, 0.0f } );
+	m_Camera.SetPosition( -0.5f, 0.3f, 0.0f );
+	m_Camera.RotateBy( 0.0f, 90.0f, 0.0f );
 	g_pGfx->SetCamera( &m_Camera );
 
-	m_pCar = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/TRex/TrexByJoel3d.fbx" ) );
-	m_pCar->SetScale( 100.0f );
+	m_pCar = std::make_unique<BumpMappedModel>( ModelLoader::LoadModel( "Assets/Lantern/Lantern.gltf" ) );
+	m_pCar->SetScale( 0.1f );
 
 	m_Skybox = Texture::FromDDS( L"Assets/skybox.dds" );
 	g_pGfx->SetSkybox( &m_Skybox );
@@ -40,6 +41,14 @@ CarTestScene::CarTestScene( Window& wnd )
 	ON_EVENT_DISPATCHED( [=]( const MouseMovedEvent* e )
 	{
 		OnMouseMoved( e->GetDeltaPosition() );
+	} );
+
+	ON_EVENT_DISPATCHED( []( const MouseButtonPressedEvent* e )
+	{
+		if( e->GetButton() == Input::MouseButton::Right )
+		{
+			g_pGfx->SetBloomEnabled( !g_pGfx->IsBloomEnabled() );
+		}
 	} );
 	//g_pGfx->AddPostProcess( std::make_unique<GenericPostProcess>( L"Graphics/Shaders/Build/PostProcessPS.cso" ) );
 }

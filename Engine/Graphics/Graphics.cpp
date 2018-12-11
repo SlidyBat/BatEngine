@@ -18,6 +18,7 @@
 #include "SpriteBatch.h"
 #include "SpriteFont.h"
 #include "WindowEvents.h"
+#include "BloomPostProcess.h"
 
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
@@ -37,6 +38,11 @@ namespace Bat
 		AddShader( "light", std::make_unique<LightPipeline>( L"Graphics/Shaders/Build/LightVS.cso", L"Graphics/Shaders/Build/LightPS.cso" ) );
 		AddShader( "bumpmap", std::make_unique<BumpMapPipeline>( L"Graphics/Shaders/Build/BumpMapVS.cso", L"Graphics/Shaders/Build/BumpMapPS.cso" ) );
 		AddShader( "skybox", std::make_unique<SkyboxPipeline>( L"Graphics/Shaders/Build/SkyboxVS.cso", L"Graphics/Shaders/Build/SkyboxPS.cso" ) );
+
+		m_pBloomProcess = std::make_unique<BloomPostProcess>();
+
+		m_FrameBuffers[0].Resize( wnd.GetWidth(), wnd.GetHeight() );
+		m_FrameBuffers[1].Resize( wnd.GetWidth(), wnd.GetHeight() );
 
 		m_pSpriteBatch = std::make_unique<DirectX::SpriteBatch>( GetDeviceContext() );
 		m_pFont = std::make_unique<DirectX::SpriteFont>( GetDevice(), L"Assets/Fonts/consolas.spritefont" );
@@ -82,15 +88,9 @@ namespace Bat
 		);
 
 		d3d.Resize( width, height );
-		const size_t size = m_PostProcesses.size();
-		if( size == 0 )
-		{
-			m_PostProcessRenderTexture.Resize( width, height );
-		}
-		else if( size == 1 )
-		{
-			m_AlternatePostProcessRenderTexture.Resize( width, height );
-		}
+
+		m_FrameBuffers[0].Resize( width, height );
+		m_FrameBuffers[1].Resize( width, height );
 	}
 
 	int Graphics::GetScreenWidth() const
@@ -116,18 +116,6 @@ namespace Bat
 
 	void Graphics::AddPostProcess( std::unique_ptr<IPostProcess> pPostProcess )
 	{
-		const size_t size = m_PostProcesses.size();
-		if( size == 0 )
-		{
-			// only allocate render texture once we have a postprocess
-			m_PostProcessRenderTexture.Resize( m_iScreenWidth, m_iScreenHeight );
-		}
-		else if( size == 1 )
-		{
-			// allocate second render texture for the multiple postprocesses to ping-pong between
-			m_AlternatePostProcessRenderTexture.Resize( m_iScreenWidth, m_iScreenHeight );
-		}
-
 		m_PostProcesses.emplace_back( std::move( pPostProcess ) );
 	}
 
@@ -149,10 +137,11 @@ namespace Bat
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
-		if( !m_PostProcesses.empty() )
+		// dont render directly to backbuffer if we have any post effects to do
+		if( !m_PostProcesses.empty() || m_bBloomEnabled )
 		{
-			m_PostProcessRenderTexture.Bind(); // draw to texture
-			m_PostProcessRenderTexture.Clear( 0.3f, 0.3f, 0.3f, 1.0f );
+			m_FrameBuffers[0].Bind(); // draw to texture
+			m_FrameBuffers[0].Clear( 0.3f, 0.3f, 0.3f, 1.0f );
 		}
 		else
 		{
@@ -163,6 +152,7 @@ namespace Bat
 
 	void Graphics::EndFrame()
 	{
+		// render skybox
 		if( m_pSkybox )
 		{
 			auto pos = GetCamera()->GetPosition();
@@ -175,42 +165,50 @@ namespace Bat
 			pPipeline->RenderIndexed( 0 ); // skybox uses its own index buffer & index count, doesnt matter what we pass in
 		}
 
+		// bloom
+		if( m_bBloomEnabled )
+		{
+			m_pBloomProcess->Render( m_FrameBuffers[0] );
+		}
+
+		// post processes
 		if( !m_PostProcesses.empty() )
 		{
 			DisableDepthStencil();
 
-			ID3D11ShaderResourceView* pCurrentTexture = m_PostProcessRenderTexture.GetTextureView();
+			RenderTexture* pCurrentTexture = &m_FrameBuffers[0];
 			if( m_PostProcesses.size() > 1 )
 			{
-				m_AlternatePostProcessRenderTexture.Clear( 0.0f, 0.0f, 0.0f, 1.0f );
-				m_AlternatePostProcessRenderTexture.Bind();
+				m_FrameBuffers[1].Clear( 0.0f, 0.0f, 0.0f, 1.0f );
+				m_FrameBuffers[1].Bind();
 
 				for( size_t i = 0; i < m_PostProcesses.size() - 1; i++ )
 				{
-					m_PostProcesses[i]->Render( pCurrentTexture );
+					m_PostProcesses[i]->Render( *pCurrentTexture );
 
 					if( i % 2 == 0 )
 					{
-						pCurrentTexture = m_AlternatePostProcessRenderTexture.GetTextureView();
-						m_PostProcessRenderTexture.Clear( 0.0f, 0.0f, 0.0f, 1.0f );
-						m_PostProcessRenderTexture.Bind();
+						pCurrentTexture = &m_FrameBuffers[1];
+						m_FrameBuffers[0].Clear( 0.0f, 0.0f, 0.0f, 1.0f );
+						m_FrameBuffers[0].Bind();
 					}
 					else
 					{
-						pCurrentTexture = m_PostProcessRenderTexture.GetTextureView();
-						m_AlternatePostProcessRenderTexture.Clear( 0.0f, 0.0f, 0.0f, 1.0f );
-						m_AlternatePostProcessRenderTexture.Bind();
+						pCurrentTexture = &m_FrameBuffers[0];
+						m_FrameBuffers[1].Clear( 0.0f, 0.0f, 0.0f, 1.0f );
+						m_FrameBuffers[1].Bind();
 					}
 				}
 			}
 
 			// render last post process directly to screen
 			d3d.BindBackBuffer();
-			m_PostProcesses.back()->Render( pCurrentTexture );
+			m_PostProcesses.back()->Render( *pCurrentTexture );
 
 			EnableDepthStencil();
 		}
 
+		// text commands
 		if( !m_TextDrawCommands.empty() )
 		{
 			m_pSpriteBatch->Begin();
@@ -221,9 +219,11 @@ namespace Bat
 			m_pSpriteBatch->End();
 		}
 
+		// imgui
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );
 
+		// all done!
 		d3d.PresentScene();
 	}
 
