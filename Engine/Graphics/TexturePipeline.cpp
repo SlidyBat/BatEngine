@@ -44,11 +44,11 @@ namespace Bat
 		const float top = height / 2;
 		const float bottom = -height / 2;
 
-		const std::vector<Vec4> positions = {
-			{ left, bottom, 1.0f, 1.0f },
-			{ left, top, 1.0f, 1.0f },
-			{ right, top, 1.0f, 1.0f },
-			{ right, bottom, 1.0f, 1.0f }
+		const std::vector<Vec3> positions = {
+			{ left,  bottom, 1.0f },
+			{ left,  top,    1.0f },
+			{ right, top,    1.0f },
+			{ right, bottom, 1.0f }
 		};
 
 		const std::vector<Vec2> uvs = {

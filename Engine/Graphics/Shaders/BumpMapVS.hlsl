@@ -6,11 +6,11 @@ cbuffer Matrices
 
 struct VertexInputType
 {
-    float4 position : POSITION;
-    float4 normal : NORMAL;
+    float3 position : POSITION;
+    float3 normal : NORMAL;
     float2 tex : TEXCOORD;
-    float4 tangent : TANGENT;
-    float4 bitangent : BITANGENT;
+    float3 tangent : TANGENT;
+    float3 bitangent : BITANGENT;
 };
 
 struct PixelInputType
@@ -27,15 +27,16 @@ PixelInputType main(VertexInputType input)
 {
     PixelInputType output;
 
-    input.position.w = 1.0f;
-    input.normal.w = 0.0f;
-
     float4x4 wvp = mul(world, viewproj);
-    output.position = mul(input.position, wvp);
-    output.world_pos = mul(input.position, world);
-    output.normal = normalize(mul(input.normal, world).xyz);
-    output.tangent = normalize(mul(input.tangent, world).xyz);
-    output.bitangent = normalize(mul(input.bitangent, world).xyz);
+
+    float4 pos = float4(input.position, 1.0f);
+    output.position = mul(pos, wvp);
+    output.world_pos = mul(pos, world);
+
+    float3x3 world_trunc = (float3x3) world;
+    output.normal = normalize(mul(input.normal, world_trunc).xyz);
+    output.tangent = normalize(mul(input.tangent, world_trunc).xyz);
+    output.bitangent = normalize(mul(input.bitangent, world_trunc).xyz);
     if (dot(cross(output.normal, output.tangent), output.bitangent) < 0.0)
         output.tangent = -output.tangent;
     output.tex = input.tex;

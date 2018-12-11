@@ -24,11 +24,11 @@ MarioTestScene::MarioTestScene( Window& wnd )
 	TexVertex v3( { 0.5f,  0.5f, 0.0f }, { 1.0f, 0.0f } );
 	TexVertex v4( { 0.5f, -0.5f, 0.0f }, { 1.0f, 1.0f } );
 
-	const std::vector<Vec4> positions = {
-		{ -0.5f, -0.5f, 0.0f, 1.0f },
-		{ -0.5f,  0.5f, 0.0f, 1.0f },
-		{ 0.5f,  0.5f, 0.0f, 1.0f },
-		{ 0.5f, -0.5f, 0.0f, 1.0f }
+	const std::vector<Vec3> positions = {
+		{ -0.5f, -0.5f, 0.0f },
+		{ -0.5f,  0.5f, 0.0f },
+		{  0.5f,  0.5f, 0.0f },
+		{  0.5f, -0.5f, 0.0f }
 	};
 
 	const std::vector<Vec2> uvs = {

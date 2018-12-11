@@ -14,12 +14,12 @@ namespace Bat
 
 	struct MeshParameters
 	{
-		std::vector<Vec4> position;
+		std::vector<Vec3> position;
 		std::vector<Vec4> colour;
-		std::vector<Vec4> normal;
+		std::vector<Vec3> normal;
 		std::vector<Vec2> uv;
-		std::vector<Vec4> tangent;
-		std::vector<Vec4> bitangent;
+		std::vector<Vec3> tangent;
+		std::vector<Vec3> bitangent;
 	};
 
 	class Mesh
@@ -144,12 +144,12 @@ namespace Bat
 			m_matTransform = transform;
 		}
 	private:
-		VertexBuffer<Vec4> m_bufPosition;
+		VertexBuffer<Vec3> m_bufPosition;
 		VertexBuffer<Vec4> m_bufColour;
-		VertexBuffer<Vec4> m_bufNormal;
+		VertexBuffer<Vec3> m_bufNormal;
 		VertexBuffer<Vec2> m_bufUV;
-		VertexBuffer<Vec4> m_bufTangent;
-		VertexBuffer<Vec4> m_bufBitangent;
+		VertexBuffer<Vec3> m_bufTangent;
+		VertexBuffer<Vec3> m_bufBitangent;
 		IndexBuffer m_bufIndices;
 		Material* m_pMaterial = nullptr;
 		DirectX::XMMATRIX m_matTransform = DirectX::XMMatrixIdentity();

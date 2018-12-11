@@ -171,18 +171,16 @@ namespace Bat
 
 		for( UINT i = 0; i < pMesh->mNumVertices; i++ )
 		{
-			Vec4 position;
+			Vec3 position;
 			position.x = pMesh->mVertices[i].x;
 			position.y = pMesh->mVertices[i].y;
 			position.z = pMesh->mVertices[i].z;
-			position.w = 1.0f;
 			params.position.emplace_back( position );
 
-			Vec4 normal;
+			Vec3 normal;
 			normal.x = pMesh->mNormals[i].x;
 			normal.y = pMesh->mNormals[i].y;
 			normal.z = pMesh->mNormals[i].z;
-			normal.w = 0.0f;
 			params.normal.emplace_back( normal );
 
 			Vec2 texcoord;
@@ -199,18 +197,16 @@ namespace Bat
 
 			if( pMesh->HasTangentsAndBitangents() )
 			{
-				Vec4 tangent;
+				Vec3 tangent;
 				tangent.x = pMesh->mTangents[i].x;
 				tangent.y = pMesh->mTangents[i].y;
 				tangent.z = pMesh->mTangents[i].z;
-				tangent.w = 0.0f;
 				params.tangent.emplace_back( tangent );
 
-				Vec4 bitangent;
+				Vec3 bitangent;
 				bitangent.x = pMesh->mBitangents[i].x;
 				bitangent.y = pMesh->mBitangents[i].y;
 				bitangent.z = pMesh->mBitangents[i].z;
-				bitangent.w = 0.0f;
 				params.bitangent.emplace_back( bitangent );
 			}
 

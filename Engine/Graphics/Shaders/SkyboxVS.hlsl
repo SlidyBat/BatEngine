@@ -5,7 +5,7 @@ cbuffer Matrices
 
 struct VertexInputType
 {
-    float4 position : POSITION;
+    float3 position : POSITION;
 };
 
 struct PixelInputType
@@ -18,9 +18,8 @@ PixelInputType main(VertexInputType input)
 {
     PixelInputType output;
     
-    input.position.w = 1.0f;
-    output.position = mul(input.position, viewproj).xyww; // set z = w so that after w divide z = 1.0, skybox will be at the very back
-    output.tex = (float3) input.position;
+    output.position = mul(float4(input.position, 1.0f), viewproj).xyww; // set z = w so that after w divide z = 1.0, skybox will be at the very back
+    output.tex = input.position;
 
     return output;
 }

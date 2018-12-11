@@ -6,8 +6,8 @@ cbuffer Matrices
 
 struct VertexInputType
 {
-    float4 position : POSITION;
-    float4 normal : NORMAL;
+    float3 position : POSITION;
+    float3 normal : NORMAL;
     float2 tex : TEXCOORD;
 };
 
@@ -15,7 +15,7 @@ struct PixelInputType
 {
     float4 position : SV_POSITION;
     float4 world_pos : POSITION;
-    float4 normal : NORMAL;
+    float3 normal : NORMAL;
     float2 tex : TEXCOORD;
 };
 
@@ -23,13 +23,12 @@ PixelInputType main(VertexInputType input)
 {
     PixelInputType output;
 
-    input.position.w = 1.0f;
-    input.normal.w = 0.0f;
+    float4 pos = float4(input.position, 1.0f);
 
     float4x4 wvp = mul(world, viewproj);
-    output.position = mul(input.position, wvp);
-    output.world_pos = mul(input.position, world);
-    output.normal = normalize(mul(input.normal, world));
+    output.position = mul(pos, wvp);
+    output.world_pos = mul(pos, world);
+    output.normal = normalize(mul(input.normal, (float3x3) world));
     output.tex = input.tex;
 
     return output;

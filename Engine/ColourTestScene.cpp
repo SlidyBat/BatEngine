@@ -15,15 +15,15 @@ ColourTestScene::ColourTestScene( Window& wnd )
 {
 	m_Camera.SetPosition( 0.0f, 0.0f, -5.0f );
 	g_pGfx->SetCamera( &m_Camera );
-	Vec4 red( 1.0f, 0.0f, 0.0f, 1.0f );
 
-	const std::vector<Vec4> positions = {
-		{ -0.5f, -0.5f, 0.0f, 1.0f },
-		{ -0.5f,  0.5f, 0.0f, 1.0f },
-		{ 0.5f,  0.5f, 0.0f, 1.0f },
-		{ 0.5f, -0.5f, 0.0f, 1.0f }
+	const std::vector<Vec3> positions = {
+		{ -0.5f, -0.5f, 0.0f },
+		{ -0.5f,  0.5f, 0.0f },
+		{  0.5f,  0.5f, 0.0f },
+		{  0.5f, -0.5f, 0.0f }
 	};
 
+	const Vec4 red( 1.0f, 0.0f, 0.0f, 1.0f );
 	const std::vector<Vec4> colours = {
 		red, red, red, red
 	};
