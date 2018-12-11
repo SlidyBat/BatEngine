@@ -201,16 +201,16 @@ namespace Bat
 			{
 				Vec4 tangent;
 				tangent.x = pMesh->mTangents[i].x;
-				tangent.x = pMesh->mTangents[i].x;
-				tangent.x = pMesh->mTangents[i].x;
+				tangent.y = pMesh->mTangents[i].y;
+				tangent.z = pMesh->mTangents[i].z;
 				tangent.w = 0.0f;
 				params.tangent.emplace_back( tangent );
 
 				Vec4 bitangent;
-				bitangent.x = pMesh->mTangents[i].x;
-				bitangent.y = pMesh->mTangents[i].y;
-				bitangent.z = pMesh->mTangents[i].z;
-				tangent.w = 0.0f;
+				bitangent.x = pMesh->mBitangents[i].x;
+				bitangent.y = pMesh->mBitangents[i].y;
+				bitangent.z = pMesh->mBitangents[i].z;
+				bitangent.w = 0.0f;
 				params.bitangent.emplace_back( bitangent );
 			}
 
