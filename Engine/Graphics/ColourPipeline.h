@@ -4,7 +4,6 @@
 #include "Colour.h"
 #include "VertexShader.h"
 #include "PixelShader.h"
-#include "IModel.h"
 #include "Mesh.h"
 
 namespace Bat
@@ -13,17 +12,6 @@ namespace Bat
 	{
 		DirectX::XMMATRIX world;
 		DirectX::XMMATRIX viewproj;
-	};
-
-	class ColouredModel : public IModel
-	{
-	public:
-		ColouredModel( const Mesh& mesh );
-		ColouredModel( std::vector<Mesh> meshes );
-
-		virtual void Draw( IPipeline* pPipeline ) const override;
-	private:
-		std::vector<Mesh> m_Meshes;
 	};
 
 	class ColourPipelineParameters : public IPipelineParameters

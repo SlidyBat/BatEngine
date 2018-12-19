@@ -25,12 +25,6 @@
     <Filter Include="Source Files\Graphics">
       <UniqueIdentifier>{0c704564-5c80-4352-a32b-c52bf76e2a11}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\TestScenes">
-      <UniqueIdentifier>{c88ff9af-100a-427d-ad4e-b555a3a34b7d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\TestScenes">
-      <UniqueIdentifier>{6c320c9c-e7e6-446b-9a09-30e44e154ad5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Graphics\Pipelines">
       <UniqueIdentifier>{ddb3803c-2064-4e55-9290-d26a9c6a3fde}</UniqueIdentifier>
     </Filter>
@@ -87,20 +81,11 @@
     <ClCompile Include="Util\GDIPManager.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="MarioTestScene.cpp">
-      <Filter>Source Files\TestScenes</Filter>
-    </ClCompile>
-    <ClCompile Include="ColourTestScene.cpp">
-      <Filter>Source Files\TestScenes</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\TexturePipeline.cpp">
       <Filter>Source Files\Graphics\Pipelines</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\ColourPipeline.cpp">
       <Filter>Source Files\Graphics\Pipelines</Filter>
-    </ClCompile>
-    <ClCompile Include="ModelTestScene.cpp">
-      <Filter>Source Files\TestScenes</Filter>
     </ClCompile>
     <ClCompile Include="Globals.cpp">
       <Filter>Source Files</Filter>
@@ -128,12 +113,6 @@
     </ClCompile>
     <ClCompile Include="ThirdParty\ImGui\imgui_widgets.cpp">
       <Filter>Source Files\Graphics\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="CarTestScene.cpp">
-      <Filter>Source Files\TestScenes</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\ModelLoader.cpp">
-      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Light.cpp">
       <Filter>Source Files</Filter>
@@ -185,6 +164,27 @@
     </ClCompile>
     <ClCompile Include="BloomPostProcess.cpp">
       <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\SceneLoader.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Material.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mutex.cpp">
+      <Filter>Source Files\Util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -242,9 +242,6 @@
     <ClInclude Include="ClassDef.h">
       <Filter>Header Files\Util</Filter>
     </ClInclude>
-    <ClInclude Include="IScene.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\VertexTypes.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
@@ -254,23 +251,11 @@
     <ClInclude Include="Graphics\IPipeline.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="MarioTestScene.h">
-      <Filter>Header Files\TestScenes</Filter>
-    </ClInclude>
-    <ClInclude Include="ColourTestScene.h">
-      <Filter>Header Files\TestScenes</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\ColourPipeline.h">
       <Filter>Header Files\Graphics\Pipelines</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\TexturePipeline.h">
       <Filter>Header Files\Graphics\Pipelines</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\IModel.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelTestScene.h">
-      <Filter>Header Files\TestScenes</Filter>
     </ClInclude>
     <ClInclude Include="Util\FrameTimer.h">
       <Filter>Header Files\Util</Filter>
@@ -302,16 +287,10 @@
     <ClInclude Include="ThirdParty\ImGui\imstb_truetype.h">
       <Filter>Header Files\Graphics\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="CarTestScene.h">
-      <Filter>Header Files\TestScenes</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\Material.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Mesh.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ModelLoader.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Light.h">
@@ -344,9 +323,6 @@
     <ClInclude Include="Util\StackAllocator.h">
       <Filter>Header Files\Util</Filter>
     </ClInclude>
-    <ClInclude Include="Util\PoolAllocator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Util\StringLib.h">
       <Filter>Header Files\Util</Filter>
     </ClInclude>
@@ -360,9 +336,6 @@
       <Filter>Header Files\Events</Filter>
     </ClInclude>
     <ClInclude Include="Events\WindowEvents.h">
-      <Filter>Header Files\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="MouseEvents.h">
       <Filter>Header Files\Events</Filter>
     </ClInclude>
     <ClInclude Include="KeyboardEvents.h">
@@ -385,6 +358,27 @@
     </ClInclude>
     <ClInclude Include="BloomPostProcess.h">
       <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ILayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\SceneLoader.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Model.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\PoolAllocator.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Mutex.h">
+      <Filter>Header Files\Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

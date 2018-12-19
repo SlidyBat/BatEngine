@@ -1,6 +1,9 @@
 #include "PCH.h"
-#include "ModelLoader.h"
+#include "SceneLoader.h"
 
+#include "Mesh.h"
+#include "Model.h"
+#include "Colour.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -9,7 +12,26 @@
 
 namespace Bat
 {
-	static std::mutex device_lock;
+	struct LoadedMesh
+	{
+		aiMesh* pAssimpMesh;
+		Resource<Mesh> pBatMesh;
+	};
+	static std::vector<LoadedMesh> g_LoadedMeshes;
+	Resource<Mesh> GetLoadedMesh( const aiMesh* pTarget )
+	{
+		auto it = std::find_if( g_LoadedMeshes.begin(), g_LoadedMeshes.end(), [pTarget]( const LoadedMesh& loaded )
+		{
+			return loaded.pAssimpMesh == pTarget;
+		} );
+
+		if( it == g_LoadedMeshes.end() )
+		{
+			return nullptr;
+		}
+
+		return it->pBatMesh;
+	}
 
 	enum class TextureStorageType
 	{
@@ -158,11 +180,16 @@ namespace Bat
 		return nullptr;
 	}
 
-	static Mesh ProcessMesh( aiMesh* pMesh, const aiScene* pScene, const std::string& dir, const DirectX::XMMATRIX& transform )
+	static Resource<Mesh> ProcessMesh( aiMesh* pMesh, const aiScene* pScene, const std::string& dir )
 	{
+		if( auto pBatMesh = GetLoadedMesh( pMesh ) )
+		{
+			return pBatMesh;
+		}
+
 		MeshParameters params;
 		std::vector<int> indices;
-		Material* pMeshMaterial = new Material();
+		Material material;
 		
 		if( pMesh->mMaterialIndex >= 0 )
 		{
@@ -237,51 +264,67 @@ namespace Bat
 			Resource<Texture> pTexture = nullptr;
 
 			pTexture = LoadMaterialTexture( pMaterial, aiTextureType_DIFFUSE, pScene, dir );
-			pMeshMaterial->SetDiffuseTexture( pTexture );
+			material.SetDiffuseTexture( pTexture );
 			pTexture = LoadMaterialTexture( pMaterial, aiTextureType_SPECULAR, pScene, dir );
-			pMeshMaterial->SetSpecularTexture( pTexture );
+			material.SetSpecularTexture( pTexture );
 			pTexture = LoadMaterialTexture( pMaterial, aiTextureType_EMISSIVE, pScene, dir );
 			if( !pTexture )
 			{
 				pTexture = LoadMaterialTexture( pMaterial, aiTextureType_AMBIENT, pScene, dir );
 			}
-			pMeshMaterial->SetEmissiveTexture( pTexture );
+			material.SetEmissiveTexture( pTexture );
 			pTexture = LoadMaterialTexture( pMaterial, aiTextureType_NORMALS, pScene, dir );
 			if( !pTexture )
 			{
 				pTexture = LoadMaterialTexture( pMaterial, aiTextureType_HEIGHT, pScene, dir );
 			}
-			pMeshMaterial->SetBumpMapTexture( pTexture );
+			material.SetBumpMapTexture( pTexture );
 
 			float shininess = 0.0f;
 			pMaterial->Get( AI_MATKEY_SHININESS, shininess );
-			if( shininess == 0.0f )
+			if( shininess <= 1.0f )
 			{
 				shininess = 32.0f;
 			}
-			pMeshMaterial->SetShininess( shininess );
+			material.SetShininess( shininess );
 		}
 
-		return Mesh( params, indices, pMeshMaterial, transform );
+		auto pBatMesh = std::make_shared<Mesh>( params, indices, material );
+		LoadedMesh loaded_mesh;
+		loaded_mesh.pAssimpMesh = pMesh;
+		loaded_mesh.pBatMesh = pBatMesh;
+		g_LoadedMeshes.emplace_back( loaded_mesh );
+
+		return pBatMesh;
 	}
 
-	static void ProcessNode( aiNode* pNode, const aiScene* pScene, std::vector<Mesh>& meshes, const std::string& dir, const DirectX::XMMATRIX& parent_transform )
+	static void ProcessNode( aiNode* pAssimpNode, const aiScene* pAssimpScene, ISceneNode& node, const std::string& dir )
 	{
-		const auto transform = DirectX::XMMatrixTranspose( DirectX::XMMATRIX( &pNode->mTransformation.a1 ) ) * parent_transform;
-
-		for( UINT i = 0; i < pNode->mNumMeshes; i++ )
+		if( pAssimpNode->mNumMeshes > 0 )
 		{
-			aiMesh* pMesh = pScene->mMeshes[pNode->mMeshes[i]];
-			meshes.emplace_back( ProcessMesh( pMesh, pScene, dir, transform ) );
+			std::vector<Resource<Mesh>> meshes;
+			meshes.reserve( pAssimpNode->mNumMeshes );
+			for( UINT i = 0; i < pAssimpNode->mNumMeshes; i++ )
+			{
+				aiMesh* pMesh = pAssimpScene->mMeshes[pAssimpNode->mMeshes[i]];
+				meshes.emplace_back( ProcessMesh( pMesh, pAssimpScene, dir ) );
+			}
+			node.AddModel( { meshes } );
 		}
 
-		for( UINT i = 0; i < pNode->mNumChildren; i++ )
+		for( UINT i = 0; i < pAssimpNode->mNumChildren; i++ )
 		{
-			ProcessNode( pNode->mChildren[i], pScene, meshes, dir, transform );
+			const auto transform = DirectX::XMMatrixTranspose(
+				DirectX::XMMATRIX( &pAssimpNode->mTransformation.a1 )
+			);
+			auto pNewNode = std::make_unique<BasicSceneNode>( transform, &node );
+			ProcessNode( pAssimpNode->mChildren[i], pAssimpScene, *pNewNode, dir );
+
+			node.AddChildNode( std::move( pNewNode ) );
 		}
 	}
 
-	std::vector<Mesh> ModelLoader::LoadModel( const std::string& filename )
+	SceneGraph SceneLoader::LoadScene( const std::string& filename )
 	{
 		if( !std::ifstream( filename ) )
 		{
@@ -292,25 +335,28 @@ namespace Bat
 		
 		FrameTimer ft;
 
-		std::vector<Mesh> meshes;
-		std::string directory = filename.substr( 0, filename.find_last_of( '/' ) );
+		SceneGraph scene;
+
+		std::filesystem::path filepath( filename );
+		std::string directory = filepath.parent_path().string();
 
 		Assimp::Importer importer;
-		const aiScene* pScene = importer.ReadFile( filename, aiProcess_ConvertToLeftHanded | aiProcess_Triangulate | aiProcess_CalcTangentSpace );
+		const aiScene* pAssimpScene = importer.ReadFile( filename, aiProcess_ConvertToLeftHanded | aiProcess_Triangulate | aiProcess_CalcTangentSpace );
 
-		if( pScene == nullptr )
+		if( pAssimpScene == nullptr )
 		{
 			ASSERT( false, "Failed to load model" );
 			BAT_WARN( "Failed to load model '{}'", filename );
 			return {};
 		}
 
-		meshes.reserve( pScene->mNumMeshes );
-		ProcessNode( pScene->mRootNode, pScene, meshes, directory, DirectX::XMMatrixIdentity() );
+		ProcessNode( pAssimpScene->mRootNode, pAssimpScene, scene.GetRootNode(), directory );
 
 		float time = ft.Mark();
 		BAT_LOG( "Loaded model '{}' in {}s", filename, time );
 
-		return meshes;
+		g_LoadedMeshes.clear();
+
+		return std::move( scene );
 	}
 }

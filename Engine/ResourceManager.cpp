@@ -2,7 +2,6 @@
 
 #include "ResourceManager.h"
 
-#include "ModelLoader.h"
 #include "Texture.h"
 #include "Colour.h"
 #include "Mesh.h"
@@ -15,7 +14,6 @@ namespace Bat
 	using ResourceMap = std::unordered_map<std::string, Resource<T>>;
 
 	static ResourceMap<Texture>        g_mapTextures;
-	static ResourceMap<MeshCollection> g_mapMeshes;
 	static ResourceMap<VertexShader>   g_mapVShaders;
 	static ResourceMap<PixelShader>    g_mapPShaders;
 
@@ -41,19 +39,6 @@ namespace Bat
 		{
 			auto pResource = std::make_shared<Texture>( &colour, 1, 1 );
 			g_mapColours[colour.GetValue()] = pResource;
-			return pResource;
-		}
-
-		return it->second;
-	}
-
-	Resource<MeshCollection> ResourceManager::GetModelMeshes( const std::string& filename )
-	{
-		auto it = g_mapMeshes.find( filename );
-		if( it == g_mapMeshes.end() )
-		{
-			auto pResource = std::make_shared<MeshCollection>( std::move( ModelLoader::LoadModel( filename ) ) );
-			g_mapMeshes[filename] = pResource;
 			return pResource;
 		}
 
@@ -105,7 +90,6 @@ namespace Bat
 	void ResourceManager::CleanUp()
 	{
 		CleanUpResources( g_mapTextures );
-		CleanUpResources( g_mapMeshes );
 		CleanUpResources( g_mapVShaders );
 		CleanUpResources( g_mapPShaders );
 	}

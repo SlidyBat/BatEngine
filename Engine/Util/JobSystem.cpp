@@ -5,6 +5,7 @@
 #include <thread>    // to use std::thread
 #include <condition_variable>    // to use std::condition_variable
 
+#include "Mutex.h"
 #include "BatAssert.h"
 
 namespace Bat
@@ -20,7 +21,7 @@ namespace Bat
 		inline bool push_back(const T& item)
 		{
 			bool result = false;
-			lock.lock();
+			lock.Lock();
 			size_t next = (head + 1) % capacity;
 			if (next != tail)
 			{
@@ -28,7 +29,7 @@ namespace Bat
 				head = next;
 				result = true;
 			}
-			lock.unlock();
+			lock.Unlock();
 			return result;
 		}
 
@@ -38,22 +39,21 @@ namespace Bat
 		inline bool pop_front(T& item)
 		{
 			bool result = false;
-			lock.lock();
+			lock.Lock();
 			if (tail != head)
 			{
 				item = data[tail];
 				tail = (tail + 1) % capacity;
 				result = true;
 			}
-			lock.unlock();
+			lock.Unlock();
 			return result;
 		}
-
 	private:
 		T data[capacity];
 		size_t head = 0;
 		size_t tail = 0;
-		std::mutex lock; // this just works better than a spinlock here (on windows)
+		Mutex lock;
 	};
 
 	static uint32_t numThreads = 0;    // number of worker threads, it will be initialized in the Initialize() function

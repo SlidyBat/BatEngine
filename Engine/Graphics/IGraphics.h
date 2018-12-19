@@ -4,6 +4,7 @@
 
 #include "Texture.h"
 #include "VertexTypes.h"
+#include "ResourceManager.h"
 #include <DirectXColors.h>
 
 struct IDXGISwapChain;
@@ -17,6 +18,7 @@ struct ID3D11DepthStencilState;
 
 namespace Bat
 {
+	class SceneGraph;
 	class Camera;
 	class IModel;
 	class Material;
@@ -40,7 +42,10 @@ namespace Bat
 		virtual int GetScreenWidth() const = 0;
 		virtual int GetScreenHeight() const = 0;
 
-		virtual void SetSkybox( Texture* pCubemap ) = 0;
+		virtual void SetScene( SceneGraph* pScene ) { m_pSceneGraph = pScene; }
+		virtual SceneGraph* GetScene() { return m_pSceneGraph; }
+
+		virtual void SetSkybox( Resource<Texture> pCubemap ) = 0;
 
 		virtual void BeginFrame() = 0;
 		virtual void EndFrame() = 0;
@@ -66,15 +71,10 @@ namespace Bat
 		void EnableDepthStencil() { SetDepthStencilEnabled( true ); }
 		void DisableDepthStencil() { SetDepthStencilEnabled( true ); }
 
-		Camera* GetCamera() const
-		{
-			return m_pCamera;
-		}
-		void SetCamera(Camera* pCamera)
-		{
-			m_pCamera = pCamera;
-		}
+		Camera* GetCamera() const { return m_pCamera; }
+		void SetCamera( Camera* pCamera ) { m_pCamera = pCamera; }
 	protected:
+		SceneGraph* m_pSceneGraph = nullptr;
 		Camera* m_pCamera = nullptr;
 		bool m_bBloomEnabled = true;
 	};

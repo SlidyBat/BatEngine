@@ -13,6 +13,7 @@
 #include <utility>
 #include <typeindex>
 #include <mutex>
+#include <filesystem>
 
 // STL containers
 #include <string>

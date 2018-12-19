@@ -10,6 +10,7 @@
 #include "VertexTypes.h"
 #include "Camera.h"
 #include "RenderTexture.h"
+#include "ResourceManager.h"
 
 namespace DirectX
 {
@@ -41,7 +42,7 @@ namespace Bat
 		virtual IPipeline* GetPipeline( const std::string& name ) const override;
 
 		virtual void AddPostProcess( std::unique_ptr<IPostProcess> pPostProcess ) override;
-		virtual void SetSkybox( Texture* pCubemap ) override { m_pSkybox = pCubemap; }
+		virtual void SetSkybox( Resource<Texture> pCubemap ) override { m_pSkybox = pCubemap; }
 
 		virtual bool IsDepthStencilEnabled() const override;
 		virtual void SetDepthStencilEnabled( bool enable ) override;
@@ -58,6 +59,8 @@ namespace Bat
 		virtual ID3D11RenderTargetView* GetRenderTargetView() const override;
 		virtual ID3D11DepthStencilView* GetDepthStencilView() const override;
 	private:
+		void RenderScene();
+
 		void AddShader( const std::string& name, std::unique_ptr<IPipeline> pPipeline );
 	private:
 		D3DClass d3d;
@@ -67,7 +70,7 @@ namespace Bat
 		std::unordered_map<std::string, std::unique_ptr<IPipeline>> m_mapPipelines;
 		std::vector<std::unique_ptr<IPostProcess>> m_PostProcesses;
 		RenderTexture m_FrameBuffers[2];
-		Texture* m_pSkybox = nullptr;
+		Resource<Texture> m_pSkybox = nullptr;
 
 		int m_iScreenWidth = InitialScreenWidth;
 		int m_iScreenHeight = InitialScreenHeight;

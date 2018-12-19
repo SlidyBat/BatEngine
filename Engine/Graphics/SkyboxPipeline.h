@@ -10,7 +10,6 @@
 #include "Texture.h"
 #include "VertexShader.h"
 #include "PixelShader.h"
-#include "IModel.h"
 #include "Mesh.h"
 
 namespace Bat

@@ -182,8 +182,13 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Application.cpp" />
     <ClCompile Include="BloomPostProcess.cpp" />
     <ClCompile Include="Graphics\IndexBuffer.cpp" />
+    <ClCompile Include="Graphics\Material.cpp" />
+    <ClCompile Include="Graphics\Mesh.cpp" />
+    <ClCompile Include="Graphics\Model.cpp" />
+    <ClCompile Include="Mutex.cpp" />
     <ClCompile Include="PCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PCH.h</PrecompiledHeaderFile>
@@ -196,13 +201,12 @@
     </ClCompile>
     <ClCompile Include="Events\Event.cpp" />
     <ClCompile Include="Graphics\BumpMapPipeline.cpp" />
-    <ClCompile Include="CarTestScene.cpp" />
-    <ClCompile Include="ColourTestScene.cpp" />
     <ClCompile Include="COMInitialize.cpp" />
     <ClCompile Include="Graphics\GenericPostProcess.cpp" />
     <ClCompile Include="Graphics\ConstantBuffer.cpp" />
     <ClCompile Include="Graphics\Light.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Util\JobSystem.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -266,9 +270,7 @@
     <ClCompile Include="Graphics\ColourPipeline.cpp" />
     <ClCompile Include="Graphics\D3DClass.cpp" />
     <ClCompile Include="Graphics\LightPipeline.cpp" />
-    <ClCompile Include="Graphics\ModelLoader.cpp" />
-    <ClCompile Include="MarioTestScene.cpp" />
-    <ClCompile Include="ModelTestScene.cpp" />
+    <ClCompile Include="Graphics\SceneLoader.cpp" />
     <ClCompile Include="Util\GDIPManager.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -292,24 +294,24 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Application.h" />
     <ClInclude Include="BatAssert.h" />
     <ClInclude Include="BloomPostProcess.h" />
     <ClInclude Include="Console.h" />
+    <ClInclude Include="Mutex.h" />
     <ClInclude Include="PCH.h" />
     <ClInclude Include="Events\Event.h" />
     <ClInclude Include="Graphics\BumpMapPipeline.h" />
-    <ClInclude Include="CarTestScene.h" />
-    <ClInclude Include="ColourTestScene.h" />
     <ClInclude Include="COMInitialize.h" />
     <ClInclude Include="Graphics\Light.h" />
     <ClInclude Include="Graphics\Material.h" />
     <ClInclude Include="Graphics\GenericPostProcess.h" />
     <ClInclude Include="Graphics\IPostProcess.h" />
     <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="Util\JobSystem.h" />
     <ClInclude Include="KeyboardEvents.h" />
     <ClInclude Include="Log.h" />
-    <ClInclude Include="MouseEvents.h" />
     <ClInclude Include="MoveableCamera.h" />
     <ClInclude Include="Graphics\RenderTexture.h" />
     <ClInclude Include="Graphics\SkyboxPipeline.h" />
@@ -333,18 +335,16 @@
     <ClInclude Include="Graphics\ColourPipeline.h" />
     <ClInclude Include="Graphics\LightPipeline.h" />
     <ClInclude Include="Graphics\Mesh.h" />
-    <ClInclude Include="Graphics\ModelLoader.h" />
-    <ClInclude Include="MarioTestScene.h" />
-    <ClInclude Include="ModelTestScene.h" />
+    <ClInclude Include="Graphics\SceneLoader.h" />
     <ClInclude Include="Util\COMException.h" />
     <ClInclude Include="Graphics\ConstantBuffer.h" />
     <ClInclude Include="Graphics\D3DClass.h" />
-    <ClInclude Include="IScene.h" />
+    <ClInclude Include="ILayer.h" />
     <ClInclude Include="Util\GDIPManager.h" />
     <ClInclude Include="Graphics\Graphics.h" />
     <ClInclude Include="Graphics\IndexBuffer.h" />
     <ClInclude Include="Graphics\IPipeline.h" />
-    <ClInclude Include="Graphics\IModel.h" />
+    <ClInclude Include="Graphics\Model.h" />
     <ClInclude Include="Graphics\PixelShader.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Graphics\Texture.h" />

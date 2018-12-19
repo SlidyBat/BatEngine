@@ -10,7 +10,10 @@
 #include "BumpMapPipeline.h"
 #include "SkyboxPipeline.h"
 
-#include "IModel.h"
+#include "MathLib.h"
+#include "Light.h"
+#include "Scene.h"
+#include "Model.h"
 #include "Window.h"
 #include "Material.h"
 #include "IPipeline.h"
@@ -152,6 +155,9 @@ namespace Bat
 
 	void Graphics::EndFrame()
 	{
+		// render scene
+		RenderScene();
+
 		// render skybox
 		if( m_pSkybox )
 		{
@@ -260,5 +266,48 @@ namespace Bat
 	void Graphics::AddShader( const std::string & name, std::unique_ptr<IPipeline> pPipeline )
 	{
 		m_mapPipelines[name] = std::move( pPipeline );
+	}
+
+	
+
+	class RenderSceneVisitor : public ISceneVisitor
+	{
+	public:
+		RenderSceneVisitor( Graphics& gfx )
+			:
+			gfx( gfx )
+		{}
+
+		virtual void Visit( Model& model )
+		{
+			DirectX::XMMATRIX w = model.GetWorldMatrix();
+			DirectX::XMMATRIX vp = gfx.GetCamera()->GetViewMatrix() * gfx.GetCamera()->GetProjectionMatrix();
+
+			model.Bind();
+
+			auto& meshes = model.GetMeshes();
+			for( auto& pMesh : meshes )
+			{
+				auto pPipeline = static_cast<LightPipeline*>( pMesh->GetMaterial().GetDefaultPipeline() );
+				static Light light( { 0.0f, 10.0f, 0.0f } );
+				pPipeline->SetLight( &light );
+
+				Material material = pMesh->GetMaterial();
+				LightPipelineParameters params( w, vp, material );
+				pMesh->Bind( pPipeline );
+				pPipeline->BindParameters( &params );
+				pPipeline->RenderIndexed( (UINT)pMesh->GetIndexCount() );
+			}
+		}
+	private:
+		Graphics& gfx;
+	};
+
+	void Graphics::RenderScene()
+	{
+		static RenderSceneVisitor scene_renderer( *this );
+
+		EnableDepthStencil();
+		m_pSceneGraph->AcceptVisitor( scene_renderer );
 	}
 }

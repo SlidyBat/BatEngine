@@ -17,6 +17,7 @@ namespace Bat
 
 			if( capacity )
 			{
+				m_iCapacity = capacity;
 				m_pMemPool = new char[sizeof( T ) * capacity];
 				char* pCurrent = m_pMemPool;
 				m_pFreeList = pCurrent;
@@ -38,6 +39,26 @@ namespace Bat
 			{
 				assert( false && "Memory leak detected" );
 			}
+#endif
+		}
+
+		PoolAllocator( const PoolAllocator& ) = delete;
+		PoolAllocator& operator=( const PoolAllocator& ) = delete;
+
+		PoolAllocator( PoolAllocator&& donor )
+		{
+			*this = std::move( donor );
+		}
+		PoolAllocator& operator=( const PoolAllocator&& rhs )
+		{
+			m_iCapacity = rhs.m_iCapacity;
+			m_pMemPool = rhs.m_pMemPool;
+			m_pFreeList = rhs.m_pFreeList;
+#
+			rhs.m_pMemPool = nullptr;
+#ifdef _DEBUG
+			m_iAllocs = rhs.m_iAllocs;
+			rhs.m_iAllocs = 0;
 #endif
 		}
 
@@ -71,6 +92,7 @@ namespace Bat
 	private:
 		char* m_pMemPool = nullptr;
 		char* m_pFreeList = nullptr;
+		size_t m_iCapacity = 0;
 #ifdef _DEBUG
 		size_t m_iAllocs = 0;
 #endif

@@ -1,41 +1,21 @@
 #include "PCH.h"
+
 #include "COMInitialize.h"
-#include "Window.h"
-#include "Graphics.h"
-#include "MarioTestScene.h"
-#include "ColourTestScene.h"
-#include "ModelTestScene.h"
-#include "CarTestScene.h"
 #include "COMException.h"
 #include "FrameTimer.h"
 #include "Globals.h"
-#include <SpriteBatch.h>
-#include <SpriteFont.h>
 #include "JobSystem.h"
 #include "ResourceManager.h"
+#include "Window.h"
+#include "Graphics.h"
+#include "Application.h"
 
 using namespace Bat;
-
-using namespace std;
-
-void Spin( float milliseconds )
-{
-	milliseconds /= 1000.0f;
-	chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
-	double ms = 0;
-	while( ms < milliseconds )
-	{
-		chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-		chrono::duration<double> time_span = chrono::duration_cast<chrono::duration<double>>( t2 - t1 );
-		ms = time_span.count();
-	}
-}
 
 int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow )
 {
 	try
 	{
-
 		COMInitialize coinit;
 		Logger::Init();
 		BAT_LOG( "Initialized logger" );
@@ -51,32 +31,19 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 
 		FrameTimer ft;
 
-		auto pScene = std::make_unique<CarTestScene>( wnd );
+		Application app( wnd );
 		while( wnd.ProcessMessage() )
 		{
-			static int fpsCounter = 0;
-			static float elapsedTime = 0.0f;
-			static std::string fpsString = "FPS: 0";
-
 			float dt = ft.Mark();
 			g_pGlobals->deltatime = dt;
-			elapsedTime += dt;
-			fpsCounter += 1;
-			if( elapsedTime > 1.0f )
-			{
-				fpsString = "FPS: " + std::to_string( fpsCounter );
-				fpsCounter = 0;
-				elapsedTime -= 1.0f;
-			}
 			g_pGlobals->elapsed_time += dt;
 
-			pScene->OnUpdate( dt );
+			app.OnUpdate( dt );
 
 			gfx.BeginFrame();
 			
-			pScene->OnRender();
+			app.OnRender();
 
-			gfx.DrawText( Bat::StringToWide( fpsString ).c_str(), DirectX::XMFLOAT2{ 15.0f, 15.0f } );
 
 			gfx.EndFrame();
 		}

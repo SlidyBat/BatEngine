@@ -10,7 +10,6 @@
 #include "Texture.h"
 #include "VertexShader.h"
 #include "PixelShader.h"
-#include "IModel.h"
 #include "Mesh.h"
 
 namespace Bat
@@ -43,21 +42,10 @@ namespace Bat
 		float pad4;
 	};
 
-	class LightModel : public IModel
-	{
-	public:
-		LightModel( const Mesh& mesh );
-		LightModel( std::vector<Mesh> meshes );
-
-		virtual void Draw( IPipeline* pPipeline ) const override;
-	private:
-		std::vector<Mesh> m_Meshes;
-	};
-
 	class LightPipelineParameters : public IPipelineParameters
 	{
 	public:
-		LightPipelineParameters( const DirectX::XMMATRIX& world, const DirectX::XMMATRIX& viewproj, Material* pMaterial )
+		LightPipelineParameters( const DirectX::XMMATRIX& world, const DirectX::XMMATRIX& viewproj, Material& pMaterial )
 			:
 			material( pMaterial )
 		{
@@ -66,7 +54,7 @@ namespace Bat
 		}
 	public:
 		CB_LightPipelineMatrix transform;
-		Material* material;
+		Material& material;
 	};
 
 	class LightPipeline : public IPipeline

@@ -38,7 +38,7 @@ float4 main(PixelInputType input) : SV_TARGET
     float3 normal = bumpMap.Sample(SampleType, input.tex).xyz;
     normal = normalize((normal * 2.0f) - 1.0f);
     float3x3 tbn = float3x3(input.tangent, input.bitangent, input.normal);
-    normal = normalize(mul(normal, tbn));
+    //normal = normalize(mul(normal, tbn));
 
     // ambient
     float3 ambient = lightAmbient * objDiffuse;

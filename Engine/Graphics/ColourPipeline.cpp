@@ -7,29 +7,6 @@
 
 namespace Bat
 {
-	ColouredModel::ColouredModel( const Mesh& mesh )
-	{
-		m_Meshes.emplace_back( mesh );
-	}
-	ColouredModel::ColouredModel( std::vector<Mesh> meshes )
-		:
-		m_Meshes( std::move( meshes ) )
-	{}
-
-	void ColouredModel::Draw( IPipeline* pPipeline ) const
-	{
-		auto vp = g_pGfx->GetCamera()->GetViewMatrix() * g_pGfx->GetCamera()->GetProjectionMatrix();
-		auto w = GetWorldMatrix();
-
-		for( const auto& mesh : m_Meshes )
-		{
-			mesh.Bind( pPipeline );
-			ColourPipelineParameters params( w, vp );
-			pPipeline->BindParameters( &params );
-			pPipeline->RenderIndexed( (UINT)mesh.GetIndexCount() );
-		}
-	}
-
 	ColourPipeline::ColourPipeline( const std::wstring& vsFilename, const std::wstring& psFilename )
 		:
 		IPipeline( vsFilename, psFilename )
