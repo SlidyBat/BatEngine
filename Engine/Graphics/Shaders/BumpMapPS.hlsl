@@ -50,7 +50,7 @@ float4 main(PixelInputType input) : SV_TARGET
     // specular
     float3 viewDir = normalize(cameraPos - (float3) input.world_pos);
     float3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(saturate(dot(viewDir, reflectDir)), 32.0f);
+    float spec = pow(saturate(dot(viewDir, reflectDir)), shininess);
     float3 specular = lightSpecular * (spec * objSpecular);
 
 

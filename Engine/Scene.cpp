@@ -56,7 +56,7 @@ namespace Bat
 		return false;
 	}
 
-	std::vector<Model*> BasicSceneNode::GetModels()
+	std::vector<Model*>& BasicSceneNode::GetModels()
 	{
 		return m_pModels;
 	}
@@ -84,17 +84,13 @@ namespace Bat
 		m_matTransform = transform;
 	}
 
-	void BasicSceneNode::AcceptVisitor( ISceneVisitor& visitor )
+	void BasicSceneNode::AcceptVisitor( const DirectX::XMMATRIX& transform, ISceneVisitor& visitor )
 	{
-		visitor.Visit( *this );
-		for( auto pModel : m_pModels )
-		{
-			visitor.Visit( *pModel );
-		}
-
+		auto new_transform = m_matTransform * transform;
+		visitor.Visit( new_transform, *this );
 		for( auto& child : m_pChildNodes )
 		{
-			child->AcceptVisitor( visitor );
+			child->AcceptVisitor( new_transform, visitor );
 		}
 	}
 
@@ -105,6 +101,6 @@ namespace Bat
 
 	void SceneGraph::AcceptVisitor( ISceneVisitor& visitor )
 	{
-		m_RootNode.AcceptVisitor( visitor );
+		m_RootNode.AcceptVisitor( m_RootNode.GetTransform(), visitor );
 	}
 }

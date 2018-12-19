@@ -19,14 +19,14 @@ namespace Bat
 		virtual void AddChildNode( std::unique_ptr<ISceneNode> pNode ) = 0;
 		virtual bool RemoveChildNode( ISceneNode* pNode ) = 0;
 
-		virtual std::vector<Model*> GetModels() = 0;
+		virtual std::vector<Model*>& GetModels() = 0;
 		virtual Model* AddModel( const Model& model ) = 0;
 		virtual void RemoveModel( Model* pModel ) = 0;
 
 		virtual DirectX::XMMATRIX GetTransform() const = 0;
 		virtual void SetTransform( const DirectX::XMMATRIX& transform ) = 0;
 
-		virtual void AcceptVisitor( ISceneVisitor& visitor ) = 0;
+		virtual void AcceptVisitor( const DirectX::XMMATRIX& transform, ISceneVisitor& visitor ) = 0;
 	};
 
 	class BasicSceneNode : public ISceneNode
@@ -42,14 +42,14 @@ namespace Bat
 		virtual void AddChildNode( std::unique_ptr<ISceneNode> pNode ) override;
 		virtual bool RemoveChildNode( ISceneNode* pNode ) override;
 
-		virtual std::vector<Model*> GetModels() override;
+		virtual std::vector<Model*>& GetModels() override;
 		virtual Model* AddModel( const Model& model ) override;
 		virtual void RemoveModel( Model* id ) override;
 
 		virtual DirectX::XMMATRIX GetTransform() const override;
 		virtual void SetTransform( const DirectX::XMMATRIX& transform ) override;
 
-		virtual void AcceptVisitor( ISceneVisitor& visitor ) override;
+		virtual void AcceptVisitor( const DirectX::XMMATRIX& transform, ISceneVisitor& visitor ) override;
 	private:
 		ISceneNode* m_pParentNode;
 		DirectX::XMMATRIX m_matTransform;
@@ -62,8 +62,7 @@ namespace Bat
 	public:
 		virtual ~ISceneVisitor() = default;
 
-		virtual void Visit( ISceneNode& node ) {};
-		virtual void Visit( Model& model ) {};
+		virtual void Visit( const DirectX::XMMATRIX& transform, ISceneNode& node ) {};
 	};
 
 	class SceneGraph

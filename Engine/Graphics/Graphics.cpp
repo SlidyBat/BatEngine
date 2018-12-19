@@ -278,25 +278,30 @@ namespace Bat
 			gfx( gfx )
 		{}
 
-		virtual void Visit( Model& model )
+		virtual void Visit( const DirectX::XMMATRIX& transform, ISceneNode& node )
 		{
-			DirectX::XMMATRIX w = model.GetWorldMatrix();
-			DirectX::XMMATRIX vp = gfx.GetCamera()->GetViewMatrix() * gfx.GetCamera()->GetProjectionMatrix();
-
-			model.Bind();
-
-			auto& meshes = model.GetMeshes();
-			for( auto& pMesh : meshes )
+			auto models = node.GetModels();
+			
+			for( auto pModel : models )
 			{
-				auto pPipeline = static_cast<LightPipeline*>( pMesh->GetMaterial().GetDefaultPipeline() );
-				static Light light( { 0.0f, 10.0f, 0.0f } );
-				pPipeline->SetLight( &light );
+				DirectX::XMMATRIX w = transform * pModel->GetWorldMatrix();
+				DirectX::XMMATRIX vp = gfx.GetCamera()->GetViewMatrix() * gfx.GetCamera()->GetProjectionMatrix();
 
-				Material material = pMesh->GetMaterial();
-				LightPipelineParameters params( w, vp, material );
-				pMesh->Bind( pPipeline );
-				pPipeline->BindParameters( &params );
-				pPipeline->RenderIndexed( (UINT)pMesh->GetIndexCount() );
+				pModel->Bind();
+
+				auto& meshes = pModel->GetMeshes();
+				for( auto& pMesh : meshes )
+				{
+					auto pPipeline = static_cast<LightPipeline*>( pMesh->GetMaterial().GetDefaultPipeline() );
+					static Light light( { 0.0f, 10.0f, 0.0f } );
+					pPipeline->SetLight( &light );
+
+					Material material = pMesh->GetMaterial();
+					LightPipelineParameters params( w, vp, material );
+					pMesh->Bind( pPipeline );
+					pPipeline->BindParameters( &params );
+					pPipeline->RenderIndexed( (UINT)pMesh->GetIndexCount() );
+				}
 			}
 		}
 	private:
