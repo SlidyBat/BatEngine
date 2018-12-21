@@ -11,6 +11,7 @@
 #include "SkyboxPipeline.h"
 
 #include "MathLib.h"
+#include "Texture.h"
 #include "Light.h"
 #include "Scene.h"
 #include "Model.h"

@@ -1,13 +1,8 @@
 #pragma once
 
-#include "PCH.h"
 #include "D3DClass.h"
 
 #include "IGraphics.h"
-#include "GDIPManager.h"
-#include "Colour.h"
-#include "Texture.h"
-#include "VertexTypes.h"
 #include "Camera.h"
 #include "RenderTexture.h"
 #include "ResourceManager.h"
@@ -21,7 +16,6 @@ namespace DirectX
 namespace Bat
 {
 	class Window;
-	class Model;
 
 	class Graphics : public IGraphics
 	{
