@@ -2,6 +2,7 @@
 
 // Windows
 #include "BatWinAPI.h"
+#include <wrl.h>
 
 // STL
 #include <iostream>

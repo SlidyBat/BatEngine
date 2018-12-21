@@ -1,6 +1,7 @@
 #include "PCH.h"
 #include "SkyboxPipeline.h"
 
+#include "RenderContext.h"
 #include "VertexTypes.h"
 #include "COMException.h"
 
@@ -97,15 +98,15 @@ namespace Bat
 		m_bufIndices.SetData( indices );
 	}
 
-	void SkyboxPipeline::BindParameters( IPipelineParameters* pParameters )
+	void SkyboxPipeline::BindParameters( IPipelineParameters& pParameters )
 	{
-		auto pTextureParameters = static_cast<SkyboxPipelineParameters*>(pParameters);
+		auto pTextureParameters = static_cast<SkyboxPipelineParameters&>(pParameters);
 		m_bufPositions.Bind( 0 );
 		m_bufIndices.Bind();
 		m_VertexShader.Bind();
 		m_PixelShader.Bind();
-		m_VertexShader.GetConstantBuffer( 0 ).SetData( &pTextureParameters->transform );
-		m_PixelShader.SetResource( 0, pTextureParameters->texture );
+		m_VertexShader.GetConstantBuffer( 0 ).SetData( &pTextureParameters.transform );
+		m_PixelShader.SetResource( 0, pTextureParameters.texture );
 	}
 
 	void SkyboxPipeline::Render( UINT vertexcount )
@@ -115,7 +116,7 @@ namespace Bat
 
 	void SkyboxPipeline::RenderIndexed( UINT indexcount )
 	{
-		auto pDeviceContext = g_pGfx->GetDeviceContext();
+		auto pDeviceContext = RenderContext::GetDeviceContext();
 		pDeviceContext->DrawIndexed( (UINT)m_bufIndices.GetIndexCount(), 0, 0 );
 	}
 }

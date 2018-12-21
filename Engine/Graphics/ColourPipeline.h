@@ -35,7 +35,7 @@ namespace Bat
 	public:
 		ColourPipeline( const std::wstring& vsFilename, const std::wstring& psFilename );
 
-		void BindParameters( IPipelineParameters* pParameters ) override;
+		void BindParameters( IPipelineParameters& pParameters ) override;
 		void Render( UINT vertexcount ) override;
 		void RenderIndexed( UINT indexcount ) override;
 	};

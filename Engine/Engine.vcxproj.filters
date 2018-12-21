@@ -186,6 +186,9 @@
     <ClCompile Include="Mutex.cpp">
       <Filter>Source Files\Util</Filter>
     </ClCompile>
+    <ClCompile Include="RenderContext.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input.h">
@@ -243,9 +246,6 @@
       <Filter>Header Files\Util</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\VertexTypes.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\IGraphics.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\IPipeline.h">
@@ -379,6 +379,9 @@
     </ClInclude>
     <ClInclude Include="Mutex.h">
       <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderContext.h">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

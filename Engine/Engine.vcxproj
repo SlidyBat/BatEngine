@@ -221,6 +221,7 @@
     <ClCompile Include="Graphics\GenericPostProcess.cpp" />
     <ClCompile Include="Graphics\ConstantBuffer.cpp" />
     <ClCompile Include="Graphics\Light.cpp" />
+    <ClCompile Include="RenderContext.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Util\JobSystem.cpp">
@@ -323,6 +324,7 @@
     <ClInclude Include="Graphics\Material.h" />
     <ClInclude Include="Graphics\GenericPostProcess.h" />
     <ClInclude Include="Graphics\IPostProcess.h" />
+    <ClInclude Include="RenderContext.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Util\JobSystem.h" />
@@ -344,7 +346,6 @@
     <ClInclude Include="ThirdParty\ImGui\imstb_truetype.h" />
     <ClInclude Include="Util\FrameTimer.h" />
     <ClInclude Include="Globals.h" />
-    <ClInclude Include="Graphics\IGraphics.h" />
     <ClInclude Include="ClassDef.h" />
     <ClInclude Include="Graphics\Camera.h" />
     <ClInclude Include="Graphics\Colour.h" />

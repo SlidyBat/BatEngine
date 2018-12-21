@@ -1,7 +1,7 @@
 #include "PCH.h"
 #include "GenericPostProcess.h"
 
-#include "IGraphics.h"
+#include "RenderContext.h"
 #include "TexturePipeline.h"
 #include "RenderTexture.h"
 #include "Globals.h"
@@ -15,7 +15,7 @@ namespace Bat
 		float pad;
 	};
 
-	GenericPostProcess::GenericPostProcess( const std::wstring& psFilename )
+	GenericPostProcess::GenericPostProcess( int width, int height, const std::wstring& psFilename )
 		:
 		m_VertexShader( L"Graphics/Shaders/Build/TextureVS.cso" ),
 		m_PixelShader( psFilename )
@@ -40,13 +40,13 @@ namespace Bat
 		m_PixelShader.AddSampler( &samplerDesc );
 		m_PixelShader.AddConstantBuffer<CB_Globals>();
 
-		const float width = (float)g_pGfx->GetScreenWidth();
-		const float height = (float)g_pGfx->GetScreenHeight();
+		const float fWidth =  (float)width;
+		const float fHeight = (float)height;
 
-		const float left = -width / 2;
-		const float right = width / 2;
-		const float top = height / 2;
-		const float bottom = -height / 2;
+		const float left = -fWidth / 2;
+		const float right = fWidth / 2;
+		const float top = fHeight / 2;
+		const float bottom = -fHeight / 2;
 
 		const std::vector<Vec4> positions = {
 			{ left, bottom, 1.0f, 1.0f },
@@ -71,13 +71,16 @@ namespace Bat
 
 	void GenericPostProcess::Render( RenderTexture& pRenderTexture )
 	{
+		const float width =  (float)pRenderTexture.GetTextureWidth();
+		const float height = (float)pRenderTexture.GetTextureHeight();
+
 		CB_TexturePipelineMatrix transform;
-		transform.viewproj = g_pGfx->GetOrthoMatrix();
+		transform.viewproj = DirectX::XMMatrixOrthographicLH( width, height, 0.1f, 1000.0f );
 		transform.world = DirectX::XMMatrixIdentity();
-		g_pGfx->GetDeviceContext()->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+		RenderContext::GetDeviceContext()->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
 		CB_Globals psGlobals;
-		psGlobals.resolution = { (float)g_pGfx->GetScreenWidth(), (float)g_pGfx->GetScreenHeight() };
+		psGlobals.resolution = { width, height };
 		psGlobals.time = g_pGlobals->elapsed_time;
 
 		m_bufPosition.Bind( 0 );
@@ -90,6 +93,6 @@ namespace Bat
 		m_PixelShader.SetResource( 0, pRenderTexture.GetTextureView() );
 		m_PixelShader.GetConstantBuffer( 0 ).SetData( &psGlobals );
 
-		g_pGfx->GetDeviceContext()->DrawIndexed( m_bufIndices.GetIndexCount(), 0, 0 );
+		RenderContext::GetDeviceContext()->DrawIndexed( m_bufIndices.GetIndexCount(), 0, 0 );
 	}
 }

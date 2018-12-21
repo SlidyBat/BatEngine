@@ -1,9 +1,10 @@
 #pragma once
 
+#include <vector>
+#include <d3d11.h>
 #include <wrl.h>
 
 #include "COMException.h"
-#include "IGraphics.h"
 
 namespace Bat
 {

@@ -1,7 +1,7 @@
 #include "PCH.h"
 #include "RenderTexture.h"
 
-#include "IGraphics.h"
+#include "RenderContext.h"
 #include "COMException.h"
 #include <d3d11.h>
 
@@ -17,7 +17,7 @@ namespace Bat
 		{
 			pRenderTargetViews.emplace_back( pRenderTargets->m_pRenderTargetView.Get() );
 		}
-		g_pGfx->GetDeviceContext()->OMSetRenderTargets( (UINT)count, pRenderTargetViews.data(), g_pGfx->GetDepthStencilView() );
+		RenderContext::GetDeviceContext()->OMSetRenderTargets( (UINT)count, pRenderTargetViews.data(), RenderContext::GetDepthStencilView() );
 	}
 
 	RenderTexture::RenderTexture( int width, int height )
@@ -27,15 +27,15 @@ namespace Bat
 
 	void RenderTexture::Bind()
 	{
-		g_pGfx->GetDeviceContext()->OMSetRenderTargets( 1, m_pRenderTargetView.GetAddressOf(), g_pGfx->GetDepthStencilView() );
+		RenderContext::GetDeviceContext()->OMSetRenderTargets( 1, m_pRenderTargetView.GetAddressOf(), RenderContext::GetDepthStencilView() );
 	}
 
 	void RenderTexture::Clear( const float red, const float green, const float blue, const float alpha )
 	{
 		float colour[4] = { red, green, blue, alpha };
 
-		g_pGfx->GetDeviceContext()->ClearRenderTargetView( m_pRenderTargetView.Get(), colour );
-		g_pGfx->GetDeviceContext()->ClearDepthStencilView( g_pGfx->GetDepthStencilView(), D3D11_CLEAR_DEPTH, 1.0f, 0 );
+		RenderContext::GetDeviceContext()->ClearRenderTargetView( m_pRenderTargetView.Get(), colour );
+		RenderContext::GetDeviceContext()->ClearDepthStencilView( RenderContext::GetDepthStencilView(), D3D11_CLEAR_DEPTH, 1.0f, 0 );
 	}
 
 	void RenderTexture::Resize( int width, int height )
@@ -43,7 +43,7 @@ namespace Bat
 		m_iWidth = width;
 		m_iHeight = height;
 
-		const auto pDevice = g_pGfx->GetDevice();
+		const auto pDevice = RenderContext::GetDevice();
 
 		D3D11_TEXTURE2D_DESC textureDesc{};
 		textureDesc.Width = width;

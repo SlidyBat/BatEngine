@@ -1,7 +1,7 @@
 #include "PCH.h"
 #include "ConstantBuffer.h"
 
-#include "IGraphics.h"
+#include "RenderContext.h"
 
 namespace Bat
 {
@@ -17,7 +17,7 @@ namespace Bat
 		desc.ByteWidth = static_cast<UINT>(size + (16 - (size % 16)));
 		desc.StructureByteStride = 0;
 
-		auto pDevice = g_pGfx->GetDevice();
+		auto pDevice = RenderContext::GetDevice();
 		COM_THROW_IF_FAILED( pDevice->CreateBuffer( &desc, NULL, &m_pConstantBuffer ) );
 	}
 	ConstantBuffer::ConstantBuffer( const void* pData, const size_t size )
@@ -37,12 +37,12 @@ namespace Bat
 		data.SysMemPitch = 0;
 		data.SysMemSlicePitch = 0;
 
-		auto pDevice = g_pGfx->GetDevice();
+		auto pDevice = RenderContext::GetDevice();
 		COM_THROW_IF_FAILED( pDevice->CreateBuffer( &desc, &data, &m_pConstantBuffer ) );
 	}
 	void ConstantBuffer::SetData( const void* pData )
 	{
-		auto pDeviceContext = g_pGfx->GetDeviceContext();
+		auto pDeviceContext = RenderContext::GetDeviceContext();
 
 		D3D11_MAPPED_SUBRESOURCE resource;
 		COM_THROW_IF_FAILED( pDeviceContext->Map( m_pConstantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource ) );

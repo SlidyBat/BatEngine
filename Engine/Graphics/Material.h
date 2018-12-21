@@ -28,7 +28,7 @@ namespace Bat
 		float GetShininess() const { return m_fShininess; }
 		void SetShininess( const float shininess ) { m_fShininess = shininess; }
 
-		IPipeline* GetDefaultPipeline() const;
+		const char* GetDefaultPipelineName() const;
 	private:
 		Resource<Texture> m_pAmbient = nullptr;
 		Resource<Texture> m_pDiffuse = nullptr;

@@ -6,16 +6,18 @@
 
 namespace Bat
 {
+	class Graphics;
 	class Window;
 
 	class Application : public ILayer
 	{
 	public:
-		Application( Window& wnd );
+		Application( Graphics& gfx, Window& wnd );
 
 		virtual void OnUpdate( float deltatime ) override;
 		virtual void OnRender() override;
 	private:
+		Graphics& gfx;
 		Window& wnd;
 		SceneGraph scene;
 		MoveableCamera camera;

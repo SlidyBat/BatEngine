@@ -1,7 +1,7 @@
 #include "PCH.h"
 #include "Mesh.h"
 
-#include "IGraphics.h"
+#include "RenderContext.h"
 #include "Camera.h"
 
 namespace Bat
@@ -17,7 +17,7 @@ namespace Bat
 	void Mesh::Bind( IPipeline* pPipeline ) const
 	{
 		// TODO: support other primitives?
-		g_pGfx->GetDeviceContext()->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+		RenderContext::GetDeviceContext()->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
 		// bind buffers
 		std::vector<ID3D11Buffer*> buffers;
@@ -63,7 +63,7 @@ namespace Bat
 		}
 
 		std::vector<UINT> offsets( buffers.size() );
-		g_pGfx->GetDeviceContext()->IASetVertexBuffers( 0, (UINT)buffers.size(), buffers.data(), strides.data(), offsets.data() );
+		RenderContext::GetDeviceContext()->IASetVertexBuffers( 0, (UINT)buffers.size(), buffers.data(), strides.data(), offsets.data() );
 		m_bufIndices.Bind();
 	}
 

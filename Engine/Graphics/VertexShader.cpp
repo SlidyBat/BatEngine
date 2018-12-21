@@ -1,6 +1,7 @@
 #include "PCH.h"
 #include "VertexShader.h"
 
+#include "RenderContext.h"
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include "COMException.h"
@@ -71,7 +72,7 @@ namespace Bat
 			inputLayoutDesc.push_back( elementDesc );
 		}
 
-		g_pGfx->GetDevice()->CreateInputLayout( inputLayoutDesc.data(), (UINT)inputLayoutDesc.size(), pCodeBytes, size, &m_pInputLayout );
+		RenderContext::GetDevice()->CreateInputLayout( inputLayoutDesc.data(), (UINT)inputLayoutDesc.size(), pCodeBytes, size, &m_pInputLayout );
 	}
 
 	VertexShader::VertexShader( const std::wstring& filename )
@@ -81,7 +82,7 @@ namespace Bat
 			m_bUsesAttribute[i] = false;
 		}
 
-		auto pDevice = g_pGfx->GetDevice();
+		auto pDevice = RenderContext::GetDevice();
 
 		// compiled shader object
 		if( Bat::GetFileExtension( filename ) == L"cso" )
@@ -134,7 +135,7 @@ namespace Bat
 
 	void VertexShader::Bind()
 	{
-		auto pDeviceContext = g_pGfx->GetDeviceContext();
+		auto pDeviceContext = RenderContext::GetDeviceContext();
 
 		pDeviceContext->IASetInputLayout( m_pInputLayout.Get() );
 		pDeviceContext->VSSetShader( m_pVertexShader.Get(), NULL, 0 );
@@ -152,7 +153,7 @@ namespace Bat
 
 	void VertexShader::AddSampler( const D3D11_SAMPLER_DESC* pSamplerDesc )
 	{
-		auto pDevice = g_pGfx->GetDevice();
+		auto pDevice = RenderContext::GetDevice();
 
 		ID3D11SamplerState* pSamplerState;
 		COM_THROW_IF_FAILED( pDevice->CreateSamplerState( pSamplerDesc, &pSamplerState ) );
@@ -163,7 +164,7 @@ namespace Bat
 
 	void VertexShader::SetResource( const int slot, ID3D11ShaderResourceView* const pResource )
 	{
-		auto pDeviceContext = g_pGfx->GetDeviceContext();
+		auto pDeviceContext = RenderContext::GetDeviceContext();
 		pDeviceContext->VSSetShaderResources( (UINT)slot, 1, &pResource );
 	}
 }

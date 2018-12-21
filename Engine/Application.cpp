@@ -1,21 +1,21 @@
 #include "PCH.h"
 #include "Application.h"
 
-#include "KeyboardEvents.h"
-#include "IGraphics.h"
+#include "Graphics.h"
 #include "Window.h"
 #include "SceneLoader.h"
 
 namespace Bat
 {
-	Application::Application( Window& wnd )
+	Application::Application( Graphics& gfx, Window& wnd )
 		:
+		gfx( gfx ),
 		wnd( wnd ),
 		scene( SceneLoader::LoadScene( "Assets/Car/scene.gltf" ) ),
 		camera( 200.0f )
 	{
-		g_pGfx->SetScene( &scene );
-		g_pGfx->SetCamera( &camera );
+		gfx.SetActiveScene( &scene );
+		gfx.SetActiveCamera( &camera );
 
 		light = scene.GetRootNode().AddLight( {} );
 	}
@@ -41,6 +41,6 @@ namespace Bat
 
 	void Application::OnRender()
 	{
-		g_pGfx->DrawText( Bat::StringToWide( fps_string ).c_str(), DirectX::XMFLOAT2{ 15.0f, 15.0f } );
+		gfx.DrawText( Bat::StringToWide( fps_string ).c_str(), DirectX::XMFLOAT2{ 15.0f, 15.0f } );
 	}
 }

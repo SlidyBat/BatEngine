@@ -2,7 +2,7 @@
 #include "Texture.h"
 
 #include <d3d11.h>
-#include "IGraphics.h"
+#include "RenderContext.h"
 #include "COMException.h"
 #include <WICTextureLoader.h>
 #include <DDSTextureLoader.h>
@@ -11,9 +11,8 @@ namespace Bat
 {
 	Texture::Texture( const std::wstring& filename )
 	{
-		auto pDevice = g_pGfx->GetDevice();
-		auto pDeviceContext = g_pGfx->GetDeviceContext();
-
+		auto pDevice = RenderContext::GetDevice();
+		auto pDeviceContext = RenderContext::GetDeviceContext();
 
 		if( !std::ifstream( filename ) )
 		{
@@ -38,8 +37,8 @@ namespace Bat
 
 	Texture::Texture( const uint8_t* pData, size_t size )
 	{
-		auto pDevice = g_pGfx->GetDevice();
-		auto pDeviceContext = g_pGfx->GetDeviceContext();
+		auto pDevice = RenderContext::GetDevice();
+		auto pDeviceContext = RenderContext::GetDeviceContext();
 
 		COM_THROW_IF_FAILED(
 			DirectX::CreateWICTextureFromMemory( pDevice, nullptr, pData, size, &m_pTexture, &m_pTextureView )
@@ -48,7 +47,7 @@ namespace Bat
 
 	Texture::Texture( const Colour* pPixels, int width, int height )
 	{
-		auto pDevice = g_pGfx->GetDevice();
+		auto pDevice = RenderContext::GetDevice();
 
 		CD3D11_TEXTURE2D_DESC textureDesc( DXGI_FORMAT_B8G8R8A8_UNORM, width, height );
 
@@ -67,7 +66,7 @@ namespace Bat
 
 	Texture::Texture( const D3DCOLORVALUE* pPixels, int width, int height )
 	{
-		auto pDevice = g_pGfx->GetDevice();
+		auto pDevice = RenderContext::GetDevice();
 
 		CD3D11_TEXTURE2D_DESC textureDesc( DXGI_FORMAT_R32G32B32A32_FLOAT, width, height );
 
@@ -86,7 +85,7 @@ namespace Bat
 
 	Texture Texture::FromDDS( const std::wstring & filename )
 	{
-		auto pDevice = g_pGfx->GetDevice();
+		auto pDevice = RenderContext::GetDevice();
 
 		Texture tex;
 		COM_THROW_IF_FAILED(

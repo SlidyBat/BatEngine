@@ -11,6 +11,7 @@
 #include "SkyboxPipeline.h"
 
 #include "MathLib.h"
+#include "Camera.h"
 #include "Texture.h"
 #include "Light.h"
 #include "Scene.h"
@@ -28,22 +29,23 @@
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
 
+#include "RenderContext.h"
+
 namespace Bat
 {
-	IGraphics* g_pGfx = nullptr;
-
 	Graphics::Graphics( Window& wnd )
 		:
 		d3d( wnd, VSyncEnabled, ScreenFar, ScreenNear )
 	{
-		IGraphics::RegisterGraphics( this );
+		RenderContext::SetD3DClass( d3d );
+
 		AddShader( "texture", std::make_unique<TexturePipeline>( L"Graphics/Shaders/Build/TextureVS.cso", L"Graphics/Shaders/Build/TexturePS.cso" ) );
 		AddShader( "colour", std::make_unique <ColourPipeline>( L"Graphics/Shaders/Build/ColourVS.cso", L"Graphics/Shaders/Build/ColourPS.cso" ) );
 		AddShader( "light", std::make_unique<LightPipeline>( L"Graphics/Shaders/Build/LightVS.cso", L"Graphics/Shaders/Build/LightPS.cso" ) );
 		AddShader( "bumpmap", std::make_unique<BumpMapPipeline>( L"Graphics/Shaders/Build/BumpMapVS.cso", L"Graphics/Shaders/Build/BumpMapPS.cso" ) );
 		AddShader( "skybox", std::make_unique<SkyboxPipeline>( L"Graphics/Shaders/Build/SkyboxVS.cso", L"Graphics/Shaders/Build/SkyboxPS.cso" ) );
 
-		m_pBloomProcess = std::make_unique<BloomPostProcess>();
+		m_pBloomProcess = std::make_unique<BloomPostProcess>( wnd.GetWidth(), wnd.GetHeight() );
 
 		m_FrameBuffers[0].Resize( wnd.GetWidth(), wnd.GetHeight() );
 		m_FrameBuffers[1].Resize( wnd.GetWidth(), wnd.GetHeight() );
@@ -162,13 +164,13 @@ namespace Bat
 		// render skybox
 		if( m_pSkybox )
 		{
-			auto pos = GetCamera()->GetPosition();
+			auto pos = GetActiveCamera()->GetPosition();
 			auto w = DirectX::XMMatrixTranslation( pos.x, pos.y, pos.z );
-			auto t = w * GetCamera()->GetViewMatrix() * GetCamera()->GetProjectionMatrix();
+			auto t = w * GetActiveCamera()->GetViewMatrix() * GetActiveCamera()->GetProjectionMatrix();
 
 			SkyboxPipelineParameters params( t, m_pSkybox->GetTextureView() );
 			auto pPipeline = GetPipeline( "skybox" );
-			pPipeline->BindParameters( &params );
+			pPipeline->BindParameters( params );
 			pPipeline->RenderIndexed( 0 ); // skybox uses its own index buffer & index count, doesnt matter what we pass in
 		}
 
@@ -309,22 +311,23 @@ namespace Bat
 			{
 				Model* pModel = node.GetModel( i );
 				DirectX::XMMATRIX w = transform * pModel->GetWorldMatrix();
-				DirectX::XMMATRIX vp = gfx.GetCamera()->GetViewMatrix() * gfx.GetCamera()->GetProjectionMatrix();
+				DirectX::XMMATRIX vp = gfx.GetActiveCamera()->GetViewMatrix() * gfx.GetActiveCamera()->GetProjectionMatrix();
 
 				pModel->Bind();
 
 				auto& meshes = pModel->GetMeshes();
 				for( auto& pMesh : meshes )
 				{
-					auto pPipeline = static_cast<LightPipeline*>( pMesh->GetMaterial().GetDefaultPipeline() );
+					auto szPipelineName = pMesh->GetMaterial().GetDefaultPipelineName();
+					auto pPipeline = static_cast<LightPipeline*>( gfx.GetPipeline( szPipelineName ) );
 					pPipeline->SetLight( m_pLight );
 					static Light light( { 0.0f, 10.0f, 0.0f } );
 					pPipeline->SetLight( &light );
 
 					Material material = pMesh->GetMaterial();
-					LightPipelineParameters params( w, vp, material );
+					LightPipelineParameters params( *gfx.GetActiveCamera(), w, vp, material );
 					pMesh->Bind( pPipeline );
-					pPipeline->BindParameters( &params );
+					pPipeline->BindParameters( params );
 					pPipeline->RenderIndexed( (UINT)pMesh->GetIndexCount() );
 				}
 			}

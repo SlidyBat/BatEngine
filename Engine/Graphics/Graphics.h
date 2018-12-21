@@ -2,8 +2,8 @@
 
 #include "D3DClass.h"
 
-#include "IGraphics.h"
-#include "Camera.h"
+#include <DirectXColors.h>
+#include "IPipeline.h"
 #include "RenderTexture.h"
 #include "ResourceManager.h"
 
@@ -16,8 +16,11 @@ namespace DirectX
 namespace Bat
 {
 	class Window;
+	class SceneGraph;
+	class Camera;
+	class IPostProcess;
 
-	class Graphics : public IGraphics
+	class Graphics
 	{
 	public:
 		Graphics( Window& wnd );
@@ -26,33 +29,45 @@ namespace Bat
 		Graphics( Graphics&& donor ) = delete;
 		Graphics& operator=( Graphics&& donor ) = delete;
 
-		~Graphics() override;
+		~Graphics();
 
 		void Resize( int width, int height );
 
-		virtual int GetScreenWidth() const override;
-		virtual int GetScreenHeight() const override;
+		int GetScreenWidth() const;
+		int GetScreenHeight() const;
 
-		virtual IPipeline* GetPipeline( const std::string& name ) const override;
+		Camera* GetActiveCamera() const { return m_pCamera; }
+		void SetActiveCamera( Camera* pCamera ) { m_pCamera = pCamera; }
 
-		virtual void AddPostProcess( std::unique_ptr<IPostProcess> pPostProcess ) override;
-		virtual void SetSkybox( Resource<Texture> pCubemap ) override { m_pSkybox = pCubemap; }
+		SceneGraph* GetActiveScene() const { return m_pSceneGraph; }
+		void SetActiveScene( SceneGraph* pSceneGraph ) { m_pSceneGraph = pSceneGraph; }
 
-		virtual bool IsDepthStencilEnabled() const override;
-		virtual void SetDepthStencilEnabled( bool enable ) override;
+		IPipeline* GetPipeline( const std::string& name ) const;
 
-		virtual void BeginFrame() override;
-		virtual void EndFrame() override;
+		bool IsBloomEnabled() const { return m_bBloomEnabled; }
+		void SetBloomEnabled( const bool enable ) { m_bBloomEnabled = enable; }
 
-		virtual void DrawText( std::wstring text, const Vec2& pos, const DirectX::FXMVECTOR col = DirectX::Colors::White ) override;
+		void AddPostProcess( std::unique_ptr<IPostProcess> pPostProcess );
+		void SetSkybox( Resource<Texture> pCubemap ) { m_pSkybox = pCubemap; }
 
-		virtual DirectX::XMMATRIX GetOrthoMatrix() const;
+		bool IsDepthStencilEnabled() const;
+		void SetDepthStencilEnabled( bool enable );
+		void EnableDepthStencil() { SetDepthStencilEnabled( true ); }
+		void DisableDepthStencil() { SetDepthStencilEnabled( true ); }
 
-		virtual ID3D11Device* GetDevice() const override;
-		virtual ID3D11DeviceContext* GetDeviceContext() const override;
-		virtual ID3D11RenderTargetView* GetRenderTargetView() const override;
-		virtual ID3D11DepthStencilView* GetDepthStencilView() const override;
+		void BeginFrame();
+		void EndFrame();
+
+		void DrawText( std::wstring text, const Vec2& pos, const DirectX::FXMVECTOR col = DirectX::Colors::White );
+
+		DirectX::XMMATRIX GetOrthoMatrix() const;
+
+		ID3D11RenderTargetView* GetRenderTargetView() const;
+		ID3D11DepthStencilView* GetDepthStencilView() const;
 	private:
+		ID3D11Device* GetDevice() const;
+		ID3D11DeviceContext* GetDeviceContext() const;
+
 		void RenderScene();
 
 		void AddShader( const std::string& name, std::unique_ptr<IPipeline> pPipeline );
@@ -69,6 +84,10 @@ namespace Bat
 		int m_iScreenWidth = InitialScreenWidth;
 		int m_iScreenHeight = InitialScreenHeight;
 
+		SceneGraph* m_pSceneGraph = nullptr;
+		Camera* m_pCamera = nullptr;
+		
+		bool m_bBloomEnabled = false;
 		std::unique_ptr<IPostProcess> m_pBloomProcess;
 	private:
 		struct TextDrawCommand

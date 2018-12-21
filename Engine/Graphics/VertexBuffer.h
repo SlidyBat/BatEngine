@@ -4,7 +4,7 @@
 #include <wrl.h>
 
 #include "COMException.h"
-#include "IGraphics.h"
+#include "Graphics.h"
 
 namespace Bat
 {
@@ -25,7 +25,7 @@ namespace Bat
 		void SetData( const V* pData, const UINT size )
 		{
 			m_iSize = size;
-			auto pDevice = g_pGfx->GetDevice();
+			auto pDevice = RenderContext::GetDevice();
 
 			D3D11_BUFFER_DESC vertexBufferDesc;
 			vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -72,7 +72,7 @@ namespace Bat
 		{
 			UINT stride = sizeof( V );
 			UINT offset = 0;
-			g_pGfx->GetDeviceContext()->IASetVertexBuffers( slot, 1, m_pVertexBuffer.GetAddressOf(), &stride, &offset );
+			RenderContext::GetDeviceContext()->IASetVertexBuffers( slot, 1, m_pVertexBuffer.GetAddressOf(), &stride, &offset );
 		}
 	private:
 		Microsoft::WRL::ComPtr<ID3D11Buffer> m_pVertexBuffer = nullptr;

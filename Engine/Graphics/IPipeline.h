@@ -26,7 +26,7 @@ namespace Bat
 			return m_VertexShader.RequiresVertexAttribute( attribute );
 		}
 
-		virtual void BindParameters( IPipelineParameters* pParameters ) = 0;
+		virtual void BindParameters( IPipelineParameters& pParameters ) = 0;
 		virtual void Render( UINT vertexcount ) = 0;
 		virtual void RenderIndexed( UINT indexcount ) = 0;
 	protected:

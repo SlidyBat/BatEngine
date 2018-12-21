@@ -4,6 +4,7 @@
 #include "Globals.h"
 #include "TexturePipeline.h"
 #include "WindowEvents.h"
+#include "RenderContext.h"
 
 namespace Bat
 {
@@ -14,16 +15,20 @@ namespace Bat
 		float pad;
 	};
 
-	BloomPostProcess::BloomPostProcess()
+	BloomPostProcess::BloomPostProcess( int width, int height )
 		:
-		GenericPostProcess( L"Graphics/Shaders/TexturePS.hlsl" )
+		GenericPostProcess( width, height, L"Graphics/Shaders/TexturePS.hlsl" ),
+		m_iWidth( width ),
+		m_iHeight( height )
 	{
-		m_BloomFrameBuffer.Resize( g_pGfx->GetScreenWidth(), g_pGfx->GetScreenHeight() );
-		m_BloomFrameBuffer2.Resize( g_pGfx->GetScreenWidth(), g_pGfx->GetScreenHeight() );
+		m_BloomFrameBuffer.Resize( width, height );
+		m_BloomFrameBuffer2.Resize( width, height );
 		ON_EVENT_DISPATCHED( [=]( const WindowResizeEvent* e )
 		{
-			m_BloomFrameBuffer.Resize( g_pGfx->GetScreenWidth(), g_pGfx->GetScreenHeight() );
-			m_BloomFrameBuffer2.Resize( g_pGfx->GetScreenWidth(), g_pGfx->GetScreenHeight() );
+			m_iWidth = e->GetWidth();
+			m_iHeight = e->GetHeight();
+			m_BloomFrameBuffer.Resize( m_iWidth, m_iHeight );
+			m_BloomFrameBuffer2.Resize( m_iWidth, m_iHeight );
 		} );
 
 		m_pBrightExtractPS = ResourceManager::GetPixelShader( "Graphics/Shaders/BrightExtractPS.hlsl" );
@@ -39,12 +44,12 @@ namespace Bat
 	void BloomPostProcess::Render( RenderTexture& pRenderTexture )
 	{
 		CB_TexturePipelineMatrix transform;
-		transform.viewproj = g_pGfx->GetOrthoMatrix();
+		transform.viewproj = DirectX::XMMatrixOrthographicLH( (float)m_iWidth, (float)m_iHeight, 0.1f, 1000.0f );
 		transform.world = DirectX::XMMatrixIdentity();
-		g_pGfx->GetDeviceContext()->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+		RenderContext::GetDeviceContext()->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
 		CB_Globals psGlobals;
-		psGlobals.resolution = { (float)g_pGfx->GetScreenWidth(), (float)g_pGfx->GetScreenHeight() };
+		psGlobals.resolution = { (float)m_iWidth, (float)m_iHeight };
 		psGlobals.time = g_pGlobals->elapsed_time;
 
 		m_PixelShader.GetConstantBuffer( 0 ).SetData( &psGlobals );
@@ -62,7 +67,7 @@ namespace Bat
 		m_BloomFrameBuffer.Bind();
 		m_pBrightExtractPS->Bind();
 		m_pBrightExtractPS->SetResource( 0, pRenderTexture.GetTextureView() );
-		g_pGfx->GetDeviceContext()->DrawIndexed( m_bufIndices.GetIndexCount(), 0, 0 );
+		RenderContext::GetDeviceContext()->DrawIndexed( m_bufIndices.GetIndexCount(), 0, 0 );
 
 		for( int i = 0; i < 5 * 2; i++ )
 		{
@@ -78,15 +83,15 @@ namespace Bat
 				m_pGaussBlurVerPS->Bind();
 				m_pGaussBlurVerPS->SetResource( 0, m_BloomFrameBuffer2.GetTextureView() );
 			}
-			g_pGfx->GetDeviceContext()->DrawIndexed( m_bufIndices.GetIndexCount(), 0, 0 );
+			RenderContext::GetDeviceContext()->DrawIndexed( m_bufIndices.GetIndexCount(), 0, 0 );
 		}
 
 		m_pBloomShader->Bind();
 		m_pBloomShader->SetResource( 0, pRenderTexture.GetTextureView() );
 		m_pBloomShader->SetResource( 1, m_BloomFrameBuffer2.GetTextureView() );
-		auto pDeviceContext = g_pGfx->GetDeviceContext();
-		auto pBackBuffer = g_pGfx->GetRenderTargetView();
-		pDeviceContext->OMSetRenderTargets( 1, &pBackBuffer, g_pGfx->GetDepthStencilView() );
-		g_pGfx->GetDeviceContext()->DrawIndexed( m_bufIndices.GetIndexCount(), 0, 0 );
+		auto pDeviceContext = RenderContext::GetDeviceContext();
+		auto pBackBuffer = RenderContext::GetBackBufferView();
+		pDeviceContext->OMSetRenderTargets( 1, &pBackBuffer, RenderContext::GetDepthStencilView() );
+		RenderContext::GetDeviceContext()->DrawIndexed( m_bufIndices.GetIndexCount(), 0, 0 );
 	}
 }

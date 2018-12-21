@@ -12,7 +12,7 @@ namespace Bat
 	class GenericPostProcess : public IPostProcess
 	{
 	public:
-		GenericPostProcess( const std::wstring& filename );
+		GenericPostProcess( int width, int height, const std::wstring& filename );
 
 		virtual void Render( RenderTexture& pRenderTexture ) override;
 	protected:

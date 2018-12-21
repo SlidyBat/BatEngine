@@ -1,7 +1,7 @@
 #include "PCH.h"
 #include "IndexBuffer.h"
 
-#include <d3d11.h>
+#include "RenderContext.h"
 
 namespace Bat
 {
@@ -32,7 +32,7 @@ namespace Bat
 		indexData.SysMemPitch = 0;
 		indexData.SysMemSlicePitch = 0;
 
-		COM_THROW_IF_FAILED( g_pGfx->GetDevice()->CreateBuffer( &indexBufferDesc, &indexData, &m_pIndexBuffer ) );
+		COM_THROW_IF_FAILED( RenderContext::GetDevice()->CreateBuffer( &indexBufferDesc, &indexData, &m_pIndexBuffer ) );
 	}
 
 	void IndexBuffer::SetData( const std::vector<int>& indices )
@@ -46,7 +46,7 @@ namespace Bat
 	}
 	void IndexBuffer::Bind() const
 	{
-		auto pDeviceContext = g_pGfx->GetDeviceContext();
+		auto pDeviceContext = RenderContext::GetDeviceContext();
 		pDeviceContext->IASetIndexBuffer( m_pIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0 );
 	}
 	UINT IndexBuffer::GetIndexCount() const

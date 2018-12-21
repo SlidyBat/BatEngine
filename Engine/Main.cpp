@@ -31,7 +31,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 
 		FrameTimer ft;
 
-		Application app( wnd );
+		Application app( gfx, wnd );
 		while( wnd.ProcessMessage() )
 		{
 			float dt = ft.Mark();

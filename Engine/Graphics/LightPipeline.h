@@ -45,8 +45,9 @@ namespace Bat
 	class LightPipelineParameters : public IPipelineParameters
 	{
 	public:
-		LightPipelineParameters( const DirectX::XMMATRIX& world, const DirectX::XMMATRIX& viewproj, Material& pMaterial )
+		LightPipelineParameters( const Camera& camera, const DirectX::XMMATRIX& world, const DirectX::XMMATRIX& viewproj, Material& pMaterial )
 			:
+			camera( camera ),
 			material( pMaterial )
 		{
 			transform.world = world;
@@ -54,6 +55,7 @@ namespace Bat
 		}
 	public:
 		CB_LightPipelineMatrix transform;
+		const Camera& camera;
 		Material& material;
 	};
 
@@ -62,7 +64,7 @@ namespace Bat
 	public:
 		LightPipeline( const std::wstring& vsFilename, const std::wstring& psFilename );
 
-		void BindParameters( IPipelineParameters* pParameters ) override;
+		void BindParameters( IPipelineParameters& pParameters ) override;
 		void Render( UINT vertexcount ) override;
 		void RenderIndexed( UINT indexcount ) override;
 

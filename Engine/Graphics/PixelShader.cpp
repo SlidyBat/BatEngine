@@ -4,14 +4,14 @@
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include "COMException.h"
-#include "Graphics.h"
+#include "RenderContext.h"
 #include "MemoryStream.h"
 
 namespace Bat
 {
 	PixelShader::PixelShader( const std::wstring& filename )
 	{
-		auto pDevice = g_pGfx->GetDevice();
+		auto pDevice = RenderContext::GetDevice();
 
 		// compiled shader object
 		if( Bat::GetFileExtension( filename ) == L"cso" )
@@ -60,7 +60,7 @@ namespace Bat
 
 	void PixelShader::Bind()
 	{
-		auto pDeviceContext = g_pGfx->GetDeviceContext();
+		auto pDeviceContext = RenderContext::GetDeviceContext();
 
 		pDeviceContext->PSSetShader( m_pPixelShader.Get(), NULL, 0 );
 		pDeviceContext->PSSetSamplers( 0, (UINT)m_pSamplerStates.size(), m_pSamplerStates.data() );
@@ -77,7 +77,7 @@ namespace Bat
 
 	void PixelShader::AddSampler( const D3D11_SAMPLER_DESC* pSamplerDesc )
 	{
-		auto pDevice = g_pGfx->GetDevice();
+		auto pDevice = RenderContext::GetDevice();
 
 		ID3D11SamplerState* pSamplerState;
 		COM_THROW_IF_FAILED( pDevice->CreateSamplerState( pSamplerDesc, &pSamplerState ) );
@@ -88,13 +88,13 @@ namespace Bat
 
 	void PixelShader::SetResource( int slot, ID3D11ShaderResourceView* const pResource )
 	{
-		auto pDeviceContext = g_pGfx->GetDeviceContext();
+		auto pDeviceContext = RenderContext::GetDeviceContext();
 		pDeviceContext->PSSetShaderResources( (UINT)slot, 1, &pResource );
 	}
 
 	void PixelShader::SetResources( int startslot, ID3D11ShaderResourceView ** const pResource, size_t size )
 	{
-		auto pDeviceContext = g_pGfx->GetDeviceContext();
+		auto pDeviceContext = RenderContext::GetDeviceContext();
 		pDeviceContext->PSSetShaderResources( (UINT)startslot, (UINT)size, pResource );
 	}
 }

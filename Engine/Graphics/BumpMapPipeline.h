@@ -9,6 +9,6 @@ namespace Bat
 	public:
 		BumpMapPipeline( const std::wstring& vsFilename, const std::wstring& psFilename );
 
-		void BindParameters( IPipelineParameters* pParameters ) override;
+		void BindParameters( IPipelineParameters& pParameters ) override;
 	};
 }

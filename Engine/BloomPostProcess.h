@@ -3,13 +3,14 @@
 #include "GenericPostProcess.h"
 #include "RenderTexture.h"
 #include "ResourceManager.h"
+#include "Window.h"
  
 namespace Bat
 {
 	class BloomPostProcess : public GenericPostProcess
 	{
 	public:
-		BloomPostProcess();
+		BloomPostProcess( int width, int height );
 
 		virtual void Render( RenderTexture& pRenderTexture ) override;
 	private:
@@ -19,5 +20,8 @@ namespace Bat
 		Resource<PixelShader> m_pGaussBlurHorPS;
 		Resource<PixelShader> m_pGaussBlurVerPS;
 		Resource<PixelShader> m_pBloomShader;
+
+		int m_iWidth = 0;
+		int m_iHeight = 0;
 	};
 }

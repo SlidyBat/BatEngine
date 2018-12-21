@@ -1,19 +1,19 @@
 #include "PCH.h"
 #include "Material.h"
 
-#include "IGraphics.h"
+#include "Graphics.h"
 
 namespace Bat
 {
-	IPipeline* Bat::Material::GetDefaultPipeline() const
+	const char* Bat::Material::GetDefaultPipelineName() const
 	{
 		if( m_pBumpMap != nullptr )
 		{
-			return g_pGfx->GetPipeline( "bumpmap" );
+			return "bumpmap";
 		}
 		else
 		{
-			return g_pGfx->GetPipeline( "light" );
+			return "light";
 		}
 	}
 }
