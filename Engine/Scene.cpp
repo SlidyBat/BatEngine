@@ -2,25 +2,15 @@
 #include "Scene.h"
 
 #include "Model.h"
-#include "PoolAllocator.h"
+#include "Light.h"
 
 namespace Bat
 {
-	PoolAllocator<Model> g_ModelAllocator( 500 );
-
 	BasicSceneNode::BasicSceneNode( const DirectX::XMMATRIX& transform, ISceneNode* pParent )
 		:
 		m_pParentNode( pParent ),
 		m_matTransform( transform )
 	{}
-
-	BasicSceneNode::~BasicSceneNode()
-	{
-		for( auto pModel : m_pModels )
-		{
-			g_ModelAllocator.Free( pModel );
-		}
-	}
 
 	ISceneNode* BasicSceneNode::GetParentNode()
 	{
@@ -56,22 +46,56 @@ namespace Bat
 		return false;
 	}
 
-	std::vector<Model*>& BasicSceneNode::GetModels()
+	size_t BasicSceneNode::GetModelCount()
 	{
-		return m_pModels;
+		return m_pModels.size();
+	}
+
+	Model * BasicSceneNode::GetModel( size_t index )
+	{
+		return m_pModels[index].get();
 	}
 
 	Model* BasicSceneNode::AddModel( const Model& model )
 	{
-		Model* pModel = g_ModelAllocator.Alloc( model );
-		m_pModels.emplace_back( pModel );
-		return pModel;
+		m_pModels.emplace_back( std::make_unique<Model>( model ) );
+		return m_pModels.back().get();
 	}
 
 	void BasicSceneNode::RemoveModel( Model* pModel )
 	{
-		m_pModels.erase( std::remove( m_pModels.begin(), m_pModels.end(), pModel ) );
-		g_ModelAllocator.Free( pModel );
+		m_pModels.erase( std::remove_if( m_pModels.begin(), m_pModels.end(),
+			[pModel]( const std::unique_ptr<Model>& l )
+			{
+				return l.get() == pModel;
+			}
+		) );
+	}
+
+	size_t BasicSceneNode::GetLightCount()
+	{
+		return m_pLights.size();
+	}
+
+	Light* BasicSceneNode::GetLight( size_t index )
+	{
+		return m_pLights[index].get();
+	}
+
+	Light* BasicSceneNode::AddLight( const Light& light )
+	{
+		m_pLights.emplace_back( std::make_unique<Light>( light ) );
+		return m_pLights.back().get();
+	}
+
+	void BasicSceneNode::RemoveLight( Light* pLight )
+	{
+		m_pLights.erase( std::remove_if( m_pLights.begin(), m_pLights.end(),
+			[pLight]( const std::unique_ptr<Light>& l )
+			{
+				return l.get() == pLight;
+			}
+		) );
 	}
 
 	DirectX::XMMATRIX BasicSceneNode::GetTransform() const

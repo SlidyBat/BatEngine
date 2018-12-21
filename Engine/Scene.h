@@ -3,10 +3,13 @@
 #include <vector>
 #include "ResourceManager.h"
 #include "MathLib.h"
+#include "Light.h"
+#include "Model.h"
 
 namespace Bat
 {
 	class Model;
+	class Light;
 	class ISceneVisitor;
 
 	class ISceneNode
@@ -19,9 +22,15 @@ namespace Bat
 		virtual void AddChildNode( std::unique_ptr<ISceneNode> pNode ) = 0;
 		virtual bool RemoveChildNode( ISceneNode* pNode ) = 0;
 
-		virtual std::vector<Model*>& GetModels() = 0;
+		virtual size_t GetModelCount() = 0;
+		virtual Model* GetModel( size_t index ) = 0;
 		virtual Model* AddModel( const Model& model ) = 0;
 		virtual void RemoveModel( Model* pModel ) = 0;
+
+		virtual size_t GetLightCount() = 0;
+		virtual Light* GetLight( size_t index ) = 0;
+		virtual Light* AddLight( const Light& model ) = 0;
+		virtual void RemoveLight( Light* pModel ) = 0;
 
 		virtual DirectX::XMMATRIX GetTransform() const = 0;
 		virtual void SetTransform( const DirectX::XMMATRIX& transform ) = 0;
@@ -33,7 +42,6 @@ namespace Bat
 	{
 	public:
 		BasicSceneNode( const DirectX::XMMATRIX& transform = DirectX::XMMatrixIdentity(), ISceneNode* pParent = nullptr );
-		virtual ~BasicSceneNode() override;
 
 		BasicSceneNode( BasicSceneNode&& ) = default;
 
@@ -42,9 +50,15 @@ namespace Bat
 		virtual void AddChildNode( std::unique_ptr<ISceneNode> pNode ) override;
 		virtual bool RemoveChildNode( ISceneNode* pNode ) override;
 
-		virtual std::vector<Model*>& GetModels() override;
+		virtual size_t GetModelCount() override;
+		virtual Model* GetModel( size_t index ) override;
 		virtual Model* AddModel( const Model& model ) override;
 		virtual void RemoveModel( Model* id ) override;
+
+		virtual size_t GetLightCount() override;
+		virtual Light* GetLight( size_t index ) override;
+		virtual Light* AddLight( const Light& light ) override;
+		virtual void RemoveLight( Light* pLight ) override;
 
 		virtual DirectX::XMMATRIX GetTransform() const override;
 		virtual void SetTransform( const DirectX::XMMATRIX& transform ) override;
@@ -54,7 +68,8 @@ namespace Bat
 		ISceneNode* m_pParentNode;
 		DirectX::XMMATRIX m_matTransform;
 		std::vector<std::unique_ptr<ISceneNode>> m_pChildNodes;
-		std::vector<Model*> m_pModels;
+		std::vector<std::unique_ptr<Model>> m_pModels;
+		std::vector<std::unique_ptr<Light>> m_pLights;
 	};
 
 	class ISceneVisitor

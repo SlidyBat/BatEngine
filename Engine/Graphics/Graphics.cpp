@@ -270,20 +270,43 @@ namespace Bat
 
 	
 
-	class RenderSceneVisitor : public ISceneVisitor
+	class GetSceneLightsVisitor : public ISceneVisitor
 	{
 	public:
-		RenderSceneVisitor( Graphics& gfx )
+		GetSceneLightsVisitor( Light** ppLight )
 			:
-			gfx( gfx )
+			m_ppLight( ppLight )
 		{}
 
 		virtual void Visit( const DirectX::XMMATRIX& transform, ISceneNode& node )
 		{
-			auto models = node.GetModels();
-			
-			for( auto pModel : models )
+			size_t count = node.GetLightCount();
+			for( size_t i = 0; i < count; i++ )
 			{
+				*m_ppLight = node.GetLight( i );
+			}
+		}
+	private:
+		Light** m_ppLight;
+	};
+
+	class RenderSceneVisitor : public ISceneVisitor
+	{
+	public:
+		RenderSceneVisitor( Graphics& gfx, Light* pLight = nullptr )
+			:
+			gfx( gfx ),
+			m_pLight( pLight )
+		{}
+
+		void SetLight( Light* pLight ) { m_pLight = pLight; }
+
+		virtual void Visit( const DirectX::XMMATRIX& transform, ISceneNode& node )
+		{
+			size_t count = node.GetModelCount();
+			for( size_t i = 0; i < count; i++ )
+			{
+				Model* pModel = node.GetModel( i );
 				DirectX::XMMATRIX w = transform * pModel->GetWorldMatrix();
 				DirectX::XMMATRIX vp = gfx.GetCamera()->GetViewMatrix() * gfx.GetCamera()->GetProjectionMatrix();
 
@@ -293,6 +316,7 @@ namespace Bat
 				for( auto& pMesh : meshes )
 				{
 					auto pPipeline = static_cast<LightPipeline*>( pMesh->GetMaterial().GetDefaultPipeline() );
+					pPipeline->SetLight( m_pLight );
 					static Light light( { 0.0f, 10.0f, 0.0f } );
 					pPipeline->SetLight( &light );
 
@@ -306,13 +330,19 @@ namespace Bat
 		}
 	private:
 		Graphics& gfx;
+		Light* m_pLight = nullptr;
 	};
 
 	void Graphics::RenderScene()
 	{
 		static RenderSceneVisitor scene_renderer( *this );
 
+		Light* pLight = nullptr;
+		GetSceneLightsVisitor obtain_light( &pLight );
+		m_pSceneGraph->AcceptVisitor( obtain_light );
+
 		EnableDepthStencil();
+		scene_renderer.SetLight( pLight );
 		m_pSceneGraph->AcceptVisitor( scene_renderer );
 	}
 }

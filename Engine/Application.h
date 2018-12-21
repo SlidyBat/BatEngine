@@ -19,6 +19,7 @@ namespace Bat
 		Window& wnd;
 		SceneGraph scene;
 		MoveableCamera camera;
+		Light* light;
 
 		// fps calculation
 		int fps_counter = 0;

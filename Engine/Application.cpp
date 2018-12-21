@@ -1,6 +1,7 @@
 #include "PCH.h"
 #include "Application.h"
 
+#include "KeyboardEvents.h"
 #include "IGraphics.h"
 #include "Window.h"
 #include "SceneLoader.h"
@@ -15,10 +16,17 @@ namespace Bat
 	{
 		g_pGfx->SetScene( &scene );
 		g_pGfx->SetCamera( &camera );
+
+		light = scene.GetRootNode().AddLight( {} );
 	}
 
 	void Application::OnUpdate( float deltatime )
 	{
+		if( wnd.input.IsKeyPressed( 'C' ) )
+		{
+			light->SetPosition( camera.GetPosition() );
+		}
+
 		camera.Update( wnd.input, deltatime );
 
 		elapsed_time += deltatime;
