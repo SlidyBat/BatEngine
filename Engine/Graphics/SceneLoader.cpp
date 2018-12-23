@@ -329,7 +329,7 @@ namespace Bat
 		if( !std::ifstream( filename ) )
 		{
 			BAT_WARN( "Could not open model file '{}'", filename );
-			ASSERT( false, "Could not open model file" );
+			ASSERT( false, "Could not open model file '{}'", filename );
 			return {};
 		}
 		
@@ -345,7 +345,7 @@ namespace Bat
 
 		if( pAssimpScene == nullptr )
 		{
-			ASSERT( false, "Failed to load model" );
+			ASSERT( false, "Failed to load model '{}'", filename );
 			BAT_WARN( "Failed to load model '{}'", filename );
 			return {};
 		}
