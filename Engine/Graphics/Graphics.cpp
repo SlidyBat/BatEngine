@@ -321,8 +321,6 @@ namespace Bat
 					auto szPipelineName = pMesh->GetMaterial().GetDefaultPipelineName();
 					auto pPipeline = static_cast<LightPipeline*>( gfx.GetPipeline( szPipelineName ) );
 					pPipeline->SetLight( m_pLight );
-					static Light light( { 0.0f, 10.0f, 0.0f } );
-					pPipeline->SetLight( &light );
 
 					Material material = pMesh->GetMaterial();
 					LightPipelineParameters params( *gfx.GetActiveCamera(), w, vp, material );
