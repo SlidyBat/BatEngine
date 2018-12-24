@@ -82,7 +82,7 @@ namespace Bat
 		:
 		m_szFilename( filename )
 	{
-		LoadFromFile( Bat::StringToWide( filename ) );
+		LoadFromFile( Bat::StringToWide( filename ), true );
 		FileWatchdog::AddFileChangeListener( filename, BIND_MEM_FN( VertexShader::OnFileChanged ) );
 	}
 
@@ -108,7 +108,7 @@ namespace Bat
 					break;
 				}
 			}
-			LoadFromFile( StringToWide( m_szFilename ) );
+			LoadFromFile( StringToWide( m_szFilename ), false );
 			SetDirty( false );
 		}
 
@@ -145,7 +145,7 @@ namespace Bat
 		pDeviceContext->VSSetShaderResources( (UINT)slot, 1, &pResource );
 	}
 
-	void VertexShader::LoadFromFile( const std::wstring& filename )
+	void VertexShader::LoadFromFile( const std::wstring& filename, bool crash_on_error )
 	{
 		for( int i = 0; i < (int)VertexAttribute::TotalAttributes; i++ )
 		{
@@ -184,11 +184,27 @@ namespace Bat
 				if( errorMessage )
 				{
 					std::string error = (char*)errorMessage->GetBufferPointer();
-					THROW_COM_ERROR( hr, "Failed to compile vertex shader file '" + filename_converted + "'\n" + error );
+					if( crash_on_error )
+					{
+						THROW_COM_ERROR( hr, "Failed to compile vertex shader file '" + filename_converted + "'\n" + error );
+					}
+					else
+					{
+						BAT_ERROR( "{}", error );
+						return;
+					}
 				}
 				else
 				{
-					THROW_COM_ERROR( hr, "Failed to compile vertex shader file '" + filename_converted + "'" );
+					if( crash_on_error )
+					{
+						THROW_COM_ERROR( hr, "Failed to compile vertex shader file '" + filename_converted + "'" );
+					}
+					else
+					{
+						BAT_ERROR( "Failed to compile vertex shader file '{}'.", filename_converted );
+						return;
+					}
 				}
 			}
 

@@ -41,7 +41,7 @@ namespace Bat
 	private:
 		void CreateInputLayoutDescFromVertexShaderSignature( const void* pCodeBytes, const size_t size );
 
-		void LoadFromFile( const std::wstring& filename );
+		void LoadFromFile( const std::wstring& filename, bool crash_on_error );
 		void OnFileChanged( const std::string& filename );
 		bool IsDirty() const { return m_bDirty; }
 		void SetDirty( bool dirty ) { m_bDirty = dirty; }

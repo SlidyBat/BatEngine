@@ -16,7 +16,7 @@ namespace Bat
 		:
 		m_szFilename( filename )
 	{
-		LoadFromFile( Bat::StringToWide( filename ) );
+		LoadFromFile( Bat::StringToWide( filename ), false );
 		FileWatchdog::AddFileChangeListener( filename, BIND_MEM_FN( PixelShader::OnFileChanged ) );
 	}
 
@@ -40,7 +40,7 @@ namespace Bat
 					break;
 				}
 			}
-			LoadFromFile( Bat::StringToWide( m_szFilename ) );
+			LoadFromFile( Bat::StringToWide( m_szFilename ), false );
 			SetDirty( false );
 		}
 
@@ -82,7 +82,7 @@ namespace Bat
 		pDeviceContext->PSSetShaderResources( (UINT)startslot, (UINT)size, pResource );
 	}
 
-	void PixelShader::LoadFromFile( const std::wstring & filename )
+	void PixelShader::LoadFromFile( const std::wstring& filename, bool crash_on_error )
 	{
 		auto pDevice = RenderContext::GetDevice();
 
@@ -110,15 +110,31 @@ namespace Bat
 
 			if( FAILED( hr = D3DCompileFromFile( filename.c_str(), NULL, NULL, "main", "ps_5_0", flags, 0, &pixelShaderBuffer, &errorMessage ) ) )
 			{
-				std::string filename_converted = WideToString( filename );
+				const std::string filename_converted = WideToString( filename );
 				if( errorMessage )
 				{
-					std::string error = (char*)errorMessage->GetBufferPointer();
-					THROW_COM_ERROR( hr, "Failed to compile pixel shader file '" + filename_converted + "'\n" + error );
+					const std::string error = (char*)errorMessage->GetBufferPointer();
+					if( crash_on_error )
+					{
+						THROW_COM_ERROR( hr, "Failed to compile pixel shader file '" + filename_converted + "'\n" + error );
+					}
+					else
+					{
+						BAT_ERROR( "{}", error );
+						return;
+					}
 				}
 				else
 				{
-					THROW_COM_ERROR( hr, "Failed to compile pixel shader file '" + filename_converted + "'" );
+					if( crash_on_error )
+					{
+						THROW_COM_ERROR( hr, "Failed to compile pixel shader file '" + filename_converted + "'" );
+					}
+					else
+					{
+						BAT_ERROR( "Failed to compile pixel shader file '{}'.", filename_converted );
+						return;
+					}
 				}
 			}
 
