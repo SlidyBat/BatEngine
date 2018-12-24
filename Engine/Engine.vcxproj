@@ -200,12 +200,12 @@
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="BloomPostProcess.cpp" />
-    <ClCompile Include="FileWatchdog.cpp" />
+    <ClCompile Include="Util\FileWatchdog.cpp" />
     <ClCompile Include="Graphics\IndexBuffer.cpp" />
     <ClCompile Include="Graphics\Material.cpp" />
     <ClCompile Include="Graphics\Mesh.cpp" />
     <ClCompile Include="Graphics\Model.cpp" />
-    <ClCompile Include="Mutex.cpp" />
+    <ClCompile Include="Util\Mutex.cpp" />
     <ClCompile Include="PCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PCH.h</PrecompiledHeaderFile>
@@ -222,7 +222,7 @@
     <ClCompile Include="Graphics\GenericPostProcess.cpp" />
     <ClCompile Include="Graphics\ConstantBuffer.cpp" />
     <ClCompile Include="Graphics\Light.cpp" />
-    <ClCompile Include="RenderContext.cpp" />
+    <ClCompile Include="Graphics\RenderContext.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Util\JobSystem.cpp">
@@ -313,12 +313,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
-    <ClInclude Include="BatAssert.h" />
+    <ClInclude Include="Util\BatAssert.h" />
     <ClInclude Include="BloomPostProcess.h" />
     <ClInclude Include="Common.h" />
-    <ClInclude Include="Console.h" />
-    <ClInclude Include="FileWatchdog.h" />
-    <ClInclude Include="Mutex.h" />
+    <ClInclude Include="Util\FileWatchdog.h" />
+    <ClInclude Include="Events\MouseEvents.h" />
+    <ClInclude Include="Util\Mutex.h" />
     <ClInclude Include="PCH.h" />
     <ClInclude Include="Events\Event.h" />
     <ClInclude Include="Graphics\BumpMapPipeline.h" />
@@ -327,11 +327,11 @@
     <ClInclude Include="Graphics\Material.h" />
     <ClInclude Include="Graphics\GenericPostProcess.h" />
     <ClInclude Include="Graphics\IPostProcess.h" />
-    <ClInclude Include="RenderContext.h" />
+    <ClInclude Include="Graphics\RenderContext.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Util\JobSystem.h" />
-    <ClInclude Include="KeyboardEvents.h" />
+    <ClInclude Include="Events\KeyboardEvents.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="MoveableCamera.h" />
     <ClInclude Include="Graphics\RenderTexture.h" />
