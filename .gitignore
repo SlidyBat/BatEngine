@@ -13,3 +13,4 @@ Engine.VC.db
 /Build
 *.cso
 imgui.ini
+/Engine/Assets/Ignore
