@@ -32,7 +32,14 @@ namespace Bat
 	{
 		if( IsDirty() )
 		{
-			auto bytes = MemoryStream::FromFile( m_szFilename );
+			while( true )
+			{
+				auto code = MemoryStream::FromFile( m_szFilename );
+				if( code.Size() > 0 )
+				{
+					break;
+				}
+			}
 			LoadFromFile( Bat::StringToWide( m_szFilename ) );
 			SetDirty( false );
 		}
@@ -93,7 +100,10 @@ namespace Bat
 			Microsoft::WRL::ComPtr<ID3DBlob> pixelShaderBuffer;
 
 #ifdef _DEBUG
-			const UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG;
+			const UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR |
+				D3DCOMPILE_ENABLE_STRICTNESS |
+				D3DCOMPILE_DEBUG |
+				D3DCOMPILE_SKIP_OPTIMIZATION;
 #else
 			const UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS;
 #endif

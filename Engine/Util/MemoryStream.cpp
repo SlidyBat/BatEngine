@@ -178,7 +178,7 @@ MemoryStream MemoryStream::FromFile( const std::string& filename )
 	return FromStream( std::ifstream( filename, std::ios::binary ) );
 }
 
-MemoryStream MemoryStream::FromFile( const std::wstring & filename )
+MemoryStream MemoryStream::FromFile( const std::wstring& filename )
 {
 	return FromStream( std::ifstream( filename, std::ios::binary ) );
 }
