@@ -1,9 +1,11 @@
 #include "PCH.h"
 #include "Application.h"
 
+#include "Common.h"
 #include "Graphics.h"
 #include "Window.h"
 #include "SceneLoader.h"
+#include "FileWatchdog.h"
 
 namespace Bat
 {
@@ -18,6 +20,9 @@ namespace Bat
 		gfx.SetActiveCamera( &camera );
 
 		light = scene.GetRootNode().AddLight( {} );
+
+FileWatchdog::AddFileChangeListener( "test.txt", BIND_MEM_FN( Application::OnFileChanged ) );
+FileWatchdog::AddFileChangeListener( "test2.txt", BIND_MEM_FN( Application::OnFileChanged ) );
 	}
 
 	void Application::OnUpdate( float deltatime )
@@ -42,5 +47,10 @@ namespace Bat
 	void Application::OnRender()
 	{
 		gfx.DrawText( Bat::StringToWide( fps_string ).c_str(), DirectX::XMFLOAT2{ 15.0f, 15.0f } );
+	}
+
+	void Application::OnFileChanged( const std::string& filename )
+	{
+		BAT_LOG( "'{}' changed", filename );
 	}
 }

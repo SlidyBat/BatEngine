@@ -25,7 +25,7 @@ namespace Bat
 	class ScopedLock
 	{
 	public:
-		ScopedLock( Mutex& m_Mutex	 );
+		ScopedLock( Mutex& mutex );
 		~ScopedLock();
 
 		ScopedLock( const ScopedLock& ) = delete;
