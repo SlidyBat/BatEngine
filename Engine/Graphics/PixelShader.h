@@ -12,7 +12,7 @@ namespace Bat
 	class PixelShader
 	{
 	public:
-		PixelShader( const std::wstring& filename );
+		PixelShader( const std::string& filename );
 		~PixelShader();
 
 		void Bind();
@@ -36,8 +36,15 @@ namespace Bat
 			return m_ConstantBuffers[slot];
 		}
 	private:
+		void LoadFromFile( const std::wstring& filename );
+		void OnFileChanged( const std::string& filename );
+		bool IsDirty() const { return m_bDirty; }
+		void SetDirty( bool dirty ) { m_bDirty = dirty; }
+	private:
 		Microsoft::WRL::ComPtr<ID3D11PixelShader>	m_pPixelShader;
 		std::vector<ID3D11SamplerState*> m_pSamplerStates;
 		std::vector<ConstantBuffer> m_ConstantBuffers;
+		std::string m_szFilename;
+		std::atomic_bool m_bDirty;
 	};
 }

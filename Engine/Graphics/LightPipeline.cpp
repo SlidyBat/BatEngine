@@ -11,7 +11,7 @@
 
 namespace Bat
 {
-	LightPipeline::LightPipeline( const std::wstring& vsFilename, const std::wstring& psFilename )
+	LightPipeline::LightPipeline( const std::string& vsFilename, const std::string& psFilename )
 		:
 		IPipeline( vsFilename, psFilename )
 	{

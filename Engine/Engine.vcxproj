@@ -108,7 +108,8 @@
       <Command>copy /Y "$(ProjectDir)ThirdParty\Assimp\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>rmdir /S /Q $(ProjectDir)Graphics\Shaders\Build</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -134,7 +135,8 @@
       <Command>copy /Y "$(ProjectDir)ThirdParty\Assimp\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>rmdir /S /Q $(ProjectDir)Graphics\Shaders\Build</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -164,7 +166,8 @@
       <Command>copy /Y "$(ProjectDir)ThirdParty\Assimp\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>rmdir /S /Q $(ProjectDir)Graphics\Shaders\Build</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -194,7 +197,8 @@
       <Command>copy /Y "$(ProjectDir)ThirdParty\Assimp\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>rmdir /S /Q $(ProjectDir)Graphics\Shaders\Build</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

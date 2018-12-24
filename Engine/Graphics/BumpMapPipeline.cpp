@@ -11,7 +11,7 @@
 
 namespace Bat
 {
-	BumpMapPipeline::BumpMapPipeline( const std::wstring& vsFilename, const std::wstring& psFilename )
+	BumpMapPipeline::BumpMapPipeline( const std::string& vsFilename, const std::string& psFilename )
 		:
 		LightPipeline( vsFilename, psFilename )
 	{}

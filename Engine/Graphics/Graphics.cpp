@@ -39,11 +39,11 @@ namespace Bat
 	{
 		RenderContext::SetD3DClass( d3d );
 
-		AddShader( "texture", std::make_unique<TexturePipeline>( L"Graphics/Shaders/Build/TextureVS.cso", L"Graphics/Shaders/Build/TexturePS.cso" ) );
-		AddShader( "colour", std::make_unique <ColourPipeline>( L"Graphics/Shaders/Build/ColourVS.cso", L"Graphics/Shaders/Build/ColourPS.cso" ) );
-		AddShader( "light", std::make_unique<LightPipeline>( L"Graphics/Shaders/Build/LightVS.cso", L"Graphics/Shaders/Build/LightPS.cso" ) );
-		AddShader( "bumpmap", std::make_unique<BumpMapPipeline>( L"Graphics/Shaders/Build/BumpMapVS.cso", L"Graphics/Shaders/Build/BumpMapPS.cso" ) );
-		AddShader( "skybox", std::make_unique<SkyboxPipeline>( L"Graphics/Shaders/Build/SkyboxVS.cso", L"Graphics/Shaders/Build/SkyboxPS.cso" ) );
+		AddShader( "texture", std::make_unique<TexturePipeline>( "Graphics/Shaders/TextureVS.hlsl", "Graphics/Shaders/TexturePS.hlsl" ) );
+		AddShader( "colour", std::make_unique <ColourPipeline>( "Graphics/Shaders/ColourVS.hlsl", "Graphics/Shaders/ColourPS.hlsl" ) );
+		AddShader( "light", std::make_unique<LightPipeline>( "Graphics/Shaders/LightVS.hlsl", "Graphics/Shaders/LightPS.hlsl" ) );
+		AddShader( "bumpmap", std::make_unique<BumpMapPipeline>( "Graphics/Shaders/BumpMapVS.hlsl", "Graphics/Shaders/BumpMapPS.hlsl" ) );
+		AddShader( "skybox", std::make_unique<SkyboxPipeline>( "Graphics/Shaders/SkyboxVS.hlsl", "Graphics/Shaders/SkyboxPS.hlsl" ) );
 
 		m_pBloomProcess = std::make_unique<BloomPostProcess>( wnd.GetWidth(), wnd.GetHeight() );
 

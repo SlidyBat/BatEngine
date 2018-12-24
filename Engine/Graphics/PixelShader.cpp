@@ -7,47 +7,17 @@
 #include "RenderContext.h"
 #include "MemoryStream.h"
 
+#include "Common.h"
+#include "FileWatchdog.h"
+
 namespace Bat
 {
-	PixelShader::PixelShader( const std::wstring& filename )
+	PixelShader::PixelShader( const std::string& filename )
+		:
+		m_szFilename( filename )
 	{
-		auto pDevice = RenderContext::GetDevice();
-
-		// compiled shader object
-		if( Bat::GetFileExtension( filename ) == L"cso" )
-		{
-			auto bytes = MemoryStream::FromFile( filename );
-			COM_THROW_IF_FAILED( pDevice->CreatePixelShader( bytes.Base(), bytes.Size(), NULL, &m_pPixelShader ) );
-		}
-		// not compiled, lets compile ourselves
-		else
-		{
-			HRESULT hr;
-			Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
-			Microsoft::WRL::ComPtr<ID3DBlob> pixelShaderBuffer;
-
-#ifdef _DEBUG
-			const UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG;
-#else
-			const UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS;
-#endif
-
-			if( FAILED( hr = D3DCompileFromFile( filename.c_str(), NULL, NULL, "main", "ps_5_0", flags, 0, &pixelShaderBuffer, &errorMessage ) ) )
-			{
-				std::string filename_converted( filename.begin(), filename.end() );
-				if( errorMessage )
-				{
-					std::string error = (char*)errorMessage->GetBufferPointer();
-					THROW_COM_ERROR( hr, "Failed to compile pixel shader file '" + filename_converted + "'\n" + error );
-				}
-				else
-				{
-					THROW_COM_ERROR( hr, "Failed to compile pixel shader file '" + filename_converted + "'" );
-				}
-			}
-
-			COM_THROW_IF_FAILED( pDevice->CreatePixelShader( pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader ) );
-		}
+		LoadFromFile( Bat::StringToWide( filename ) );
+		FileWatchdog::AddFileChangeListener( filename, BIND_MEM_FN( PixelShader::OnFileChanged ) );
 	}
 
 	PixelShader::~PixelShader()
@@ -60,6 +30,13 @@ namespace Bat
 
 	void PixelShader::Bind()
 	{
+		if( IsDirty() )
+		{
+			auto bytes = MemoryStream::FromFile( m_szFilename );
+			LoadFromFile( Bat::StringToWide( m_szFilename ) );
+			SetDirty( false );
+		}
+
 		auto pDeviceContext = RenderContext::GetDeviceContext();
 
 		pDeviceContext->PSSetShader( m_pPixelShader.Get(), NULL, 0 );
@@ -96,5 +73,51 @@ namespace Bat
 	{
 		auto pDeviceContext = RenderContext::GetDeviceContext();
 		pDeviceContext->PSSetShaderResources( (UINT)startslot, (UINT)size, pResource );
+	}
+
+	void PixelShader::LoadFromFile( const std::wstring & filename )
+	{
+		auto pDevice = RenderContext::GetDevice();
+
+		// compiled shader object
+		if( Bat::GetFileExtension( filename ) == L"cso" )
+		{
+			auto bytes = MemoryStream::FromFile( filename );
+			COM_THROW_IF_FAILED( pDevice->CreatePixelShader( bytes.Base(), bytes.Size(), NULL, &m_pPixelShader ) );
+		}
+		// not compiled, lets compile ourselves
+		else
+		{
+			HRESULT hr;
+			Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
+			Microsoft::WRL::ComPtr<ID3DBlob> pixelShaderBuffer;
+
+#ifdef _DEBUG
+			const UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG;
+#else
+			const UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS;
+#endif
+
+			if( FAILED( hr = D3DCompileFromFile( filename.c_str(), NULL, NULL, "main", "ps_5_0", flags, 0, &pixelShaderBuffer, &errorMessage ) ) )
+			{
+				std::string filename_converted = WideToString( filename );
+				if( errorMessage )
+				{
+					std::string error = (char*)errorMessage->GetBufferPointer();
+					THROW_COM_ERROR( hr, "Failed to compile pixel shader file '" + filename_converted + "'\n" + error );
+				}
+				else
+				{
+					THROW_COM_ERROR( hr, "Failed to compile pixel shader file '" + filename_converted + "'" );
+				}
+			}
+
+			COM_THROW_IF_FAILED( pDevice->CreatePixelShader( pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader ) );
+		}
+	}
+
+	void PixelShader::OnFileChanged( const std::string& filename )
+	{
+		SetDirty( true );
 	}
 }

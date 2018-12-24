@@ -50,7 +50,7 @@ namespace Bat
 		auto it = g_mapVShaders.find( filename );
 		if( it == g_mapVShaders.end() )
 		{
-			auto pResource = std::make_shared<VertexShader>( StringToWide( filename ) );
+			auto pResource = std::make_shared<VertexShader>( filename );
 			g_mapVShaders[filename] = pResource;
 			return pResource;
 		}
@@ -63,7 +63,7 @@ namespace Bat
 		auto it = g_mapPShaders.find( filename );
 		if( it == g_mapPShaders.end() )
 		{
-			auto pResource = std::make_shared<PixelShader>( StringToWide( filename ) );
+			auto pResource = std::make_shared<PixelShader>( filename );
 			g_mapPShaders[filename] = pResource;
 			return pResource;
 		}

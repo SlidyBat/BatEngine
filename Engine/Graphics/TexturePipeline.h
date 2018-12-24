@@ -36,7 +36,7 @@ namespace Bat
 	class TexturePipeline : public IPipeline
 	{
 	public:
-		TexturePipeline( const std::wstring& vsFilename, const std::wstring& psFilename );
+		TexturePipeline( const std::string& vsFilename, const std::string& psFilename );
 
 		void BindParameters( IPipelineParameters& pParameters ) override;
 		void Render( UINT vertexcount ) override;

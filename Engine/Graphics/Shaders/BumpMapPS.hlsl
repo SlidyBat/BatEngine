@@ -54,5 +54,5 @@ float4 main(PixelInputType input) : SV_TARGET
     float3 specular = lightSpecular * (spec * objSpecular);
 
 
-    return float4(ambient + diffuse + specular + objEmissive, 1.0f);
+    return float4(-normal, 1.0f);
 }

@@ -33,7 +33,7 @@ namespace Bat
 	class ColourPipeline : public IPipeline
 	{
 	public:
-		ColourPipeline( const std::wstring& vsFilename, const std::wstring& psFilename );
+		ColourPipeline( const std::string& vsFilename, const std::string& psFilename );
 
 		void BindParameters( IPipelineParameters& pParameters ) override;
 		void Render( UINT vertexcount ) override;

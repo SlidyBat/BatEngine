@@ -8,7 +8,7 @@
 
 namespace Bat
 {
-	ColourPipeline::ColourPipeline( const std::wstring& vsFilename, const std::wstring& psFilename )
+	ColourPipeline::ColourPipeline( const std::string& vsFilename, const std::string& psFilename )
 		:
 		IPipeline( vsFilename, psFilename )
 	{

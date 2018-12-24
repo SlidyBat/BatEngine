@@ -62,7 +62,7 @@ namespace Bat
 	class LightPipeline : public IPipeline
 	{
 	public:
-		LightPipeline( const std::wstring& vsFilename, const std::wstring& psFilename );
+		LightPipeline( const std::string& vsFilename, const std::string& psFilename );
 
 		void BindParameters( IPipelineParameters& pParameters ) override;
 		void Render( UINT vertexcount ) override;

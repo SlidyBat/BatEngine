@@ -35,7 +35,7 @@ namespace Bat
 	class SkyboxPipeline : public IPipeline
 	{
 	public:
-		SkyboxPipeline( const std::wstring& vsFilename, const std::wstring& psFilename );
+		SkyboxPipeline( const std::string& vsFilename, const std::string& psFilename );
 
 		void BindParameters( IPipelineParameters& pParameters ) override;
 		void Render( UINT vertexcount ) override;

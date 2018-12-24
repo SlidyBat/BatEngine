@@ -17,7 +17,7 @@ namespace Bat
 
 	BloomPostProcess::BloomPostProcess( int width, int height )
 		:
-		GenericPostProcess( width, height, L"Graphics/Shaders/TexturePS.hlsl" ),
+		GenericPostProcess( width, height, "Graphics/Shaders/TexturePS.hlsl" ),
 		m_iWidth( width ),
 		m_iHeight( height )
 	{

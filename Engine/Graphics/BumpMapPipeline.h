@@ -7,7 +7,7 @@ namespace Bat
 	class BumpMapPipeline : public LightPipeline
 	{
 	public:
-		BumpMapPipeline( const std::wstring& vsFilename, const std::wstring& psFilename );
+		BumpMapPipeline( const std::string& vsFilename, const std::string& psFilename );
 
 		void BindParameters( IPipelineParameters& pParameters ) override;
 	};

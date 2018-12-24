@@ -8,7 +8,7 @@
 
 namespace Bat
 {
-	TexturePipeline::TexturePipeline( const std::wstring& vsFilename, const std::wstring& psFilename )
+	TexturePipeline::TexturePipeline( const std::string& vsFilename, const std::string& psFilename )
 		:
 		IPipeline( vsFilename, psFilename )
 	{

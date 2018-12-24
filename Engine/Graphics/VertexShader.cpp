@@ -8,6 +8,9 @@
 #include "Graphics.h"
 #include "MemoryStream.h"
 
+#include "Common.h"
+#include "FileWatchdog.h"
+
 namespace Bat
 {
 	void VertexShader::CreateInputLayoutDescFromVertexShaderSignature( const void* pCodeBytes, const size_t size )
@@ -75,54 +78,12 @@ namespace Bat
 		RenderContext::GetDevice()->CreateInputLayout( inputLayoutDesc.data(), (UINT)inputLayoutDesc.size(), pCodeBytes, size, &m_pInputLayout );
 	}
 
-	VertexShader::VertexShader( const std::wstring& filename )
+	VertexShader::VertexShader( const std::string& filename )
+		:
+		m_szFilename( filename )
 	{
-		for( int i = 0; i < (int)VertexAttribute::TotalAttributes; i++ )
-		{
-			m_bUsesAttribute[i] = false;
-		}
-
-		auto pDevice = RenderContext::GetDevice();
-
-		// compiled shader object
-		if( Bat::GetFileExtension( filename ) == L"cso" )
-		{
-			auto bytes = MemoryStream::FromFile( filename );
-			CreateInputLayoutDescFromVertexShaderSignature( bytes.Base(), bytes.Size() );
-
-			COM_THROW_IF_FAILED( pDevice->CreateVertexShader( bytes.Base(), bytes.Size(), NULL, &m_pVertexShader ) );
-			CreateInputLayoutDescFromVertexShaderSignature( bytes.Base(), bytes.Size() );
-		}
-		// not compiled, lets compile ourselves
-		else
-		{
-			HRESULT hr;
-			Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
-			Microsoft::WRL::ComPtr<ID3DBlob> vertexShaderBuffer;
-
-#ifdef _DEBUG
-			const UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG;
-#else
-			const UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS;
-#endif
-
-			if( FAILED( hr = D3DCompileFromFile( filename.c_str(), NULL, NULL, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage ) ) )
-			{
-				std::string filename_converted( filename.begin(), filename.end() );
-				if( errorMessage )
-				{
-					std::string error = (char*)errorMessage->GetBufferPointer();
-					THROW_COM_ERROR( hr, "Failed to compile vertex shader file '" + filename_converted + "'\n" + error );
-				}
-				else
-				{
-					THROW_COM_ERROR( hr, "Failed to compile vertex shader file '" + filename_converted + "'" );
-				}
-			}
-
-			COM_THROW_IF_FAILED( pDevice->CreateVertexShader( vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_pVertexShader ) );
-			CreateInputLayoutDescFromVertexShaderSignature( vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize() );
-		}
+		LoadFromFile( Bat::StringToWide( filename ) );
+		FileWatchdog::AddFileChangeListener( filename, BIND_MEM_FN( VertexShader::OnFileChanged ) );
 	}
 
 	VertexShader::~VertexShader()
@@ -135,6 +96,12 @@ namespace Bat
 
 	void VertexShader::Bind()
 	{
+		if( IsDirty() )
+		{
+			LoadFromFile( Bat::StringToWide( m_szFilename ) );
+			SetDirty( false );
+		}
+
 		auto pDeviceContext = RenderContext::GetDeviceContext();
 
 		pDeviceContext->IASetInputLayout( m_pInputLayout.Get() );
@@ -166,5 +133,59 @@ namespace Bat
 	{
 		auto pDeviceContext = RenderContext::GetDeviceContext();
 		pDeviceContext->VSSetShaderResources( (UINT)slot, 1, &pResource );
+	}
+
+	void VertexShader::LoadFromFile( const std::wstring& filename )
+	{
+		for( int i = 0; i < (int)VertexAttribute::TotalAttributes; i++ )
+		{
+			m_bUsesAttribute[i] = false;
+		}
+
+		auto pDevice = RenderContext::GetDevice();
+
+		// compiled shader object
+		if( Bat::GetFileExtension( filename ) == L"cso" )
+		{
+			auto bytes = MemoryStream::FromFile( filename );
+			CreateInputLayoutDescFromVertexShaderSignature( bytes.Base(), bytes.Size() );
+
+			COM_THROW_IF_FAILED( pDevice->CreateVertexShader( bytes.Base(), bytes.Size(), NULL, &m_pVertexShader ) );
+			CreateInputLayoutDescFromVertexShaderSignature( bytes.Base(), bytes.Size() );
+		}
+		// not compiled, lets compile ourselves
+		else
+		{
+			HRESULT hr;
+			Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
+			Microsoft::WRL::ComPtr<ID3DBlob> vertexShaderBuffer;
+
+#ifdef _DEBUG
+			const UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG;
+#else
+			const UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS;
+#endif
+			if( FAILED( hr = D3DCompileFromFile( filename.c_str(), NULL, NULL, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage ) ) )
+			{
+				std::string filename_converted = WideToString( filename );
+				if( errorMessage )
+				{
+					std::string error = (char*)errorMessage->GetBufferPointer();
+					THROW_COM_ERROR( hr, "Failed to compile vertex shader file '" + filename_converted + "'\n" + error );
+				}
+				else
+				{
+					THROW_COM_ERROR( hr, "Failed to compile vertex shader file '" + filename_converted + "'" );
+				}
+			}
+
+			COM_THROW_IF_FAILED( pDevice->CreateVertexShader( vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_pVertexShader ) );
+			CreateInputLayoutDescFromVertexShaderSignature( vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize() );
+		}
+	}
+
+	void VertexShader::OnFileChanged( const std::string& filename )
+	{
+		SetDirty( true );
 	}
 }

@@ -7,7 +7,7 @@
 
 namespace Bat
 {
-	SkyboxPipeline::SkyboxPipeline( const std::wstring& vsFilename, const std::wstring& psFilename )
+	SkyboxPipeline::SkyboxPipeline( const std::string& vsFilename, const std::string& psFilename )
 		:
 		IPipeline( vsFilename, psFilename )
 	{	

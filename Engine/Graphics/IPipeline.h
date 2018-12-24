@@ -14,7 +14,7 @@ namespace Bat
 	class IPipeline
 	{
 	public:
-		IPipeline( const std::wstring& vsFilename, const std::wstring& psFilename )
+		IPipeline( const std::string& vsFilename, const std::string& psFilename )
 			:
 			m_VertexShader( vsFilename ),
 			m_PixelShader( psFilename )

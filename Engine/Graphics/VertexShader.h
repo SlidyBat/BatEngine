@@ -11,7 +11,7 @@ namespace Bat
 	class VertexShader
 	{
 	public:
-		VertexShader( const std::wstring& filename );
+		VertexShader( const std::string& filename );
 		~VertexShader();
 
 		void Bind();
@@ -40,11 +40,18 @@ namespace Bat
 		}
 	private:
 		void CreateInputLayoutDescFromVertexShaderSignature( const void* pCodeBytes, const size_t size );
+
+		void LoadFromFile( const std::wstring& filename );
+		void OnFileChanged( const std::string& filename );
+		bool IsDirty() const { return m_bDirty; }
+		void SetDirty( bool dirty ) { m_bDirty = dirty; }
 	private:
 		Microsoft::WRL::ComPtr<ID3D11VertexShader>	m_pVertexShader;
 		Microsoft::WRL::ComPtr<ID3D11InputLayout>	m_pInputLayout;
 		bool m_bUsesAttribute[(int)VertexAttribute::TotalAttributes];
 		std::vector<ID3D11SamplerState*> m_pSamplerStates;
 		std::vector<ConstantBuffer> m_ConstantBuffers;
+		std::string m_szFilename;
+		std::atomic_bool m_bDirty;
 	};
 }

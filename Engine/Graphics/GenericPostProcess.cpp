@@ -15,9 +15,9 @@ namespace Bat
 		float pad;
 	};
 
-	GenericPostProcess::GenericPostProcess( int width, int height, const std::wstring& psFilename )
+	GenericPostProcess::GenericPostProcess( int width, int height, const std::string& psFilename )
 		:
-		m_VertexShader( L"Graphics/Shaders/Build/TextureVS.cso" ),
+		m_VertexShader( "Graphics/Shaders/TextureVS.hlsl" ),
 		m_PixelShader( psFilename )
 	{
 		m_VertexShader.AddConstantBuffer<CB_TexturePipelineMatrix>();
