@@ -4,14 +4,14 @@ Texture2D emissiveTexture : register(t2);
 Texture2D bumpMap : register(t3);
 SamplerState SampleType;
 
-cbuffer LightingParameters
+cbuffer LightingParameters : register(b0)
 {
     float3 cameraPos;
     float time;
     float shininess;
 };
 
-cbuffer Light
+cbuffer Light : register(b1)
 {
     float3 lightPosition;
     float3 lightAmbient;
@@ -52,7 +52,6 @@ float4 main(PixelInputType input) : SV_TARGET
     float3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(saturate(dot(viewDir, reflectDir)), shininess);
     float3 specular = lightSpecular * (spec * objSpecular);
-
 
     return float4(ambient + diffuse + specular + objEmissive, 1.0f);
 }

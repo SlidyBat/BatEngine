@@ -3,14 +3,14 @@ Texture2D specularTexture : register(t1);
 Texture2D emissiveTexture : register(t2);
 SamplerState SampleType;
 
-cbuffer LightingParameters
+cbuffer LightingParameters : register(b0)
 {
     float3 cameraPos;
     float time;
     float shininess;
 };
 
-cbuffer Light
+cbuffer Light : register(b1)
 {
     float3 lightPosition;
     float3 lightAmbient;
