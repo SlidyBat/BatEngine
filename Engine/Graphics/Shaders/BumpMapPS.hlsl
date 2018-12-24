@@ -31,7 +31,11 @@ struct PixelInputType
 
 float4 main(PixelInputType input) : SV_TARGET
 {
-    float3 lightDir = normalize(lightPosition - (float3) input.world_pos);
+	float3 world_pos = (float3) input.world_pos;
+
+    float3 lightDir = normalize(lightPosition - world_pos);
+    float lightToPixelLength = length(lightPosition - world_pos);
+    float attenuation = rcp(1.0 + 0.0007* lightToPixelLength + 0.00002 * lightToPixelLength * lightToPixelLength);
     float3 objDiffuse = diffuseTexture.Sample(SampleType, input.tex).xyz;
     float3 objSpecular = specularTexture.Sample(SampleType, input.tex).xyz;
     float3 objEmissive = emissiveTexture.Sample(SampleType, input.tex).xyz;
@@ -45,13 +49,15 @@ float4 main(PixelInputType input) : SV_TARGET
     
     // diffuse
     float diff = saturate(dot(normal, lightDir));
-    float3 diffuse = lightDiffuse * (diff * objDiffuse);
+    float3 diffuse = lightDiffuse * (diff * objDiffuse) * attenuation;
 
     // specular
     float3 viewDir = normalize(cameraPos - (float3) input.world_pos);
     float3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(saturate(dot(viewDir, reflectDir)), shininess);
-    float3 specular = lightSpecular * (spec * objSpecular);
+    float3 specular = lightSpecular * (spec * objSpecular) * attenuation;
 
-    return float4(ambient + diffuse + specular + objEmissive, 1.0f);
+    float3 final = ambient + diffuse + specular + objEmissive;
+
+    return float4(final, 1.0f);
 }

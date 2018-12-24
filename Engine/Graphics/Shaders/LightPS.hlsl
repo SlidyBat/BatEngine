@@ -31,6 +31,8 @@ float4 main(PixelInputType input) : SV_TARGET
     float3 world_pos = (float3) input.world_pos;
 
     float3 lightDir = normalize(lightPosition - world_pos);
+    float lightToPixelLength = length(lightPosition - world_pos);
+    float attenuation = rcp(1.0 + 0.0007* lightToPixelLength + 0.00002 * lightToPixelLength * lightToPixelLength);
     float3 objDiffuse = diffuseTexture.Sample(SampleType, input.tex).xyz;
     float3 objSpecular = specularTexture.Sample(SampleType, input.tex).xyz;
     float3 objEmissive = emissiveTexture.Sample(SampleType, input.tex).xyz;
@@ -41,14 +43,15 @@ float4 main(PixelInputType input) : SV_TARGET
     float3 normal = normalize(input.normal);
     // diffuse
     float diff = saturate(dot(normal, lightDir));
-    float3 diffuse = lightDiffuse * (diff * objDiffuse);
+    float3 diffuse = lightDiffuse * (diff * objDiffuse) * attenuation;
 
     // specular
     float3 viewDir = normalize(cameraPos - world_pos);
     float3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 32.0f);
-    float3 specular = lightSpecular * (spec * objSpecular);
+    float3 specular = lightSpecular * (spec * objSpecular) * attenuation;
 
+    float3 final = ambient + diffuse + specular + objEmissive;
 
-    return float4(ambient + diffuse + specular + objEmissive, 1.0f);
+    return float4(final, 1.0f);
 }
