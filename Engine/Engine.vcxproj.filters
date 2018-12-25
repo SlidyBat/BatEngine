@@ -245,9 +245,6 @@
     <ClInclude Include="Util\GDIPManager.h">
       <Filter>Header Files\Util</Filter>
     </ClInclude>
-    <ClInclude Include="ClassDef.h">
-      <Filter>Header Files\Util</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\VertexTypes.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>

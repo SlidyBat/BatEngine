@@ -354,7 +354,6 @@
     <ClInclude Include="ThirdParty\ImGui\imstb_truetype.h" />
     <ClInclude Include="Util\FrameTimer.h" />
     <ClInclude Include="Globals.h" />
-    <ClInclude Include="ClassDef.h" />
     <ClInclude Include="Graphics\Camera.h" />
     <ClInclude Include="Graphics\Colour.h" />
     <ClInclude Include="Graphics\ColourPipeline.h" />

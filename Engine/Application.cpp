@@ -13,16 +13,13 @@ namespace Bat
 		:
 		gfx( gfx ),
 		wnd( wnd ),
-		scene( SceneLoader::LoadScene( "Assets/Car/scene.gltf" ) ),
-		camera( 200.0f )
+		scene( SceneLoader::LoadScene( "Assets/Ignore/DamagedHelmet/DamagedHelmet.gltf" ) ),
+		camera( 1.0f )
 	{
 		gfx.SetActiveScene( &scene );
 		gfx.SetActiveCamera( &camera );
 
 		light = scene.GetRootNode().AddLight( {} );
-
-FileWatchdog::AddFileChangeListener( "test.txt", BIND_MEM_FN( Application::OnFileChanged ) );
-FileWatchdog::AddFileChangeListener( "test2.txt", BIND_MEM_FN( Application::OnFileChanged ) );
 	}
 
 	void Application::OnUpdate( float deltatime )

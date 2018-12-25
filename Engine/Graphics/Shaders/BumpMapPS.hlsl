@@ -35,7 +35,7 @@ float4 main(PixelInputType input) : SV_TARGET
 
     float3 lightDir = normalize(lightPosition - world_pos);
     float lightToPixelLength = length(lightPosition - world_pos);
-    float attenuation = rcp(1.0 + 0.0007* lightToPixelLength + 0.00002 * lightToPixelLength * lightToPixelLength);
+    float attenuation = rcp(1.0 + 0.032* lightToPixelLength + 0.1 * lightToPixelLength * lightToPixelLength);
     float3 objDiffuse = diffuseTexture.Sample(SampleType, input.tex).xyz;
     float3 objSpecular = specularTexture.Sample(SampleType, input.tex).xyz;
     float3 objEmissive = emissiveTexture.Sample(SampleType, input.tex).xyz;
