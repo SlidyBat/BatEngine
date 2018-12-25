@@ -5,11 +5,8 @@
 
 MemoryStream::MemoryStream( const char* data, size_t size )
 {
-	m_Bytes.reserve( size );
-	for( size_t i = 0; i < size; i++ )
-	{
-		m_Bytes.emplace_back( data[i] );
-	}
+	m_Bytes.resize( size );
+	memcpy( &m_Bytes[0], data, size );
 }
 
 MemoryStream::MemoryStream( std::vector<char> data )
@@ -167,10 +164,11 @@ MemoryStream MemoryStream::FromStream( std::istream& stream )
 	size_t size = (size_t)stream.tellg();
 	stream.seekg( 0, std::ios::beg );
 
-	auto bytes = std::make_unique<char[]>( size );
-	stream.read( bytes.get(), size );
+	MemoryStream ret;
+	ret.m_Bytes.resize( size );
+	stream.read( &ret.m_Bytes[0], size );
 
-	return MemoryStream( bytes.get(), size );
+	return ret;
 }
 
 MemoryStream MemoryStream::FromFile( const std::string& filename )
