@@ -2,6 +2,7 @@
 
 #include "PCH.h"
 
+// TODO: Make this thread safe so we can listen for events on other threads
 namespace Bat
 {
 	using EventType = size_t;
@@ -50,13 +51,12 @@ namespace Bat
 			void (Listener::*listen_func)(const Event&) = &Listener::OnEvent;
 			ASSERT( !IsListeningForEvent<Event>( listener ), "Attempted to listen to same event multiple times" );
 			auto wrapper = EventCallbackWrapper<Event>(std::bind(listen_func, &listener, std::placeholders::_1));
-			m_mapCallbacks[Event::GetType()].emplace_back( &listener, wrapper );
+			m_Callbacks[Event::GetType()].emplace_back( &listener, wrapper );
 		}
 		template <typename Event, typename Listener>
 		bool RemoveEventListener( Listener& listener )
 		{
-			void (Listener::*listen_func)(const Event&) = &Listener::OnEvent;
-			auto& listeners = m_mapCallbacks[Event::GetType()];
+			auto& listeners = m_Callbacks[Event::GetType()];
 
 			for( size_t i = 0; i < listeners.size(); i++ )
 			{
@@ -72,8 +72,7 @@ namespace Bat
 		template <typename Event, typename Listener>
 		bool IsListeningForEvent( Listener& listener )
 		{
-			void (Listener::*listen_func)(const Event&) = &Listener::OnEvent;
-			auto& listeners = m_mapCallbacks[Event::GetType()];
+			auto& listeners = m_Callbacks[Event::GetType()];
 
 			for( size_t i = 0; i < listeners.size(); i++ )
 			{
@@ -91,19 +90,17 @@ namespace Bat
 		void OnEventDispatched( Listener& listener )
 		{
 			EventCallbackWrapper<Event> wrapper( listener );
-			m_mapCallbacks[Event::GetType()].emplace_back( nullptr, wrapper );
+			m_Callbacks[Event::GetType()].emplace_back( nullptr, wrapper );
 		}
 
 		template <typename Event, typename... Args>
 		void DispatchEvent( Args&&... args )
 		{
-			auto it = m_mapCallbacks.find( Event::GetType() );
-			if( it == m_mapCallbacks.end() )
+			const auto& listeners = m_Callbacks[Event::GetType()];
+			if( listeners.empty() )
 			{
-				return; // no callbacks to call
+				return;
 			}
-			
-			const auto& listeners = it->second;
 
 			Event e = Event( std::forward<Args>( args )... );
 			for( auto listener : listeners )
@@ -124,6 +121,6 @@ namespace Bat
 			std::function<void( const void* )> callback;
 		};
 
-		std::unordered_map<EventType, std::vector<EventListener>> m_mapCallbacks;
+		std::vector<std::vector<EventListener>> m_Callbacks{20};
 	};
 }

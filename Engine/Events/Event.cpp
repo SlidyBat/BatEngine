@@ -3,5 +3,5 @@
 
 namespace Bat
 {
-	EventType IBaseEvent::s_iEventTypeCounter;
+	EventType IBaseEvent::s_iEventTypeCounter = 0;
 }
