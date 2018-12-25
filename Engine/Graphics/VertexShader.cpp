@@ -190,7 +190,7 @@ namespace Bat
 					}
 					else
 					{
-						BAT_ERROR( "{}", error );
+						BAT_ERROR( "{}", Bat::Trim( error ) );
 						return;
 					}
 				}
