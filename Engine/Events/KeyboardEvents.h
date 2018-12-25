@@ -4,7 +4,7 @@
 
 namespace Bat
 {
-	class KeyPressedEvent : public IEvent
+	class KeyPressedEvent : public IEvent<KeyPressedEvent>
 	{
 	public:
 		KeyPressedEvent( const size_t key )
@@ -17,7 +17,7 @@ namespace Bat
 		size_t m_iKey;
 	};
 
-	class KeyReleasedEvent : public IEvent
+	class KeyReleasedEvent : public IEvent<KeyReleasedEvent>
 	{
 	public:
 		KeyReleasedEvent( const size_t key )

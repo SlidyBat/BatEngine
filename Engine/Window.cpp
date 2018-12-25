@@ -104,7 +104,7 @@ namespace Bat
 			ChangeDisplaySettings( NULL, 0 );
 		}
 
-		DISPATCH_EVENT( WindowClosedEvent() );
+		DispatchEvent<WindowClosedEvent>();
 
 		DestroyWindow( m_hWnd );
 		m_hWnd = NULL;
@@ -296,7 +296,7 @@ namespace Bat
 			m_iWidth = LOWORD( lParam );
 			m_iHeight = HIWORD( lParam );
 
-			DISPATCH_EVENT( WindowResizeEvent( m_iWidth, m_iHeight ) );
+			DispatchEvent<WindowResizeEvent>( m_iWidth, m_iHeight );
 
 			break;
 		}
@@ -305,7 +305,7 @@ namespace Bat
 			m_Pos.x = LOWORD( lParam );
 			m_Pos.y = HIWORD( lParam );
 
-			DISPATCH_EVENT( WindowMovedEvent( m_Pos.x, m_Pos.y ) );
+			DispatchEvent<WindowMovedEvent>( m_Pos.x, m_Pos.y );
 
 			break;
 		}

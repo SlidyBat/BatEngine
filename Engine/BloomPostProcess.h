@@ -10,7 +10,7 @@ namespace Bat
 	class BloomPostProcess : public GenericPostProcess
 	{
 	public:
-		BloomPostProcess( int width, int height );
+		BloomPostProcess( Window& wnd );
 
 		virtual void Render( RenderTexture& pRenderTexture ) override;
 	private:

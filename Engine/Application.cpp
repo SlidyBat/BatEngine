@@ -7,6 +7,8 @@
 #include "SceneLoader.h"
 #include "FileWatchdog.h"
 
+#include "KeyboardEvents.h"
+
 namespace Bat
 {
 	Application::Application( Graphics& gfx, Window& wnd )
@@ -20,6 +22,18 @@ namespace Bat
 		gfx.SetActiveCamera( &camera );
 
 		light = scene.GetRootNode().AddLight( {} );
+
+		wnd.input.OnEventDispatched<KeyPressedEvent>( [this](const KeyPressedEvent& e)
+		{
+			if(e.GetKey() == 'L')
+			{
+				this->wnd.input.AddEventListener<MouseButtonPressedEvent>( *this );
+			}
+			else if(e.GetKey() == 'K')
+			{
+				this->wnd.input.RemoveEventListener<MouseButtonPressedEvent>( *this );
+			}
+		} );
 	}
 
 	void Application::OnUpdate( float deltatime )
@@ -49,5 +63,10 @@ namespace Bat
 	void Application::OnFileChanged( const std::string& filename )
 	{
 		BAT_LOG( "'{}' changed", filename );
+	}
+
+	void Application::OnEvent( const MouseButtonPressedEvent& e )
+	{
+		BAT_LOG( "Mouse button pressed: {}", (int)e.GetButton() );
 	}
 }

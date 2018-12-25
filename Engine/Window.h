@@ -5,7 +5,7 @@
 
 namespace Bat
 {
-	class Window
+	class Window : public EventDispatcher
 	{
 	public:
 		Window( const Vei2& pos, int width, int height, const std::string& name, bool fullscreen = false );

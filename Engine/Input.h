@@ -1,10 +1,11 @@
 #pragma once
 
 #include "PCH.h"
+#include "Event.h"
 
 namespace Bat
 {
-	class Input
+	class Input : public EventDispatcher
 	{
 		friend class Window;
 	public:

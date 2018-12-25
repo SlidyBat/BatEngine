@@ -45,7 +45,7 @@ namespace Bat
 		AddShader( "bumpmap", std::make_unique<BumpMapPipeline>( "Graphics/Shaders/BumpMapVS.hlsl", "Graphics/Shaders/BumpMapPS.hlsl" ) );
 		AddShader( "skybox", std::make_unique<SkyboxPipeline>( "Graphics/Shaders/SkyboxVS.hlsl", "Graphics/Shaders/SkyboxPS.hlsl" ) );
 
-		m_pBloomProcess = std::make_unique<BloomPostProcess>( wnd.GetWidth(), wnd.GetHeight() );
+		m_pBloomProcess = std::make_unique<BloomPostProcess>( wnd );
 
 		m_FrameBuffers[0].Resize( wnd.GetWidth(), wnd.GetHeight() );
 		m_FrameBuffers[1].Resize( wnd.GetWidth(), wnd.GetHeight() );
@@ -53,9 +53,9 @@ namespace Bat
 		m_pSpriteBatch = std::make_unique<DirectX::SpriteBatch>( GetDeviceContext() );
 		m_pFont = std::make_unique<DirectX::SpriteFont>( GetDevice(), L"Assets/Fonts/consolas.spritefont" );
 
-		ON_EVENT_DISPATCHED( [=]( const WindowResizeEvent* e )
+		wnd.OnEventDispatched<WindowResizeEvent>( [=]( const WindowResizeEvent& e )
 		{
-			Resize( e->GetWidth(), e->GetHeight() );
+			Resize( e.GetWidth(), e.GetHeight() );
 		} );
 
 		m_matOrtho = DirectX::XMMatrixOrthographicLH(

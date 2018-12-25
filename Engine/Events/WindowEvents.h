@@ -5,7 +5,7 @@
 
 namespace Bat
 {
-	class WindowResizeEvent : public IEvent
+	class WindowResizeEvent : public IEvent<WindowResizeEvent>
 	{
 	public:
 		WindowResizeEvent( int width, int height )
@@ -20,7 +20,7 @@ namespace Bat
 		int m_iWidth, m_iHeight;
 	};
 
-	class WindowMovedEvent : public IEvent
+	class WindowMovedEvent : public IEvent<WindowMovedEvent>
 	{
 	public:
 		WindowMovedEvent( int x, int y )
@@ -35,7 +35,7 @@ namespace Bat
 		int m_iX, m_iY;
 	};
 
-	class WindowClosedEvent : public IEvent
+	class WindowClosedEvent : public IEvent<WindowClosedEvent>
 	{
 	public:
 		WindowClosedEvent() = default;

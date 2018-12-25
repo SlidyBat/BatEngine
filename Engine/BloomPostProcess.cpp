@@ -15,21 +15,17 @@ namespace Bat
 		float pad;
 	};
 
-	BloomPostProcess::BloomPostProcess( int width, int height )
+	BloomPostProcess::BloomPostProcess( Window& wnd )
 		:
-		GenericPostProcess( width, height, "Graphics/Shaders/TexturePS.hlsl" ),
-		m_iWidth( width ),
-		m_iHeight( height )
+		GenericPostProcess( wnd.GetWidth(), wnd.GetHeight(), "Graphics/Shaders/TexturePS.hlsl" ),
+		m_iWidth( wnd.GetWidth() ),
+		m_iHeight( wnd.GetHeight() )
 	{
-		m_BloomFrameBuffer.Resize( width, height );
+		const int width = wnd.GetWidth();
+		const int height = wnd.GetHeight();
+
+		m_BloomFrameBuffer.Resize( wnd.GetWidth(), height );
 		m_BloomFrameBuffer2.Resize( width, height );
-		ON_EVENT_DISPATCHED( [=]( const WindowResizeEvent* e )
-		{
-			m_iWidth = e->GetWidth();
-			m_iHeight = e->GetHeight();
-			m_BloomFrameBuffer.Resize( m_iWidth, m_iHeight );
-			m_BloomFrameBuffer2.Resize( m_iWidth, m_iHeight );
-		} );
 
 		m_pBrightExtractPS = ResourceManager::GetPixelShader( "Graphics/Shaders/BrightExtractPS.hlsl" );
 		m_pBrightExtractPS->AddConstantBuffer<CB_Globals>();
@@ -39,6 +35,14 @@ namespace Bat
 		m_pGaussBlurVerPS->AddConstantBuffer<CB_Globals>();
 
 		m_pBloomShader = ResourceManager::GetPixelShader( "Graphics/Shaders/BloomPS.hlsl" );
+
+		wnd.OnEventDispatched<WindowResizeEvent>( [=]( const WindowResizeEvent& e )
+		{
+			m_iWidth = e.GetWidth();
+			m_iHeight = e.GetHeight();
+			m_BloomFrameBuffer.Resize( m_iWidth, m_iHeight );
+			m_BloomFrameBuffer2.Resize( m_iWidth, m_iHeight );
+		} );
 	}
 
 	void BloomPostProcess::Render( RenderTexture& pRenderTexture )

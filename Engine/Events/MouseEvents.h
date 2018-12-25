@@ -6,7 +6,7 @@
 
 namespace Bat
 {
-	class MouseMovedEvent : public IEvent
+	class MouseMovedEvent : public IEvent<MouseMovedEvent>
 	{
 	public:
 		MouseMovedEvent( const Vei2& pos, const Vei2& oldpos )
@@ -23,7 +23,7 @@ namespace Bat
 		Vei2 m_vecOldPos;
 	};
 
-	class MouseScrolledEvent : public IEvent
+	class MouseScrolledEvent : public IEvent<MouseScrolledEvent>
 	{
 	public:
 		MouseScrolledEvent( const Vei2& pos, const float delta )
@@ -39,7 +39,7 @@ namespace Bat
 		float m_fDelta;
 	};
 
-	class MouseButtonPressedEvent : public IEvent
+	class MouseButtonPressedEvent : public IEvent<MouseButtonPressedEvent>
 	{
 	public:
 		MouseButtonPressedEvent( const Vei2& pos, const Input::MouseButton button )
@@ -55,7 +55,7 @@ namespace Bat
 		Input::MouseButton m_Button;
 	};
 
-	class MouseButtonReleasedEvent : public IEvent
+	class MouseButtonReleasedEvent : public IEvent<MouseButtonReleasedEvent>
 	{
 	public:
 		MouseButtonReleasedEvent( const Vei2& pos, const Input::MouseButton button )
@@ -71,7 +71,7 @@ namespace Bat
 		Input::MouseButton m_Button;
 	};
 
-	class MouseButtonDoubleClickEvent : public IEvent
+	class MouseButtonDoubleClickEvent : public IEvent<MouseButtonDoubleClickEvent>
 	{
 	public:
 		MouseButtonDoubleClickEvent( const Vei2& pos, const Input::MouseButton button )

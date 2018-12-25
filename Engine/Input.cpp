@@ -21,7 +21,7 @@ namespace Bat
 
 		m_bKeyIsPressed[key] = true;
 
-		DISPATCH_EVENT( KeyPressedEvent( key ) );
+		DispatchEvent<KeyPressedEvent>( key );
 	}
 
 	void Input::OnKeyUp( const size_t key )
@@ -31,7 +31,7 @@ namespace Bat
 
 		m_bKeyIsPressed[key] = false;
 
-		DISPATCH_EVENT( KeyReleasedEvent( key ) );
+		DispatchEvent<KeyReleasedEvent>( key );
 	}
 
 	bool Input::IsKeyPressed( const size_t key ) const
@@ -41,7 +41,7 @@ namespace Bat
 
 	void Input::OnMouseMoved( const Vei2& pos )
 	{
-		DISPATCH_EVENT( MouseMovedEvent( pos, m_vecMousePosition ) );
+		DispatchEvent<MouseMovedEvent>( pos, m_vecMousePosition );
 
 		m_vecMousePosition = pos;
 	}
@@ -50,7 +50,7 @@ namespace Bat
 	{
 		m_vecMousePosition = pos;
 
-		DISPATCH_EVENT( MouseScrolledEvent( pos, delta ) );
+		DispatchEvent<MouseScrolledEvent>( pos, delta );
 	}
 
 	void Input::OnMouseButtonDown( const Vei2& pos, const MouseButton mb )
@@ -58,7 +58,7 @@ namespace Bat
 		m_vecMousePosition = pos;
 		m_bMouseButtonIsDown[(int)mb] = true;
 
-		DISPATCH_EVENT( MouseButtonPressedEvent( pos, mb ) );
+		DispatchEvent<MouseButtonPressedEvent>( pos, mb );
 	}
 
 	void Input::OnMouseButtonUp( const Vei2& pos, const MouseButton mb )
@@ -66,7 +66,7 @@ namespace Bat
 		m_vecMousePosition = pos;
 		m_bMouseButtonIsDown[(int)mb] = false;
 
-		DISPATCH_EVENT( MouseButtonReleasedEvent( pos, mb ) );
+		DispatchEvent<MouseButtonReleasedEvent>( pos, mb );
 	}
 
 	void Input::OnMouseButtonDblClick( const Vei2& pos, const MouseButton mb )
@@ -74,7 +74,7 @@ namespace Bat
 		m_vecMousePosition = pos;
 		m_bMouseButtonIsDown[(int)mb] = true;
 
-		DISPATCH_EVENT( MouseButtonDoubleClickEvent( pos, mb ) );
+		DispatchEvent<MouseButtonDoubleClickEvent>( pos, mb );
 	}
 
 	Vei2 Input::GetMousePosition() const
