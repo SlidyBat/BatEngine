@@ -165,9 +165,6 @@
     <ClCompile Include="BloomPostProcess.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\SceneLoader.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
@@ -190,6 +187,12 @@
       <Filter>Source Files\Util</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\RenderContext.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\StringLib.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
