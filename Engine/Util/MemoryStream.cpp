@@ -164,6 +164,11 @@ MemoryStream MemoryStream::FromStream( std::istream& stream )
 	size_t size = (size_t)stream.tellg();
 	stream.seekg( 0, std::ios::beg );
 
+	if( size == 0 )
+	{
+		return {};
+	}
+
 	MemoryStream ret;
 	ret.m_Bytes.resize( size );
 	stream.read( &ret.m_Bytes[0], size );
