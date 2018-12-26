@@ -19,7 +19,6 @@ namespace Bat
 		virtual void OnRender() override;
 
 		void OnFileChanged( const std::string& filename );
-		void OnEvent( const MouseButtonPressedEvent& e );
 	private:
 		Graphics& gfx;
 		Window& wnd;

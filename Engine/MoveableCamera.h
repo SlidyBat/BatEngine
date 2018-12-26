@@ -5,19 +5,22 @@
 namespace Bat
 {
 	class Input;
+	class MouseMovedEvent;
 
 	class MoveableCamera : public Camera
 	{
 	public:
-		MoveableCamera( float speed = 20.0f, float angSpeed = 200.0f );
+		MoveableCamera( Input& input, float speed = 20.0f, float angSpeed = 200.0f );
 
-		void Update( const Input& input, float deltatime );
+		void Update( float deltatime );
+		void OnEvent( const MouseMovedEvent& e );
 
 		float GetSpeed() const { return m_fSpeed; }
 		void SetSpeed( const float speed ) { m_fSpeed = speed; }
 		float GetAngularSpeed() const { return m_fAngularSpeed; }
 		void SetAngularSpeed( const float angspeed ) { m_fAngularSpeed = angspeed; }
 	private:
+		Input& m_Input;
 		float m_fSpeed;
 		float m_fAngularSpeed;
 	};

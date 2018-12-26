@@ -16,24 +16,12 @@ namespace Bat
 		gfx( gfx ),
 		wnd( wnd ),
 		scene( SceneLoader::LoadScene( "Assets/Ignore/DamagedHelmet/DamagedHelmet.gltf" ) ),
-		camera( 1.0f )
+		camera( wnd.input, 1.0f )
 	{
 		gfx.SetActiveScene( &scene );
 		gfx.SetActiveCamera( &camera );
 
 		light = scene.GetRootNode().AddLight( {} );
-
-		wnd.input.OnEventDispatched<KeyPressedEvent>( [this](const KeyPressedEvent& e)
-		{
-			if(e.GetKey() == 'L')
-			{
-				this->wnd.input.AddEventListener<MouseButtonPressedEvent>( *this );
-			}
-			else if(e.GetKey() == 'K')
-			{
-				this->wnd.input.RemoveEventListener<MouseButtonPressedEvent>( *this );
-			}
-		} );
 	}
 
 	void Application::OnUpdate( float deltatime )
@@ -43,7 +31,7 @@ namespace Bat
 			light->SetPosition( camera.GetPosition() );
 		}
 
-		camera.Update( wnd.input, deltatime );
+		camera.Update( deltatime );
 
 		elapsed_time += deltatime;
 		fps_counter += 1;
@@ -63,10 +51,5 @@ namespace Bat
 	void Application::OnFileChanged( const std::string& filename )
 	{
 		BAT_LOG( "'{}' changed", filename );
-	}
-
-	void Application::OnEvent( const MouseButtonPressedEvent& e )
-	{
-		BAT_LOG( "Mouse button pressed: {}", (int)e.GetButton() );
 	}
 }
