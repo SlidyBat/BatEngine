@@ -1,7 +1,12 @@
 #include "PCH.h"
 #include "D3DClass.h"
 
+#undef GetMessage
+
 #include <d3d11.h>
+#ifdef _DEBUG
+#include <d3d11sdklayers.h>
+#endif
 #include "COMException.h"
 #include "RenderTexture.h"
 
@@ -178,6 +183,35 @@ namespace Bat
 		viewport.TopLeftY = 0.0f;
 
 		m_pDeviceContext->RSSetViewports( 1, &viewport );
+
+#ifdef _DEBUG
+		// create the info queue
+		HRESULT hr = m_pDevice.As(&m_pInfoQueue);
+		if (SUCCEEDED(hr))
+		{
+			m_pInfoQueue->ClearStoredMessages();
+			m_pInfoQueue->ClearRetrievalFilter();
+			m_pInfoQueue->ClearStorageFilter();
+
+			D3D11_INFO_QUEUE_FILTER filter {0};
+
+			std::vector<D3D11_MESSAGE_SEVERITY> severity_filter_list = {
+				// list of severities to filter out
+				// D3D11_MESSAGE_SEVERITY_INFO
+			};
+
+			if( !severity_filter_list.empty() )
+			{
+				filter.DenyList.NumSeverities = (UINT)severity_filter_list.size();
+				filter.DenyList.pSeverityList = severity_filter_list.data();
+			}
+
+			m_pInfoQueue->AddStorageFilterEntries( &filter );
+			m_pInfoQueue->AddRetrievalFilterEntries( &filter );
+
+			BAT_TRACE( "Initialized debug layer info queue" );
+		}
+#endif
 	}
 
 	ID3D11Device* D3DClass::GetDevice() const
@@ -190,12 +224,12 @@ namespace Bat
 		return m_pDeviceContext.Get();
 	}
 
-	ID3D11RenderTargetView * D3DClass::GetRenderTargetView() const
+	ID3D11RenderTargetView* D3DClass::GetRenderTargetView() const
 	{
 		return m_pRenderTargetView.Get();
 	}
 
-	ID3D11DepthStencilView * D3DClass::GetDepthStencilView() const
+	ID3D11DepthStencilView* D3DClass::GetDepthStencilView() const
 	{
 		return m_pDepthStencilView.Get();
 	}
@@ -252,6 +286,40 @@ namespace Bat
 		{
 			m_pSwapChain->Present( 0, 0 );
 		}
+
+#ifdef _DEBUG
+		// print debug layererrors from this frame
+		if( m_pInfoQueue )
+		{
+			UINT64 nMessages = m_pInfoQueue->GetNumStoredMessages();
+			for (UINT64 i = 0 ; i < nMessages ; i++ )
+			{
+				SIZE_T length;
+				m_pInfoQueue->GetMessage(i, NULL, &length);
+
+				D3D11_MESSAGE* pMessage = (D3D11_MESSAGE*)malloc( length );
+				m_pInfoQueue->GetMessage(i, pMessage, &length);
+
+				switch( pMessage->Severity )
+				{
+					case D3D11_MESSAGE_SEVERITY_INFO:
+					case D3D11_MESSAGE_SEVERITY_MESSAGE:
+						BAT_LOG( "{}", pMessage->pDescription );
+						break;
+					case D3D11_MESSAGE_SEVERITY_WARNING:
+						BAT_WARN( "{}", pMessage->pDescription );
+						break;
+					case D3D11_MESSAGE_SEVERITY_ERROR:
+					case D3D11_MESSAGE_SEVERITY_CORRUPTION:
+						BAT_ERROR( "{}", pMessage->pDescription );
+				}
+
+				free( pMessage );
+			}
+
+			m_pInfoQueue->ClearStoredMessages();
+		}
+#endif
 	}
 
 	void D3DClass::Resize( int width, int height )

@@ -33,6 +33,10 @@ namespace Bat
 				DirectX::CreateDDSTextureFromFile( pDevice, filename.c_str(), &m_pTexture, &m_pTextureView )
 			);
 		}
+
+#ifdef _DEBUG
+		m_pTexture->SetPrivateData( WKPDID_D3DDebugObjectName, (UINT)filename.size(), filename.c_str() );
+#endif
 	}
 
 	Texture::Texture( const uint8_t* pData, size_t size )

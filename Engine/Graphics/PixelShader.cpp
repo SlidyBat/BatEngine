@@ -18,6 +18,10 @@ namespace Bat
 	{
 		LoadFromFile( Bat::StringToWide( filename ), false );
 		FileWatchdog::AddFileChangeListener( filename, BIND_MEM_FN( PixelShader::OnFileChanged ) );
+
+#ifdef _DEBUG
+		m_pPixelShader->SetPrivateData( WKPDID_D3DDebugObjectName, (UINT)filename.size(), filename.c_str() );
+#endif
 	}
 
 	PixelShader::~PixelShader()
@@ -47,16 +51,22 @@ namespace Bat
 		auto pDeviceContext = RenderContext::GetDeviceContext();
 
 		pDeviceContext->PSSetShader( m_pPixelShader.Get(), NULL, 0 );
-		pDeviceContext->PSSetSamplers( 0, (UINT)m_pSamplerStates.size(), m_pSamplerStates.data() );
-
-		std::vector<ID3D11Buffer*> buffers;
-		buffers.reserve( m_ConstantBuffers.size() );
-		for( const auto& buffer : m_ConstantBuffers )
+		if( !m_pSamplerStates.empty() )
 		{
-			buffers.emplace_back( buffer );
+			pDeviceContext->PSSetSamplers( 0, (UINT)m_pSamplerStates.size(), m_pSamplerStates.data() );
 		}
 
-		pDeviceContext->PSSetConstantBuffers( 0, (UINT)buffers.size(), buffers.data() );
+		if( !m_ConstantBuffers.empty() )
+		{
+			std::vector<ID3D11Buffer*> buffers;
+			buffers.reserve( m_ConstantBuffers.size() );
+			for( const auto& buffer : m_ConstantBuffers )
+			{
+				buffers.emplace_back( buffer );
+			}
+
+			pDeviceContext->PSSetConstantBuffers( 0, (UINT)buffers.size(), buffers.data() );
+		}
 	}
 
 	void PixelShader::AddSampler( const D3D11_SAMPLER_DESC* pSamplerDesc )

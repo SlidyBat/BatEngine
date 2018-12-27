@@ -12,6 +12,7 @@
 struct IDXGISwapChain;
 struct ID3D11Device;
 struct ID3D11DeviceContext;
+struct ID3D11InfoQueue;
 struct ID3D11RenderTargetView;
 struct ID3D11RasterizerState;
 struct ID3D11DepthStencilView;
@@ -54,6 +55,10 @@ namespace Bat
 
 		Microsoft::WRL::ComPtr<ID3D11Device>				m_pDevice;
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext>			m_pDeviceContext;
+
+#ifdef _DEBUG
+		Microsoft::WRL::ComPtr<ID3D11InfoQueue>				m_pInfoQueue;
+#endif
 
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_pRenderTargetView;
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState>		m_pRasterState;

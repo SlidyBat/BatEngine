@@ -84,6 +84,10 @@ namespace Bat
 	{
 		LoadFromFile( Bat::StringToWide( filename ), true );
 		FileWatchdog::AddFileChangeListener( filename, BIND_MEM_FN( VertexShader::OnFileChanged ) );
+
+#ifdef _DEBUG
+		m_pVertexShader->SetPrivateData( WKPDID_D3DDebugObjectName, (UINT)filename.size(), filename.c_str() );
+#endif
 	}
 
 	VertexShader::~VertexShader()
@@ -116,16 +120,22 @@ namespace Bat
 
 		pDeviceContext->IASetInputLayout( m_pInputLayout.Get() );
 		pDeviceContext->VSSetShader( m_pVertexShader.Get(), NULL, 0 );
-		pDeviceContext->VSSetSamplers( 0, (UINT)m_pSamplerStates.size(), m_pSamplerStates.data() );
-
-		std::vector<ID3D11Buffer*> buffers;
-		buffers.reserve( m_ConstantBuffers.size() );
-		for( const auto& buffer : m_ConstantBuffers )
+		if( !m_pSamplerStates.empty() )
 		{
-			buffers.emplace_back( buffer );
+			pDeviceContext->VSSetSamplers( 0, (UINT)m_pSamplerStates.size(), m_pSamplerStates.data() );
 		}
 
-		pDeviceContext->VSSetConstantBuffers( 0, (UINT)buffers.size(), buffers.data() );
+		if( !m_ConstantBuffers.empty() )
+		{
+			std::vector<ID3D11Buffer*> buffers;
+			buffers.reserve( m_ConstantBuffers.size() );
+			for( const auto& buffer : m_ConstantBuffers )
+			{
+				buffers.emplace_back( buffer );
+			}
+
+			pDeviceContext->VSSetConstantBuffers( 0, (UINT)buffers.size(), buffers.data() );
+		}
 	}
 
 	void VertexShader::AddSampler( const D3D11_SAMPLER_DESC* pSamplerDesc )
