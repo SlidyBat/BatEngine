@@ -5,39 +5,22 @@
 
 namespace Bat
 {
-	class WindowResizeEvent : public IEvent<WindowResizeEvent>
+	struct WindowResizeEvent
 	{
-	public:
-		WindowResizeEvent( int width, int height )
-			:
-			m_iWidth( width ),
-			m_iHeight( height )
-		{}
-
-		int GetWidth() const { return m_iWidth; }
-		int GetHeight() const { return m_iHeight; }
-	private:
-		int m_iWidth, m_iHeight;
+		// New window width
+		int width;
+		// New window height
+		int height;
 	};
 
-	class WindowMovedEvent : public IEvent<WindowMovedEvent>
+	struct WindowMovedEvent
 	{
-	public:
-		WindowMovedEvent( int x, int y )
-			:
-			m_iX( x ),
-			m_iY( y )
-		{}
-
-		int GetPosX() const { return m_iX; }
-		int GetPosY() const { return m_iY; }
-	private:
-		int m_iX, m_iY;
+		// X position of window in screen coordinates
+		int x;
+		// Y position of window in screen coordinates
+		int y;
 	};
 
-	class WindowClosedEvent : public IEvent<WindowClosedEvent>
-	{
-	public:
-		WindowClosedEvent() = default;
-	};
+	struct WindowClosedEvent
+	{};
 }

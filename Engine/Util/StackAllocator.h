@@ -15,7 +15,7 @@ namespace Bat
 		T* Alloc( Args&&... args )
 		{
 			void* pMem = Alloc( sizeof( T ) );
-			return new(pMem) T( std::forward<Args>( args )... );
+			return new(pMem) T{ std::forward<Args>( args )... };
 		}
 		template <typename T>
 		void Free( T* pObj )

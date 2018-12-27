@@ -55,7 +55,7 @@ namespace Bat
 
 		wnd.OnEventDispatched<WindowResizeEvent>( [=]( const WindowResizeEvent& e )
 		{
-			Resize( e.GetWidth(), e.GetHeight() );
+			Resize( e.width, e.height );
 		} );
 
 		m_matOrtho = DirectX::XMMatrixOrthographicLH(

@@ -6,84 +6,45 @@
 
 namespace Bat
 {
-	class MouseMovedEvent : public IEvent<MouseMovedEvent>
+	struct MouseMovedEvent
 	{
-	public:
-		MouseMovedEvent( const Vei2& pos, const Vei2& oldpos )
-			:
-			m_vecPos( pos ),
-			m_vecOldPos( oldpos )
-		{}
+		Vei2 GetDeltaPosition() const { return pos - old_pos; }
 
-		Vei2 GetPosition() const { return m_vecPos; }
-		Vei2 GetOldPosition() const { return m_vecOldPos; }
-		Vei2 GetDeltaPosition() const { return m_vecPos - m_vecOldPos; }
-	private:
-		Vei2 m_vecPos;
-		Vei2 m_vecOldPos;
+		// New mouse position
+		Vei2 pos;
+		// Mouse position before it was moved
+		Vei2 old_pos;
 	};
 
-	class MouseScrolledEvent : public IEvent<MouseScrolledEvent>
+	struct MouseScrolledEvent
 	{
-	public:
-		MouseScrolledEvent( const Vei2& pos, const float delta )
-			:
-			m_vecPos( pos ),
-			m_fDelta( delta )
-		{}
-
-		Vei2 GetPosition() const { return m_vecPos; }
-		float GetDelta() const { return m_fDelta; }
-	private:
-		Vei2 m_vecPos;
-		float m_fDelta;
+		// Mouse position when button was released
+		Vei2 pos;
+		// How much the scroll wheel was moved
+		float delta;
 	};
 
-	class MouseButtonPressedEvent : public IEvent<MouseButtonPressedEvent>
+	struct MouseButtonPressedEvent
 	{
-	public:
-		MouseButtonPressedEvent( const Vei2& pos, const Input::MouseButton button )
-			:
-			m_vecPos( pos ),
-			m_Button( button )
-		{}
-
-		Vei2 GetPosition() const { return m_vecPos; }
-		Input::MouseButton GetButton() const { return m_Button; }
-	private:
-		Vei2 m_vecPos;
-		Input::MouseButton m_Button;
+		// Mouse position when button was released
+		Vei2 pos;
+		// Mouse button that was pressed
+		Input::MouseButton button;
 	};
 
-	class MouseButtonReleasedEvent : public IEvent<MouseButtonReleasedEvent>
+	struct MouseButtonReleasedEvent
 	{
-	public:
-		MouseButtonReleasedEvent( const Vei2& pos, const Input::MouseButton button )
-			:
-			m_vecPos( pos ),
-			m_Button( button )
-		{}
-
-		Vei2 GetPosition() const { return m_vecPos; }
-		Input::MouseButton GetButton() const { return m_Button; }
-	private:
-		Vei2 m_vecPos;
-		Input::MouseButton m_Button;
+		// Mouse position when button was released
+		Vei2 pos;
+		// Mouse button that was released
+		Input::MouseButton button;
 	};
 
-	class MouseButtonDoubleClickEvent : public IEvent<MouseButtonDoubleClickEvent>
+	struct MouseButtonDoubleClickEvent
 	{
-	public:
-		MouseButtonDoubleClickEvent( const Vei2& pos, const Input::MouseButton button )
-			:
-			m_vecPos( pos ),
-			m_Button( button )
-		{}
-
-		Vei2 GetPosition() const { return m_vecPos; }
-		Input::MouseButton GetButton() const { return m_Button; }
-	private:
-		Vei2 m_vecPos;
-		Input::MouseButton m_Button;
+		// Mouse position when button was released
+		Vei2 pos;
+		// Mouse button that was double clicked
+		Input::MouseButton button;
 	};
 }

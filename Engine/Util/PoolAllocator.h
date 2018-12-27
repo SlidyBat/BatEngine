@@ -95,7 +95,7 @@ namespace Bat
 #ifdef _DEBUG
 			m_iAllocs++;
 #endif
-			return new(pAlloc) T( std::forward<Args>( args )... );
+			return new(pAlloc) T{ std::forward<Args>( args )... };
 		}
 		void Free( T* pObject )
 		{

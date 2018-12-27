@@ -5,7 +5,7 @@
 namespace Bat
 {
 	class Input;
-	class MouseMovedEvent;
+	struct MouseMovedEvent;
 
 	class MoveableCamera : public Camera
 	{

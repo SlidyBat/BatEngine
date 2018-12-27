@@ -38,8 +38,8 @@ namespace Bat
 
 		wnd.OnEventDispatched<WindowResizeEvent>( [=]( const WindowResizeEvent& e )
 		{
-			m_iWidth = e.GetWidth();
-			m_iHeight = e.GetHeight();
+			m_iWidth = e.width;
+			m_iHeight = e.height;
 			m_BloomFrameBuffer.Resize( m_iWidth, m_iHeight );
 			m_BloomFrameBuffer2.Resize( m_iWidth, m_iHeight );
 		} );
