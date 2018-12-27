@@ -26,7 +26,7 @@ namespace Bat
 
 	void Application::OnUpdate( float deltatime )
 	{
-		if( wnd.input.IsKeyPressed( 'C' ) )
+		if( wnd.input.IsKeyDown( 'C' ) )
 		{
 			light->SetPosition( camera.GetPosition() );
 		}

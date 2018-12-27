@@ -15,10 +15,10 @@ namespace Bat
 		Input( Input&& donor ) = delete;
 		Input& operator=( Input&& donor ) = delete;
 	private: // keyboard		
-		void OnKeyDown( const size_t key );
+		void OnKeyDown( const size_t key, bool repeated );
 		void OnKeyUp( const size_t key );
 	public:
-		bool IsKeyPressed( const size_t key ) const;
+		bool IsKeyDown( const size_t key ) const;
 	public: // mouse
 		enum class MouseButton
 		{

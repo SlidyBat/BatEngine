@@ -14,14 +14,14 @@ namespace Bat
 		}
 	}
 
-	void Input::OnKeyDown( const size_t key )
+	void Input::OnKeyDown( const size_t key, bool repeated )
 	{
 		ASSERT( key >= 0, "Invalid keyboard key '{}'", key );
 		ASSERT( key < MaxKeys, "Invalid keyboard key '{}'", key );
 
 		m_bKeyIsPressed[key] = true;
 
-		DispatchEvent<KeyPressedEvent>( key );
+		DispatchEvent<KeyPressedEvent>( key, repeated );
 	}
 
 	void Input::OnKeyUp( const size_t key )
@@ -34,7 +34,7 @@ namespace Bat
 		DispatchEvent<KeyReleasedEvent>( key );
 	}
 
-	bool Input::IsKeyPressed( const size_t key ) const
+	bool Input::IsKeyDown( const size_t key ) const
 	{
 		return m_bKeyIsPressed[key];
 	}
