@@ -1,12 +1,7 @@
 #include "PCH.h"
 #include "D3DClass.h"
 
-#undef GetMessage
-
 #include <d3d11.h>
-#ifdef _DEBUG
-#include <d3d11sdklayers.h>
-#endif
 #include "COMException.h"
 #include "RenderTexture.h"
 
@@ -186,30 +181,39 @@ namespace Bat
 
 #ifdef _DEBUG
 		// create the info queue
-		HRESULT hr = m_pDevice.As(&m_pInfoQueue);
-		if (SUCCEEDED(hr))
+		typedef HRESULT (WINAPI * LPDXGIGETDEBUGINTERFACE)(REFIID, void ** );
+
+		HMODULE dxgidebug = LoadLibraryEx( "dxgidebug.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32 );
+		if( dxgidebug )
 		{
-			m_pInfoQueue->ClearStoredMessages();
-			m_pInfoQueue->ClearRetrievalFilter();
-			m_pInfoQueue->ClearStorageFilter();
+			auto dxgiGetDebugInterface = reinterpret_cast<LPDXGIGETDEBUGINTERFACE>(
+				reinterpret_cast<void*>( GetProcAddress( dxgidebug, "DXGIGetDebugInterface" ) ) );
 
-			D3D11_INFO_QUEUE_FILTER filter {0};
-
-			std::vector<D3D11_MESSAGE_SEVERITY> severity_filter_list = {
-				// list of severities to filter out
-				// D3D11_MESSAGE_SEVERITY_INFO
-			};
-
-			if( !severity_filter_list.empty() )
+			if( SUCCEEDED( dxgiGetDebugInterface( IID_PPV_ARGS( m_pInfoQueue.GetAddressOf() ) ) ) )
 			{
-				filter.DenyList.NumSeverities = (UINT)severity_filter_list.size();
-				filter.DenyList.pSeverityList = severity_filter_list.data();
+				m_pInfoQueue->SetMuteDebugOutput( DXGI_DEBUG_ALL, TRUE );
+				m_pInfoQueue->ClearStoredMessages( DXGI_DEBUG_ALL );
+				m_pInfoQueue->ClearRetrievalFilter( DXGI_DEBUG_ALL );
+				m_pInfoQueue->ClearStorageFilter( DXGI_DEBUG_ALL );
+
+				DXGI_INFO_QUEUE_FILTER filter {0};
+
+				std::vector<DXGI_INFO_QUEUE_MESSAGE_SEVERITY> severity_filter_list = {
+					// list of severities to filter out
+					// DXGI_INFO_QUEUE_MESSAGE_SEVERITY_INFO
+				};
+
+				if( !severity_filter_list.empty() )
+				{
+					filter.DenyList.NumSeverities = (UINT)severity_filter_list.size();
+					filter.DenyList.pSeverityList = severity_filter_list.data();
+				}
+
+				m_pInfoQueue->AddStorageFilterEntries( DXGI_DEBUG_ALL, &filter );
+				m_pInfoQueue->AddRetrievalFilterEntries( DXGI_DEBUG_ALL, &filter );
+
+				BAT_TRACE( "Initialized debug layer info queue" );
 			}
-
-			m_pInfoQueue->AddStorageFilterEntries( &filter );
-			m_pInfoQueue->AddRetrievalFilterEntries( &filter );
-
-			BAT_TRACE( "Initialized debug layer info queue" );
 		}
 #endif
 	}
@@ -291,33 +295,33 @@ namespace Bat
 		// print debug layererrors from this frame
 		if( m_pInfoQueue )
 		{
-			UINT64 nMessages = m_pInfoQueue->GetNumStoredMessages();
+			UINT64 nMessages = m_pInfoQueue->GetNumStoredMessages( DXGI_DEBUG_ALL );
 			for (UINT64 i = 0 ; i < nMessages ; i++ )
 			{
 				SIZE_T length;
-				m_pInfoQueue->GetMessage(i, NULL, &length);
+				m_pInfoQueue->GetMessageA( DXGI_DEBUG_ALL, i, NULL, &length);
 
-				D3D11_MESSAGE* pMessage = (D3D11_MESSAGE*)malloc( length );
-				m_pInfoQueue->GetMessage(i, pMessage, &length);
+				auto pMessage = (DXGI_INFO_QUEUE_MESSAGE*)malloc( length );
+				m_pInfoQueue->GetMessageA( DXGI_DEBUG_ALL, i, pMessage, &length);
 
 				switch( pMessage->Severity )
 				{
-					case D3D11_MESSAGE_SEVERITY_INFO:
-					case D3D11_MESSAGE_SEVERITY_MESSAGE:
+					case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_INFO:
+					case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_MESSAGE:
 						BAT_LOG( "{}", pMessage->pDescription );
 						break;
-					case D3D11_MESSAGE_SEVERITY_WARNING:
+					case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_WARNING:
 						BAT_WARN( "{}", pMessage->pDescription );
 						break;
-					case D3D11_MESSAGE_SEVERITY_ERROR:
-					case D3D11_MESSAGE_SEVERITY_CORRUPTION:
+					case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR:
+					case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION:
 						BAT_ERROR( "{}", pMessage->pDescription );
 				}
 
 				free( pMessage );
 			}
 
-			m_pInfoQueue->ClearStoredMessages();
+			m_pInfoQueue->ClearStoredMessages( DXGI_DEBUG_ALL );
 		}
 #endif
 	}

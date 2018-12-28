@@ -9,10 +9,16 @@
 #include "Window.h"
 #include <wrl.h>
 
+#ifdef _DEBUG
+#include <initguid.h>
+#include <d3d11sdklayers.h>
+#include <dxgidebug.h>
+#pragma comment( lib, "dxguid.lib" )
+#endif
+
 struct IDXGISwapChain;
 struct ID3D11Device;
 struct ID3D11DeviceContext;
-struct ID3D11InfoQueue;
 struct ID3D11RenderTargetView;
 struct ID3D11RasterizerState;
 struct ID3D11DepthStencilView;
@@ -57,7 +63,7 @@ namespace Bat
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext>			m_pDeviceContext;
 
 #ifdef _DEBUG
-		Microsoft::WRL::ComPtr<ID3D11InfoQueue>				m_pInfoQueue;
+		Microsoft::WRL::ComPtr<IDXGIInfoQueue>				m_pInfoQueue;
 #endif
 
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_pRenderTargetView;
