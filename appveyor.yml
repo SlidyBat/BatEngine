@@ -1,0 +1,37 @@
+image: Visual Studio 2017
+
+branches:
+  only:
+    - master
+
+skip_tags: true
+
+max_jobs: 1
+
+configuration: Release
+
+clone_folder: c:\build
+
+build:
+  parallel: true
+  project: Engine.sln
+  verbosity: minimal
+
+after_build:
+  - cd "c:\build"
+  # Delete unnecessary debug files
+  - if exist .\*.pdb  /f del \*.pdb
+  - if exist .\*.ipdb /f del \*.ipdb
+  - if exist .\*.iobj /f del \*.iobj
+  # Make name not so long
+  - set APPVEYOR_REPO_COMMIT=%APPVEYOR_REPO_COMMIT:~0,7%
+  # Package files into zip
+  - 7z a engine_build.zip ".\Build\Release-x64\*.exe"
+  - 7z a engine_build.zip ".\Build\Release-x64\*.dll"
+  - cd "Engine"
+  - 7z a ..\engine_build.zip "Graphics\Shaders\*.hlsl"
+  - 7z a ..\engine_build.zip "Assets\"
+
+artifacts:
+  - path: engine_build.zip
+    name: engine_bin_$(APPVEYOR_REPO_COMMIT).zip
