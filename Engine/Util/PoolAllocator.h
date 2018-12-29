@@ -60,6 +60,8 @@ namespace Bat
 			m_iCurrentChunk = rhs.m_iCurrentChunk;
 			m_pFreeList = rhs.m_pFreeList;
 			m_pAllocHead = rhs.m_pAllocHead;
+			m_iObjectSize = rhs.m_iObjectSize;
+			m_bGrowOnOverflow = rhs.m_bGrowOnOverflow;
 
 #ifdef _DEBUG
 			m_iAllocs = rhs.m_iAllocs;
@@ -89,8 +91,8 @@ namespace Bat
 		}
 
 		size_t Capacity() const { return m_iCapacity; }
-	protected:
-		void* AllocObject()
+
+		void* Alloc()
 		{
 			char* pAlloc = AllocInternal();
 
@@ -114,7 +116,7 @@ namespace Bat
 			return pAlloc;
 		}
 
-		void FreeObject( void* pObject )
+		void Free( void* pObject )
 		{
 			*(char**)pObject = m_pFreeList;
 			m_pFreeList = (char*)pObject;
@@ -173,10 +175,10 @@ namespace Bat
 	};
 
 	template <typename T, size_t ChunkSize = 8192, bool GrowOnOverflow = true>
-	class ObjectAllocator : public PoolAllocator
+	class ObjectPoolAllocator : public PoolAllocator
 	{
 	public:
-		ObjectAllocator( const size_t capacity = 1 )
+		ObjectPoolAllocator( const size_t capacity = 1 )
 			:
 			PoolAllocator( sizeof( T ), ChunkSize * sizeof( T ), capacity, GrowOnOverflow )
 		{
@@ -188,24 +190,16 @@ namespace Bat
 		}
 
 		template <typename... Args>
-		T* Alloc( Args&&... args )
+		T* AllocObject( Args&&... args )
 		{
-			void* pAlloc = AllocObject();
+			void* pAlloc = Alloc();
 			return new( pAlloc ) T( std::forward<Args>( args )... );
 		}
 
-		void Free( T* pObject )
+		void FreeObject( T* pObject )
 		{
 			pObject->~T();
-			FreeObject( (void*)pObject );
-		}
-
-		// Returns pointer to the object at given index
-		// Not guaranteed to be a valid object
-		T* Get( size_t index )
-		{
-			size_t elements_per_chunk = m_iChunkSize / sizeof( T );
-			return m_pChunks[index / elements_per_chunk] + ( index % elements_per_chunk ) * sizeof( T );
+			Free( (void*)pObject );
 		}
 	};
 }

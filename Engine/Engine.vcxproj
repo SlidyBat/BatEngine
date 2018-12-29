@@ -204,6 +204,7 @@
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="BloomPostProcess.cpp" />
+    <ClCompile Include="Core\Entity.cpp" />
     <ClCompile Include="Util\FileWatchdog.cpp" />
     <ClCompile Include="Graphics\IndexBuffer.cpp" />
     <ClCompile Include="Graphics\Material.cpp" />
@@ -220,7 +221,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PCH.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="Events\Event.cpp" />
     <ClCompile Include="Graphics\BumpMapPipeline.cpp" />
     <ClCompile Include="COMInitialize.cpp" />
     <ClCompile Include="Graphics\GenericPostProcess.cpp" />
@@ -318,6 +318,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="ChunkedAllocator.h" />
+    <ClInclude Include="Core\Entity.h" />
+    <ClInclude Include="Core\EntityEvents.h" />
     <ClInclude Include="Util\BatAssert.h" />
     <ClInclude Include="BloomPostProcess.h" />
     <ClInclude Include="Common.h" />
