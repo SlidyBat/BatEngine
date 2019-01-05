@@ -13,10 +13,8 @@ namespace Bat
 	{
 	public:
 		PixelShader( const std::string& filename );
-		~PixelShader();
 
 		void Bind();
-		void AddSampler( const struct D3D11_SAMPLER_DESC* pSamplerDesc );
 		void SetResource( int slot, struct ID3D11ShaderResourceView* const pResource );
 		void SetResources( int startslot, struct ID3D11ShaderResourceView** const pResource, size_t size );
 
@@ -42,7 +40,6 @@ namespace Bat
 		void SetDirty( bool dirty ) { m_bDirty = dirty; }
 	private:
 		Microsoft::WRL::ComPtr<ID3D11PixelShader>	m_pPixelShader;
-		std::vector<ID3D11SamplerState*> m_pSamplerStates;
 		std::vector<ConstantBuffer> m_ConstantBuffers;
 		std::string m_szFilename;
 		std::atomic_bool m_bDirty;

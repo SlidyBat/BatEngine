@@ -33,6 +33,33 @@
 
 namespace Bat
 {
+	static void AddSamplers()
+	{
+		D3D11_SAMPLER_DESC sampler_desc;
+		sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		sampler_desc.MipLODBias = 0.0f;
+		sampler_desc.MaxAnisotropy = 1;
+		sampler_desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		sampler_desc.BorderColor[0] = 0.0f;
+		sampler_desc.BorderColor[1] = 0.0f;
+		sampler_desc.BorderColor[2] = 0.0f;
+		sampler_desc.BorderColor[3] = 0.0f;
+		sampler_desc.MinLOD = 0;
+		sampler_desc.MaxLOD = D3D11_FLOAT32_MAX;
+
+		// wrap sampler
+		sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		RenderContext::AddSampler( sampler_desc );
+
+		// clamp sampler
+		sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+		RenderContext::AddSampler( sampler_desc );	
+	}
+
 	Graphics::Graphics( Window& wnd )
 		:
 		d3d( wnd, VSyncEnabled, ScreenFar, ScreenNear )
@@ -44,6 +71,8 @@ namespace Bat
 		AddShader( "light", std::make_unique<LightPipeline>( "Graphics/Shaders/LightVS.hlsl", "Graphics/Shaders/LightPS.hlsl" ) );
 		AddShader( "bumpmap", std::make_unique<BumpMapPipeline>( "Graphics/Shaders/BumpMapVS.hlsl", "Graphics/Shaders/BumpMapPS.hlsl" ) );
 		AddShader( "skybox", std::make_unique<SkyboxPipeline>( "Graphics/Shaders/SkyboxVS.hlsl", "Graphics/Shaders/SkyboxPS.hlsl" ) );
+
+		AddSamplers();
 
 		m_pBloomProcess = std::make_unique<BloomPostProcess>( wnd );
 

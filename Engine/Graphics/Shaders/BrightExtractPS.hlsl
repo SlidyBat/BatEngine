@@ -1,5 +1,6 @@
+#include "Common.hlsli"
+
 Texture2D shaderTexture;
-SamplerState SampleType;
 
 cbuffer Globals
 {
@@ -15,7 +16,7 @@ struct PixelInputType
 
 float4 main(PixelInputType input) : SV_TARGET
 {
-    float4 col = shaderTexture.Sample(SampleType, input.tex);
+    float4 col = shaderTexture.Sample(ClampSampler, input.tex);
     float brightness = dot(col.rgb, float3(0.2126f, 0.7152f, 0.0722f));
     if (brightness > 1.0f)
     {

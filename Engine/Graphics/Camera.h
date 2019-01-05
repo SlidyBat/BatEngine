@@ -7,8 +7,8 @@ namespace Bat
 	class Camera
 	{
 	public:
-		Camera( const Vec3& pos, const Vec3& rot, float fov = 90.0f, float ar = 4.0f / 3.0f, float screen_near = 0.1f, float screen_far = 1000.0f );
-		Camera( float fov = 90.0f, float ar = 4.0f / 3.0f, float screen_near = 0.1f, float screen_far = 1000.0f );
+		Camera( const Vec3& pos, const Vec3& rot, float fov = 90.0f, float ar = 4.0f / 3.0f, float screen_near = 0.01f, float screen_far = 10000.0f );
+		Camera( float fov = 90.0f, float ar = 4.0f / 3.0f, float screen_near = 0.01f, float screen_far = 10000.0f );
 		Camera( const Camera& src ) = delete;
 		Camera& operator=( const Camera& src ) = delete;
 		Camera( Camera&& donor ) = delete;
@@ -48,8 +48,8 @@ namespace Bat
 	private:
 		float m_flFOV = 90.0f;
 		float m_flAspectRatio = 1.3333333f;
-		float m_flScreenNear = 0.1f;
-		float m_flScreenFar = 1000.0f;
+		float m_flScreenNear = 0.01f;
+		float m_flScreenFar = 10000.0f;
 
 		Vec3 m_vecPosition = { 0.0f, 0.0f, 0.0f };
 		Vec3 m_angRotation = { 0.0f, 0.0f, 0.0f };

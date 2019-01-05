@@ -12,10 +12,8 @@ namespace Bat
 	{
 	public:
 		VertexShader( const std::string& filename );
-		~VertexShader();
 
 		void Bind();
-		void AddSampler( const D3D11_SAMPLER_DESC* pSamplerDesc );
 		void SetResource( const int slot, ID3D11ShaderResourceView* const pResource );
 
 		template <typename T>
@@ -49,7 +47,6 @@ namespace Bat
 		Microsoft::WRL::ComPtr<ID3D11VertexShader>	m_pVertexShader;
 		Microsoft::WRL::ComPtr<ID3D11InputLayout>	m_pInputLayout;
 		bool m_bUsesAttribute[(int)VertexAttribute::TotalAttributes];
-		std::vector<ID3D11SamplerState*> m_pSamplerStates;
 		std::vector<ConstantBuffer> m_ConstantBuffers;
 		std::string m_szFilename;
 		std::atomic_bool m_bDirty;

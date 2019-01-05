@@ -471,4 +471,9 @@
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Graphics\Shaders\Common.hlsli">
+      <Filter>Shader Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

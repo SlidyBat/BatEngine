@@ -1,5 +1,6 @@
+#include "Common.hlsli"
+
 TextureCube cubemap;
-SamplerState SampleType;
 
 struct PixelInputType
 {
@@ -9,5 +10,5 @@ struct PixelInputType
 
 float4 main(PixelInputType input) : SV_TARGET
 {
-    return cubemap.Sample(SampleType, input.tex);
+    return cubemap.Sample(WrapSampler, input.tex);
 }

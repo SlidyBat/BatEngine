@@ -7,6 +7,7 @@
 #include "SceneLoader.h"
 #include "FileWatchdog.h"
 
+#include "WindowEvents.h"
 #include "KeyboardEvents.h"
 
 namespace Bat
@@ -15,11 +16,16 @@ namespace Bat
 		:
 		gfx( gfx ),
 		wnd( wnd ),
-		scene( SceneLoader::LoadScene( "Assets/Sponza/.gltf" ) ),
-		camera( wnd.input, 1.0f )
+		scene( SceneLoader::LoadScene( "Assets/Sponza/Sponza.gltf" ) ),
+		camera( wnd.input, 100.0f )
 	{
 		gfx.SetActiveScene( &scene );
 		gfx.SetActiveCamera( &camera );
+
+		wnd.OnEventDispatched<WindowResizeEvent>( [this]( const WindowResizeEvent& e )
+		{
+			this->camera.SetAspectRatio( (float)e.width / e.height );
+		} );
 
 		light = scene.GetRootNode().AddLight( {} );
 	}

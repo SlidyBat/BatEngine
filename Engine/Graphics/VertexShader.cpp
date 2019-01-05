@@ -90,14 +90,6 @@ namespace Bat
 #endif
 	}
 
-	VertexShader::~VertexShader()
-	{
-		for( auto pSamplerState : m_pSamplerStates )
-		{
-			pSamplerState->Release();
-		}
-	}
-
 	void VertexShader::Bind()
 	{
 		if( IsDirty() )
@@ -120,10 +112,7 @@ namespace Bat
 
 		pDeviceContext->IASetInputLayout( m_pInputLayout.Get() );
 		pDeviceContext->VSSetShader( m_pVertexShader.Get(), NULL, 0 );
-		if( !m_pSamplerStates.empty() )
-		{
-			pDeviceContext->VSSetSamplers( 0, (UINT)m_pSamplerStates.size(), m_pSamplerStates.data() );
-		}
+		RenderContext::BindSamplers( ShaderType::VERTEX_SHADER );
 
 		if( !m_ConstantBuffers.empty() )
 		{
@@ -136,17 +125,6 @@ namespace Bat
 
 			pDeviceContext->VSSetConstantBuffers( 0, (UINT)buffers.size(), buffers.data() );
 		}
-	}
-
-	void VertexShader::AddSampler( const D3D11_SAMPLER_DESC* pSamplerDesc )
-	{
-		auto pDevice = RenderContext::GetDevice();
-
-		ID3D11SamplerState* pSamplerState;
-		COM_THROW_IF_FAILED( pDevice->CreateSamplerState( pSamplerDesc, &pSamplerState ) );
-		m_pSamplerStates.emplace_back( pSamplerState );
-
-		ASSERT( m_pSamplerStates.size() <= D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, "Too many sampler states!" );
 	}
 
 	void VertexShader::SetResource( const int slot, ID3D11ShaderResourceView* const pResource )

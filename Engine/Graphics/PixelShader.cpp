@@ -16,20 +16,12 @@ namespace Bat
 		:
 		m_szFilename( filename )
 	{
-		LoadFromFile( Bat::StringToWide( filename ), false );
+		LoadFromFile( Bat::StringToWide( filename ), true );
 		FileWatchdog::AddFileChangeListener( filename, BIND_MEM_FN( PixelShader::OnFileChanged ) );
 
 #ifdef _DEBUG
 		m_pPixelShader->SetPrivateData( WKPDID_D3DDebugObjectName, (UINT)filename.size(), filename.c_str() );
 #endif
-	}
-
-	PixelShader::~PixelShader()
-	{
-		for( auto pSamplerState : m_pSamplerStates )
-		{
-			pSamplerState->Release();
-		}
 	}
 
 	void PixelShader::Bind()
@@ -51,10 +43,7 @@ namespace Bat
 		auto pDeviceContext = RenderContext::GetDeviceContext();
 
 		pDeviceContext->PSSetShader( m_pPixelShader.Get(), NULL, 0 );
-		if( !m_pSamplerStates.empty() )
-		{
-			pDeviceContext->PSSetSamplers( 0, (UINT)m_pSamplerStates.size(), m_pSamplerStates.data() );
-		}
+		RenderContext::BindSamplers( ShaderType::PIXEL_SHADER );
 
 		if( !m_ConstantBuffers.empty() )
 		{
@@ -67,17 +56,6 @@ namespace Bat
 
 			pDeviceContext->PSSetConstantBuffers( 0, (UINT)buffers.size(), buffers.data() );
 		}
-	}
-
-	void PixelShader::AddSampler( const D3D11_SAMPLER_DESC* pSamplerDesc )
-	{
-		auto pDevice = RenderContext::GetDevice();
-
-		ID3D11SamplerState* pSamplerState;
-		COM_THROW_IF_FAILED( pDevice->CreateSamplerState( pSamplerDesc, &pSamplerState ) );
-		m_pSamplerStates.emplace_back( pSamplerState );
-
-		ASSERT( m_pSamplerStates.size() < D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, "Too many samplers!" );
 	}
 
 	void PixelShader::SetResource( int slot, ID3D11ShaderResourceView* const pResource )
@@ -118,7 +96,7 @@ namespace Bat
 			const UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS;
 #endif
 
-			if( FAILED( hr = D3DCompileFromFile( filename.c_str(), NULL, NULL, "main", "ps_5_0", flags, 0, &pixelShaderBuffer, &errorMessage ) ) )
+			if( FAILED( hr = D3DCompileFromFile( filename.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", flags, 0, &pixelShaderBuffer, &errorMessage ) ) )
 			{
 				const std::string filename_converted = WideToString( filename );
 				if( errorMessage )

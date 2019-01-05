@@ -1,3 +1,5 @@
+#include "Common.hlsli"
+
 #define BLACK_AND_WHITE
 #define LINES_AND_FLICKER
 #define BLOTCHES
@@ -6,7 +8,6 @@
 #define FREQUENCY 15.0
 
 Texture2D shaderTexture;
-SamplerState SampleType;
 
 cbuffer Globals
 {
@@ -76,5 +77,5 @@ float4 main(PixelInputType input) : SV_TARGET
     float xModTex = input.tex.x - fmod(input.tex.x, xPixelWidth);
     float yModTex = input.tex.y - fmod(input.tex.y, yPixelWidth);
 
-    return shaderTexture.Sample(SampleType, float2(xModTex, yModTex));
+    return shaderTexture.Sample(ClampSampler, float2(xModTex, yModTex));
 }

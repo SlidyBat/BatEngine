@@ -1,7 +1,8 @@
+#include "Common.hlsli"
+
 Texture2D diffuseTexture : register(t0);
 Texture2D specularTexture : register(t1);
 Texture2D emissiveTexture : register(t2);
-SamplerState SampleType;
 
 cbuffer LightingParameters : register(b0)
 {
@@ -33,9 +34,9 @@ float4 main(PixelInputType input) : SV_TARGET
     float3 lightDir = normalize(lightPosition - world_pos);
     float lightToPixelLength = length(lightPosition - world_pos);
     float attenuation = rcp(1.0 + 0.0007* lightToPixelLength + 0.00002 * lightToPixelLength * lightToPixelLength);
-    float3 objDiffuse = diffuseTexture.Sample(SampleType, input.tex).xyz;
-    float3 objSpecular = specularTexture.Sample(SampleType, input.tex).xyz;
-    float3 objEmissive = emissiveTexture.Sample(SampleType, input.tex).xyz;
+    float3 objDiffuse = diffuseTexture.Sample(WrapSampler, input.tex).xyz;
+    float3 objSpecular = specularTexture.Sample(WrapSampler, input.tex).xyz;
+    float3 objEmissive = emissiveTexture.Sample(WrapSampler, input.tex).xyz;
 
     // ambient
     float3 ambient = lightAmbient * objDiffuse;

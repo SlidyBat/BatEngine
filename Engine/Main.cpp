@@ -39,18 +39,6 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 		FileWatchdog::Initialize();
 		BAT_TRACE( "Initialized file watchdog" );
 
-		{
-			EntityManager manager;
-
-			Entity e = manager.CreateEntity();
-
-			manager.AddComponent<PositionComponent>( e, 1.0f, 2.0f, 3.0f );
-			auto& position = manager.GetComponent<PositionComponent>( e );
-			BAT_LOG( "Position component: [{}, {}, {}]", position.x, position.y, position.z );
-
-			manager.DestroyEntity( e );
-		}
-
 		Window wnd( { 50, 50 }, Graphics::InitialScreenWidth, Graphics::InitialScreenHeight, "Bat Engine", Graphics::FullScreen );
 		BAT_TRACE( "Initialized window" );
 		Graphics gfx( wnd );
