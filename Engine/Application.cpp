@@ -30,7 +30,7 @@ namespace Bat
 		light = scene.GetRootNode().AddLight( {} );
 
 		ui_overlay = gfx.UI().CreateOverlay( 300, 100, { 10, 30 } );
-		ui_overlay->GetView()->LoadURL( "file:///Assets/UI/test.html" );
+		ui_overlay->LoadHTMLFromFile( "Assets/UI/test.html" );
 	}
 
 	Application::~Application()

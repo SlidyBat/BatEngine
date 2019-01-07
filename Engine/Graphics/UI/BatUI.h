@@ -1,10 +1,11 @@
 #pragma once
 
 #include <Ultralight/Ultralight.h>
+#include "UI/UltralightAdapters/PlatformD3D11.h"
+
 #include "MathLib.h"
 #include "PoolAllocator.h"
-
-#include "UI/UltralightAdapters/PlatformD3D11.h"
+#include "FileWatchdog.h"
 
 namespace Bat
 {
@@ -19,7 +20,10 @@ namespace Bat
 
 		virtual ~Overlay();
 
-		ultralight::Ref<ultralight::View> GetView() const { return m_pView; }
+		void LoadHTMLRaw( const std::string& html );
+		void LoadHTMLFromFile( const std::string& filename );
+		void LoadHTMLFromURL( const std::string& filename );
+
 		int Width() const { return m_iWidth; }
 		int Height() const { return m_iHeight; }
 		Vei2 GetPos() const { return m_vecPos; }
@@ -41,6 +45,10 @@ namespace Bat
 		void OnEvent( const WindowResizeEvent& e );
 	private:
 		void UpdateGeometry();
+
+		void OnFileChanged( const std::string& filename );
+		void StartWatchingFile( const std::string& filename );
+		void StopWatchingFile();
 	private:
 		friend class BatUI;
 
@@ -57,6 +65,8 @@ namespace Bat
 		bool m_bDirty = true;
 		uint32_t m_iGeometryId;
 		ultralight::GPUState m_GPUState;
+
+		FileListenerHandle_t m_iListenHandle = FileWatchdog::INVALID_LISTENER;
 	};
 
 	class BatUI

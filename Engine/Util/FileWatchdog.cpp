@@ -12,11 +12,17 @@ namespace Bat
 {
 	struct FileWatchCallbacks
 	{
+		struct FileWatchListener
+		{
+			FileListenerHandle_t listen_handle;
+			FileChangedCallback_t    callback;
+		};
 		std::string filename;
-		std::vector<FileChangedCallback_t> callbacks;
+		std::vector<FileWatchListener> listeners;
 		std::filesystem::file_time_type last_check_time;
 	};
 
+	static uint32_t listener_count;
 	static std::vector<FileWatchCallbacks> watched_files;
 	static HANDLE filechange_handle;
 
@@ -50,10 +56,10 @@ namespace Bat
 						const auto last_write_time = std::filesystem::last_write_time( path );
 						if( last_write_time > fwc.last_check_time )
 						{
-							const auto& callbacks = fwc.callbacks;
-							for( const auto& callback : callbacks )
+							const auto& listeners = fwc.listeners;
+							for( const auto& listener : listeners )
 							{
-								callback( filename );
+								listener.callback( filename );
 							}
 
 							fwc.last_check_time = std::filesystem::file_time_type::clock::now();
@@ -114,13 +120,13 @@ namespace Bat
 		watcher_thread.join();
 	}
 
-	void FileWatchdog::AddFileChangeListener( const std::string& filename, FileChangedCallback_t callback )
+	FileListenerHandle_t FileWatchdog::AddFileChangeListener( const std::string& filename, FileChangedCallback_t callback )
 	{
 		std::filesystem::path path( filename );
 		if( !std::filesystem::exists( path ) )
 		{
 			ASSERT( false, "Path '{}' does not exist.", path.string() );
-			return;
+			return INVALID_LISTENER;
 		}
 
 		std::filesystem::path abspath = std::filesystem::absolute( path );
@@ -133,19 +139,42 @@ namespace Bat
 			return fwc.filename == absfilename;
 		} );
 
+		FileWatchCallbacks::FileWatchListener listener;
+		listener.listen_handle = listener_count++;
+		listener.callback = std::move( callback );
+
 		// new file to watch, add it
 		if( it == watched_files.end() )
 		{
 			FileWatchCallbacks fwc;
 			fwc.filename = absfilename;
 			fwc.last_check_time = std::filesystem::file_time_type::clock::now();
-			fwc.callbacks.emplace_back( callback );
+			fwc.listeners.emplace_back( listener );
 			watched_files.emplace_back( fwc );
 		}
 		// file is already being watched, just add the callback
 		else
 		{
-			it->callbacks.emplace_back( callback );
+			it->listeners.emplace_back( listener );
 		}
+	}
+	bool FileWatchdog::RemoveFileChangeListener( FileListenerHandle_t handle )
+	{
+		for( size_t i = 0; i < watched_files.size(); i++ )
+		{
+			auto& listeners = watched_files[i].listeners;
+			for( size_t j = 0; j < listeners.size(); i++ )
+			{
+				if( listeners[i].listen_handle == handle )
+				{
+					std::swap( listeners.back(), listeners[i] );
+					listeners.pop_back();
+
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 }

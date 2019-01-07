@@ -7,7 +7,7 @@
 #include "UI/UltralightAdapters/FileSystemBasic.h"
 
 #include "RenderContext.h"
-
+#include "Common.h"
 #include "Window.h"
 #include "WindowEvents.h"
 
@@ -74,6 +74,22 @@ namespace Bat
 		{
 			m_pDriver->DestroyGeometry( m_iGeometryId );
 		}
+	}
+
+	void Overlay::LoadHTMLRaw( const std::string& html )
+	{
+		m_pView->LoadHTML( html.c_str() );
+	}
+
+	void Overlay::LoadHTMLFromFile( const std::string& filename )
+	{
+		m_pView->LoadURL( ( "file:///" + filename ).c_str() );
+		StartWatchingFile( filename );
+	}
+
+	void Overlay::LoadHTMLFromURL( const std::string& url )
+	{
+		m_pView->LoadURL( url.c_str() );
 	}
 
 	void Overlay::Draw()
@@ -210,6 +226,26 @@ namespace Bat
 		}
 
 		m_bDirty = false;
+	}
+
+	void Overlay::OnFileChanged( const std::string & filename )
+	{
+		m_pView->LoadURL( ( "file:///" + filename ).c_str() );
+	}
+
+	void Overlay::StartWatchingFile( const std::string & filename )
+	{
+		StopWatchingFile();
+		m_iListenHandle = FileWatchdog::AddFileChangeListener( filename, BIND_MEM_FN( Overlay::OnFileChanged ) );
+	}
+
+	void Overlay::StopWatchingFile()
+	{
+		if( m_iListenHandle != FileWatchdog::INVALID_LISTENER )
+		{
+			FileWatchdog::RemoveFileChangeListener( m_iListenHandle );
+			m_iListenHandle = FileWatchdog::INVALID_LISTENER;
+		}
 	}
 
 	BatUI::BatUI( Window& wnd )
