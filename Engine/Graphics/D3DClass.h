@@ -40,10 +40,11 @@ namespace Bat
 		void PresentScene();
 		void Resize( int width = 0, int height = 0 );
 
-		ID3D11Device* GetDevice() const;
-		ID3D11DeviceContext* GetDeviceContext() const;
+		ID3D11Device*           GetDevice() const;
+		ID3D11DeviceContext*    GetDeviceContext() const;
 		ID3D11RenderTargetView* GetRenderTargetView() const;
 		ID3D11DepthStencilView* GetDepthStencilView() const;
+		IDXGISwapChain*         GetSwapChain() const;
 
 		void GetVideoCardInfo( std::wstring& cardName, int& memory ) const;
 
@@ -51,6 +52,8 @@ namespace Bat
 		void SetDepthStencilEnabled( bool enable );
 
 		void BindBackBuffer() const;
+	private:
+		void BindViewport( int width, int height );
 	private:
 		bool						m_bVSyncEnabled;
 
@@ -73,5 +76,8 @@ namespace Bat
 		Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pDepthStencilBuffer;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilState>		m_pDepthStencilEnabledState;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilState>		m_pDepthStencilDisabledState;
+
+		int m_iViewportWidth;
+		int m_iViewportHeight;
 	};
 }

@@ -7,6 +7,8 @@
 
 namespace Bat
 {
+	static D3D11_VIEWPORT g_Viewport;
+
 	D3DClass::D3DClass( Window& wnd, bool vsyncEnabled, float screendepth, float screennear )
 	{
 		m_bVSyncEnabled = vsyncEnabled;
@@ -168,16 +170,9 @@ namespace Bat
 		m_pDeviceContext->OMSetDepthStencilState( m_pDepthStencilEnabledState.Get(), 0 );
 		m_pDeviceContext->RSSetState( m_pRasterState.Get() );
 
-		// set up viewport
-		D3D11_VIEWPORT viewport;
-		viewport.Width = (float)wnd.GetWidth();
-		viewport.Height = (float)wnd.GetHeight();
-		viewport.MinDepth = 0.0f;
-		viewport.MaxDepth = 1.0f;
-		viewport.TopLeftX = 0.0f;
-		viewport.TopLeftY = 0.0f;
-
-		m_pDeviceContext->RSSetViewports( 1, &viewport );
+		BindViewport( wnd.GetWidth(), wnd.GetHeight() );
+		m_iViewportWidth = wnd.GetWidth();
+		m_iViewportHeight = wnd.GetHeight();
 
 #ifdef _DEBUG
 		// create the info queue
@@ -191,7 +186,7 @@ namespace Bat
 
 			if( SUCCEEDED( dxgiGetDebugInterface( IID_PPV_ARGS( m_pInfoQueue.GetAddressOf() ) ) ) )
 			{
-				m_pInfoQueue->SetMuteDebugOutput( DXGI_DEBUG_ALL, TRUE );
+				//m_pInfoQueue->SetMuteDebugOutput( DXGI_DEBUG_ALL, TRUE );
 				m_pInfoQueue->ClearStoredMessages( DXGI_DEBUG_ALL );
 				m_pInfoQueue->ClearRetrievalFilter( DXGI_DEBUG_ALL );
 				m_pInfoQueue->ClearStorageFilter( DXGI_DEBUG_ALL );
@@ -200,13 +195,27 @@ namespace Bat
 
 				std::vector<DXGI_INFO_QUEUE_MESSAGE_SEVERITY> severity_filter_list = {
 					// list of severities to filter out
-					// DXGI_INFO_QUEUE_MESSAGE_SEVERITY_INFO
+					// DXGI_INFO_QUEUE_MESSAGE_SEVERITY_MESSAGE,
+					// DXGI_INFO_QUEUE_MESSAGE_SEVERITY_INFO,
+					// DXGI_INFO_QUEUE_MESSAGE_SEVERITY_WARNING,
+					// DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR,
+					// DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION
 				};
 
 				if( !severity_filter_list.empty() )
 				{
 					filter.DenyList.NumSeverities = (UINT)severity_filter_list.size();
 					filter.DenyList.pSeverityList = severity_filter_list.data();
+				}
+
+				std::vector<DXGI_INFO_QUEUE_MESSAGE_ID> message_filter_list = {
+					D3D11_MESSAGE_ID_DEVICE_DRAW_SHADERRESOURCEVIEW_NOT_SET
+				};
+
+				if( !message_filter_list.empty() )
+				{
+					filter.DenyList.NumIDs = (UINT)message_filter_list.size();
+					filter.DenyList.pIDList = message_filter_list.data();
 				}
 
 				m_pInfoQueue->AddStorageFilterEntries( DXGI_DEBUG_ALL, &filter );
@@ -236,6 +245,11 @@ namespace Bat
 	ID3D11DepthStencilView* D3DClass::GetDepthStencilView() const
 	{
 		return m_pDepthStencilView.Get();
+	}
+
+	IDXGISwapChain* D3DClass::GetSwapChain() const
+	{
+		return m_pSwapChain.Get();
 	}
 
 	void D3DClass::GetVideoCardInfo( std::wstring& cardName, int& memory ) const
@@ -273,11 +287,25 @@ namespace Bat
 		m_pDeviceContext->OMSetRenderTargets( 1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get() );
 	}
 
+	void D3DClass::BindViewport( int width, int height )
+	{
+		// set up viewport
+		g_Viewport.Width = (float)width;
+		g_Viewport.Height = (float)height;
+		g_Viewport.MinDepth = 0.0f;
+		g_Viewport.MaxDepth = 1.0f;
+		g_Viewport.TopLeftX = 0.0f;
+		g_Viewport.TopLeftY = 0.0f;
+
+		m_pDeviceContext->RSSetViewports( 1, &g_Viewport );
+	}
+
 	void D3DClass::ClearScene( float red, float green, float blue, float alpha )
 	{
 		const float colour[4] = { red, green, blue, alpha };
 		m_pDeviceContext->ClearRenderTargetView( m_pRenderTargetView.Get(), colour );
 		m_pDeviceContext->ClearDepthStencilView( m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
+		BindViewport( m_iViewportWidth, m_iViewportHeight );
 	}
 
 	void D3DClass::PresentScene()
@@ -341,6 +369,9 @@ namespace Bat
 			width = rect.right - rect.left;
 			height = rect.bottom - rect.top;
 		}
+
+		m_iViewportWidth = width;
+		m_iViewportHeight = height;
 
 		m_pDeviceContext->OMSetRenderTargets( 0, NULL, NULL );
 

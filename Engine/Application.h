@@ -14,6 +14,7 @@ namespace Bat
 	{
 	public:
 		Application( Graphics& gfx, Window& wnd );
+		~Application();
 
 		virtual void OnUpdate( float deltatime ) override;
 		virtual void OnRender() override;
@@ -25,6 +26,7 @@ namespace Bat
 		SceneGraph scene;
 		MoveableCamera camera;
 		Light* light;
+		Overlay* ui_overlay;
 
 		// fps calculation
 		int fps_counter = 0;

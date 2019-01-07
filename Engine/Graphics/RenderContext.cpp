@@ -31,6 +31,11 @@ namespace Bat
 		return g_pD3DClass->GetDepthStencilView();
 	}
 
+	IDXGISwapChain* RenderContext::GetSwapChain()
+	{
+		return g_pD3DClass->GetSwapChain();
+	}
+
 	void RenderContext::SetD3DClass( const D3DClass& d3d )
 	{
 		g_pD3DClass = &d3d;

@@ -6,6 +6,7 @@
 #include "IPipeline.h"
 #include "RenderTexture.h"
 #include "ResourceManager.h"
+#include "UI/BatUI.h"
 
 namespace DirectX
 {
@@ -41,6 +42,9 @@ namespace Bat
 
 		SceneGraph* GetActiveScene() const { return m_pSceneGraph; }
 		void SetActiveScene( SceneGraph* pSceneGraph ) { m_pSceneGraph = pSceneGraph; }
+
+		BatUI& UI() { return m_UI; }
+		const BatUI& UI() const { return m_UI; }
 
 		IPipeline* GetPipeline( const std::string& name ) const;
 
@@ -107,6 +111,8 @@ namespace Bat
 		std::unique_ptr<DirectX::SpriteBatch> m_pSpriteBatch;
 		std::unique_ptr<DirectX::SpriteFont> m_pFont;
 		std::vector<TextDrawCommand> m_TextDrawCommands;
+	private: // UI
+		BatUI m_UI;
 	public:
 		static constexpr bool	FullScreen = false;
 		static constexpr int	VSyncEnabled = false;

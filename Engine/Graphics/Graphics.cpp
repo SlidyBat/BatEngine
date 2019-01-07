@@ -62,7 +62,8 @@ namespace Bat
 
 	Graphics::Graphics( Window& wnd )
 		:
-		d3d( wnd, VSyncEnabled, ScreenFar, ScreenNear )
+		d3d( wnd, VSyncEnabled, ScreenFar, ScreenNear ),
+		m_UI( wnd )
 	{
 		RenderContext::SetD3DClass( d3d );
 
@@ -187,43 +188,44 @@ namespace Bat
 
 	void Graphics::EndFrame()
 	{
+
 		// render scene
 		RenderScene();
-
+		
 		// render skybox
 		if( m_pSkybox )
 		{
 			auto pos = GetActiveCamera()->GetPosition();
 			auto w = DirectX::XMMatrixTranslation( pos.x, pos.y, pos.z );
 			auto t = w * GetActiveCamera()->GetViewMatrix() * GetActiveCamera()->GetProjectionMatrix();
-
+		
 			SkyboxPipelineParameters params( t, m_pSkybox->GetTextureView() );
 			auto pPipeline = GetPipeline( "skybox" );
 			pPipeline->BindParameters( params );
 			pPipeline->RenderIndexed( 0 ); // skybox uses its own index buffer & index count, doesnt matter what we pass in
 		}
-
+		
 		// bloom
 		if( m_bBloomEnabled )
 		{
 			m_pBloomProcess->Render( m_FrameBuffers[0] );
 		}
-
+		
 		// post processes
 		if( !m_PostProcesses.empty() )
 		{
 			DisableDepthStencil();
-
+		
 			RenderTexture* pCurrentTexture = &m_FrameBuffers[0];
 			if( m_PostProcesses.size() > 1 )
 			{
 				m_FrameBuffers[1].Clear( 0.0f, 0.0f, 0.0f, 1.0f );
 				m_FrameBuffers[1].Bind();
-
+		
 				for( size_t i = 0; i < m_PostProcesses.size() - 1; i++ )
 				{
 					m_PostProcesses[i]->Render( *pCurrentTexture );
-
+		
 					if( i % 2 == 0 )
 					{
 						pCurrentTexture = &m_FrameBuffers[1];
@@ -238,14 +240,14 @@ namespace Bat
 					}
 				}
 			}
-
+		
 			// render last post process directly to screen
 			d3d.BindBackBuffer();
 			m_PostProcesses.back()->Render( *pCurrentTexture );
-
+		
 			EnableDepthStencil();
 		}
-
+		
 		// text commands
 		if( !m_TextDrawCommands.empty() )
 		{
@@ -256,10 +258,16 @@ namespace Bat
 			}
 			m_pSpriteBatch->End();
 		}
+		
+		// UI
+		m_UI.Update();
+		m_UI.Render();
 
 		// imgui
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );
+
+		
 
 		// all done!
 		d3d.PresentScene();

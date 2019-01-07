@@ -55,6 +55,18 @@
     <Filter Include="Source Files\Platform">
       <UniqueIdentifier>{5204364d-15fb-4014-874c-33087edde30d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Graphics\UI">
+      <UniqueIdentifier>{d9c3b4ad-5e1e-48ce-840f-ac3f824019b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\UI\ULAdapter">
+      <UniqueIdentifier>{2b35227f-14c3-413b-b52a-0be9ae15eefd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\UI">
+      <UniqueIdentifier>{ab1a4f6e-d2c5-4f55-abeb-a319be80bcf6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\UI\ULAdapter">
+      <UniqueIdentifier>{c9093607-7a2f-408f-a865-859422927fe8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -201,8 +213,20 @@
     <ClCompile Include="Globals.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\UI\BatUI.cpp">
+      <Filter>Source Files\Graphics\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\UI\UltralightAdapters\GPUDriverD3D11.cpp">
+      <Filter>Source Files\Graphics\UI\ULAdapter</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\UI\UltralightAdapters\FileSystemBasic.cpp">
+      <Filter>Source Files\Graphics\UI\ULAdapter</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\UI\UltralightAdapters\FontLoaderWin.cpp">
+      <Filter>Source Files\Graphics\UI\ULAdapter</Filter>
+    </ClCompile>
     <ClCompile Include="Core\Entity.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -409,6 +433,21 @@
     </ClInclude>
     <ClInclude Include="ChunkedAllocator.h">
       <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\UI\BatUI.h">
+      <Filter>Header Files\Graphics\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\UI\UltralightAdapters\GPUDriverD3D11.h">
+      <Filter>Header Files\Graphics\UI\ULAdapter</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\UI\UltralightAdapters\PlatformD3D11.h">
+      <Filter>Header Files\Graphics\UI\ULAdapter</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\UI\UltralightAdapters\FileSystemBasic.h">
+      <Filter>Header Files\Graphics\UI\ULAdapter</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\UI\UltralightAdapters\FontLoaderWin.h">
+      <Filter>Header Files\Graphics\UI\ULAdapter</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
