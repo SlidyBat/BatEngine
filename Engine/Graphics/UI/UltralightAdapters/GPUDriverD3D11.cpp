@@ -113,6 +113,7 @@ void GPUDriverD3D11::CreateTexture(uint32_t texture_id,
   auto& texture_entry = textures_[texture_id];
 
   if (bitmap->IsEmpty()) {
+	desc.CPUAccessFlags = 0;
     desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
     desc.Usage = D3D11_USAGE_DEFAULT;
 
