@@ -116,8 +116,8 @@ void GPUDriverD3D11::CreateTexture(uint32_t texture_id,
     desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
     desc.Usage = D3D11_USAGE_DEFAULT;
 
-    context_->device()->CreateTexture2D(
-      &desc, NULL, texture_entry.first.GetAddressOf());
+    COM_THROW_IF_FAILED( context_->device()->CreateTexture2D(
+      &desc, NULL, texture_entry.first.GetAddressOf()) );
   } else {
     D3D11_SUBRESOURCE_DATA tex_data;
     ZeroMemory(&tex_data, sizeof(tex_data));

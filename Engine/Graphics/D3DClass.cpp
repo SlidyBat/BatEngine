@@ -4,10 +4,13 @@
 #include <d3d11.h>
 #include "COMException.h"
 #include "RenderTexture.h"
+#include "Common.h"
 
 namespace Bat
 {
 	static D3D11_VIEWPORT g_Viewport;
+
+	static const char* FeatureLevel2String( D3D_FEATURE_LEVEL );
 
 	D3DClass::D3DClass( Window& wnd, bool vsyncEnabled, float screendepth, float screennear )
 	{
@@ -60,7 +63,6 @@ namespace Bat
 
 		m_szVideoCardDescription = adapterDesc.Description;
 		m_iVideoCardMemory = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024); // in mb
-		BAT_LOG( "Using video card '{}' with {}MB VRAM", Bat::WideToString( m_szVideoCardDescription ), m_iVideoCardMemory );
 
 		DXGI_SWAP_CHAIN_DESC swapChainDesc;
 		ZeroMemory( &swapChainDesc, sizeof( swapChainDesc ) );
@@ -101,7 +103,6 @@ namespace Bat
 		UINT flags = 0;
 #endif
 
-		//D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
 		COM_THROW_IF_FAILED( D3D11CreateDeviceAndSwapChain(
 			adapter.Get(),
 			D3D_DRIVER_TYPE_UNKNOWN,
@@ -111,6 +112,11 @@ namespace Bat
 			D3D11_SDK_VERSION,
 			&swapChainDesc, &m_pSwapChain,
 			&m_pDevice, NULL, &m_pDeviceContext ) );
+
+		BAT_LOG( "Using video card '{}' with {}MB VRAM",
+			Bat::WideToString( m_szVideoCardDescription ),
+			m_iVideoCardMemory );
+		BAT_LOG( "Device feature level: {}", FeatureLevel2String( m_pDevice->GetFeatureLevel() ) );
 
 		ID3D11Texture2D* pBackBuffer;
 		COM_THROW_IF_FAILED( m_pSwapChain->GetBuffer( 0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer ) );
@@ -415,4 +421,25 @@ namespace Bat
 
 		m_pDeviceContext->RSSetViewports( 1, &viewport );
 	}
+
+#define STRINGIFY_CASE( s ) case s: return STRINGIFY( s );
+	static const char* FeatureLevel2String( D3D_FEATURE_LEVEL level )
+	{
+		switch( level )
+		{
+			STRINGIFY_CASE( D3D_FEATURE_LEVEL_9_1 );
+			STRINGIFY_CASE( D3D_FEATURE_LEVEL_9_2 );
+			STRINGIFY_CASE( D3D_FEATURE_LEVEL_9_3 );
+			STRINGIFY_CASE( D3D_FEATURE_LEVEL_10_0 );
+			STRINGIFY_CASE( D3D_FEATURE_LEVEL_10_1 );
+			STRINGIFY_CASE( D3D_FEATURE_LEVEL_11_0 );
+			STRINGIFY_CASE( D3D_FEATURE_LEVEL_11_1 );
+			STRINGIFY_CASE( D3D_FEATURE_LEVEL_12_0 );
+			STRINGIFY_CASE( D3D_FEATURE_LEVEL_12_1 );
+
+			default:
+				return "Unknown";
+		}
+	}
 }
+#undef STRINGIFY_CASE
