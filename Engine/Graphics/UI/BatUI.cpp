@@ -74,6 +74,7 @@ namespace Bat
 		{
 			m_pDriver->DestroyGeometry( m_iGeometryId );
 		}
+		StopWatchingFile();
 	}
 
 	void Overlay::LoadHTMLRaw( const std::string& html )
