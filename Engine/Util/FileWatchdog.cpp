@@ -170,11 +170,11 @@ namespace Bat
 		for( size_t i = 0; i < watched_files.size(); i++ )
 		{
 			auto& listeners = watched_files[i].listeners;
-			for( size_t j = 0; j < listeners.size(); i++ )
+			for( size_t j = 0; j < listeners.size(); j++ )
 			{
 				if( listeners[j].listen_handle == handle )
 				{
-					std::swap( listeners.back(), listeners[i] );
+					std::swap( listeners.back(), listeners[j] );
 					listeners.pop_back();
 
 					return true;
