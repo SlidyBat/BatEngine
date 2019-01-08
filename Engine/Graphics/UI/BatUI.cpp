@@ -237,15 +237,15 @@ namespace Bat
 	void Overlay::StartWatchingFile( const std::string & filename )
 	{
 		StopWatchingFile();
-		m_iListenHandle = FileWatchdog::AddFileChangeListener( filename, BIND_MEM_FN( Overlay::OnFileChanged ) );
+		m_hWatchHandle = FileWatchdog::AddFileChangeListener( filename, BIND_MEM_FN( Overlay::OnFileChanged ) );
 	}
 
 	void Overlay::StopWatchingFile()
 	{
-		if( m_iListenHandle != FileWatchdog::INVALID_LISTENER )
+		if( m_hWatchHandle != FileWatchdog::INVALID_WATCH_HANDLE )
 		{
-			FileWatchdog::RemoveFileChangeListener( m_iListenHandle );
-			m_iListenHandle = FileWatchdog::INVALID_LISTENER;
+			FileWatchdog::RemoveFileChangeListener( m_hWatchHandle );
+			m_hWatchHandle = FileWatchdog::INVALID_WATCH_HANDLE;
 		}
 	}
 

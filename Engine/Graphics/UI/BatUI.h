@@ -66,7 +66,7 @@ namespace Bat
 		uint32_t m_iGeometryId;
 		ultralight::GPUState m_GPUState;
 
-		FileListenerHandle_t m_iListenHandle = FileWatchdog::INVALID_LISTENER;
+		FileWatchHandle_t m_hWatchHandle = FileWatchdog::INVALID_WATCH_HANDLE;
 	};
 
 	class BatUI

@@ -14,7 +14,7 @@ namespace Bat
 	{
 		struct FileWatchListener
 		{
-			FileListenerHandle_t listen_handle;
+			FileWatchHandle_t listen_handle;
 			FileChangedCallback_t    callback;
 		};
 		std::string filename;
@@ -120,13 +120,13 @@ namespace Bat
 		watcher_thread.join();
 	}
 
-	FileListenerHandle_t FileWatchdog::AddFileChangeListener( const std::string& filename, FileChangedCallback_t callback )
+	FileWatchHandle_t FileWatchdog::AddFileChangeListener( const std::string& filename, FileChangedCallback_t callback )
 	{
 		std::filesystem::path path( filename );
 		if( !std::filesystem::exists( path ) )
 		{
 			ASSERT( false, "Path '{}' does not exist.", path.string() );
-			return INVALID_LISTENER;
+			return INVALID_WATCH_HANDLE;
 		}
 
 		std::filesystem::path abspath = std::filesystem::absolute( path );
@@ -160,9 +160,11 @@ namespace Bat
 
 		return listener.listen_handle;
 	}
-	bool FileWatchdog::RemoveFileChangeListener( FileListenerHandle_t handle )
+	bool FileWatchdog::RemoveFileChangeListener( FileWatchHandle_t handle )
 	{
-		if( handle == INVALID_LISTENER )
+		ScopedLock lock( filewatch_lock );
+
+		if( handle == INVALID_WATCH_HANDLE )
 		{
 			return false;
 		}
