@@ -30,6 +30,7 @@ after_build:
   - 7z a engine_build.zip ".\Build\Release-x64\*.dll"
   - cd "Engine"
   - 7z a ..\engine_build.zip "Graphics\Shaders\*.hlsl"
+  - 7z a ..\engine_build.zip "Graphics\Shaders\*.hlsli"
   - 7z a ..\engine_build.zip "Assets\"
 
 artifacts:
