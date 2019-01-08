@@ -5,6 +5,8 @@
 #include <string>
 #include <sstream>
 
+#include "COMException.h"
+
 #define SHADER_PATH L"./Graphics/Shaders/Ultralight/"
 
 namespace {
@@ -88,14 +90,12 @@ void GPUDriverD3D11::CreateTexture(uint32_t texture_id,
   Ref<Bitmap> bitmap) {
   auto i = textures_.find(texture_id);
   if (i != textures_.end()) {
-    MessageBoxW(nullptr,
-      L"GPUDriverD3D11::CreateTexture, texture id already exists.", L"Error", MB_OK);
+    BAT_ERROR( "GPUDriverD3D11::CreateTexture, texture id already exists." );
     return;
   }
 
   if (bitmap->format() != kBitmapFormat_RGBA8) {
-    MessageBoxW(nullptr,
-      L"GPUDriverD3D11::CreateTexture, unsupported format.", L"Error", MB_OK);
+    BAT_ERROR( "GPUDriverD3D11::CreateTexture, unsupported format." );
   }
 
   D3D11_TEXTURE2D_DESC desc;
@@ -111,13 +111,12 @@ void GPUDriverD3D11::CreateTexture(uint32_t texture_id,
   desc.MiscFlags = 0;
 
   auto& texture_entry = textures_[texture_id];
-  HRESULT hr;
 
   if (bitmap->IsEmpty()) {
     desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
     desc.Usage = D3D11_USAGE_DEFAULT;
 
-    hr = context_->device()->CreateTexture2D(
+    context_->device()->CreateTexture2D(
       &desc, NULL, texture_entry.first.GetAddressOf());
   } else {
     D3D11_SUBRESOURCE_DATA tex_data;
@@ -126,14 +125,9 @@ void GPUDriverD3D11::CreateTexture(uint32_t texture_id,
     tex_data.SysMemPitch = bitmap->row_bytes();
     tex_data.SysMemSlicePitch = (UINT)bitmap->size();
 
-    hr = context_->device()->CreateTexture2D(
-      &desc, &tex_data, texture_entry.first.GetAddressOf());
+    COM_THROW_IF_FAILED( context_->device()->CreateTexture2D(
+      &desc, &tex_data, texture_entry.first.GetAddressOf()) );
     bitmap->UnlockPixels();
-  }
-
-  if (FAILED(hr)) {
-    MessageBoxW(nullptr,
-      L"GPUDriverD3D11::CreateTexture, unable to create texture.", L"Error", MB_OK);
   }
 
   D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc;
@@ -143,16 +137,15 @@ void GPUDriverD3D11::CreateTexture(uint32_t texture_id,
   srv_desc.Texture2D.MostDetailedMip = 0;
   srv_desc.Texture2D.MipLevels = 1;
 
-  hr = context_->device()->CreateShaderResourceView(
-    texture_entry.first.Get(), &srv_desc, texture_entry.second.GetAddressOf());
+  COM_THROW_IF_FAILED( context_->device()->CreateShaderResourceView(
+    texture_entry.first.Get(), &srv_desc, texture_entry.second.GetAddressOf()) );
 }
 
 void GPUDriverD3D11::UpdateTexture(uint32_t texture_id,
   Ref<Bitmap> bitmap) {
   auto i = textures_.find(texture_id);
   if (i == textures_.end()) {
-    MessageBoxW(nullptr,
-      L"GPUDriverD3D11::UpdateTexture, texture id doesn't exist.", L"Error", MB_OK);
+    BAT_WARN( "GPUDriverD3D11::UpdateTexture, texture id doesn't exist." );
     return;
   }
 
@@ -179,8 +172,6 @@ void GPUDriverD3D11::BindTexture(uint8_t texture_unit,
   uint32_t texture_id) {
   auto i = textures_.find(texture_id);
   if (i == textures_.end()) {
-    //MessageBoxW(nullptr,
-    //  L"GPUDriverD3D11::BindTexture, texture id doesn't exist.", L"Error", MB_OK);
     return;
   }
 
@@ -203,22 +194,19 @@ uint32_t GPUDriverD3D11::NextRenderBufferId() { return next_render_buffer_id_++;
 void GPUDriverD3D11::CreateRenderBuffer(uint32_t render_buffer_id,
   const RenderBuffer& buffer) {
   if (render_buffer_id == 0) {
-    MessageBoxW(nullptr,
-      L"GPUDriverD3D11::CreateRenderBuffer, render buffer ID 0 is reserved for default render target view.", L"Error", MB_OK);
+    BAT_ERROR( "GPUDriverD3D11::CreateRenderBuffer, render buffer ID 0 is reserved for default render target view." );
     return;
   }
 
   auto i = render_targets_.find(render_buffer_id);
   if (i != render_targets_.end()) {
-    MessageBoxW(nullptr,
-      L"GPUDriverD3D11::CreateRenderBuffer, render buffer id already exists.", L"Error", MB_OK);
+	  BAT_ERROR( "GPUDriverD3D11::CreateRenderBuffer, render buffer id already exists." );
     return;
   }
 
   auto tex_entry = textures_.find(buffer.texture_id);
   if (tex_entry == textures_.end()) {
-    MessageBoxW(nullptr,
-      L"GPUDriverD3D11::CreateRenderBuffer, texture id doesn't exist.", L"Error", MB_OK);
+    BAT_ERROR( "GPUDriverD3D11::CreateRenderBuffer, texture id doesn't exist." );
     return;
   }
 
@@ -229,13 +217,8 @@ void GPUDriverD3D11::CreateRenderBuffer(uint32_t render_buffer_id,
 
   ComPtr<ID3D11Texture2D> tex = tex_entry->second.first;
   auto& render_target_entry = render_targets_[render_buffer_id];
-  HRESULT hr = context_->device()->CreateRenderTargetView(tex.Get(), &renderTargetViewDesc,
-    render_target_entry.GetAddressOf());
-
-  if (FAILED(hr)) {
-    MessageBoxW(nullptr,
-      L"GPUDriverD3D11::CreateRenderBuffer, unable to create render target.", L"Error", MB_OK);
-  }
+  COM_THROW_IF_FAILED( context_->device()->CreateRenderTargetView(tex.Get(), &renderTargetViewDesc,
+    render_target_entry.GetAddressOf()) );
 }
 
 void GPUDriverD3D11::BindRenderBuffer(uint32_t render_buffer_id) {
@@ -252,8 +235,7 @@ void GPUDriverD3D11::BindRenderBuffer(uint32_t render_buffer_id) {
   } else {
     auto i = render_targets_.find(render_buffer_id);
     if (i == render_targets_.end()) {
-      MessageBoxW(nullptr,
-        L"GPUDriverD3D11::BindRenderBuffer, render buffer id doesn't exist.", L"Error", MB_OK);
+      BAT_ERROR( "GPUDriverD3D11::BindRenderBuffer, render buffer id doesn't exist." );
       return;
     }
 
@@ -273,8 +255,7 @@ void GPUDriverD3D11::ClearRenderBuffer(uint32_t render_buffer_id) {
 
   auto i = render_targets_.find(render_buffer_id);
   if (i == render_targets_.end()) {
-    MessageBoxW(nullptr,
-      L"GPUDriverD3D11::ClearRenderBuffer, render buffer id doesn't exist.", L"Error", MB_OK);
+    BAT_ERROR( "GPUDriverD3D11::ClearRenderBuffer, render buffer id doesn't exist." );
     return;
   }
 
@@ -344,8 +325,7 @@ void GPUDriverD3D11::UpdateGeometry(uint32_t geometry_id,
   const IndexBuffer& indices) {
   auto i = geometry_.find(geometry_id);
   if (i == geometry_.end()) {
-    MessageBoxW(nullptr,
-      L"GPUDriverD3D11::UpdateGeometry, geometry id doesn't exist.", L"Error", MB_OK);
+    BAT_ERROR( "GPUDriverD3D11::UpdateGeometry, geometry id doesn't exist." );
     return;
   }
 
@@ -426,29 +406,16 @@ void GPUDriverD3D11::DrawCommandList() {
 
 void GPUDriverD3D11::LoadVertexShader(const WCHAR* path, ID3D11VertexShader** ppVertexShader,
   const D3D11_INPUT_ELEMENT_DESC* pInputElementDescs, UINT NumElements, ID3D11InputLayout** ppInputLayout) {
-  HRESULT hr;
   ComPtr<ID3DBlob> vs_blob;
-  hr = CompileShaderFromFile(path, "VS", "vs_4_0", vs_blob.GetAddressOf());
+  COM_THROW_IF_FAILED( CompileShaderFromFile(path, "VS", "vs_4_0", vs_blob.GetAddressOf()) );
 
   // Create the vertex shader
-  hr = context_->device()->CreateVertexShader(vs_blob->GetBufferPointer(),
-    vs_blob->GetBufferSize(), nullptr, ppVertexShader);
-
-  if (FAILED(hr)) {
-    MessageBoxW(nullptr,
-      L"GPUDriverD3D11::LoadVertexShader, Vertex shader could not be compiled. Check your working directory.", L"Error", MB_OK);
-    return;
-  }
+  COM_THROW_IF_FAILED( context_->device()->CreateVertexShader(vs_blob->GetBufferPointer(),
+    vs_blob->GetBufferSize(), nullptr, ppVertexShader) );
 
   // Create the input layout
-  hr = context_->device()->CreateInputLayout(pInputElementDescs, NumElements,
-    vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), ppInputLayout);
-
-  if (FAILED(hr)) {
-    MessageBoxW(nullptr,
-      L"GPUDriverD3D11::LoadVertexShader, Could not create vertex input layout.", L"Error", MB_OK);
-    return;
-  }
+  COM_THROW_IF_FAILED( context_->device()->CreateInputLayout(pInputElementDescs, NumElements,
+    vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), ppInputLayout) );
 }
 
 void GPUDriverD3D11::LoadPixelShader(const WCHAR* path, ID3D11PixelShader** ppPixelShader) {
@@ -458,14 +425,8 @@ void GPUDriverD3D11::LoadPixelShader(const WCHAR* path, ID3D11PixelShader** ppPi
   hr = CompileShaderFromFile(path, "PS", "ps_4_0", ps_blob.GetAddressOf());
 
   // Create the pixel shader
-  hr = context_->device()->CreatePixelShader(ps_blob->GetBufferPointer(),
-    ps_blob->GetBufferSize(), nullptr, ppPixelShader);
-
-  if (FAILED(hr)) {
-    MessageBoxW(nullptr,
-      L"GPUDriverD3D11::LoadPixelShader, Pixel shader could not be compiled. Check your working directory.", L"Error", MB_OK);
-    return;
-  }
+  COM_THROW_IF_FAILED( context_->device()->CreatePixelShader(ps_blob->GetBufferPointer(),
+    ps_blob->GetBufferSize(), nullptr, ppPixelShader) );
 }
 
 void GPUDriverD3D11::LoadShaders() {
@@ -566,12 +527,7 @@ ComPtr<ID3D11SamplerState> GPUDriverD3D11::GetSamplerState() {
   sampler_desc.MinLOD = 0;
   //sampler_desc.MaxLOD = D3D11_FLOAT32_MAX;
   sampler_desc.MaxLOD = 0;
-  HRESULT hr = context_->device()->CreateSamplerState(&sampler_desc, &sampler_state_);
-
-  if (FAILED(hr)) {
-    MessageBoxW(nullptr,
-      L"GPUDriverD3D11::GetSamplerState, unable to create sampler state.", L"Error", MB_OK);
-  }
+  COM_THROW_IF_FAILED( context_->device()->CreateSamplerState(&sampler_desc, &sampler_state_) );
 
   return sampler_state_;
 }
@@ -587,11 +543,7 @@ ComPtr<ID3D11Buffer> GPUDriverD3D11::GetConstantBuffer() {
   desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
   desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
-  HRESULT hr = context_->device()->CreateBuffer(&desc, nullptr, constant_buffer_.GetAddressOf());
-  if (FAILED(hr)) {
-    MessageBoxW(nullptr,
-      L"GPUDriverD3D11::GetConstantBuffer, unable to create constant buffer.", L"Error", MB_OK);
-  }
+  COM_THROW_IF_FAILED( context_->device()->CreateBuffer(&desc, nullptr, constant_buffer_.GetAddressOf()) );
 
   return constant_buffer_;
 }
