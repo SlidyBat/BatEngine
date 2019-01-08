@@ -5,7 +5,7 @@
 #include <string>
 #include <sstream>
 
-#define SHADER_PATH L"./ThirdParty/Ultralight/shaders/hlsl/"
+#define SHADER_PATH L"./Graphics/Shaders/Ultralight/"
 
 namespace {
 
