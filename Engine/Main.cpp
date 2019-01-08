@@ -10,6 +10,7 @@
 #include "Graphics.h"
 #include "FileWatchdog.h"
 #include "Application.h"
+#include <spdlog/fmt/fmt.h>
 
 #include "Core/Entity.h"
 
@@ -67,7 +68,20 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 	}
 	catch( const std::exception& e )
 	{
-		MessageBox( NULL, e.what(), "Error", MB_ICONWARNING | MB_OK );
+		MessageBox( NULL, e.what(), "Error", MB_ICONERROR | MB_OK );
+	}
+	catch( const _com_error& e )
+	{
+		MessageBox( NULL,
+			fmt::format( "{}\nFile: {}\nSource: {}\nDescription: {}\n",
+				e.ErrorMessage(),
+				(const char*)e.HelpFile(),
+				(const char*)e.Source(),
+				(const char*)e.Description()
+			).c_str(),
+			"COM Error",
+			MB_ICONERROR
+		);
 	}
 
 	FileWatchdog::Shutdown();

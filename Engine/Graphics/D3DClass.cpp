@@ -118,6 +118,12 @@ namespace Bat
 			m_iVideoCardMemory );
 		BAT_LOG( "Device feature level: {}", FeatureLevel2String( m_pDevice->GetFeatureLevel() ) );
 
+		if( m_pDevice->GetFeatureLevel() < D3D_FEATURE_LEVEL_11_0 )
+		{
+			BAT_ERROR( "Your feature level is unsupported, exiting..." );
+			MessageBoxA( NULL, "Device feature level not high enough", "Error", MB_ICONERROR );
+		}
+
 		ID3D11Texture2D* pBackBuffer;
 		COM_THROW_IF_FAILED( m_pSwapChain->GetBuffer( 0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer ) );
 
@@ -422,11 +428,11 @@ namespace Bat
 		m_pDeviceContext->RSSetViewports( 1, &viewport );
 	}
 
-#define STRINGIFY_CASE( s ) case s: return STRINGIFY( s );
 	static const char* FeatureLevel2String( D3D_FEATURE_LEVEL level )
 	{
 		switch( level )
 		{
+#define STRINGIFY_CASE( s ) case s: return STRINGIFY( s );
 			STRINGIFY_CASE( D3D_FEATURE_LEVEL_9_1 );
 			STRINGIFY_CASE( D3D_FEATURE_LEVEL_9_2 );
 			STRINGIFY_CASE( D3D_FEATURE_LEVEL_9_3 );
@@ -436,10 +442,10 @@ namespace Bat
 			STRINGIFY_CASE( D3D_FEATURE_LEVEL_11_1 );
 			STRINGIFY_CASE( D3D_FEATURE_LEVEL_12_0 );
 			STRINGIFY_CASE( D3D_FEATURE_LEVEL_12_1 );
+#undef STRINGIFY_CASE
 
 			default:
 				return "Unknown";
 		}
 	}
 }
-#undef STRINGIFY_CASE
