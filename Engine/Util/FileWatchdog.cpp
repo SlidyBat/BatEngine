@@ -157,15 +157,22 @@ namespace Bat
 		{
 			it->listeners.emplace_back( listener );
 		}
+
+		return listener.listen_handle;
 	}
 	bool FileWatchdog::RemoveFileChangeListener( FileListenerHandle_t handle )
 	{
+		if( handle == INVALID_LISTENER )
+		{
+			return false;
+		}
+
 		for( size_t i = 0; i < watched_files.size(); i++ )
 		{
 			auto& listeners = watched_files[i].listeners;
 			for( size_t j = 0; j < listeners.size(); i++ )
 			{
-				if( listeners[i].listen_handle == handle )
+				if( listeners[j].listen_handle == handle )
 				{
 					std::swap( listeners.back(), listeners[i] );
 					listeners.pop_back();

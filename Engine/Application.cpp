@@ -16,7 +16,7 @@ namespace Bat
 		:
 		gfx( gfx ),
 		wnd( wnd ),
-		scene( SceneLoader::LoadScene( "Assets/Sponza/Sponza.gltf" ) ),
+		scene( SceneLoader::LoadScene( "Assets/dodge1.fbx" ) ),
 		camera( wnd.input, 100.0f )
 	{
 		gfx.SetActiveScene( &scene );
