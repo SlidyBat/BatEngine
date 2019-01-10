@@ -73,6 +73,11 @@ namespace Bat
 		ID3D11DeviceContext* GetDeviceContext() const;
 
 		void RenderScene();
+		void RenderSkybox();
+		void RenderPostProcessEffects();
+		void RenderText();
+		void RenderUI();
+		void RenderImGui();
 
 		void AddShader( const std::string& name, std::unique_ptr<IPipeline> pPipeline );
 	private:

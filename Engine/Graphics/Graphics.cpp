@@ -3,7 +3,6 @@
 
 #include <d3d11.h>
 
-#include "VertexTypes.h"
 #include "TexturePipeline.h"
 #include "LightPipeline.h"
 #include "ColourPipeline.h"
@@ -188,86 +187,12 @@ namespace Bat
 
 	void Graphics::EndFrame()
 	{
-
-		// render scene
 		RenderScene();
-		
-		// render skybox
-		if( m_pSkybox )
-		{
-			auto pos = GetActiveCamera()->GetPosition();
-			auto w = DirectX::XMMatrixTranslation( pos.x, pos.y, pos.z );
-			auto t = w * GetActiveCamera()->GetViewMatrix() * GetActiveCamera()->GetProjectionMatrix();
-		
-			SkyboxPipelineParameters params( t, m_pSkybox->GetTextureView() );
-			auto pPipeline = GetPipeline( "skybox" );
-			pPipeline->BindParameters( params );
-			pPipeline->RenderIndexed( 0 ); // skybox uses its own index buffer & index count, doesnt matter what we pass in
-		}
-		
-		// bloom
-		if( m_bBloomEnabled )
-		{
-			m_pBloomProcess->Render( m_FrameBuffers[0] );
-		}
-		
-		// post processes
-		if( !m_PostProcesses.empty() )
-		{
-			DisableDepthStencil();
-		
-			RenderTexture* pCurrentTexture = &m_FrameBuffers[0];
-			if( m_PostProcesses.size() > 1 )
-			{
-				m_FrameBuffers[1].Clear( 0.0f, 0.0f, 0.0f, 1.0f );
-				m_FrameBuffers[1].Bind();
-		
-				for( size_t i = 0; i < m_PostProcesses.size() - 1; i++ )
-				{
-					m_PostProcesses[i]->Render( *pCurrentTexture );
-		
-					if( i % 2 == 0 )
-					{
-						pCurrentTexture = &m_FrameBuffers[1];
-						m_FrameBuffers[0].Clear( 0.0f, 0.0f, 0.0f, 1.0f );
-						m_FrameBuffers[0].Bind();
-					}
-					else
-					{
-						pCurrentTexture = &m_FrameBuffers[0];
-						m_FrameBuffers[1].Clear( 0.0f, 0.0f, 0.0f, 1.0f );
-						m_FrameBuffers[1].Bind();
-					}
-				}
-			}
-		
-			// render last post process directly to screen
-			d3d.BindBackBuffer();
-			m_PostProcesses.back()->Render( *pCurrentTexture );
-		
-			EnableDepthStencil();
-		}
-		
-		// text commands
-		if( !m_TextDrawCommands.empty() )
-		{
-			m_pSpriteBatch->Begin();
-			for( const auto& command : m_TextDrawCommands )
-			{
-				m_pFont->DrawString( m_pSpriteBatch.get(), command.text.c_str(), command.pos, command.col );
-			}
-			m_pSpriteBatch->End();
-		}
-		
-		// UI
-		m_UI.Update();
-		m_UI.Render();
-
-		// imgui
-		ImGui::Render();
-		ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );
-
-		
+		RenderSkybox();
+		RenderPostProcessEffects();
+		RenderText();
+		RenderUI();
+		RenderImGui();
 
 		// all done!
 		d3d.PresentScene();
@@ -383,5 +308,91 @@ namespace Bat
 		EnableDepthStencil();
 		scene_renderer.SetLight( pLight );
 		m_pSceneGraph->AcceptVisitor( scene_renderer );
+	}
+
+	void Graphics::RenderSkybox()
+	{
+		if( m_pSkybox )
+		{
+			auto pos = GetActiveCamera()->GetPosition();
+			auto w = DirectX::XMMatrixTranslation( pos.x, pos.y, pos.z );
+			auto t = w * GetActiveCamera()->GetViewMatrix() * GetActiveCamera()->GetProjectionMatrix();
+
+			SkyboxPipelineParameters params( t, m_pSkybox->GetTextureView() );
+			auto pPipeline = GetPipeline( "skybox" );
+			pPipeline->BindParameters( params );
+			pPipeline->RenderIndexed( 0 ); // skybox uses its own index buffer & index count, doesnt matter what we pass in
+		}
+	}
+
+	void Graphics::RenderPostProcessEffects()
+	{
+		// bloom
+		if( m_bBloomEnabled )
+		{
+			m_pBloomProcess->Render( m_FrameBuffers[0] );
+		}
+
+		// post processes
+		if( !m_PostProcesses.empty() )
+		{
+			DisableDepthStencil();
+
+			RenderTexture* pCurrentTexture = &m_FrameBuffers[0];
+			if( m_PostProcesses.size() > 1 )
+			{
+				m_FrameBuffers[1].Clear( 0.0f, 0.0f, 0.0f, 1.0f );
+				m_FrameBuffers[1].Bind();
+
+				for( size_t i = 0; i < m_PostProcesses.size() - 1; i++ )
+				{
+					m_PostProcesses[i]->Render( *pCurrentTexture );
+
+					if( i % 2 == 0 )
+					{
+						pCurrentTexture = &m_FrameBuffers[1];
+						m_FrameBuffers[0].Clear( 0.0f, 0.0f, 0.0f, 1.0f );
+						m_FrameBuffers[0].Bind();
+					}
+					else
+					{
+						pCurrentTexture = &m_FrameBuffers[0];
+						m_FrameBuffers[1].Clear( 0.0f, 0.0f, 0.0f, 1.0f );
+						m_FrameBuffers[1].Bind();
+					}
+				}
+			}
+
+			// render last post process directly to screen
+			d3d.BindBackBuffer();
+			m_PostProcesses.back()->Render( *pCurrentTexture );
+
+			EnableDepthStencil();
+		}
+	}
+
+	void Graphics::RenderText()
+	{
+		if( !m_TextDrawCommands.empty() )
+		{
+			m_pSpriteBatch->Begin();
+			for( const auto& command : m_TextDrawCommands )
+			{
+				m_pFont->DrawString( m_pSpriteBatch.get(), command.text.c_str(), command.pos, command.col );
+			}
+			m_pSpriteBatch->End();
+		}
+	}
+
+	void Graphics::RenderUI()
+	{
+		m_UI.Update();
+		m_UI.Render();
+	}
+
+	void Graphics::RenderImGui()
+	{
+		ImGui::Render();
+		ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );
 	}
 }
