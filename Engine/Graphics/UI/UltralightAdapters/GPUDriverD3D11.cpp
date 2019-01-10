@@ -62,7 +62,7 @@ HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint,
     szShaderModel, dwShaderFlags, 0, ppBlobOut, pErrorBlob.GetAddressOf());
 
   if (FAILED(hr) && pErrorBlob)
-    OutputDebugStringA(reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
+    BAT_ERROR(reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
 
   return hr;
 }

@@ -19,6 +19,36 @@ namespace Bat
 	static ultralight::IndexType patternCW[] = { 0, 1, 3, 1, 2, 3 };
 	static ultralight::IndexType patternCCW[] = { 0, 3, 1, 1, 3, 2 };
 
+	class BatViewListener : public ViewListener
+	{
+		// Called when a message is added to the console (useful for errors / debug)
+		virtual void OnAddConsoleMessage(ultralight::View* caller,
+			MessageSource source,
+			MessageLevel level,
+			const String& message,
+			uint32_t line_number,
+			uint32_t column_number,
+			const String& source_id)
+		{
+			switch( level )
+			{
+				case kMessageLevel_Log:
+					BAT_LOG( "{}", message.utf8().data() );
+					break;
+				case kMessageLevel_Warning:
+					BAT_WARN( "{}", message.utf8().data() );
+					break;
+				case kMessageLevel_Error:
+					BAT_ERROR( "{}", message.utf8().data() );
+					break;
+				case kMessageLevel_Debug:
+				case kMessageLevel_Info:
+					BAT_TRACE( "{}", message.utf8().data() );
+					break;
+			}
+		}
+	} g_ViewListener;
+
 	class BatPlatformD3D11 : public PlatformGPUContextD3D11
 	{
 	public:
@@ -66,6 +96,7 @@ namespace Bat
 		memset(&m_GPUState, 0, sizeof(m_GPUState));
 		m_GPUState.viewport_width  = (float)wnd.GetWidth();
 		m_GPUState.viewport_height = (float)wnd.GetHeight();
+		m_pView->set_view_listener( &g_ViewListener );
 	}
 
 	Overlay::~Overlay()
