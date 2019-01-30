@@ -1,9 +1,8 @@
 #pragma once
 
 #include "ILayer.h"
-#include "Scene.h"
-#include "MoveableCamera.h"
-#include "MouseEvents.h"
+#include "Mesh.h"
+#include "Texture.h"
 
 namespace Bat
 {
@@ -21,10 +20,9 @@ namespace Bat
 	private:
 		Graphics& gfx;
 		Window& wnd;
-		SceneGraph scene;
-		MoveableCamera camera;
-		Light* light;
-		Overlay* ui_overlay;
+		Texture screentex;
+		Mesh screenquad;
+		Colour* pixels = nullptr;
 
 		// fps calculation
 		int fps_counter = 0;

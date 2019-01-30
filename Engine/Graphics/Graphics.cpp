@@ -166,7 +166,11 @@ namespace Bat
 
 	void Graphics::BeginFrame()
 	{
-		m_pCamera->Render();
+		if( m_pCamera )
+		{
+			m_pCamera->Render();
+		}
+
 		m_TextDrawCommands.clear();
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
@@ -299,15 +303,18 @@ namespace Bat
 
 	void Graphics::RenderScene()
 	{
-		static RenderSceneVisitor scene_renderer( *this );
+		if( m_pSceneGraph )
+		{
+			static RenderSceneVisitor scene_renderer( *this );
 
-		Light* pLight = nullptr;
-		GetSceneLightsVisitor obtain_light( &pLight );
-		m_pSceneGraph->AcceptVisitor( obtain_light );
+			Light* pLight = nullptr;
+			GetSceneLightsVisitor obtain_light( &pLight );
+			m_pSceneGraph->AcceptVisitor( obtain_light );
 
-		EnableDepthStencil();
-		scene_renderer.SetLight( pLight );
-		m_pSceneGraph->AcceptVisitor( scene_renderer );
+			EnableDepthStencil();
+			scene_renderer.SetLight( pLight );
+			m_pSceneGraph->AcceptVisitor( scene_renderer );
+		}
 	}
 
 	void Graphics::RenderSkybox()

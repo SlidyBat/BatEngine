@@ -37,7 +37,7 @@ namespace Bat
 		auto it = g_mapColours.find( colour.GetValue() );
 		if( it == g_mapColours.end() )
 		{
-			auto pResource = std::make_shared<Texture>( &colour, 1, 1 );
+			auto pResource = std::make_shared<Texture>( Texture::FromColour( &colour, 1, 1 ) );
 			g_mapColours[colour.GetValue()] = pResource;
 			return pResource;
 		}

@@ -9,44 +9,65 @@
 
 #include "WindowEvents.h"
 #include "KeyboardEvents.h"
+#include "TexturePipeline.h"
+#include "Globals.h"
 
 namespace Bat
 {
 	Application::Application( Graphics& gfx, Window& wnd )
 		:
 		gfx( gfx ),
-		wnd( wnd ),
-		scene( SceneLoader::LoadScene( "Assets/dodge1.fbx" ) ),
-		camera( wnd.input, 100.0f )
+		wnd( wnd )
 	{
-		gfx.SetActiveScene( &scene );
-		gfx.SetActiveCamera( &camera );
+		screentex = Texture::FromColour( nullptr, wnd.GetWidth(), wnd.GetHeight(), D3D11_USAGE_DYNAMIC );
+		pixels = new Colour[wnd.GetWidth() * wnd.GetHeight()];
 
 		wnd.OnEventDispatched<WindowResizeEvent>( [this]( const WindowResizeEvent& e )
 		{
-			this->camera.SetAspectRatio( (float)e.width / e.height );
+			this->screentex = Texture::FromColour( nullptr, e.width, e.height, D3D11_USAGE_DYNAMIC );
+			delete[] pixels;
+			pixels = new Colour[e.width * e.height];
 		} );
 
-		light = scene.GetRootNode().AddLight( {} );
+		const std::vector<Vec3> vertices = {
+			{ -1.0f,  1.0f, 0.5f },
+			{  1.0f,  1.0f, 0.5f },
+			{  1.0f, -1.0f, 0.5f },
+			{ -1.0f, -1.0f, 0.5f },
+		};
 
-		ui_overlay = gfx.UI().CreateOverlay( 300, 100, { 10, 30 } );
-		ui_overlay->LoadHTMLFromFile( "Assets/UI/console.html" );
+		const std::vector<Vec2> uvs = {
+			{ 0.0f, 0.0f },
+			{ 1.0f, 0.0f },
+			{ 1.0f, 1.0f },
+			{ 0.0f, 1.0f }
+		};
+
+		const std::vector<int> indices = { 0, 1, 2, 2, 3, 0 };
+
+		MeshParameters meshparams;
+		meshparams.position = vertices;
+		meshparams.uv = uvs;
+		screenquad.SetData( meshparams );
+		screenquad.SetIndices( indices );
+
+		// set screen colour
+		for( size_t y = 0; y < screentex.GetHeight(); y++ )
+		{
+			for( size_t x = 0; x < screentex.GetWidth(); x++ )
+			{
+				pixels[y*screentex.GetWidth() + x] = Colour( 0, 255, 0 );
+			}
+		}
 	}
 
 	Application::~Application()
 	{
-		gfx.UI().DeleteOverlay( ui_overlay );
+		delete[] pixels;
 	}
 
 	void Application::OnUpdate( float deltatime )
 	{
-		if( wnd.input.IsKeyDown( 'C' ) )
-		{
-			light->SetPosition( camera.GetPosition() );
-		}
-
-		camera.Update( deltatime );
-
 		elapsed_time += deltatime;
 		fps_counter += 1;
 		if( elapsed_time > 1.0f )
@@ -55,10 +76,21 @@ namespace Bat
 			fps_counter = 0;
 			elapsed_time -= 1.0f;
 		}
+
+		screentex.UpdatePixels( pixels, screentex.GetWidth() * sizeof( Colour ) );
 	}
 
 	void Application::OnRender()
 	{
+		gfx.DisableDepthStencil();
+
+		TexturePipelineParameters params( DirectX::XMMatrixIdentity(), DirectX::XMMatrixIdentity(), screentex.GetTextureView() );
+
+		auto texture_pipeline = gfx.GetPipeline( "texture" );
+		screenquad.Bind( texture_pipeline );
+		texture_pipeline->BindParameters( params );
+		texture_pipeline->RenderIndexed( (UINT)screenquad.GetIndexCount() );
+
 		gfx.DrawText( Bat::StringToWide( fps_string ).c_str(), DirectX::XMFLOAT2{ 15.0f, 15.0f } );
 	}
 }

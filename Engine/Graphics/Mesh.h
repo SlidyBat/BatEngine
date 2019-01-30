@@ -27,7 +27,7 @@ namespace Bat
 	{
 	public:
 		Mesh() = default;
-		Mesh( const MeshParameters& params, const std::vector<int>& indices, const Material& material );
+		Mesh( const MeshParameters& params, const std::vector<int>& indices, const Material& material = {} );
 
 		void Bind( IPipeline* pPipeline ) const;
 
