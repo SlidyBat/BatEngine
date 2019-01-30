@@ -18,8 +18,6 @@ namespace Bat
 
 		virtual void OnUpdate( float deltatime ) override;
 		virtual void OnRender() override;
-
-		void OnFileChanged( const std::string& filename );
 	private:
 		Graphics& gfx;
 		Window& wnd;

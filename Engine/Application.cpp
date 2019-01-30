@@ -61,9 +61,4 @@ namespace Bat
 	{
 		gfx.DrawText( Bat::StringToWide( fps_string ).c_str(), DirectX::XMFLOAT2{ 15.0f, 15.0f } );
 	}
-
-	void Application::OnFileChanged( const std::string& filename )
-	{
-		BAT_LOG( "'{}' changed", filename );
-	}
 }
