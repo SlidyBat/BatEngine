@@ -11,6 +11,8 @@ namespace Bat
 	std::string WideToString( std::wstring_view wstr );
 
 	std::vector<std::string> SplitString( std::string_view str, const char delim = ' ' );
+	std::string JoinStrings( const std::vector<std::string>& strings, const std::string& delim = " " );
+	std::string JoinStrings( const std::vector<std::string_view>& strings, const std::string& delim = " " );
 
 	std::string_view GetFileExtension( std::string_view filename );
 	std::wstring_view GetFileExtension( std::wstring_view filename );

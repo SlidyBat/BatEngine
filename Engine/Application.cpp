@@ -12,6 +12,8 @@
 #include "TexturePipeline.h"
 #include "Globals.h"
 
+#include <imgui.h>
+
 namespace Bat
 {
 	Application::Application( Graphics& gfx, Window& wnd )
@@ -59,6 +61,20 @@ namespace Bat
 				pixels[y*screentex.GetWidth() + x] = Colour( 0, 255, 0 );
 			}
 		}
+
+		wnd.input.OnEventDispatched<KeyPressedEvent>( []( const KeyPressedEvent& e )
+		{
+			if( e.key == VK_OEM_3 )
+			{
+				BAT_LOG( "Toggling console" );
+				g_Console.SetVisible( !g_Console.IsVisible() );
+			}
+		} );
+
+		g_Console.AddCommand( "test_command", []( const CommandArgs_t& args )
+		{
+			BAT_LOG( "You wrote: '{}'", Bat::JoinStrings( args ) );
+		} );
 	}
 
 	Application::~Application()

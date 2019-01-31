@@ -228,6 +228,12 @@
     <ClCompile Include="Core\Entity.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Console.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TokenStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -448,6 +454,12 @@
     </ClInclude>
     <ClInclude Include="Graphics\UI\UltralightAdapters\FontLoaderWin.h">
       <Filter>Header Files\Graphics\UI\ULAdapter</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Console.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="TokenStream.h">
+      <Filter>Header Files\Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

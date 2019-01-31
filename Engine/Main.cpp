@@ -61,7 +61,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 			gfx.BeginFrame();
 			
 			app.OnRender();
-
+			g_Console.Draw("Bat Engine Console");
 
 			gfx.EndFrame();
 		}

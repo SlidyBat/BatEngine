@@ -34,6 +34,38 @@ namespace Bat
 		return elems;
 	}
 
+	std::string JoinStrings( const std::vector<std::string>& strings, const std::string & delim )
+	{
+		std::string res;
+
+		for( size_t i = 0; i < strings.size(); i++ )
+		{
+			res += strings[i];
+			if( i != strings.size() - 1 )
+			{
+				res += delim;
+			}
+		}
+
+		return res;
+	}
+
+	std::string JoinStrings( const std::vector<std::string_view>& strings, const std::string & delim )
+	{
+		std::string res;
+
+		for( size_t i = 0; i < strings.size(); i++ )
+		{
+			res += std::string( strings[i] );
+			if( i != strings.size() - 1 )
+			{
+				res += delim;
+			}
+		}
+
+		return res;
+	}
+
 	std::string_view GetFileExtension( std::string_view filename )
 	{
 		size_t off = filename.find_last_of( '.' );

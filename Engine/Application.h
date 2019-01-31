@@ -3,6 +3,7 @@
 #include "ILayer.h"
 #include "Mesh.h"
 #include "Texture.h"
+#include "Core/Console.h"
 
 namespace Bat
 {

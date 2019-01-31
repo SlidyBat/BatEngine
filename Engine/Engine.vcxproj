@@ -208,11 +208,13 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\x64" "$(OutDir)"</Com
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="BloomPostProcess.cpp" />
+    <ClCompile Include="Core\Console.cpp" />
     <ClCompile Include="Core\Entity.cpp" />
     <ClCompile Include="Graphics\UI\BatUI.cpp" />
     <ClCompile Include="Graphics\UI\UltralightAdapters\FileSystemBasic.cpp" />
     <ClCompile Include="Graphics\UI\UltralightAdapters\FontLoaderWin.cpp" />
     <ClCompile Include="Graphics\UI\UltralightAdapters\GPUDriverD3D11.cpp" />
+    <ClCompile Include="TokenStream.cpp" />
     <ClCompile Include="Util\FileWatchdog.cpp" />
     <ClCompile Include="Graphics\IndexBuffer.cpp" />
     <ClCompile Include="Graphics\Material.cpp" />
@@ -327,6 +329,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\x64" "$(OutDir)"</Com
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="ChunkedAllocator.h" />
+    <ClInclude Include="Core\Console.h" />
     <ClInclude Include="Core\Entity.h" />
     <ClInclude Include="Core\EntityEvents.h" />
     <ClInclude Include="Graphics\UI\BatUI.h" />
@@ -334,6 +337,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\x64" "$(OutDir)"</Com
     <ClInclude Include="Graphics\UI\UltralightAdapters\FontLoaderWin.h" />
     <ClInclude Include="Graphics\UI\UltralightAdapters\GPUDriverD3D11.h" />
     <ClInclude Include="Graphics\UI\UltralightAdapters\PlatformD3D11.h" />
+    <ClInclude Include="TokenStream.h" />
     <ClInclude Include="Util\BatAssert.h" />
     <ClInclude Include="BloomPostProcess.h" />
     <ClInclude Include="Common.h" />
