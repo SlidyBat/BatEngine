@@ -35,6 +35,8 @@ namespace Bat
 		void OnMouseButtonDown( const Vei2& pos, const MouseButton mb );
 		void OnMouseButtonUp( const Vei2& pos, const MouseButton mb );
 		void OnMouseButtonDblClick( const Vei2& pos, const MouseButton mb );
+		void OnMouseEnter();
+		void OnMouseLeave();
 	public:
 		Vei2 GetMousePosition() const;
 		bool IsMouseButtonDown( const MouseButton mb ) const;
@@ -44,11 +46,14 @@ namespace Bat
 		bool IsMiddleDown() const;
 		bool IsX1Down() const;
 		bool IsX2Down() const;
+
+		bool IsMouseInWindow() const;
 	private:
 		static constexpr int MaxKeys = 256;
 		bool m_bKeyIsPressed[MaxKeys];
 
 		Vei2 m_vecMousePosition;
 		bool m_bMouseButtonIsDown[(int)MouseButton::TOTAL_MOUSE_BUTTONS];
+		bool m_bMouseInWindow = false;
 	};
 }

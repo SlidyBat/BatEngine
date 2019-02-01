@@ -77,6 +77,20 @@ namespace Bat
 		DispatchEvent<MouseButtonDoubleClickEvent>( pos, mb );
 	}
 
+	void Input::OnMouseEnter()
+	{
+		m_bMouseInWindow = true;
+
+		DispatchEvent<MouseEnterEvent>();
+	}
+
+	void Input::OnMouseLeave()
+	{
+		m_bMouseInWindow = false;
+
+		DispatchEvent<MouseLeaveEvent>();
+	}
+
 	Vei2 Input::GetMousePosition() const
 	{
 		return m_vecMousePosition;
@@ -110,5 +124,10 @@ namespace Bat
 	bool Input::IsX2Down() const
 	{
 		return IsMouseButtonDown( MouseButton::X2 );
+	}
+
+	bool Input::IsMouseInWindow() const
+	{
+		return m_bMouseInWindow;
 	}
 }

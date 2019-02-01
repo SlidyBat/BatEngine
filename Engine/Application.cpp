@@ -9,6 +9,7 @@
 
 #include "WindowEvents.h"
 #include "KeyboardEvents.h"
+#include "MouseEvents.h"
 #include "TexturePipeline.h"
 #include "Globals.h"
 
@@ -69,6 +70,13 @@ namespace Bat
 				BAT_LOG( "Toggling console" );
 				g_Console.SetVisible( !g_Console.IsVisible() );
 			}
+		} );
+
+		wnd.input.OnEventDispatched<MouseScrolledEvent>( []( const MouseScrolledEvent& e )
+		{
+			static float accum = 0.0f;
+			accum += e.delta;
+			BAT_LOG( "Accumulated scroll: {}", accum );
 		} );
 
 		g_Console.AddCommand( "test_command", []( const CommandArgs_t& args )

@@ -199,7 +199,27 @@ namespace Bat
 		case WM_MOUSEMOVE:
 		{
 			POINTS pos = MAKEPOINTS( lParam );
-			input.OnMouseMoved( { pos.x, pos.y } );
+			if( pos.x >= 0 && pos.x < GetWidth() && pos.y >= 0 && pos.y < GetHeight() )
+			{
+				input.OnMouseMoved( { pos.x, pos.y } );
+				if( !input.IsMouseInWindow() )
+				{
+					SetCapture( GetHandle() );
+					input.OnMouseEnter();
+				}
+			}
+			else
+			{
+				if( wParam & (MK_LBUTTON|MK_RBUTTON|MK_MBUTTON|MK_XBUTTON1|MK_XBUTTON2) )
+				{
+					input.OnMouseMoved( { pos.x, pos.y } );
+				}
+				else
+				{
+					ReleaseCapture();
+					input.OnMouseLeave();
+				}
+			}
 			break;
 		}
 		case WM_MOUSEWHEEL:

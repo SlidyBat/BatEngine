@@ -5,6 +5,7 @@
 
 namespace Bat
 {
+	// Called when window is resized
 	struct WindowResizeEvent
 	{
 		// New window width
@@ -13,6 +14,7 @@ namespace Bat
 		int height;
 	};
 
+	// Called when window is moved
 	struct WindowMovedEvent
 	{
 		// X position of window in screen coordinates
@@ -21,6 +23,8 @@ namespace Bat
 		int y;
 	};
 
+
+	// Called when window is closed
 	struct WindowClosedEvent
 	{};
 }
