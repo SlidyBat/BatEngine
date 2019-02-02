@@ -54,15 +54,6 @@ namespace Bat
 		screenquad.SetData( meshparams );
 		screenquad.SetIndices( indices );
 
-		// set screen colour
-		for( size_t y = 0; y < screentex.GetHeight(); y++ )
-		{
-			for( size_t x = 0; x < screentex.GetWidth(); x++ )
-			{
-				pixels[y*screentex.GetWidth() + x] = Colour( 0, 255, 0 );
-			}
-		}
-
 		wnd.input.OnEventDispatched<KeyPressedEvent>( []( const KeyPressedEvent& e )
 		{
 			if( e.key == VK_OEM_3 )
@@ -70,13 +61,6 @@ namespace Bat
 				BAT_LOG( "Toggling console" );
 				g_Console.SetVisible( !g_Console.IsVisible() );
 			}
-		} );
-
-		wnd.input.OnEventDispatched<MouseScrolledEvent>( []( const MouseScrolledEvent& e )
-		{
-			static float accum = 0.0f;
-			accum += e.delta;
-			BAT_LOG( "Accumulated scroll: {}", accum );
 		} );
 
 		g_Console.AddCommand( "test_command", []( const CommandArgs_t& args )
@@ -99,6 +83,19 @@ namespace Bat
 			fps_string = "FPS: " + std::to_string( fps_counter );
 			fps_counter = 0;
 			elapsed_time -= 1.0f;
+		}
+
+		// set screen colour
+		for( size_t y = 0; y < screentex.GetHeight(); y++ )
+		{
+			for( size_t x = 0; x < screentex.GetWidth(); x++ )
+			{
+				pixels[y*screentex.GetWidth() + x] = Colour(
+					Math::GetRandomInt( 0, 255 ),
+					Math::GetRandomInt( 0, 255 ),
+					Math::GetRandomInt( 0, 255 )
+				);
+			}
 		}
 
 		screentex.UpdatePixels( pixels, screentex.GetWidth() * sizeof( Colour ) );

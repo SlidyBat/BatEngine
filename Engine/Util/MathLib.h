@@ -25,6 +25,9 @@ namespace Bat
 		void SinCos( float x, float* s, float* c );
 
 		void AngleVectors( const DirectX::XMFLOAT3& angles, DirectX::XMFLOAT3* forward = nullptr, DirectX::XMFLOAT3* right = nullptr, DirectX::XMFLOAT3* up = nullptr );
+
+		int GetRandomInt( int min, int max );
+		float GetRandomFloat( float min, float max );
 	}
 
 	template <typename T>

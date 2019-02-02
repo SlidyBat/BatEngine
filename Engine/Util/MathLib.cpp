@@ -1,8 +1,37 @@
 #include "PCH.h"
 #include "MathLib.h"
 
+#include <random>
+
 namespace Bat
 {
+	class Random
+	{
+	public:
+		Random()
+			:
+			rng( std::random_device{}() )
+		{}
+
+		template <typename T>
+		T GetRandomInt( T min, T max )
+		{
+			std::uniform_int_distribution<T> dist( min, max );
+			return dist( rng );
+		}
+
+		template <typename T>
+		T GetRandomReal( T min, T max )
+		{
+			std::uniform_real_distribution<T> dist( min, max );
+			return dist( rng );
+		}
+	private:
+		std::mt19937 rng;
+	};
+
+	static Random rng;
+
 	__m128 Math::Abs( __m128 m )
 	{
 		__m128 sign = _mm_castsi128_ps( _mm_set1_epi32( 0x80000000 ) );
@@ -91,5 +120,17 @@ namespace Bat
 			up->y = (cr*sp*sy + -sr * cy);
 			up->z = cr * cp;
 		}
+	}
+
+	// Returns a random int in the range [min, max]
+	int Math::GetRandomInt( int min, int max )
+	{
+		return rng.GetRandomInt<int>( min, max );
+	}
+
+	// Returns a random float in the range [min, max)
+	float Math::GetRandomFloat( float min, float max )
+	{
+		return rng.GetRandomReal<float>( min, max );
 	}
 }
