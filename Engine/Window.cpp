@@ -181,11 +181,13 @@ namespace Bat
 			break;
 		}
 		case WM_KEYDOWN:
+		case WM_SYSKEYDOWN:
 		{
 			input.OnKeyDown( (size_t)wParam, lParam & 0x40000000 );
 			break;
 		}
 		case WM_KEYUP:
+		case WM_SYSKEYUP:
 		{
 			input.OnKeyUp( (size_t)wParam );
 			break;
