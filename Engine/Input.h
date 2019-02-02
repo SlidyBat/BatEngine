@@ -15,10 +15,13 @@ namespace Bat
 		Input( Input&& donor ) = delete;
 		Input& operator=( Input&& donor ) = delete;
 	private: // keyboard		
+		void OnKeyChar( const size_t key, bool repeated );
 		void OnKeyDown( const size_t key, bool repeated );
 		void OnKeyUp( const size_t key );
 	public:
 		bool IsKeyDown( const size_t key ) const;
+		bool IsAutorepeatEnabled() const { return m_bEnableAutorepeat; };
+		void SetAutorepeatEnabled( bool enabled ) { m_bEnableAutorepeat = enabled; }
 	public: // mouse
 		enum class MouseButton
 		{
@@ -51,6 +54,7 @@ namespace Bat
 	private:
 		static constexpr int MaxKeys = 256;
 		bool m_bKeyIsPressed[MaxKeys];
+		bool m_bEnableAutorepeat = false;
 
 		Vei2 m_vecMousePosition;
 		bool m_bMouseButtonIsDown[(int)MouseButton::TOTAL_MOUSE_BUTTONS];

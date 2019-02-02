@@ -14,8 +14,22 @@ namespace Bat
 		}
 	}
 
+	void Input::OnKeyChar( const size_t key, bool repeated )
+	{
+		ASSERT( key >= 0, "Invalid keyboard key '{}'", key );
+		ASSERT( key < MaxKeys, "Invalid keyboard key '{}'", key );
+
+		DispatchEvent<KeyCharEvent>( key, repeated );
+	}
+
 	void Input::OnKeyDown( const size_t key, bool repeated )
 	{
+		if( repeated && !IsAutorepeatEnabled() )
+		{
+			// we don't want key down messages for autorepeat
+			return;
+		}
+
 		ASSERT( key >= 0, "Invalid keyboard key '{}'", key );
 		ASSERT( key < MaxKeys, "Invalid keyboard key '{}'", key );
 

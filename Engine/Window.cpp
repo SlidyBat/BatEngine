@@ -175,20 +175,14 @@ namespace Bat
 			Kill();
 			break;
 		}
+		case WM_CHAR:
+		{
+			input.OnKeyChar( (size_t)wParam, lParam & 0x40000000 );
+			break;
+		}
 		case WM_KEYDOWN:
 		{
-			int repeat_count = lParam & 0xFF;
-			if( repeat_count == 0 )
-			{
-				input.OnKeyDown( (size_t)wParam, false );
-			}
-			else
-			{
-				for( int i = 0; i < repeat_count; i++ )
-				{
-					input.OnKeyDown( (size_t)wParam, true );
-				}
-			}
+			input.OnKeyDown( (size_t)wParam, lParam & 0x40000000 );
 			break;
 		}
 		case WM_KEYUP:
