@@ -28,6 +28,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <bitset>
+#include <optional>
 
 // my stuff
 #include "BatAssert.h"

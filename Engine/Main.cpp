@@ -4,6 +4,7 @@
 #include "COMException.h"
 #include "FrameTimer.h"
 #include "Globals.h"
+#include "Networking.h"
 #include "JobSystem.h"
 #include "ResourceManager.h"
 #include "Window.h"
@@ -35,6 +36,8 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 		COMInitialize coinit;
 		Logger::Init();
 		BAT_LOG( "Initialized logger" );
+		Networking::Initialize();
+		BAT_LOG( "INitialized networking" );
 		JobSystem::Initialize();
 		BAT_TRACE("Initialized job system");
 		FileWatchdog::Initialize();
@@ -86,6 +89,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 
 	FileWatchdog::Shutdown();
 	ResourceManager::CleanUp();
+	Networking::Shutdown();
 
 	return 0;
 }

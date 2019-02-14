@@ -147,12 +147,13 @@ namespace Bat
 
 		// Process command
 		TokenStream ts( command_line );
-		std::string command = std::string( ts.NextToken() ); // first token is 
+		std::string command = std::string( ts.NextToken() ); // first token is the command
 		auto it = Commands.find( command );
 		if( it != Commands.end() )
 		{
 			std::string_view token;
 			CommandArgs_t args;
+			args.emplace_back( command ); // args[0] is the command itself
 			while( ts >> token )
 			{
 				args.emplace_back( token );
