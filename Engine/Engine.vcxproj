@@ -90,7 +90,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -101,8 +101,8 @@
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\DirectXTK\Bin\Debug-x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>dxguid.lib;assimp-vc140-mt.lib;DirectXTK.lib;%(AdditionalDependencies);UltralightCore.lib;Ultralight.lib;WebCore.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\DirectXTK\Bin\Debug-x86;%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);dxguid.lib;DirectXTK.lib;assimp-vc140-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)ThirdParty\Assimp\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"
@@ -118,7 +118,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDi
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -129,8 +129,8 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDi
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\DirectXTK\Bin\Debug-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>dxguid.lib;assimp-vc140-mt.lib;DirectXTK.lib;%(AdditionalDependencies);UltralightCore.lib;Ultralight.lib;WebCore.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\DirectXTK\Bin\Debug-x64;%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);dxguid.lib;DirectXTK.lib;assimp-vc140-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)ThirdParty\Assimp\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"
@@ -148,7 +148,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDi
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;%(PreprocessorDefinitions);NDEBUG</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -161,8 +161,8 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDi
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\DirectXTK\Bin\Release-x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>dxguid.lib;assimp-vc140-mt.lib;DirectXTK.lib;%(AdditionalDependencies);UltralightCore.lib;Ultralight.lib;WebCore.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\DirectXTK\Bin\Release-x86;%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);dxguid.lib;DirectXTK.lib;assimp-vc140-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)ThirdParty\Assimp\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"
@@ -180,7 +180,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDi
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;%(PreprocessorDefinitions);NDEBUG</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -193,8 +193,8 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDi
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\DirectXTK\Bin\Release-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>dxguid.lib;assimp-vc140-mt.lib;DirectXTK.lib;%(AdditionalDependencies);UltralightCore.lib;Ultralight.lib;WebCore.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\DirectXTK\Bin\Release-x64;%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);dxguid.lib;DirectXTK.lib;assimp-vc140-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)ThirdParty\Assimp\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"
