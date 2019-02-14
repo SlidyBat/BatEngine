@@ -16,7 +16,7 @@ namespace Bat
 		
 		const int start = m_iCurrentPos;
 
-		while( m_iCurrentPos < m_szOriginalStr.size() && !Bat::IsWhitespace( m_szOriginalStr[m_iCurrentPos] ) )
+		while( m_iCurrentPos < (int)m_szOriginalStr.size() && !Bat::IsWhitespace( m_szOriginalStr[m_iCurrentPos] ) )
 		{
 			m_iCurrentPos++;
 		}
@@ -37,7 +37,7 @@ namespace Bat
 
 	void TokenStream::SkipWhitespace()
 	{
-		while( m_iCurrentPos < m_szOriginalStr.size() && Bat::IsWhitespace( m_szOriginalStr[m_iCurrentPos] ) )
+		while( m_iCurrentPos < (int)m_szOriginalStr.size() && Bat::IsWhitespace( m_szOriginalStr[m_iCurrentPos] ) )
 		{
 			m_iCurrentPos++;
 		}

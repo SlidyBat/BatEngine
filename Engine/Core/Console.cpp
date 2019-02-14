@@ -75,7 +75,7 @@ namespace Bat
 		if (copy_to_clipboard)
 			ImGui::LogToClipboard();
 		ImVec4 col_default_text = ImGui::GetStyleColorVec4(ImGuiCol_Text);
-		for (int i = 0; i < Items.size(); i++)
+		for (size_t i = 0; i < Items.size(); i++)
 		{
 			const std::string item = Items[i];
 			if (!filter.PassFilter(item.c_str()))
@@ -209,7 +209,7 @@ namespace Bat
 					{
 						int c = 0;
 						bool all_candidates_matches = true;
-						for (int i = 0; i < candidates.size() && all_candidates_matches; i++)
+						for (size_t i = 0; i < candidates.size() && all_candidates_matches; i++)
 							if (i == 0)
 								c = toupper(candidates[i][match_len]);
 							else if (c == 0 || c != toupper(candidates[i][match_len]))
@@ -227,7 +227,7 @@ namespace Bat
 
 					// List matches
 					AddLog("Possible matches:\n");
-					for (int i = 0; i < candidates.size(); i++)
+					for (size_t i = 0; i < candidates.size(); i++)
 						AddLog("- {}\n", candidates[i]);
 				}
 
@@ -247,7 +247,7 @@ namespace Bat
 				else if (data->EventKey == ImGuiKey_DownArrow)
 				{
 					if (HistoryPos != -1)
-						if (++HistoryPos >= History.size())
+						if (++HistoryPos >= (int)History.size())
 							HistoryPos = -1;
 				}
 

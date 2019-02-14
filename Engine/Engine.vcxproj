@@ -101,12 +101,12 @@
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\Ultralight\lib\win\x64;$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\DirectXTK\Bin\Debug-x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp-vc140-mt.lib;DirectXTK.lib;%(AdditionalDependencies);UltralightCore.lib;Ultralight.lib;WebCore.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\DirectXTK\Bin\Debug-x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>dxguid.lib;assimp-vc140-mt.lib;DirectXTK.lib;%(AdditionalDependencies);UltralightCore.lib;Ultralight.lib;WebCore.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)ThirdParty\Assimp\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"
-xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\x64" "$(OutDir)"</Command>
+xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -129,12 +129,12 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\x64" "$(OutDir)"</Com
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\Ultralight\lib\win\x64;$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\DirectXTK\Bin\Debug-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\DirectXTK\Bin\Debug-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>dxguid.lib;assimp-vc140-mt.lib;DirectXTK.lib;%(AdditionalDependencies);UltralightCore.lib;Ultralight.lib;WebCore.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)ThirdParty\Assimp\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"
-xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\x64" "$(OutDir)"</Command>
+xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -161,12 +161,12 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\x64" "$(OutDir)"</Com
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\Ultralight\lib\win\x64;$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\DirectXTK\Bin\Release-x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp-vc140-mt.lib;DirectXTK.lib;%(AdditionalDependencies);UltralightCore.lib;Ultralight.lib;WebCore.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\DirectXTK\Bin\Release-x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>dxguid.lib;assimp-vc140-mt.lib;DirectXTK.lib;%(AdditionalDependencies);UltralightCore.lib;Ultralight.lib;WebCore.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)ThirdParty\Assimp\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"
-xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\x64" "$(OutDir)"</Command>
+xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -193,12 +193,12 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\x64" "$(OutDir)"</Com
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\Ultralight\lib\win\x64;$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\DirectXTK\Bin\Release-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\DirectXTK\Bin\Release-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>dxguid.lib;assimp-vc140-mt.lib;DirectXTK.lib;%(AdditionalDependencies);UltralightCore.lib;Ultralight.lib;WebCore.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)ThirdParty\Assimp\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"
-xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\x64" "$(OutDir)"</Command>
+xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
