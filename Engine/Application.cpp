@@ -10,6 +10,7 @@
 #include "WindowEvents.h"
 #include "KeyboardEvents.h"
 #include "MouseEvents.h"
+#include "NetworkEvents.h"
 #include "TexturePipeline.h"
 #include "Globals.h"
 #include "Networking.h"
@@ -24,6 +25,14 @@ namespace Bat
 		wnd( wnd )
 	{
 		client = Networking::CreateClientHost( 1, 1 );
+		client->OnEventDispatched<PeerConnectedEvent>( []( const PeerConnectedEvent& e )
+		{
+			BAT_LOG( "[CLIENT] Peer '{}' connected", e.peer->GetAddress().ToString() );
+		} );
+		client->OnEventDispatched<PeerDisconnectedEvent>( []( const PeerDisconnectedEvent& e )
+		{
+			BAT_LOG( "[CLIENT] Peer '{}' disconnected", e.peer->GetAddress().ToString() );
+		} );
 
 		wnd.input.OnEventDispatched<KeyPressedEvent>( []( const KeyPressedEvent& e )
 		{
@@ -61,57 +70,10 @@ namespace Bat
 			elapsed_time -= 1.0f;
 		}
 
-		while( auto event = client->Service() )
-		{
-			switch( event->type )
-			{
-				case Networking::Event::Type::CONNECT:
-				{
-					BAT_LOG( "[CLIENT] Received CONNECT event" );
-					break;
-				}
-				case Networking::Event::Type::DISCONNECT:
-				{
-					BAT_LOG( "[CLIENT] Received DISCONNECT event" );
-					break;
-				}
-				case Networking::Event::Type::RECEIVE:
-				{
-					std::string data( event->packet.length, '\0' );
-					memcpy( data.data(), event->packet.data, event->packet.length );
-					BAT_LOG( "[CLIENT] Received packet data: '{}'", data );
-					break;
-				}
-			}
-			delete event->peer;
-		}
-
+		client->Service();
 		if( server )
 		{
-			while( auto event = server->Service() )
-			{
-				switch( event->type )
-				{
-					case Networking::Event::Type::CONNECT:
-					{
-						BAT_LOG( "[SERVER] Received CONNECT event" );
-						break;
-					}
-					case Networking::Event::Type::DISCONNECT:
-					{
-						BAT_LOG( "[SERVER] Received DISCONNECT event" );
-						break;
-					}
-					case Networking::Event::Type::RECEIVE:
-					{
-						std::string data( event->packet.length, '\0' );
-						memcpy( data.data(), event->packet.data, event->packet.length );
-						BAT_LOG( "[SERVER] Received packet data: '{}'", data );
-						break;
-					}
-				}
-				delete event->peer;
-			}
+			server->Service();
 		}
 	}
 
@@ -148,20 +110,21 @@ namespace Bat
 	{
 		BAT_LOG( "Attempting to create server on '{}'...", args[1] );
 
-		auto strs = Bat::SplitString( args[1], ':' );
-
 		Address addr;
-		if( strs.size() > 1)
-		{
-			Port_t port = std::stoi( strs[1] );
-			addr = Networking::CreateAddressFromHostname( strs[0], port );
-		}
-		else
-		{
-			addr = Networking::CreateAddressFromHostname( strs[0], 8000 );
-		}
+		addr.host = Networking::HOST_ANY;
+		addr.port = std::stoi( std::string( args[1] ) );
 
+		if( server ) Networking::DestroyHost( server );
 		server = Networking::CreateServerHost( addr, 1, 1 );
+
+		server->OnEventDispatched<PacketReceivedEvent>( []( const PacketReceivedEvent& e )
+		{
+			BAT_LOG( "[SERVER] Received packet from '{}'", e.peer->GetAddress().ToString() );
+
+			std::string data;
+			data.insert( 0, e.packet.data, e.packet.length );
+			BAT_LOG( "[SERVER] Packet data: {}", data );
+		} );
 	}
 
 	void Application::OnSendCmd( const CommandArgs_t& args )

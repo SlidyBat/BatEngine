@@ -333,6 +333,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDi
     <ClInclude Include="Core\Console.h" />
     <ClInclude Include="Core\Entity.h" />
     <ClInclude Include="Core\EntityEvents.h" />
+    <ClInclude Include="Events\NetworkEvents.h" />
     <ClInclude Include="Graphics\UI\BatUI.h" />
     <ClInclude Include="Graphics\UI\UltralightAdapters\FileSystemBasic.h" />
     <ClInclude Include="Graphics\UI\UltralightAdapters\FontLoaderWin.h" />

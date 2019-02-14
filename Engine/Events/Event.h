@@ -71,7 +71,7 @@ namespace Bat
 			EventCallbackWrapper<Event> wrapper( listener );
 			m_Callbacks[std::type_index(typeid(Event))].emplace_back( nullptr, wrapper );
 		}
-
+	protected:
 		template <typename Event, typename... Args>
 		void DispatchEvent( Args&&... args )
 		{

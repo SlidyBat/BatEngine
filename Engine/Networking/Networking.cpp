@@ -2,27 +2,11 @@
 #include "Networking.h"
 
 #include <enet/enet.h>
+#include <spdlog/fmt/fmt.h>
+#include "NetworkEvents.h"
 
 namespace Bat
 {
-	static Networking::Event::Type ENet2BatEventType( int type )
-	{
-		switch( type )
-		{
-			case ENET_EVENT_TYPE_NONE:
-				return Networking::Event::Type::NONE;
-			case ENET_EVENT_TYPE_CONNECT:
-				return Networking::Event::Type::CONNECT;
-			case ENET_EVENT_TYPE_DISCONNECT:
-				return Networking::Event::Type::DISCONNECT;
-			case ENET_EVENT_TYPE_RECEIVE:
-				return Networking::Event::Type::RECEIVE;
-			default:
-				ASSERT( false, "Unhandled ENet event type ({})", type );
-				return Networking::Event::Type::NONE;
-		}
-	}
-
 	static ENetAddress Bat2ENetAddress( const Address& address )
 	{
 		ENetAddress enet_address;
@@ -37,6 +21,38 @@ namespace Bat
 		Address address;
 		address.host = enet_address.host;
 		address.port = enet_address.port;
+
+		return address;
+	}
+
+	static Networking::PeerState ENet2BatPeerState( ENetPeerState state )
+	{
+		switch( state )
+		{
+			case ENET_PEER_STATE_DISCONNECTED:
+				return Networking::PeerState::DISCONNECTED;
+			case ENET_PEER_STATE_CONNECTING:
+				return Networking::PeerState::CONNECTING;
+			case ENET_PEER_STATE_ACKNOWLEDGING_CONNECT:
+				return Networking::PeerState::ACKNOWLEDGING_CONNECT;
+			case ENET_PEER_STATE_CONNECTION_PENDING:
+				return Networking::PeerState::CONNECTION_PENDING;
+			case ENET_PEER_STATE_CONNECTION_SUCCEEDED:
+				return Networking::PeerState::CONNECTION_SUCCEEDED;
+			case ENET_PEER_STATE_CONNECTED:
+				return Networking::PeerState::CONNECTED;
+			case ENET_PEER_STATE_DISCONNECT_LATER:
+				return Networking::PeerState::DISCONNECT_LATER;
+			case ENET_PEER_STATE_DISCONNECTING:
+				return Networking::PeerState::DISCONNECTING;
+			case ENET_PEER_STATE_ACKNOWLEDGING_DISCONNECT:
+				return Networking::PeerState::ACKNOWLEDGING_DISCONNECT;
+			case ENET_PEER_STATE_ZOMBIE:
+				return Networking::PeerState::ZOMBIE;
+			default:
+				ASSERT( false, "Unhandled ENet peer state" );
+				return Networking::PeerState::DISCONNECTED;
+		}
 	}
 
 	class ENPeer : public IPeer
@@ -64,6 +80,21 @@ namespace Bat
 		virtual void Reset() override
 		{
 			enet_peer_reset( m_pPeer );
+		}
+
+		virtual Networking::PeerState GetState() const override
+		{
+			return ENet2BatPeerState( m_pPeer->state );
+		}
+
+		virtual Address GetAddress() const override
+		{
+			return ENet2BatAddress( m_pPeer->address );
+		}
+
+		virtual int GetPingInterval() const override
+		{
+			return (int)m_pPeer->pingInterval;
 		}
 	private:
 		ENetPeer* m_pPeer;
@@ -99,29 +130,41 @@ namespace Bat
 			return new ENPeer( pPeer );
 		}
 
-		virtual std::optional<Networking::Event> Service() override
+		virtual void Service() override
 		{
 			ENetEvent enet_event;
-			if( enet_host_service(m_pHost, &enet_event, 0) > 0 )
+			while( enet_host_service(m_pHost, &enet_event, 0) > 0 )
 			{
-				Networking::Event event;
-				event.type = ENet2BatEventType( enet_event.type );
-				event.peer = new ENPeer( enet_event.peer );
-				if( enet_event.packet )
+				switch( enet_event.type )
 				{
-					event.packet.data = (char*)enet_event.packet->data;
-					event.packet.length = enet_event.packet->dataLength;
+					case ENET_EVENT_TYPE_CONNECT:
+					{
+						ENPeer peer( enet_event.peer );
+						DispatchEvent<PeerConnectedEvent>( this, &peer );
+						break;
+					}
+					case ENET_EVENT_TYPE_DISCONNECT:
+					{
+						ENPeer peer( enet_event.peer );
+						DispatchEvent<PeerDisconnectedEvent>( this, &peer );
+						break;
+					}
+					case ENET_EVENT_TYPE_RECEIVE:
+					{
+						ENPeer peer( enet_event.peer );
+						Networking::Packet packet;
+						packet.data = reinterpret_cast<const char*>(enet_event.packet->data);
+						packet.length = enet_event.packet->dataLength;
+						DispatchEvent<PacketReceivedEvent>( this, &peer, packet, enet_event.channelID );
+						break;
+					}
+					default:
+					{
+						ASSERT( false, "Unhandled ENet event type" );
+						break;
+					}
 				}
-				else
-				{
-					event.packet.data = nullptr;
-					event.packet.length = 0;
-				}
-
-				return event;
 			}
-
-			return {};
 		}
 
 		virtual void Broadcast( int channel, const Networking::Packet& packet ) override
@@ -215,5 +258,11 @@ namespace Bat
 		enet_address_get_host_ip( &enet_address, buf, sizeof( buf ) );
 
 		return buf;
+	}
+
+	std::string Address::ToString() const
+	{
+		std::string hostname = Networking::GetHostnameFromAddress( *this );
+		return fmt::format( "{}:{}", hostname, port );
 	}
 }
