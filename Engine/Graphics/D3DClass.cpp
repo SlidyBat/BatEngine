@@ -17,7 +17,7 @@ namespace Bat
 		m_bVSyncEnabled = vsyncEnabled;
 
 		Microsoft::WRL::ComPtr<IDXGIFactory> factory;
-		COM_THROW_IF_FAILED( CreateDXGIFactory( __uuidof(IDXGIFactory), (void**)&factory ) );
+		COM_THROW_IF_FAILED( CreateDXGIFactory( IID_PPV_ARGS( &factory ) ) );
 
 		Microsoft::WRL::ComPtr<IDXGIAdapter> adapter;
 		{
@@ -120,17 +120,13 @@ namespace Bat
 
 		if( m_pDevice->GetFeatureLevel() < D3D_FEATURE_LEVEL_11_0 )
 		{
-			BAT_ERROR( "Your feature level is unsupported, exiting..." );
-			MessageBoxA( NULL, "Device feature level not high enough", "Error", MB_ICONERROR );
+			BAT_ERROR( "Your feature level is unsupported, certain features may not work" );
 		}
 
-		ID3D11Texture2D* pBackBuffer;
-		COM_THROW_IF_FAILED( m_pSwapChain->GetBuffer( 0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer ) );
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> pBackBuffer;
+		COM_THROW_IF_FAILED( m_pSwapChain->GetBuffer( 0, IID_PPV_ARGS( &pBackBuffer ) ) );
 
-		COM_THROW_IF_FAILED( m_pDevice->CreateRenderTargetView( pBackBuffer, NULL, &m_pRenderTargetView ) );
-
-		pBackBuffer->Release();
-		pBackBuffer = nullptr;
+		COM_THROW_IF_FAILED( m_pDevice->CreateRenderTargetView( pBackBuffer.Get(), NULL, &m_pRenderTargetView ) );
 
 		//Describe our Depth/Stencil Buffer
 		D3D11_TEXTURE2D_DESC depthStencilDesc;
@@ -395,7 +391,7 @@ namespace Bat
 		COM_THROW_IF_FAILED( hr = m_pSwapChain->ResizeBuffers( 0, width, height, DXGI_FORMAT_UNKNOWN, 0 ) );
 
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> pBuffer;
-		COM_THROW_IF_FAILED( m_pSwapChain->GetBuffer( 0, __uuidof(ID3D11Texture2D), (void**)&pBuffer ) );
+		COM_THROW_IF_FAILED( m_pSwapChain->GetBuffer( 0, IID_PPV_ARGS( &pBuffer ) ) );
 
 		D3D11_TEXTURE2D_DESC depthStencilDesc;
 		depthStencilDesc.Width = (UINT)width;
