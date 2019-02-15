@@ -14,6 +14,7 @@
 #include "TexturePipeline.h"
 #include "Globals.h"
 #include "Networking.h"
+#include <ntddkbd.h>
 
 #include <imgui.h>
 

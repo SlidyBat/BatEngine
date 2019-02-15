@@ -92,9 +92,25 @@ namespace Bat
 			return ENet2BatAddress( m_pPeer->address );
 		}
 
+		virtual void Ping() const override
+		{
+			enet_peer_ping( m_pPeer );
+		}
+
 		virtual int GetPingInterval() const override
 		{
 			return (int)m_pPeer->pingInterval;
+		}
+
+		virtual void SetPingInterval(int interval) override
+		{
+			ASSERT( interval >= 0, "Ping interval must be greater than 0" );
+			enet_peer_ping_interval( m_pPeer, (enet_uint32)interval );
+		}
+
+		const ENetPeer* GetENetPeer() const
+		{
+			return m_pPeer;
 		}
 	private:
 		ENetPeer* m_pPeer;
@@ -127,7 +143,8 @@ namespace Bat
 				return nullptr;
 			}
 
-			return new ENPeer( pPeer );
+			m_vPeers.emplace_back( std::make_unique<ENPeer>( pPeer ) );
+			return m_vPeers.back().get();
 		}
 
 		virtual void Service() override
@@ -139,23 +156,23 @@ namespace Bat
 				{
 					case ENET_EVENT_TYPE_CONNECT:
 					{
-						ENPeer peer( enet_event.peer );
-						DispatchEvent<PeerConnectedEvent>( this, &peer );
+						int peer_idx = FindENetPeer( enet_event.peer );
+						DispatchEvent<PeerConnectedEvent>( this, m_vPeers[peer_idx].get() );
 						break;
 					}
 					case ENET_EVENT_TYPE_DISCONNECT:
 					{
-						ENPeer peer( enet_event.peer );
-						DispatchEvent<PeerDisconnectedEvent>( this, &peer );
+						int peer_idx = FindENetPeer( enet_event.peer );
+						DispatchEvent<PeerDisconnectedEvent>( this, m_vPeers[peer_idx].get() );
 						break;
 					}
 					case ENET_EVENT_TYPE_RECEIVE:
 					{
-						ENPeer peer( enet_event.peer );
+						int peer_idx = FindENetPeer( enet_event.peer );
 						Networking::Packet packet;
 						packet.data = reinterpret_cast<const char*>(enet_event.packet->data);
 						packet.length = enet_event.packet->dataLength;
-						DispatchEvent<PacketReceivedEvent>( this, &peer, packet, enet_event.channelID );
+						DispatchEvent<PacketReceivedEvent>( this, m_vPeers[peer_idx].get(), packet, enet_event.channelID );
 						break;
 					}
 					default:
@@ -176,8 +193,34 @@ namespace Bat
 
 			enet_host_broadcast( m_pHost, channel, pPacket );
 		}
+
+		virtual void PurgeDisconnectedPeers() override
+		{
+			m_vPeers.erase(
+				std::remove_if(m_vPeers.begin(), m_vPeers.end(), [](const std::unique_ptr<ENPeer>& pPeer)
+				{
+					return pPeer->GetState() == Networking::PeerState::DISCONNECTED;
+				} ),
+				m_vPeers.end()
+			);
+		}
+	private:
+		int FindENetPeer( const ENetPeer* pPeer ) const
+		{
+			for( size_t i = 0; i < m_vPeers.size(); i++ )
+			{
+				if( m_vPeers[i]->GetENetPeer() == pPeer )
+				{
+					return (int)i;
+				}
+			}
+
+			ASSERT( false, "Could not find peer" );
+			return -1;
+		}
 	private:
 		ENetHost* m_pHost;
+		std::vector<std::unique_ptr<ENPeer>> m_vPeers;
 	};
 
 	bool Networking::Initialize()
@@ -237,7 +280,7 @@ namespace Bat
 	{
 		ENetAddress address;
 		address.port = port;
-		enet_address_set_host( &address, ip.data() );
+		enet_address_set_host_ip( &address, ip.data() );
 
 		return { address.host, address.port };
 	}

@@ -11,7 +11,6 @@ namespace Bat
 		// Host that peer connected to
 		IHost* host;
 		// Peer that was connected
-		// WARNING: pointer will be invalidated after event
 		IPeer* peer;
 	};
 
@@ -23,7 +22,6 @@ namespace Bat
 		// Host that peer disconnected from
 		IHost* host;
 		// Peer that was disconnected
-		// WARNING: pointer will be invalidated after event
 		IPeer* peer;
 	};
 
@@ -34,7 +32,6 @@ namespace Bat
 		// Host that packet was sent to
 		IHost* host;
 		// Peer that sent the packet
-		// WARNING: pointer will be invalidated after event
 		IPeer* peer;
 		// Packet data itself
 		// WARNING: packet data will be invalidated after event,

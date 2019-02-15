@@ -52,7 +52,6 @@ namespace Bat
 			int max_in_bandwidth = 0,
 			int max_out_bandwidth = 0
 		);
-
 		static IHost* CreateServerHost(const Address& address,
 			int max_clients,
 			int max_channels,
@@ -85,9 +84,16 @@ namespace Bat
 		// will be generated.
 		virtual void Reset() = 0;
 
+		// Gets current state of the peer, see Networking::PeerState for possible values.
 		virtual Networking::PeerState GetState() const = 0;
 		virtual Address               GetAddress() const = 0;
+
+		// Sends a ping request to a peer
+		virtual void                  Ping() const = 0;
+		// Gets interval at which pings will be sent to a peer (in ms).
 		virtual int                   GetPingInterval() const = 0;
+		// Sets interval at which pings will be sent to a peer (in ms).
+		virtual void                  SetPingInterval(int interval) = 0;
 	};
 
 	class IHost : public EventDispatcher
@@ -96,7 +102,9 @@ namespace Bat
 		virtual ~IHost() = default;
 
 		// Attempts to connect to the peer on the specified address. Once the
-		// connection succeeds a CONNECT event will be generated.
+		// connection succeeds a CONNECT event will be generated. If the connection
+		// fails a DISCONNECT event will be generated instead.
+		// NOTE: the peer pointer is invalidated when the host is destroyed
 		virtual IPeer* Connect( const Address& address, int channel_count ) = 0;
 
 		// Services any incoming requests and dispatches events if there are any
@@ -105,5 +113,8 @@ namespace Bat
 		
 		// Broadcasts a packet to all connected peers
 		virtual void Broadcast( int channel, const Networking::Packet& packet ) = 0;
+
+		// Removes all references to disconnected peers internally
+		virtual void PurgeDisconnectedPeers() = 0;
 	};
 }
