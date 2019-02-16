@@ -123,7 +123,7 @@ namespace Bat
 			BAT_LOG( "[SERVER] Received packet from '{}'", e.peer->GetAddress().ToString() );
 
 			std::string data;
-			data.insert( 0, e.packet.data, e.packet.length );
+			data.assign( e.packet.data, e.packet.length );
 			BAT_LOG( "[SERVER] Packet data: {}", data );
 		} );
 	}

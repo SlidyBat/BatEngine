@@ -67,6 +67,12 @@
     <Filter Include="Header Files\Graphics\UI\ULAdapter">
       <UniqueIdentifier>{c9093607-7a2f-408f-a865-859422927fe8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Networking">
+      <UniqueIdentifier>{01d5e561-a03c-495a-a7f6-f1cebadcf1b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Networking">
+      <UniqueIdentifier>{e448631e-5bda-4560-b870-ab223bbaa802}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -90,9 +96,6 @@
     <ClCompile Include="Graphics\VertexShader.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Util\GDIPManager.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\TexturePipeline.cpp">
       <Filter>Source Files\Graphics\Pipelines</Filter>
     </ClCompile>
@@ -101,9 +104,6 @@
     </ClCompile>
     <ClCompile Include="Util\FrameTimer.cpp">
       <Filter>Source Files\Util</Filter>
-    </ClCompile>
-    <ClCompile Include="MoveableCamera.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ThirdParty\ImGui\imgui.cpp">
       <Filter>Source Files\Graphics\ImGui</Filter>
@@ -150,9 +150,6 @@
     <ClCompile Include="PCH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BloomPostProcess.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\SceneLoader.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
@@ -171,26 +168,14 @@
     <ClCompile Include="Util\StringLib.cpp">
       <Filter>Source Files\Util</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\IndexBuffer.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\ConstantBuffer.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="COMInitialize.cpp">
-      <Filter>Source Files\Platform</Filter>
-    </ClCompile>
-    <ClCompile Include="Input.cpp">
-      <Filter>Source Files\Platform</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\Light.cpp">
       <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Log.cpp">
-      <Filter>Source Files\Core</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Material.cpp">
       <Filter>Source Files\Graphics</Filter>
@@ -203,15 +188,6 @@
     </ClCompile>
     <ClCompile Include="Graphics\Model.cpp">
       <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="ResourceManager.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Window.cpp">
-      <Filter>Source Files\Platform</Filter>
-    </ClCompile>
-    <ClCompile Include="Globals.cpp">
-      <Filter>Source Files\Core</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\UI\BatUI.cpp">
       <Filter>Source Files\Graphics\UI</Filter>
@@ -228,14 +204,44 @@
     <ClCompile Include="Core\Entity.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Console.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Graphics\BloomPostProcess.cpp">
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="TokenStream.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Platform\COMInitialize.cpp">
+      <Filter>Source Files\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Log.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\Window.cpp">
+      <Filter>Source Files\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\GDIPManager.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\Input.cpp">
+      <Filter>Source Files\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Scene.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\ResourceManager.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Globals.cpp">
+      <Filter>Source Files\Core</Filter>
     </ClCompile>
     <ClCompile Include="Networking\Networking.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\TokenStream.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Console.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\MoveableCamera.cpp">
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -286,9 +292,6 @@
     </ClInclude>
     <ClInclude Include="Util\FrameTimer.h">
       <Filter>Header Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="MoveableCamera.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\ImGui\imconfig.h">
       <Filter>Header Files\Graphics\ImGui</Filter>
@@ -359,15 +362,6 @@
     <ClInclude Include="PCH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BloomPostProcess.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ILayer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\SceneLoader.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
@@ -379,9 +373,6 @@
     </ClInclude>
     <ClInclude Include="Util\PoolAllocator.h">
       <Filter>Header Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Common.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Events\KeyboardEvents.h">
       <Filter>Header Files\Events</Filter>
@@ -401,29 +392,8 @@
     <ClInclude Include="Core\Entity.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="BatWinAPI.h">
-      <Filter>Header Files\Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourceManager.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Globals.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Input.h">
-      <Filter>Header Files\Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="Log.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
     <ClInclude Include="Events\MouseEvents.h">
       <Filter>Header Files\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="Window.h">
-      <Filter>Header Files\Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="COMInitialize.h">
-      <Filter>Header Files\Platform</Filter>
     </ClInclude>
     <ClInclude Include="Util\MathLib.h">
       <Filter>Header Files\Core</Filter>
@@ -436,12 +406,6 @@
     </ClInclude>
     <ClInclude Include="Util\COMException.h">
       <Filter>Header Files\Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\GDIPManager.h">
-      <Filter>Header Files\Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="ChunkedAllocator.h">
-      <Filter>Header Files\Util</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\UI\BatUI.h">
       <Filter>Header Files\Graphics\UI</Filter>
@@ -461,14 +425,56 @@
     <ClInclude Include="Core\Console.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="TokenStream.h">
+    <ClInclude Include="Graphics\BloomPostProcess.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\BatWinAPI.h">
+      <Filter>Header Files\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\COMInitialize.h">
+      <Filter>Header Files\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Log.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\Window.h">
+      <Filter>Header Files\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\GDIPManager.h">
+      <Filter>Header Files\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\TokenStream.h">
       <Filter>Header Files\Util</Filter>
     </ClInclude>
+    <ClInclude Include="Util\ChunkedAllocator.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\Input.h">
+      <Filter>Header Files\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Scene.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\ResourceManager.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Globals.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
     <ClInclude Include="Networking\Networking.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Networking</Filter>
     </ClInclude>
     <ClInclude Include="Events\NetworkEvents.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Common.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\ILayer.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\MoveableCamera.h">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

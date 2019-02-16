@@ -90,7 +90,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\Core;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)\Networking;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Core;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)Networking;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -118,7 +118,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDi
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\Core;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)\Networking;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Core;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)Networking;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -148,7 +148,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDi
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\Core;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)\Networking;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Core;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)Networking;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;%(PreprocessorDefinitions);NDEBUG</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -180,7 +180,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDi
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\Core;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)\Networking;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Core;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)Networking;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;%(PreprocessorDefinitions);NDEBUG</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -207,7 +207,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDi
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
-    <ClCompile Include="BloomPostProcess.cpp" />
+    <ClCompile Include="Graphics\BloomPostProcess.cpp" />
     <ClCompile Include="Core\Console.cpp" />
     <ClCompile Include="Core\Entity.cpp" />
     <ClCompile Include="Graphics\UI\BatUI.cpp" />
@@ -215,7 +215,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDi
     <ClCompile Include="Graphics\UI\UltralightAdapters\FontLoaderWin.cpp" />
     <ClCompile Include="Graphics\UI\UltralightAdapters\GPUDriverD3D11.cpp" />
     <ClCompile Include="Networking\Networking.cpp" />
-    <ClCompile Include="TokenStream.cpp" />
+    <ClCompile Include="Util\TokenStream.cpp" />
     <ClCompile Include="Util\FileWatchdog.cpp" />
     <ClCompile Include="Graphics\IndexBuffer.cpp" />
     <ClCompile Include="Graphics\Material.cpp" />
@@ -233,21 +233,21 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDi
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PCH.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="Graphics\BumpMapPipeline.cpp" />
-    <ClCompile Include="COMInitialize.cpp" />
+    <ClCompile Include="Platform\COMInitialize.cpp" />
     <ClCompile Include="Graphics\GenericPostProcess.cpp" />
     <ClCompile Include="Graphics\ConstantBuffer.cpp" />
     <ClCompile Include="Graphics\Light.cpp" />
     <ClCompile Include="Graphics\RenderContext.cpp" />
-    <ClCompile Include="ResourceManager.cpp" />
-    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Core\ResourceManager.cpp" />
+    <ClCompile Include="Graphics\Scene.cpp" />
     <ClCompile Include="Util\JobSystem.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Log.cpp" />
-    <ClCompile Include="MoveableCamera.cpp" />
+    <ClCompile Include="Core\Log.cpp" />
+    <ClCompile Include="Graphics\MoveableCamera.cpp" />
     <ClCompile Include="Graphics\RenderTexture.cpp" />
     <ClCompile Include="Graphics\SkyboxPipeline.cpp" />
     <ClCompile Include="Util\StackAllocator.cpp">
@@ -298,20 +298,20 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDi
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Globals.cpp" />
+    <ClCompile Include="Core\Globals.cpp" />
     <ClCompile Include="Graphics\Camera.cpp" />
     <ClCompile Include="Graphics\ColourPipeline.cpp" />
     <ClCompile Include="Graphics\D3DClass.cpp" />
     <ClCompile Include="Graphics\LightPipeline.cpp" />
     <ClCompile Include="Graphics\SceneLoader.cpp" />
-    <ClCompile Include="Util\GDIPManager.cpp">
+    <ClCompile Include="Platform\GDIPManager.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Graphics\Graphics.cpp" />
-    <ClCompile Include="Input.cpp" />
+    <ClCompile Include="Platform\Input.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Graphics\PixelShader.cpp" />
     <ClCompile Include="Graphics\Texture.cpp" />
@@ -325,11 +325,11 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDi
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Util\StringLib.cpp" />
-    <ClCompile Include="Window.cpp" />
+    <ClCompile Include="Platform\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
-    <ClInclude Include="ChunkedAllocator.h" />
+    <ClInclude Include="Util\ChunkedAllocator.h" />
     <ClInclude Include="Core\Console.h" />
     <ClInclude Include="Core\Entity.h" />
     <ClInclude Include="Core\EntityEvents.h" />
@@ -340,28 +340,28 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDi
     <ClInclude Include="Graphics\UI\UltralightAdapters\GPUDriverD3D11.h" />
     <ClInclude Include="Graphics\UI\UltralightAdapters\PlatformD3D11.h" />
     <ClInclude Include="Networking\Networking.h" />
-    <ClInclude Include="TokenStream.h" />
+    <ClInclude Include="Util\TokenStream.h" />
     <ClInclude Include="Util\BatAssert.h" />
-    <ClInclude Include="BloomPostProcess.h" />
-    <ClInclude Include="Common.h" />
+    <ClInclude Include="Graphics\BloomPostProcess.h" />
+    <ClInclude Include="Core\Common.h" />
     <ClInclude Include="Util\FileWatchdog.h" />
     <ClInclude Include="Events\MouseEvents.h" />
     <ClInclude Include="Util\Mutex.h" />
     <ClInclude Include="PCH.h" />
     <ClInclude Include="Events\Event.h" />
     <ClInclude Include="Graphics\BumpMapPipeline.h" />
-    <ClInclude Include="COMInitialize.h" />
+    <ClInclude Include="Platform\COMInitialize.h" />
     <ClInclude Include="Graphics\Light.h" />
     <ClInclude Include="Graphics\Material.h" />
     <ClInclude Include="Graphics\GenericPostProcess.h" />
     <ClInclude Include="Graphics\IPostProcess.h" />
     <ClInclude Include="Graphics\RenderContext.h" />
-    <ClInclude Include="ResourceManager.h" />
-    <ClInclude Include="Scene.h" />
+    <ClInclude Include="Core\ResourceManager.h" />
+    <ClInclude Include="Graphics\Scene.h" />
     <ClInclude Include="Util\JobSystem.h" />
     <ClInclude Include="Events\KeyboardEvents.h" />
-    <ClInclude Include="Log.h" />
-    <ClInclude Include="MoveableCamera.h" />
+    <ClInclude Include="Core\Log.h" />
+    <ClInclude Include="Graphics\MoveableCamera.h" />
     <ClInclude Include="Graphics\RenderTexture.h" />
     <ClInclude Include="Graphics\SkyboxPipeline.h" />
     <ClInclude Include="Util\PoolAllocator.h" />
@@ -376,7 +376,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDi
     <ClInclude Include="ThirdParty\ImGui\imstb_textedit.h" />
     <ClInclude Include="ThirdParty\ImGui\imstb_truetype.h" />
     <ClInclude Include="Util\FrameTimer.h" />
-    <ClInclude Include="Globals.h" />
+    <ClInclude Include="Core\Globals.h" />
     <ClInclude Include="Graphics\Camera.h" />
     <ClInclude Include="Graphics\Colour.h" />
     <ClInclude Include="Graphics\ColourPipeline.h" />
@@ -386,8 +386,8 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDi
     <ClInclude Include="Util\COMException.h" />
     <ClInclude Include="Graphics\ConstantBuffer.h" />
     <ClInclude Include="Graphics\D3DClass.h" />
-    <ClInclude Include="ILayer.h" />
-    <ClInclude Include="Util\GDIPManager.h" />
+    <ClInclude Include="Core\ILayer.h" />
+    <ClInclude Include="Platform\GDIPManager.h" />
     <ClInclude Include="Graphics\Graphics.h" />
     <ClInclude Include="Graphics\IndexBuffer.h" />
     <ClInclude Include="Graphics\IPipeline.h" />
@@ -395,15 +395,15 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDi
     <ClInclude Include="Graphics\PixelShader.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Graphics\Texture.h" />
-    <ClInclude Include="Input.h" />
+    <ClInclude Include="Platform\Input.h" />
     <ClInclude Include="Graphics\TexturePipeline.h" />
-    <ClInclude Include="BatWinAPI.h" />
+    <ClInclude Include="Platform\BatWinAPI.h" />
     <ClInclude Include="Util\MathLib.h" />
     <ClInclude Include="Graphics\VertexTypes.h" />
     <ClInclude Include="Graphics\VertexBuffer.h" />
     <ClInclude Include="Graphics\VertexShader.h" />
     <ClInclude Include="Util\MemoryStream.h" />
-    <ClInclude Include="Window.h" />
+    <ClInclude Include="Platform\Window.h" />
     <ClInclude Include="Events\WindowEvents.h" />
   </ItemGroup>
   <ItemGroup>
