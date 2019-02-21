@@ -26,7 +26,7 @@ namespace Bat
 		template <typename... Args>
 		inline void AssertMessage( const std::string& expr, const std::string& file, const std::string& function, int line, Args&&... args )
 		{
-			std::string msg = fmt::format( std::forward<Args>( args )... );
+			std::string msg = Bat::Format( std::forward<Args>( args )... );
 
 			const std::string errormsg = "Failed assertion: '" + expr + "'\n" +
 				msg + "\n\n" +

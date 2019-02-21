@@ -20,7 +20,7 @@ namespace Bat
 		template <typename... Args>
 		void AddLog( const std::string& format, Args&&... args )
 		{
-			Items.push_back(fmt::format( format, std::forward<Args&&>( args )... ));
+			Items.push_back( Bat::Format( format, args ) );
 			ScrollToBottom = true;
 		}
 		void ClearLog();

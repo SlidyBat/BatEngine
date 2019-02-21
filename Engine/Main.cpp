@@ -76,7 +76,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 	catch( const _com_error& e )
 	{
 		MessageBox( NULL,
-			fmt::format( "{}\nFile: {}\nSource: {}\nDescription: {}\n",
+			Bat::Format( "{}\nFile: {}\nSource: {}\nDescription: {}\n",
 				e.ErrorMessage(),
 				(const char*)e.HelpFile(),
 				(const char*)e.Source(),
