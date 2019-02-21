@@ -7,7 +7,7 @@ namespace Bat
 {
 	std::shared_ptr<spdlog::logger> g_pLogger;
 
-	void Logger::Init()
+	void Logger::Initialize()
 	{
 		AllocConsole();
 		SetConsoleTitleA( "Bat Engine Console" );

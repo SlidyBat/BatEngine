@@ -11,44 +11,44 @@
 #include "Graphics.h"
 #include "FileWatchdog.h"
 #include "Application.h"
-#include <spdlog/fmt/fmt.h>
-
-#include "Core/Entity.h"
 
 using namespace Bat;
 
-struct PositionComponent : Component<PositionComponent>
+static void InitializeSubsystems()
 {
-	PositionComponent( float x, float y, float z )
-		:
-		x( x ),
-		y( y ),
-		z( z )
-	{}
+	Logger::Initialize();
+	BAT_TRACE( "Initialized logger" );
+	Networking::Initialize();
+	BAT_TRACE( "Initialized networking" );
+	JobSystem::Initialize();
+	BAT_TRACE("Initialized job system");
+	FileWatchdog::Initialize();
+	BAT_TRACE( "Initialized file watchdog" );
+}
 
-	float x, y, z;
-};
+static void DestroySubsystems()
+{
+	FileWatchdog::Shutdown();
+	BAT_TRACE( "Shut down file watchdog" );
+	JobSystem::Shutdown();
+	BAT_TRACE("Shut down job system");
+	Networking::Shutdown();
+	BAT_TRACE( "Shut down networking" );
+	Logger::Shutdown();
+	BAT_TRACE( "Shut down logger" );
+}
 
 int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow )
 {
 	try
 	{
 		COMInitialize coinit;
-		Logger::Init();
-		BAT_LOG( "Initialized logger" );
-		Networking::Initialize();
-		BAT_LOG( "INitialized networking" );
-		JobSystem::Initialize();
-		BAT_TRACE("Initialized job system");
-		FileWatchdog::Initialize();
-		BAT_TRACE( "Initialized file watchdog" );
+		InitializeSubsystems();
 
 		Window wnd( { 50, 50 }, Graphics::InitialScreenWidth, Graphics::InitialScreenHeight, "Bat Engine", Graphics::FullScreen );
 		BAT_TRACE( "Initialized window" );
 		Graphics gfx( wnd );
 		BAT_TRACE( "Initialized graphics" );
-
-		BAT_LOG( "Cores available: {}", std::thread::hardware_concurrency() );
 
 		FrameTimer ft;
 
@@ -62,7 +62,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 			app.OnUpdate( dt );
 
 			gfx.BeginFrame();
-			
+
 			app.OnRender();
 			g_Console.Draw("Bat Engine Console");
 
@@ -87,9 +87,8 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 		);
 	}
 
-	FileWatchdog::Shutdown();
 	ResourceManager::CleanUp();
-	Networking::Shutdown();
+	DestroySubsystems();
 
 	return 0;
 }

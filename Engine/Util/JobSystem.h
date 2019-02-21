@@ -18,6 +18,8 @@ namespace Bat
 	public:
 		// Create the internal resources such as worker threads, etc. Call it once when initializing the application.
 		static void Initialize();
+		// Clean up any allocated resource
+		static void Shutdown();
 
 		// Add a job to execute asynchronously. Any idle thread will execute this job.
 		static void Execute(const std::function<void()>& job);

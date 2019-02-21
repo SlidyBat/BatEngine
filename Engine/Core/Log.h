@@ -21,7 +21,8 @@ namespace Bat
 	class Logger
 	{
 	public:
-		static void Init();
+		static void Initialize();
+		static void Shutdown() {}
 		static std::shared_ptr<spdlog::logger> GetLogger();
 	};
 }
