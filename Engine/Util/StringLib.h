@@ -4,6 +4,7 @@
 #include <string_view>
 #include <sstream>
 #include <vector>
+#include <spdlog/fmt/fmt.h>
 
 namespace Bat
 {
@@ -32,4 +33,10 @@ namespace Bat
 	std::string Trim( std::string_view str );
 	std::string ToLower( std::string str );
 	std::string ToUpper( std::string str );
+
+	template <typename... Args>
+	std::string Format( const std::string& fmt, Args&&... args )
+	{
+		return fmt::format( fmt, std::forward<Args>(args)... );
+	}
 }
