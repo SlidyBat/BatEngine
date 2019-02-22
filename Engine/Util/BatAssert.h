@@ -1,8 +1,7 @@
 #pragma once
 
 #include "BatWinAPI.h"
-#include <string>
-#include <spdlog/fmt/fmt.h>
+#include "StringLib.h"
 
 #ifdef _DEBUG
 #define ENGINE_ENABLE_ASSERTS

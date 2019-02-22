@@ -4,7 +4,6 @@
 #include <vector>
 #include <functional>
 #include "StringLib.h"
-#include <spdlog/fmt/fmt.h>
 
 namespace Bat
 {
@@ -18,9 +17,9 @@ namespace Bat
 		Console();
 
 		template <typename... Args>
-		void AddLog( const std::string& format, Args&&... args )
+		void AddLog( std::string_view format, Args&&... args )
 		{
-			Items.push_back( Bat::Format( format, args ) );
+			Items.push_back( Bat::Format( format, std::forward<Args>( args )... ) );
 			ScrollToBottom = true;
 		}
 		void ClearLog();

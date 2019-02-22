@@ -28,11 +28,11 @@ namespace Bat
 		client = Networking::CreateClientHost( 1, 1 );
 		client->OnEventDispatched<PeerConnectedEvent>( []( const PeerConnectedEvent& e )
 		{
-			BAT_LOG( "[CLIENT] Peer '{}' connected", e.peer->GetAddress().ToString() );
+			BAT_LOG( "[CLIENT] Peer '%s' connected", e.peer->GetAddress().ToString() );
 		} );
 		client->OnEventDispatched<PeerDisconnectedEvent>( []( const PeerDisconnectedEvent& e )
 		{
-			BAT_LOG( "[CLIENT] Peer '{}' disconnected", e.peer->GetAddress().ToString() );
+			BAT_LOG( "[CLIENT] Peer '%s' disconnected", e.peer->GetAddress().ToString() );
 		} );
 
 		wnd.input.OnEventDispatched<KeyPressedEvent>( []( const KeyPressedEvent& e )
@@ -46,7 +46,7 @@ namespace Bat
 
 		g_Console.AddCommand( "test_command", []( const CommandArgs_t& args )
 		{
-			BAT_LOG( "You wrote: '{}'", Bat::JoinStrings( args ) );
+			BAT_LOG( "You wrote: '%s'", Bat::JoinStrings( args ) );
 		} );
 
 		g_Console.AddCommand( "connect", BIND_MEM_FN( Application::OnConnectCmd ) );
@@ -85,7 +85,7 @@ namespace Bat
 
 	void Application::OnConnectCmd( const CommandArgs_t& args )
 	{
-		BAT_LOG( "Attempting to connect to '{}'...", args[1] );
+		BAT_LOG( "Attempting to connect to '%s'...", args[1] );
 
 		auto strs = Bat::SplitString( args[1], ':' );
 
@@ -109,7 +109,7 @@ namespace Bat
 
 	void Application::OnServerCmd( const CommandArgs_t& args )
 	{
-		BAT_LOG( "Attempting to create server on '{}'...", args[1] );
+		BAT_LOG( "Attempting to create server on '%s'...", args[1] );
 
 		Address addr;
 		addr.host = Networking::HOST_ANY;
@@ -120,17 +120,17 @@ namespace Bat
 
 		server->OnEventDispatched<PacketReceivedEvent>( []( const PacketReceivedEvent& e )
 		{
-			BAT_LOG( "[SERVER] Received packet from '{}'", e.peer->GetAddress().ToString() );
+			BAT_LOG( "[SERVER] Received packet from '%s'", e.peer->GetAddress().ToString() );
 
 			std::string data;
 			data.assign( e.packet.data, e.packet.length );
-			BAT_LOG( "[SERVER] Packet data: {}", data );
+			BAT_LOG( "[SERVER] Packet data: %s", data );
 		} );
 	}
 
 	void Application::OnSendCmd( const CommandArgs_t& args )
 	{
-		BAT_LOG( "Attempting to send '{}'...", args[1] );
+		BAT_LOG( "Attempting to send '%s'...", args[1] );
 
 		if( !peers.size() )
 		{

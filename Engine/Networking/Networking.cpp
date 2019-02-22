@@ -306,6 +306,6 @@ namespace Bat
 	std::string Address::ToString() const
 	{
 		std::string hostname = Networking::GetHostnameFromAddress( *this );
-		return Bat::Format( "{}:{}", hostname, port );
+		return Bat::Format( "%i:%i", hostname, port );
 	}
 }

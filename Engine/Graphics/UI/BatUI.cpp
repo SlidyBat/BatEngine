@@ -33,17 +33,17 @@ namespace Bat
 			switch( level )
 			{
 				case kMessageLevel_Log:
-					BAT_LOG( "{}", message.utf8().data() );
+					BAT_LOG( message.utf8().data() );
 					break;
 				case kMessageLevel_Warning:
-					BAT_WARN( "{}", message.utf8().data() );
+					BAT_WARN( message.utf8().data() );
 					break;
 				case kMessageLevel_Error:
-					BAT_ERROR( "{}", message.utf8().data() );
+					BAT_ERROR( message.utf8().data() );
 					break;
 				case kMessageLevel_Debug:
 				case kMessageLevel_Info:
-					BAT_TRACE( "{}", message.utf8().data() );
+					BAT_TRACE( message.utf8().data() );
 					break;
 			}
 		}

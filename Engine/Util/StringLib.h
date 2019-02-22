@@ -5,6 +5,7 @@
 #include <sstream>
 #include <vector>
 #include <spdlog/fmt/fmt.h>
+#include <spdlog/fmt/bundled/printf.h>
 
 namespace Bat
 {
@@ -35,8 +36,8 @@ namespace Bat
 	std::string ToUpper( std::string str );
 
 	template <typename... Args>
-	std::string Format( const std::string& fmt, Args&&... args )
+	std::string Format( std::string_view fmt, Args&&... args )
 	{
-		return fmt::format( fmt, std::forward<Args>(args)... );
+		return fmt::sprintf( fmt, std::forward<Args>( args )... );
 	}
 }

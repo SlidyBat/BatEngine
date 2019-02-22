@@ -122,7 +122,7 @@ namespace Bat
 		auto it = Commands.find( command );
 		if( it != Commands.end() )
 		{
-			BAT_WARN( "Command '{}' registered more than once", command );
+			BAT_WARN( "Command '%s' registered more than once", command );
 		}
 #endif
 
@@ -131,7 +131,7 @@ namespace Bat
 
 	void Console::ExecCommand( const std::string& command_line )
 	{
-		AddLog("# {}\n", command_line);
+		AddLog("# %s\n", command_line);
 
 		// Insert into history. First find match and delete it so it can be pushed to the back. This isn't trying to be smart or optimal.
 		HistoryPos = -1;
@@ -193,7 +193,7 @@ namespace Bat
 
 				if (candidates.size() == 0)
 				{
-					AddLog("No match for \"{}\"!\n", word_start);
+					AddLog("No match for \"%s\"!\n", word_start);
 				}
 				else if (candidates.size() == 1)
 				{
@@ -229,7 +229,7 @@ namespace Bat
 					// List matches
 					AddLog("Possible matches:\n");
 					for (size_t i = 0; i < candidates.size(); i++)
-						AddLog("- {}\n", candidates[i]);
+						AddLog("- %s\n", candidates[i]);
 				}
 
 				break;

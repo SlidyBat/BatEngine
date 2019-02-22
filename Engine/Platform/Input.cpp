@@ -16,8 +16,8 @@ namespace Bat
 
 	void Input::OnKeyChar( const size_t key, bool repeated )
 	{
-		ASSERT( key >= 0, "Invalid keyboard key '{}'", key );
-		ASSERT( key < MaxKeys, "Invalid keyboard key '{}'", key );
+		ASSERT( key >= 0, "Invalid keyboard key '%i'", key );
+		ASSERT( key < MaxKeys, "Invalid keyboard key '%i'", key );
 
 		DispatchEvent<KeyCharEvent>( key, repeated );
 	}
@@ -30,8 +30,8 @@ namespace Bat
 			return;
 		}
 
-		ASSERT( key >= 0, "Invalid keyboard key '{}'", key );
-		ASSERT( key < MaxKeys, "Invalid keyboard key '{}'", key );
+		ASSERT( key >= 0, "Invalid keyboard key '%i'", key );
+		ASSERT( key < MaxKeys, "Invalid keyboard key '%i'", key );
 
 		m_bKeyIsPressed[key] = true;
 
@@ -40,8 +40,8 @@ namespace Bat
 
 	void Input::OnKeyUp( const size_t key )
 	{
-		ASSERT( key >= 0, "Invalid keyboard key '{}'", key );
-		ASSERT( key < MaxKeys, "Invalid keyboard key '{}'", key );
+		ASSERT( key >= 0, "Invalid keyboard key '%i'", key );
+		ASSERT( key < MaxKeys, "Invalid keyboard key '%i'", key );
 
 		m_bKeyIsPressed[key] = false;
 

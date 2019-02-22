@@ -328,8 +328,8 @@ namespace Bat
 	{
 		if( !std::ifstream( filename ) )
 		{
-			BAT_WARN( "Could not open model file '{}'", filename );
-			ASSERT( false, "Could not open model file '{}'", filename );
+			BAT_WARN( "Could not open model file '%s'", filename );
+			ASSERT( false, "Could not open model file '%s'", filename );
 			return {};
 		}
 		
@@ -345,15 +345,15 @@ namespace Bat
 
 		if( pAssimpScene == nullptr )
 		{
-			ASSERT( false, "Failed to load model '{}'", filename );
-			BAT_WARN( "Failed to load model '{}'", filename );
+			ASSERT( false, "Failed to load model '%s'", filename );
+			BAT_WARN( "Failed to load model '%s'", filename );
 			return {};
 		}
 
 		ProcessNode( pAssimpScene->mRootNode, pAssimpScene, scene.GetRootNode(), directory );
 
 		float time = ft.Mark();
-		BAT_LOG( "Loaded model '{}' in {}s", filename, time );
+		BAT_LOG( "Loaded model '%s' in %.2fs", filename, time );
 
 		g_LoadedMeshes.clear();
 

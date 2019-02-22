@@ -113,10 +113,10 @@ namespace Bat
 			&swapChainDesc, &m_pSwapChain,
 			&m_pDevice, NULL, &m_pDeviceContext ) );
 
-		BAT_LOG( "Using video card '{}' with {}MB VRAM",
+		BAT_LOG( "Using video card '%s' with %iMB VRAM",
 			Bat::WideToString( m_szVideoCardDescription ),
 			m_iVideoCardMemory );
-		BAT_LOG( "Device feature level: {}", FeatureLevel2String( m_pDevice->GetFeatureLevel() ) );
+		BAT_LOG( "Device feature level: %s", FeatureLevel2String( m_pDevice->GetFeatureLevel() ) );
 
 		if( m_pDevice->GetFeatureLevel() < D3D_FEATURE_LEVEL_11_0 )
 		{
@@ -344,14 +344,14 @@ namespace Bat
 				{
 					case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_INFO:
 					case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_MESSAGE:
-						BAT_LOG( "{}", pMessage->pDescription );
+						BAT_LOG( pMessage->pDescription );
 						break;
 					case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_WARNING:
-						BAT_WARN( "{}", pMessage->pDescription );
+						BAT_WARN( pMessage->pDescription );
 						break;
 					case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR:
 					case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION:
-						BAT_ERROR( "{}", pMessage->pDescription );
+						BAT_ERROR( pMessage->pDescription );
 				}
 
 				free( pMessage );

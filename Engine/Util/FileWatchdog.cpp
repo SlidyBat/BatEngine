@@ -86,7 +86,7 @@ namespace Bat
 				}
 				default:
 				{
-					ASSERT( false, "Unhandled wait status ({})", status );
+					ASSERT( false, "Unhandled wait status (%i)", status );
 
 					break;
 				}
@@ -105,7 +105,7 @@ namespace Bat
 			FILE_NOTIFY_CHANGE_LAST_WRITE
 		);
 
-		ASSERT( filechange_handle != INVALID_HANDLE_VALUE, "Failed to create change handle. {}", GetLastWinErrorAsString() );
+		ASSERT( filechange_handle != INVALID_HANDLE_VALUE, "Failed to create change handle. %s", GetLastWinErrorAsString() );
 
 		watcher_thread = std::thread( WatchFiles );
 	}
@@ -125,7 +125,7 @@ namespace Bat
 		std::filesystem::path path( filename );
 		if( !std::filesystem::exists( path ) )
 		{
-			ASSERT( false, "Path '{}' does not exist.", path.string() );
+			ASSERT( false, "Path '%s' does not exist.", path.string() );
 			return INVALID_WATCH_HANDLE;
 		}
 

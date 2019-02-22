@@ -178,7 +178,7 @@ namespace Bat
 					}
 					else
 					{
-						BAT_ERROR( "{}", Bat::Trim( error ) );
+						BAT_ERROR( Bat::Trim( error ) );
 						return;
 					}
 				}
@@ -190,7 +190,7 @@ namespace Bat
 					}
 					else
 					{
-						BAT_ERROR( "Failed to compile vertex shader file '{}'.", filename_converted );
+						BAT_ERROR( "Failed to compile vertex shader file '%s'.", filename_converted );
 						return;
 					}
 				}
