@@ -40,4 +40,9 @@ namespace Bat
 	{
 		return fmt::sprintf( fmt, std::forward<Args>( args )... );
 	}
+	template <typename... Args>
+	int Scan( const std::string& buf, std::string_view fmt, Args&&... args )
+	{
+		return sscanf_s( buf.c_str(), fmt.data(), args... );
+	}
 }
