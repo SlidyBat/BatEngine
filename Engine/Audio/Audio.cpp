@@ -194,69 +194,83 @@ namespace Bat
 			m_pSoundEngine->drop();
 		}
 
-		virtual ISound* Play( const std::string& sndname, int flags ) override
+		virtual void Play( const std::string& sndname, bool loop ) override
+		{
+			irrklang::ISound* ik_sound = m_pSoundEngine->play2D( sndname.c_str(), loop );
+		}
+		virtual void Play( const SoundSource_t snd, bool loop ) override
+		{
+			auto ik_snd = ( irrklang::ISoundSource* )snd;
+			irrklang::ISound* ik_sound = m_pSoundEngine->play2D( ik_snd, loop );
+		}
+		virtual ISound* PlayEx( const std::string& sndname, int flags ) override
 		{
 			bool loop = ( flags & SOUND_LOOP );
 			bool paused = ( flags & SOUND_START_PAUSED );
-			bool track = ( flags & SOUND_TRACK );
 			bool enable_effects = ( flags & SOUND_ENABLE_SOUND_EFFECTS );
 			irrklang::ISound* ik_sound = m_pSoundEngine->play2D( sndname.c_str(),
 				loop,
 				paused,
-				track,
+				true,
 				irrklang::ESM_AUTO_DETECT,
 				enable_effects
 			);
 
 			return new IrrKlangSound( ik_sound );
 		}
-		virtual ISound* Play( const SoundSource_t snd, int flags ) override
+		virtual ISound* PlayEx( const SoundSource_t snd, int flags ) override
 		{
 			auto ik_snd = ( irrklang::ISoundSource* )snd;
 
 			bool loop = ( flags & SOUND_LOOP );
 			bool paused = ( flags & SOUND_START_PAUSED );
-			bool track = ( flags & SOUND_TRACK );
 			bool enable_effects = ( flags & SOUND_ENABLE_SOUND_EFFECTS );
 			irrklang::ISound* ik_sound = m_pSoundEngine->play2D( ik_snd,
 				loop,
 				paused,
-				track,
+				true,
 				enable_effects
 			);
 
 			return new IrrKlangSound( ik_sound );
 		}
-		virtual ISound* Play3D( const std::string& sndname, const Vec3& pos, int flags ) override
+		virtual void Play3D( const std::string& sndname, const Vec3& pos, bool loop ) override
+		{
+			irrklang::ISound* ik_sound = m_pSoundEngine->play3D( sndname.c_str(), Bat2IrrKlangVec3f( pos ), loop );
+		}
+		virtual void Play3D( const SoundSource_t snd, const Vec3& pos, bool loop ) override
+		{
+			auto ik_snd = ( irrklang::ISoundSource* )snd;
+			irrklang::ISound* ik_sound = m_pSoundEngine->play3D( ik_snd, Bat2IrrKlangVec3f( pos ), loop );
+		}
+		virtual ISound* Play3DEx( const std::string& sndname, const Vec3& pos, int flags ) override
 		{
 			bool loop = ( flags & SOUND_LOOP );
 			bool paused = ( flags & SOUND_START_PAUSED );
-			bool track = ( flags & SOUND_TRACK );
 			bool enable_effects = ( flags & SOUND_ENABLE_SOUND_EFFECTS );
 			irrklang::ISound* ik_sound = m_pSoundEngine->play3D( sndname.c_str(),
 				Bat2IrrKlangVec3f( pos ),
 				loop,
 				paused,
-				track,
+				true,
 				irrklang::ESM_AUTO_DETECT,
 				enable_effects
 			);
 
 			return new IrrKlangSound( ik_sound );
 		}
-		virtual ISound* Play3D( const SoundSource_t snd, const Vec3& pos, int flags ) override
+		virtual ISound* Play3DEx( const SoundSource_t snd, const Vec3& pos, int flags ) override
 		{
 			auto ik_snd = ( irrklang::ISoundSource* )snd;
 
 			bool loop = ( flags & SOUND_LOOP );
 			bool paused = ( flags & SOUND_START_PAUSED );
-			bool track = ( flags & SOUND_TRACK );
 			bool enable_effects = ( flags & SOUND_ENABLE_SOUND_EFFECTS );
 			irrklang::ISound* ik_sound = m_pSoundEngine->play3D( ik_snd,
 				Bat2IrrKlangVec3f( pos ),
 				loop,
 				paused,
-				track,
+				true,
 				enable_effects
 			);
 

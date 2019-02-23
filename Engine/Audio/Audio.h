@@ -68,8 +68,7 @@ namespace Bat
 	{
 		SOUND_LOOP = (1 << 0),                 // sound will loop back to start once finished
 		SOUND_START_PAUSED = (1 << 1),         // sound starts in paused state
-		SOUND_TRACK = (1 << 2),                // if enabled the sound will be tracked via pointer and can be modified mid-playback
-		SOUND_ENABLE_SOUND_EFFECTS = (1 << 3), // allows you to use sound effects, only enable this when necessary
+		SOUND_ENABLE_SOUND_EFFECTS = (1 << 2), // allows you to use sound effects, only enable this when necessary
 	};
 
 	class Audio
@@ -141,21 +140,33 @@ namespace Bat
 		virtual ~ISoundEngine() = default;
 
 		// Loads the file (if not already loaded) with specified name and plays it
-		// Returns a ISound* if start paused, track, or enable effects flags are enabled
-		// NOTE: If an ISound* is returned it must be deleted
-		virtual ISound* Play( const std::string& sndname, int flags = 0 ) = 0;
+		virtual void Play( const std::string& sndname, bool loop = false ) = 0;
 		// Plays the sound from the specified source
-		// Returns a ISound* if start paused, track, or enable effects flags are enabled
-		// NOTE: If an ISound* is returned it must be deleted
-		virtual ISound* Play( const SoundSource_t snd, int flags = 0 ) = 0;
+		virtual void Play( const SoundSource_t snd, bool loop = false ) = 0;
+		// Loads the file (if not already loaded) with specified name and plays it
+		// The extended version tracks the sound via pointer and lets you have greater control over it
+		// through the ISound interface, as well as having additional flags available (see SoundPlaybackFlags)
+		// NOTE: the returned pointer must be deleted when no longer needed
+		virtual ISound* PlayEx( const std::string& sndname, int flags = 0 ) = 0;
+		// Plays the sound from the specified source
+		// The extended version tracks the sound via pointer and lets you have greater control over it
+		// through the ISound interface, as well as having additional flags available (see SoundPlaybackFlags)
+		// NOTE: the returned pointer must be deleted when no longer needed
+		virtual ISound* PlayEx( const SoundSource_t snd, int flags = 0 ) = 0;
 		// Loads the file (if not already loaded) with specified name and plays it as a 3d sound
-		// Returns a ISound* if start paused, track, or enable effects flags are enabled
-		// NOTE: If an ISound* is returned it must be deleted
-		virtual ISound* Play3D( const std::string& sndname, const Vec3& pos, int flags = 0 ) = 0;
-		// Plays the sound from the specified source as a 3d soudn
-		// Returns a ISound* if start paused, track, or enable effects flags are enabled
-		// NOTE: If an ISound* is returned it must be deleted
-		virtual ISound* Play3D( const SoundSource_t snd, const Vec3& pos, int flags = 0 ) = 0;
+		virtual void Play3D( const std::string& sndname, const Vec3& pos, bool loop = false ) = 0;
+		// Plays the sound from the specified source as a 3d sound
+		virtual void Play3D( const SoundSource_t snd, const Vec3& pos, bool loop = false ) = 0;
+		// Loads the file (if not already loaded) with specified name and plays it as a 3d sound
+		// The extended version tracks the sound via pointer and lets you have greater control over it
+		// through the ISound interface, as well as having additional flags available (see SoundPlaybackFlags)
+		// NOTE: the returned pointer must be deleted when no longer needed
+		virtual ISound* Play3DEx( const std::string& sndname, const Vec3& pos, int flags = 0 ) = 0;
+		// Plays the sound from the specified source as a 3d sound
+		// The extended version tracks the sound via pointer and lets you have greater control over it
+		// through the ISound interface, as well as having additional flags available (see SoundPlaybackFlags)
+		// NOTE: the returned pointer must be deleted when no longer needed
+		virtual ISound* Play3DEx( const SoundSource_t snd, const Vec3& pos, int flags = 0 ) = 0;
 
 		// Stops all currently playing sounds
 		virtual void StopAllSounds() = 0;
