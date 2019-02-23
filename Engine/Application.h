@@ -4,6 +4,7 @@
 #include "Mesh.h"
 #include "Texture.h"
 #include "Console.h"
+#include "Audio.h"
 
 namespace Bat
 {
@@ -27,9 +28,7 @@ namespace Bat
 	private:
 		Graphics& gfx;
 		Window& wnd;
-		IHost* client = nullptr;
-		IHost* server = nullptr;
-		std::vector<std::unique_ptr<IPeer>> peers;
+		ISoundEngine* snd;
 
 		// fps calculation
 		int fps_counter = 0;
