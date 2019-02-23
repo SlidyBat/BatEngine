@@ -1,10 +1,12 @@
 #pragma once
 
 #include "ILayer.h"
+#include "MoveableCamera.h"
 #include "Mesh.h"
 #include "Texture.h"
 #include "Console.h"
 #include "Audio.h"
+#include "Scene.h"
 
 namespace Bat
 {
@@ -29,6 +31,11 @@ namespace Bat
 		Graphics& gfx;
 		Window& wnd;
 		ISoundEngine* snd;
+		ISound* bell;
+		MoveableCamera camera;
+		SceneGraph scene;
+		Light* light;
+		Model* model;
 
 		// fps calculation
 		int fps_counter = 0;

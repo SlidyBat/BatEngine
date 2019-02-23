@@ -99,8 +99,10 @@ namespace Bat
 		virtual float GetVolume() const = 0;
 
 		// Sets the pan of the sound, takes values in range [-1.0f, 1.0f]
+		// 1.0 means to only play on left side, -1.0 means to only play on right side
 		virtual void SetPan( float pan ) = 0;
 		// Gets the pan of the sound, values returned in range [-1.0f, 1.0f]
+		// 1.0 means to only play on left side, -1.0 means to only play on right side
 		virtual float GetPan() const = 0;
 
 		// Sets whether the sound should loop once finished

@@ -31,10 +31,13 @@ namespace Bat
 
 		const float time = g_pGlobals->elapsed_time;
 		CB_LightPipelineLight ps_light;
-		ps_light.lightPos = m_pLight->GetPosition();
-		ps_light.lightAmbient = m_pLight->GetAmbient();
-		ps_light.lightDiffuse = m_pLight->GetDiffuse();
-		ps_light.lightSpecular = m_pLight->GetSpecular();
+		if( m_pLight )
+		{
+			ps_light.lightPos = m_pLight->GetPosition();
+			ps_light.lightAmbient = m_pLight->GetAmbient();
+			ps_light.lightDiffuse = m_pLight->GetDiffuse();
+			ps_light.lightSpecular = m_pLight->GetSpecular();
+		}
 
 		m_VertexShader.Bind();
 		m_PixelShader.Bind();
