@@ -4,6 +4,10 @@
 #include "BatWinAPI.h"
 #include <wrl.h>
 
+#include <cstdlib>
+#include <cstdio>
+#include <cstdint>
+
 // STL
 #include <iostream>
 #include <fstream>
