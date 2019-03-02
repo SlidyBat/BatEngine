@@ -15,27 +15,13 @@
 #include "LightPipeline.h"
 #include "Globals.h"
 #include "IRenderPass.h"
+#include "ShaderManager.h"
 #include "RenderData.h"
+#include "Passes/ClearRenderTargetPass.h"
+#include "Passes/SkyboxPass.h"
 
 namespace Bat
 {
-	class ClearRenderTargetPass : public BaseRenderPass
-	{
-	public:
-		ClearRenderTargetPass()
-		{
-			AddRenderNode( "buffer", NodeType::INPUT, NodeDataType::RENDER_TEXTURE );
-		}
-
-		virtual std::string GetDescription() const override { return "Clears render target"; }
-
-		virtual void Execute( SceneGraph& scene, RenderData& data ) override
-		{
-			RenderTexture* target = data.GetRenderTexture( "buffer" );
-			target->Clear( 0.0f, 0.0f, 0.0f, 1.0f );
-		}
-	};
-
 	class SceneRenderer : public BaseRenderPass, public ISceneVisitor
 	{
 	public: // BaseRenderPass
@@ -59,12 +45,15 @@ namespace Bat
 
 		virtual void Visit( const DirectX::XMMATRIX& transform, ISceneNode& node ) override
 		{
+			RenderContext::SetDepthStencilEnabled( true );
+
 			size_t count = node.GetModelCount();
 			for( size_t i = 0; i < count; i++ )
 			{
+				Camera* cam = gfx.GetActiveScene()->GetActiveCamera();
 				Model* pModel = node.GetModel( i );
 				DirectX::XMMATRIX w = transform * pModel->GetWorldMatrix();
-				DirectX::XMMATRIX vp = gfx.GetActiveCamera()->GetViewMatrix() * gfx.GetActiveCamera()->GetProjectionMatrix();
+				DirectX::XMMATRIX vp = cam->GetViewMatrix() * cam->GetProjectionMatrix();
 
 				pModel->Bind();
 
@@ -72,11 +61,11 @@ namespace Bat
 				for( auto& pMesh : meshes )
 				{
 					auto szPipelineName = pMesh->GetMaterial().GetDefaultPipelineName();
-					auto pPipeline = static_cast<LightPipeline*>( gfx.GetPipeline( szPipelineName ) );
+					auto pPipeline = static_cast<LightPipeline*>( ShaderManager::GetPipeline( szPipelineName ) );
 					pPipeline->SetLight( m_pLight );
 
 					Material material = pMesh->GetMaterial();
-					LightPipelineParameters params( *gfx.GetActiveCamera(), w, vp, material );
+					LightPipelineParameters params( *cam, w, vp, material );
 					pMesh->Bind( pPipeline );
 					pPipeline->BindParameters( params );
 					pPipeline->RenderIndexed( (UINT)pMesh->GetIndexCount() );
@@ -93,32 +82,19 @@ namespace Bat
 		gfx( gfx ),
 		wnd( wnd ),
 		camera( wnd.input ),
-		scene( SceneLoader::LoadScene( "Assets\\light.fbx" ) )
+		scene( SceneLoader::LoadScene( "Assets\\Ignore\\Sponza\\Sponza.gltf" ) )
 	{
-		// yuck! need to clean up scene graph usage in the future
-		ISceneNode* node = &scene.GetRootNode();
-		while( !node->GetChildNodes().empty() )
-		{
-			node = node->GetChildNodes()[0];
-		}
-		model = node->GetModel( 0 );
+		camera.SetPosition( { 0.0f, 0.0f, -10.0f } );
 
 		light = scene.GetRootNode().AddLight( {} );
+		scene.SetActiveCamera( &camera );
 		gfx.SetActiveScene( &scene );
-		gfx.SetActiveCamera( &camera );
 
-		rendergraph.AddRenderTextureResource( "backbuffer", std::make_unique<RenderTexture>( RenderTexture::Backbuffer() ) );
-		rendergraph.AddPass( "crt", std::make_unique<ClearRenderTargetPass>() );
-		rendergraph.AddPass( "renderer", std::make_unique<SceneRenderer>( gfx, light ) );
-
-		rendergraph.BindToResource( "crt.buffer", "backbuffer" );
-		rendergraph.MarkOutput( "renderer.dst" );
-
+		InitializeRenderGraph();
 		gfx.SetRenderGraph( &rendergraph );
 
 		snd = Audio::CreateSoundPlaybackDevice();
 		snd->SetListenerPosition( { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f } );
-		bell = snd->Play3DEx( "Assets\\bell.wav", { 10.0f, 10.0f, 0.0f }, SOUND_LOOP );
 
 		wnd.input.OnEventDispatched<KeyPressedEvent>( []( const KeyPressedEvent& e )
 		{
@@ -128,8 +104,6 @@ namespace Bat
 				g_Console.SetVisible( !g_Console.IsVisible() );
 			}
 		} );
-
-
 	}
 
 	Application::~Application()
@@ -149,14 +123,29 @@ namespace Bat
 		}
 
 		camera.Update( deltatime );
-		snd->SetListenerPosition( camera.GetPosition(), camera.GetRotation() );
-
-		bell->SetWorldPosition( { 5 * sin( g_pGlobals->elapsed_time ), 0.0f, 5 * cos( g_pGlobals->elapsed_time ) } );
-		model->SetPosition( bell->GetWorldPosition() );
+		snd->SetListenerPosition( camera.GetPosition(), camera.GetForwardVector() );
 	}
 
 	void Application::OnRender()
 	{
 		gfx.DrawText( Bat::StringToWide( fps_string ).c_str(), DirectX::XMFLOAT2{ 15.0f, 15.0f } );
+	}
+
+	void Application::InitializeRenderGraph()
+	{
+		// initialize resources
+		rendergraph.AddRenderTextureResource( "backbuffer", std::make_unique<RenderTexture>( RenderTexture::Backbuffer() ) );
+		rendergraph.AddTextureResource( "skybox", std::make_unique<Texture>( "Assets\\skybox.dds" ) );
+
+		// add passes
+		rendergraph.AddPass( "crt", std::make_unique<ClearRenderTargetPass>() );
+		rendergraph.BindToResource( "crt.buffer", "backbuffer" );
+
+		rendergraph.AddPass( "renderer", std::make_unique<SceneRenderer>( gfx, light ) );
+		rendergraph.BindToResource( "renderer.dst", "backbuffer" );
+
+		rendergraph.AddPass( "skybox", std::make_unique<SkyboxPass>() );
+		rendergraph.BindToResource( "skybox.skyboxtex", "skybox" );
+		rendergraph.MarkOutput( "skybox.dst" );
 	}
 }

@@ -25,9 +25,7 @@ namespace Bat
 		virtual void OnUpdate( float deltatime ) override;
 		virtual void OnRender() override;
 	private:
-		void OnConnectCmd( const CommandArgs_t& args );
-		void OnServerCmd( const CommandArgs_t& args );
-		void OnSendCmd( const CommandArgs_t& args );
+		void InitializeRenderGraph();
 	private:
 		Graphics& gfx;
 		Window& wnd;

@@ -218,6 +218,7 @@ copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDi
     <ClCompile Include="Graphics\IRenderPass.cpp" />
     <ClCompile Include="Graphics\RenderData.cpp" />
     <ClCompile Include="Graphics\RenderGraph.cpp" />
+    <ClCompile Include="Graphics\ShaderManager.cpp" />
     <ClCompile Include="Graphics\UI\BatUI.cpp" />
     <ClCompile Include="Graphics\UI\UltralightAdapters\FileSystemBasic.cpp" />
     <ClCompile Include="Graphics\UI\UltralightAdapters\FontLoaderWin.cpp" />
@@ -339,9 +340,12 @@ copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDi
     <ClInclude Include="Application.h" />
     <ClInclude Include="Audio\Audio.h" />
     <ClInclude Include="Graphics\IRenderPass.h" />
+    <ClInclude Include="Graphics\Passes\ClearRenderTargetPass.h" />
+    <ClInclude Include="Graphics\Passes\SkyboxPass.h" />
     <ClInclude Include="Graphics\RenderData.h" />
     <ClInclude Include="Graphics\RenderGraph.h" />
     <ClInclude Include="Graphics\RenderNode.h" />
+    <ClInclude Include="Graphics\ShaderManager.h" />
     <ClInclude Include="Util\ByteSwap.h" />
     <ClInclude Include="Util\ChunkedAllocator.h" />
     <ClInclude Include="Core\Console.h" />

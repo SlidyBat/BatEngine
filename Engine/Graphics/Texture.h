@@ -3,6 +3,7 @@
 #include <d3d11.h>
 #include <wrl.h>
 #include "Colour.h"
+#include "StringLib.h"
 
 namespace Bat
 {
@@ -10,6 +11,10 @@ namespace Bat
 	{
 	public:
 		Texture() = default;
+		Texture( const std::string& filename )
+			:
+			Texture( Bat::StringToWide( filename ) )
+		{}
 		Texture( const std::wstring& filename );
 		Texture( const uint8_t* pData, size_t size );
 		Texture( const void* pPixels, size_t pitch, int width, int height, DXGI_FORMAT format, D3D11_USAGE usage = D3D11_USAGE_DEFAULT );

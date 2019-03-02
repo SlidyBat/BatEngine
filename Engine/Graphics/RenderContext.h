@@ -24,7 +24,10 @@ namespace Bat
 
 		static void BindSamplers( const ShaderType shader );
 		static void AddSampler( const D3D11_SAMPLER_DESC& sampler_desc );
+
+		static bool IsDepthStencilEnabled();
+		static void SetDepthStencilEnabled( bool enabled );
 	private:
-		static void SetD3DClass( const D3DClass& d3d );
+		static void SetD3DClass( D3DClass& d3d );
 	};
 }

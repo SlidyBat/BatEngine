@@ -3,7 +3,6 @@
 #include "D3DClass.h"
 
 #include <DirectXColors.h>
-#include "IPipeline.h"
 #include "RenderTexture.h"
 #include "ResourceManager.h"
 #include "UI/BatUI.h"
@@ -37,16 +36,11 @@ namespace Bat
 		int GetScreenWidth() const;
 		int GetScreenHeight() const;
 
-		Camera* GetActiveCamera() const { return m_pCamera; }
-		void SetActiveCamera( Camera* pCamera ) { m_pCamera = pCamera; }
-
 		SceneGraph* GetActiveScene() const { return m_pSceneGraph; }
 		void SetActiveScene( SceneGraph* pSceneGraph ) { m_pSceneGraph = pSceneGraph; }
 
 		BatUI& UI() { return m_UI; }
 		const BatUI& UI() const { return m_UI; }
-
-		IPipeline* GetPipeline( const std::string& name ) const;
 
 		void SetRenderGraph( RenderGraph* graph );
 
@@ -70,21 +64,18 @@ namespace Bat
 		void RenderUI();
 		void RenderImGui();
 
-		void AddShader( const std::string& name, std::unique_ptr<IPipeline> pPipeline );
 	private:
 		D3DClass d3d;
 
 		DirectX::XMMATRIX m_matOrtho;
 
-		std::unordered_map<std::string, std::unique_ptr<IPipeline>> m_mapPipelines;
 
 		int m_iScreenWidth = InitialScreenWidth;
 		int m_iScreenHeight = InitialScreenHeight;
 
 		SceneGraph* m_pSceneGraph = nullptr;
-		Camera* m_pCamera = nullptr;
 
-		RenderGraph* m_pRenderGraph;
+		RenderGraph* m_pRenderGraph = nullptr;
 	private:
 		struct TextDrawCommand
 		{

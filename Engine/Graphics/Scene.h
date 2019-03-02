@@ -85,7 +85,13 @@ namespace Bat
 	public:
 		ISceneNode& GetRootNode();
 		void AcceptVisitor( ISceneVisitor& visitor );
+
+		// Gets the current active camera if there is one, otherwise nullptr
+		Camera* GetActiveCamera() const { return m_pCamera; }
+		// Sets the current active camera. Set to nullptr to remove camera
+		void SetActiveCamera( Camera* pCamera ) { m_pCamera = pCamera; }
 	private:
 		BasicSceneNode m_RootNode;
+		Camera* m_pCamera = nullptr;
 	};
 }

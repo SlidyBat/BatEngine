@@ -16,9 +16,9 @@
 #include "Scene.h"
 #include "RenderGraph.h"
 #include "Window.h"
-#include "IPipeline.h"
 #include "SpriteBatch.h"
 #include "SpriteFont.h"
+#include "ShaderManager.h"
 #include "WindowEvents.h"
 
 #include "imgui.h"
@@ -63,12 +63,12 @@ namespace Bat
 	{
 		RenderContext::SetD3DClass( d3d );
 
-		AddShader( "texture", std::make_unique<TexturePipeline>( "Graphics/Shaders/TextureVS.hlsl", "Graphics/Shaders/TexturePS.hlsl" ) );
-		AddShader( "colour", std::make_unique <ColourPipeline>( "Graphics/Shaders/ColourVS.hlsl", "Graphics/Shaders/ColourPS.hlsl" ) );
-		AddShader( "light", std::make_unique<LightPipeline>( "Graphics/Shaders/LightVS.hlsl", "Graphics/Shaders/LightPS.hlsl" ) );
-		AddShader( "bumpmap", std::make_unique<BumpMapPipeline>( "Graphics/Shaders/BumpMapVS.hlsl", "Graphics/Shaders/BumpMapPS.hlsl" ) );
-		AddShader( "skybox", std::make_unique<SkyboxPipeline>( "Graphics/Shaders/SkyboxVS.hlsl", "Graphics/Shaders/SkyboxPS.hlsl" ) );
-
+		ShaderManager::AddPipeline( "texture", std::make_unique<TexturePipeline>( "Graphics/Shaders/TextureVS.hlsl", "Graphics/Shaders/TexturePS.hlsl" ) );
+		ShaderManager::AddPipeline( "colour", std::make_unique <ColourPipeline>( "Graphics/Shaders/ColourVS.hlsl", "Graphics/Shaders/ColourPS.hlsl" ) );
+		ShaderManager::AddPipeline( "light", std::make_unique<LightPipeline>( "Graphics/Shaders/LightVS.hlsl", "Graphics/Shaders/LightPS.hlsl" ) );
+		ShaderManager::AddPipeline( "bumpmap", std::make_unique<BumpMapPipeline>( "Graphics/Shaders/BumpMapVS.hlsl", "Graphics/Shaders/BumpMapPS.hlsl" ) );
+		ShaderManager::AddPipeline( "skybox", std::make_unique<SkyboxPipeline>( "Graphics/Shaders/SkyboxVS.hlsl", "Graphics/Shaders/SkyboxPS.hlsl" ) );
+			  
 		AddSamplers();
 
 		m_pSpriteBatch = std::make_unique<DirectX::SpriteBatch>( GetDeviceContext() );
@@ -127,17 +127,6 @@ namespace Bat
 		return m_iScreenHeight;
 	}
 
-	IPipeline* Graphics::GetPipeline( const std::string & name ) const
-	{
-		auto it = m_mapPipelines.find( name );
-		if( it == m_mapPipelines.end() )
-		{
-			return nullptr;
-		}
-
-		return it->second.get();
-	}
-
 	void Graphics::SetRenderGraph( RenderGraph* graph )
 	{
 		m_pRenderGraph = graph;
@@ -155,9 +144,9 @@ namespace Bat
 
 	void Graphics::BeginFrame()
 	{
-		if( m_pCamera )
+		if( m_pSceneGraph && m_pSceneGraph->GetActiveCamera() )
 		{
-			m_pCamera->Render();
+			m_pSceneGraph->GetActiveCamera()->Render();
 		}
 
 		m_TextDrawCommands.clear();
@@ -197,57 +186,14 @@ namespace Bat
 		return d3d.GetDeviceContext();
 	}
 
-	void Graphics::AddShader( const std::string & name, std::unique_ptr<IPipeline> pPipeline )
-	{
-		m_mapPipelines[name] = std::move( pPipeline );
-	}
-
-	
-
-	class GetSceneLightsVisitor : public ISceneVisitor
-	{
-	public:
-		GetSceneLightsVisitor( Light** ppLight )
-			:
-			m_ppLight( ppLight )
-		{}
-
-		virtual void Visit( const DirectX::XMMATRIX& transform, ISceneNode& node )
-		{
-			size_t count = node.GetLightCount();
-			for( size_t i = 0; i < count; i++ )
-			{
-				*m_ppLight = node.GetLight( i );
-			}
-		}
-	private:
-		Light** m_ppLight;
-	};
-
 	void Graphics::RenderScene()
 	{
-		RenderTexture backbuffer = RenderTexture::Backbuffer();
-
 		if( m_pSceneGraph && m_pRenderGraph )
 		{
+			RenderTexture backbuffer = RenderTexture::Backbuffer();
 			m_pRenderGraph->Render( *m_pSceneGraph, backbuffer );
 		}
 	}
-
-	//void Graphics::RenderSkybox()
-	//{
-	//	if( m_pSkybox )
-	//	{
-	//		auto pos = GetActiveCamera()->GetPosition();
-	//		auto w = DirectX::XMMatrixTranslation( pos.x, pos.y, pos.z );
-	//		auto t = w * GetActiveCamera()->GetViewMatrix() * GetActiveCamera()->GetProjectionMatrix();
-
-	//		SkyboxPipelineParameters params( t, m_pSkybox->GetTextureView() );
-	//		auto pPipeline = GetPipeline( "skybox" );
-	//		pPipeline->BindParameters( params );
-	//		pPipeline->RenderIndexed( 0 ); // skybox uses its own index buffer & index count, doesnt matter what we pass in
-	//	}
-	//}
 
 	void Graphics::RenderText()
 	{

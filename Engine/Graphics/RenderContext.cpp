@@ -8,7 +8,7 @@
 
 namespace Bat
 {
-	static const D3DClass* g_pD3DClass = nullptr;
+	static D3DClass* g_pD3DClass = nullptr;
 	static std::vector<ID3D11SamplerState*> g_pSamplerStates;
 
 	ID3D11Device* RenderContext::GetDevice()
@@ -36,7 +36,7 @@ namespace Bat
 		return g_pD3DClass->GetSwapChain();
 	}
 
-	void RenderContext::SetD3DClass( const D3DClass& d3d )
+	void RenderContext::SetD3DClass( D3DClass& d3d )
 	{
 		g_pD3DClass = &d3d;
 	}
@@ -65,5 +65,15 @@ namespace Bat
 		g_pSamplerStates.emplace_back( pSamplerState );
 
 		ASSERT( g_pSamplerStates.size() <= D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, "Too many sampler states!" );
+	}
+
+	bool RenderContext::IsDepthStencilEnabled()
+	{
+		return g_pD3DClass->IsDepthStencilEnabled();
+	}
+
+	void RenderContext::SetDepthStencilEnabled( bool enabled )
+	{
+		g_pD3DClass->SetDepthStencilEnabled( enabled );
 	}
 }
