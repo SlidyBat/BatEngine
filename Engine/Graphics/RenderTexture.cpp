@@ -20,6 +20,17 @@ namespace Bat
 		RenderContext::GetDeviceContext()->OMSetRenderTargets( (UINT)count, pRenderTargetViews.data(), RenderContext::GetDepthStencilView() );
 	}
 
+	RenderTexture RenderTexture::Backbuffer()
+	{
+		RenderTexture backbuffer;
+		backbuffer.m_pRenderTargetView = RenderContext::GetBackBufferView();
+		backbuffer.m_pRenderTargetTexture = nullptr;
+		backbuffer.m_pShaderResourceView = nullptr;
+		// TODO: initialize width/height as well
+
+		return backbuffer;
+	}
+
 	RenderTexture::RenderTexture( int width, int height )
 	{
 		Resize( width, height );

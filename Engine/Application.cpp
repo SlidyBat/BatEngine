@@ -12,10 +12,82 @@
 #include "MouseEvents.h"
 #include "NetworkEvents.h"
 #include "TexturePipeline.h"
+#include "LightPipeline.h"
 #include "Globals.h"
+#include "IRenderPass.h"
+#include "RenderData.h"
 
 namespace Bat
 {
+	class ClearRenderTargetPass : public BaseRenderPass
+	{
+	public:
+		ClearRenderTargetPass()
+		{
+			AddRenderNode( "buffer", NodeType::INPUT, NodeDataType::RENDER_TEXTURE );
+		}
+
+		virtual std::string GetDescription() const override { return "Clears render target"; }
+
+		virtual void Execute( SceneGraph& scene, RenderData& data ) override
+		{
+			RenderTexture* target = data.GetRenderTexture( "buffer" );
+			target->Clear( 0.0f, 0.0f, 0.0f, 1.0f );
+		}
+	};
+
+	class SceneRenderer : public BaseRenderPass, public ISceneVisitor
+	{
+	public: // BaseRenderPass
+		SceneRenderer( Graphics& gfx, Light* pLight = nullptr )
+			:
+			gfx( gfx ),
+			m_pLight( pLight )
+		{
+			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TEXTURE );
+		}
+
+		virtual void Execute( SceneGraph& scene, RenderData& data ) override
+		{
+			RenderTexture* target = data.GetRenderTexture( "dst" );
+			target->Bind();
+
+			scene.AcceptVisitor( *this );
+		}
+	public: // ISceneVisitor
+		void SetLight( Light* pLight ) { m_pLight = pLight; }
+
+		virtual void Visit( const DirectX::XMMATRIX& transform, ISceneNode& node ) override
+		{
+			size_t count = node.GetModelCount();
+			for( size_t i = 0; i < count; i++ )
+			{
+				Model* pModel = node.GetModel( i );
+				DirectX::XMMATRIX w = transform * pModel->GetWorldMatrix();
+				DirectX::XMMATRIX vp = gfx.GetActiveCamera()->GetViewMatrix() * gfx.GetActiveCamera()->GetProjectionMatrix();
+
+				pModel->Bind();
+
+				auto& meshes = pModel->GetMeshes();
+				for( auto& pMesh : meshes )
+				{
+					auto szPipelineName = pMesh->GetMaterial().GetDefaultPipelineName();
+					auto pPipeline = static_cast<LightPipeline*>( gfx.GetPipeline( szPipelineName ) );
+					pPipeline->SetLight( m_pLight );
+
+					Material material = pMesh->GetMaterial();
+					LightPipelineParameters params( *gfx.GetActiveCamera(), w, vp, material );
+					pMesh->Bind( pPipeline );
+					pPipeline->BindParameters( params );
+					pPipeline->RenderIndexed( (UINT)pMesh->GetIndexCount() );
+				}
+			}
+		}
+	private:
+		Graphics& gfx;
+		Light* m_pLight = nullptr;
+	};
+
 	Application::Application( Graphics& gfx, Window& wnd )
 		:
 		gfx( gfx ),
@@ -34,7 +106,15 @@ namespace Bat
 		light = scene.GetRootNode().AddLight( {} );
 		gfx.SetActiveScene( &scene );
 		gfx.SetActiveCamera( &camera );
-		gfx.SetSkybox( ResourceManager::GetTexture( "Assets\\skybox.dds" ) );
+
+		rendergraph.AddRenderTextureResource( "backbuffer", std::make_unique<RenderTexture>( RenderTexture::Backbuffer() ) );
+		rendergraph.AddPass( "crt", std::make_unique<ClearRenderTargetPass>() );
+		rendergraph.AddPass( "renderer", std::make_unique<SceneRenderer>( gfx, light ) );
+
+		rendergraph.BindToResource( "crt.buffer", "backbuffer" );
+		rendergraph.MarkOutput( "renderer.dst" );
+
+		gfx.SetRenderGraph( &rendergraph );
 
 		snd = Audio::CreateSoundPlaybackDevice();
 		snd->SetListenerPosition( { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f } );
@@ -48,6 +128,8 @@ namespace Bat
 				g_Console.SetVisible( !g_Console.IsVisible() );
 			}
 		} );
+
+
 	}
 
 	Application::~Application()

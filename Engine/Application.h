@@ -7,6 +7,7 @@
 #include "Console.h"
 #include "Audio.h"
 #include "Scene.h"
+#include "RenderGraph.h"
 
 namespace Bat
 {
@@ -36,6 +37,8 @@ namespace Bat
 		SceneGraph scene;
 		Light* light;
 		Model* model;
+		Overlay* overlay;
+		RenderGraph rendergraph;
 
 		// fps calculation
 		int fps_counter = 0;

@@ -19,7 +19,7 @@ namespace Bat
 	class Window;
 	class SceneGraph;
 	class Camera;
-	class IPostProcess;
+	class RenderGraph;
 
 	class Graphics
 	{
@@ -48,11 +48,7 @@ namespace Bat
 
 		IPipeline* GetPipeline( const std::string& name ) const;
 
-		bool IsBloomEnabled() const { return m_bBloomEnabled; }
-		void SetBloomEnabled( const bool enable ) { m_bBloomEnabled = enable; }
-
-		void AddPostProcess( std::unique_ptr<IPostProcess> pPostProcess );
-		void SetSkybox( Resource<Texture> pCubemap ) { m_pSkybox = pCubemap; }
+		void SetRenderGraph( RenderGraph* graph );
 
 		bool IsDepthStencilEnabled() const;
 		void SetDepthStencilEnabled( bool enable );
@@ -65,16 +61,11 @@ namespace Bat
 		void DrawText( std::wstring text, const Vec2& pos, const DirectX::FXMVECTOR col = DirectX::Colors::White );
 
 		DirectX::XMMATRIX GetOrthoMatrix() const;
-
-		ID3D11RenderTargetView* GetRenderTargetView() const;
-		ID3D11DepthStencilView* GetDepthStencilView() const;
 	private:
 		ID3D11Device* GetDevice() const;
 		ID3D11DeviceContext* GetDeviceContext() const;
 
 		void RenderScene();
-		void RenderSkybox();
-		void RenderPostProcessEffects();
 		void RenderText();
 		void RenderUI();
 		void RenderImGui();
@@ -86,18 +77,14 @@ namespace Bat
 		DirectX::XMMATRIX m_matOrtho;
 
 		std::unordered_map<std::string, std::unique_ptr<IPipeline>> m_mapPipelines;
-		std::vector<std::unique_ptr<IPostProcess>> m_PostProcesses;
-		RenderTexture m_FrameBuffers[2];
-		Resource<Texture> m_pSkybox = nullptr;
 
 		int m_iScreenWidth = InitialScreenWidth;
 		int m_iScreenHeight = InitialScreenHeight;
 
 		SceneGraph* m_pSceneGraph = nullptr;
 		Camera* m_pCamera = nullptr;
-		
-		bool m_bBloomEnabled = false;
-		std::unique_ptr<IPostProcess> m_pBloomProcess;
+
+		RenderGraph* m_pRenderGraph;
 	private:
 		struct TextDrawCommand
 		{
