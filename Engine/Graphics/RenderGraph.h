@@ -41,6 +41,13 @@ namespace Bat
 		void MarkOutput( const std::string& out );
 
 		void Render( SceneGraph& scene, RenderTexture& target );
+
+		// Clears all current resources
+		void ResetResources();
+		// Clears all current passes
+		void ResetPasses();
+		// Clears both resources & passes
+		void Reset();
 	private:
 		struct Node_t
 		{
@@ -60,13 +67,16 @@ namespace Bat
 		Texture* GetTextureResource( const std::string& name );
 		RenderTexture* GetRenderTextureResource( const std::string& name );
 	private:
+		// passes
 		std::vector<std::unique_ptr<IRenderPass>> m_vRenderPasses;
 		std::unordered_map<std::string, size_t> m_mapPassNameToIndex;
+		std::vector<bool> m_vPassEnabled;
 		std::optional<Node_t> m_OutputNode;
+
+		// resources
 		std::unordered_map<std::string, std::unique_ptr<Texture>> m_mapTextures;
 		std::unordered_map<std::string, std::unique_ptr<RenderTexture>> m_mapRenderTextures;
 		std::unordered_map<std::string, NodeDataType> m_mapResourceTypes;
 		std::vector<std::vector<NodeAndResource>> m_vNodeAndResourceBindings;
-		std::vector<bool> m_vPassEnabled;
 	};
 }

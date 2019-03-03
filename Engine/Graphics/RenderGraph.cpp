@@ -128,6 +128,11 @@ namespace Bat
 
 		for( int i = 0; i < m_vRenderPasses.size(); i++ )
 		{
+			if( !IsPassEnabled( i ) )
+			{
+				continue;
+			}
+
 			RenderData data;
 
 			// bind to output if this is the output pass
@@ -158,6 +163,28 @@ namespace Bat
 			// run the pass
 			m_vRenderPasses[i]->Execute( scene, data );
 		}
+	}
+
+	void RenderGraph::ResetResources()
+	{
+		m_mapTextures.clear();
+		m_mapRenderTextures.clear();
+		m_mapResourceTypes.clear();
+		m_vNodeAndResourceBindings.clear();
+	}
+
+	void RenderGraph::ResetPasses()
+	{
+		m_vRenderPasses.clear();
+		m_mapPassNameToIndex.clear();
+		m_vPassEnabled.clear();
+		m_OutputNode.reset();
+	}
+
+	void RenderGraph::Reset()
+	{
+		ResetResources();
+		ResetPasses();
 	}
 
 	std::optional<RenderGraph::Node_t> RenderGraph::CreateNodeFromString( const std::string& str, NodeType expected_type )

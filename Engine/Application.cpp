@@ -97,12 +97,19 @@ namespace Bat
 		snd = Audio::CreateSoundPlaybackDevice();
 		snd->SetListenerPosition( { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f } );
 
-		wnd.input.OnEventDispatched<KeyPressedEvent>( []( const KeyPressedEvent& e )
+		wnd.input.OnEventDispatched<KeyPressedEvent>( [&]( const KeyPressedEvent& e )
 		{
 			if( e.key == VK_OEM_3 )
 			{
 				BAT_LOG( "Toggling console" );
 				g_Console.SetVisible( !g_Console.IsVisible() );
+			}
+			else if( e.key == 'B' )
+			{
+				// toggle bloom
+				bloom_enabled = !bloom_enabled;
+				// re-build render graoh
+				BuildRenderGraph();
 			}
 		} );
 	}
@@ -134,6 +141,9 @@ namespace Bat
 
 	void Application::BuildRenderGraph()
 	{
+		// start fresh
+		rendergraph.Reset();
+
 		// initialize resources
 		// render texture to draw scene to
 		if( bloom_enabled )
