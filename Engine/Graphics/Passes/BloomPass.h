@@ -27,7 +27,7 @@ namespace Bat
 			AddRenderNode( "src", NodeType::INPUT, NodeDataType::RENDER_TEXTURE );     // the initial texture that bloom should be applied to
 			AddRenderNode( "buffer1", NodeType::INPUT, NodeDataType::RENDER_TEXTURE ); // a frame buffer to use for the multiple blur passes
 			AddRenderNode( "buffer2", NodeType::INPUT, NodeDataType::RENDER_TEXTURE ); // a frame buffer to use for the multiple blur passes
-			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TEXTURE );    // the output render texture (can re-use buffer1 if needed)
+			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TEXTURE );    // the output render texture (can re-use buffer2 if needed)
 
 			// initialize shaders
 			m_pTextureVS = ResourceManager::GetVertexShader( "Graphics/Shaders/TextureVS.hlsl" );
@@ -105,7 +105,6 @@ namespace Bat
 			m_pBrightExtractPS->Bind();
 			m_pBrightExtractPS->SetResource( 0, src->GetTextureView() );
 			RenderContext::GetDeviceContext()->DrawIndexed( m_bufIndices.GetIndexCount(), 0, 0 );
-			RenderContext::FlushMessages();
 
 			for( int i = 0; i < m_iBlurPasses * 2; i++ )
 			{
@@ -123,7 +122,6 @@ namespace Bat
 					rt1->Bind();
 				}
 				RenderContext::GetDeviceContext()->DrawIndexed( m_bufIndices.GetIndexCount(), 0, 0 );
-				RenderContext::FlushMessages();
 			}
 
 			RenderTexture::UnbindAll();
@@ -132,7 +130,6 @@ namespace Bat
 			m_pBloomShader->SetResource( 1, rt1->GetTextureView() );
 			dst->Bind();
 			RenderContext::GetDeviceContext()->DrawIndexed( m_bufIndices.GetIndexCount(), 0, 0 );
-			RenderContext::FlushMessages();
 		}
 	private:
 		int m_iBlurPasses = 1;

@@ -11,7 +11,6 @@ namespace Bat
 	void RenderGraph::AddPass( const std::string& name, std::unique_ptr<IRenderPass> pass )
 	{
 		m_mapPassNameToIndex[name] = m_vRenderPasses.size();
-		BAT_LOG( "m_mapPassNameToIndex[%s] = %i", name, m_vRenderPasses.size() );
 		m_vRenderPasses.emplace_back( std::move( pass ) );
 		m_vNodeAndResourceBindings.emplace_back();
 		m_vPassEnabled.emplace_back( true );
@@ -197,7 +196,6 @@ namespace Bat
 		}
 
 		int pass_idx = GetPassIndexByName( split[0] );
-		BAT_LOG( "%s (%i)", split[0], pass_idx );
 		if( pass_idx == -1 )
 		{
 			ASSERT( false, "Invalid pass name '%s'", split[0] );

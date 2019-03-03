@@ -149,15 +149,16 @@ namespace Bat
 		if( bloom_enabled )
 		{
 			rendergraph.AddRenderTextureResource( "target", std::make_unique<RenderTexture>( wnd.GetWidth(), wnd.GetHeight() ) );
+
+			// render texture 1 for bloom
+			rendergraph.AddRenderTextureResource( "rt1", std::make_unique<RenderTexture>( wnd.GetWidth(), wnd.GetHeight() ) );
+			// render texture 2 for bloom
+			rendergraph.AddRenderTextureResource( "rt2", std::make_unique<RenderTexture>( wnd.GetWidth(), wnd.GetHeight() ) );
 		}
 		else
 		{
 			rendergraph.AddRenderTextureResource( "target", std::make_unique<RenderTexture>( RenderTexture::Backbuffer() ) );
 		}
-		// render texture 1 for bloom
-		rendergraph.AddRenderTextureResource( "rt1", std::make_unique<RenderTexture>( wnd.GetWidth(), wnd.GetHeight() ) );
-		// render texture 2 for bloom
-		rendergraph.AddRenderTextureResource( "rt2", std::make_unique<RenderTexture>( wnd.GetWidth(), wnd.GetHeight() ) );
 		rendergraph.AddTextureResource( "skybox", std::make_unique<Texture>( "Assets\\skybox.dds" ) );
 
 		// add passes
