@@ -25,7 +25,7 @@ namespace Bat
 		virtual void OnUpdate( float deltatime ) override;
 		virtual void OnRender() override;
 	private:
-		void InitializeRenderGraph();
+		void BuildRenderGraph();
 	private:
 		Graphics& gfx;
 		Window& wnd;
@@ -37,6 +37,7 @@ namespace Bat
 		Model* model;
 		Overlay* overlay;
 		RenderGraph rendergraph;
+		bool bloom_enabled = true;
 
 		// fps calculation
 		int fps_counter = 0;

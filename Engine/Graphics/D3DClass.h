@@ -52,6 +52,8 @@ namespace Bat
 		void SetDepthStencilEnabled( bool enable );
 
 		void BindBackBuffer() const;
+
+		void FlushMessages();
 	private:
 		void BindViewport( int width, int height );
 	private:

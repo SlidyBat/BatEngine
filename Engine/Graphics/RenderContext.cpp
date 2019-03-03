@@ -76,4 +76,9 @@ namespace Bat
 	{
 		g_pD3DClass->SetDepthStencilEnabled( enabled );
 	}
+
+	void RenderContext::FlushMessages()
+	{
+		g_pD3DClass->FlushMessages();
+	}
 }

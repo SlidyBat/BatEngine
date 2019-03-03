@@ -212,7 +212,6 @@ copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDi
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Audio\Audio.cpp" />
-    <ClCompile Include="Graphics\BloomPostProcess.cpp" />
     <ClCompile Include="Core\Console.cpp" />
     <ClCompile Include="Core\Entity.cpp" />
     <ClCompile Include="Graphics\IRenderPass.cpp" />
@@ -243,7 +242,6 @@ copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDi
     </ClCompile>
     <ClCompile Include="Graphics\BumpMapPipeline.cpp" />
     <ClCompile Include="Platform\COMInitialize.cpp" />
-    <ClCompile Include="Graphics\GenericPostProcess.cpp" />
     <ClCompile Include="Graphics\ConstantBuffer.cpp" />
     <ClCompile Include="Graphics\Light.cpp" />
     <ClCompile Include="Graphics\RenderContext.cpp" />
@@ -340,6 +338,7 @@ copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDi
     <ClInclude Include="Application.h" />
     <ClInclude Include="Audio\Audio.h" />
     <ClInclude Include="Graphics\IRenderPass.h" />
+    <ClInclude Include="Graphics\Passes\BloomPass.h" />
     <ClInclude Include="Graphics\Passes\ClearRenderTargetPass.h" />
     <ClInclude Include="Graphics\Passes\SkyboxPass.h" />
     <ClInclude Include="Graphics\RenderData.h" />
@@ -360,7 +359,6 @@ copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDi
     <ClInclude Include="Networking\Networking.h" />
     <ClInclude Include="Util\TokenStream.h" />
     <ClInclude Include="Util\BatAssert.h" />
-    <ClInclude Include="Graphics\BloomPostProcess.h" />
     <ClInclude Include="Core\Common.h" />
     <ClInclude Include="Util\FileWatchdog.h" />
     <ClInclude Include="Events\MouseEvents.h" />
@@ -371,8 +369,6 @@ copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDi
     <ClInclude Include="Platform\COMInitialize.h" />
     <ClInclude Include="Graphics\Light.h" />
     <ClInclude Include="Graphics\Material.h" />
-    <ClInclude Include="Graphics\GenericPostProcess.h" />
-    <ClInclude Include="Graphics\IPostProcess.h" />
     <ClInclude Include="Graphics\RenderContext.h" />
     <ClInclude Include="Core\ResourceManager.h" />
     <ClInclude Include="Graphics\Scene.h" />

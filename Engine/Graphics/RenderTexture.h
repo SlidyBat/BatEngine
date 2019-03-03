@@ -12,6 +12,7 @@ namespace Bat
 	{
 	public:
 		static void BindMultiple( const RenderTexture* pRenderTargets, const size_t count );
+		static void UnbindAll();
 		static RenderTexture Backbuffer();
 	public:
 		RenderTexture() = default;

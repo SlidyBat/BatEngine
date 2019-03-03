@@ -295,38 +295,8 @@ namespace Bat
 		m_pDeviceContext->OMSetRenderTargets( 1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get() );
 	}
 
-	void D3DClass::BindViewport( int width, int height )
+	void D3DClass::FlushMessages()
 	{
-		// set up viewport
-		g_Viewport.Width = (float)width;
-		g_Viewport.Height = (float)height;
-		g_Viewport.MinDepth = 0.0f;
-		g_Viewport.MaxDepth = 1.0f;
-		g_Viewport.TopLeftX = 0.0f;
-		g_Viewport.TopLeftY = 0.0f;
-
-		m_pDeviceContext->RSSetViewports( 1, &g_Viewport );
-	}
-
-	void D3DClass::ClearScene( float red, float green, float blue, float alpha )
-	{
-		const float colour[4] = { red, green, blue, alpha };
-		m_pDeviceContext->ClearRenderTargetView( m_pRenderTargetView.Get(), colour );
-		m_pDeviceContext->ClearDepthStencilView( m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
-		BindViewport( m_iViewportWidth, m_iViewportHeight );
-	}
-
-	void D3DClass::PresentScene()
-	{
-		if( m_bVSyncEnabled )
-		{
-			m_pSwapChain->Present( 1, 0 );
-		}
-		else
-		{
-			m_pSwapChain->Present( 0, 0 );
-		}
-
 #ifdef _DEBUG
 		// print debug layererrors from this frame
 		if( m_pInfoQueue )
@@ -360,6 +330,41 @@ namespace Bat
 			m_pInfoQueue->ClearStoredMessages( DXGI_DEBUG_ALL );
 		}
 #endif
+	}
+
+	void D3DClass::BindViewport( int width, int height )
+	{
+		// set up viewport
+		g_Viewport.Width = (float)width;
+		g_Viewport.Height = (float)height;
+		g_Viewport.MinDepth = 0.0f;
+		g_Viewport.MaxDepth = 1.0f;
+		g_Viewport.TopLeftX = 0.0f;
+		g_Viewport.TopLeftY = 0.0f;
+
+		m_pDeviceContext->RSSetViewports( 1, &g_Viewport );
+	}
+
+	void D3DClass::ClearScene( float red, float green, float blue, float alpha )
+	{
+		const float colour[4] = { red, green, blue, alpha };
+		m_pDeviceContext->ClearRenderTargetView( m_pRenderTargetView.Get(), colour );
+		m_pDeviceContext->ClearDepthStencilView( m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
+		BindViewport( m_iViewportWidth, m_iViewportHeight );
+	}
+
+	void D3DClass::PresentScene()
+	{
+		if( m_bVSyncEnabled )
+		{
+			m_pSwapChain->Present( 1, 0 );
+		}
+		else
+		{
+			m_pSwapChain->Present( 0, 0 );
+		}
+
+		FlushMessages();
 	}
 
 	void D3DClass::Resize( int width, int height )

@@ -14,6 +14,7 @@ namespace Bat
 		BAT_LOG( "m_mapPassNameToIndex[%s] = %i", name, m_vRenderPasses.size() );
 		m_vRenderPasses.emplace_back( std::move( pass ) );
 		m_vNodeAndResourceBindings.emplace_back();
+		m_vPassEnabled.emplace_back( true );
 	}
 
 	size_t RenderGraph::GetPassCount() const
@@ -27,6 +28,12 @@ namespace Bat
 		return m_vRenderPasses[idx].get();
 	}
 
+	IRenderPass* RenderGraph::GetPassByName( const std::string& name )
+	{
+		size_t idx = GetPassIndexByName( name );
+		return GetPassByIndex( idx );
+	}
+
 	int RenderGraph::GetPassIndexByName( const std::string& name )
 	{
 		auto it = m_mapPassNameToIndex.find( name );
@@ -35,6 +42,26 @@ namespace Bat
 			return (int)it->second;
 		}
 		return -1;
+	}
+
+	bool RenderGraph::IsPassEnabled( const std::string& name )
+	{
+		return IsPassEnabled( GetPassIndexByName( name ) );
+	}
+
+	bool RenderGraph::IsPassEnabled( size_t idx )
+	{
+		return m_vPassEnabled[idx];
+	}
+
+	void RenderGraph::SetPassEnabled( const std::string& name, bool enabled )
+	{
+		SetPassEnabled( GetPassIndexByName( name ), enabled );
+	}
+
+	void RenderGraph::SetPassEnabled( size_t idx, bool enabled )
+	{
+		m_vPassEnabled[idx] = enabled;
 	}
 
 	void RenderGraph::AddTextureResource( const std::string& name, std::unique_ptr<Texture> pTexture )

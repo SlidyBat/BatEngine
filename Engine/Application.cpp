@@ -19,6 +19,7 @@
 #include "RenderData.h"
 #include "Passes/ClearRenderTargetPass.h"
 #include "Passes/SkyboxPass.h"
+#include "Passes/BloomPass.h"
 
 namespace Bat
 {
@@ -90,7 +91,7 @@ namespace Bat
 		scene.SetActiveCamera( &camera );
 		gfx.SetActiveScene( &scene );
 
-		InitializeRenderGraph();
+		BuildRenderGraph();
 		gfx.SetRenderGraph( &rendergraph );
 
 		snd = Audio::CreateSoundPlaybackDevice();
@@ -131,21 +132,46 @@ namespace Bat
 		gfx.DrawText( Bat::StringToWide( fps_string ).c_str(), DirectX::XMFLOAT2{ 15.0f, 15.0f } );
 	}
 
-	void Application::InitializeRenderGraph()
+	void Application::BuildRenderGraph()
 	{
 		// initialize resources
-		rendergraph.AddRenderTextureResource( "backbuffer", std::make_unique<RenderTexture>( RenderTexture::Backbuffer() ) );
+		// render texture to draw scene to
+		if( bloom_enabled )
+		{
+			rendergraph.AddRenderTextureResource( "target", std::make_unique<RenderTexture>( wnd.GetWidth(), wnd.GetHeight() ) );
+		}
+		else
+		{
+			rendergraph.AddRenderTextureResource( "target", std::make_unique<RenderTexture>( RenderTexture::Backbuffer() ) );
+		}
+		// render texture 1 for bloom
+		rendergraph.AddRenderTextureResource( "rt1", std::make_unique<RenderTexture>( wnd.GetWidth(), wnd.GetHeight() ) );
+		// render texture 2 for bloom
+		rendergraph.AddRenderTextureResource( "rt2", std::make_unique<RenderTexture>( wnd.GetWidth(), wnd.GetHeight() ) );
 		rendergraph.AddTextureResource( "skybox", std::make_unique<Texture>( "Assets\\skybox.dds" ) );
 
 		// add passes
 		rendergraph.AddPass( "crt", std::make_unique<ClearRenderTargetPass>() );
-		rendergraph.BindToResource( "crt.buffer", "backbuffer" );
+		rendergraph.BindToResource( "crt.buffer", "target" );
 
 		rendergraph.AddPass( "renderer", std::make_unique<SceneRenderer>( gfx, light ) );
-		rendergraph.BindToResource( "renderer.dst", "backbuffer" );
+		rendergraph.BindToResource( "renderer.dst", "target" );
 
 		rendergraph.AddPass( "skybox", std::make_unique<SkyboxPass>() );
 		rendergraph.BindToResource( "skybox.skyboxtex", "skybox" );
-		rendergraph.MarkOutput( "skybox.dst" );
+		if( !bloom_enabled )
+		{
+			rendergraph.MarkOutput( "skybox.dst" );
+		}
+		else
+		{
+			rendergraph.BindToResource( "skybox.dst", "target" );
+
+			rendergraph.AddPass( "bloom", std::make_unique<BloomPass>() );
+			rendergraph.BindToResource( "bloom.src", "target" );
+			rendergraph.BindToResource( "bloom.buffer1", "rt1" );
+			rendergraph.BindToResource( "bloom.buffer2", "rt2" );
+			rendergraph.MarkOutput( "bloom.dst" );
+		}
 	}
 }

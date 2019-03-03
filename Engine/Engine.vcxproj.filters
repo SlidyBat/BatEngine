@@ -144,9 +144,6 @@
     <ClCompile Include="Graphics\SkyboxPipeline.cpp">
       <Filter>Source Files\Graphics\Pipelines</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\GenericPostProcess.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Util\StackAllocator.cpp">
       <Filter>Source Files\Util</Filter>
     </ClCompile>
@@ -209,9 +206,6 @@
     </ClCompile>
     <ClCompile Include="Core\Entity.cpp">
       <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\BloomPostProcess.cpp">
-      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Platform\COMInitialize.cpp">
       <Filter>Source Files\Platform</Filter>
@@ -350,16 +344,10 @@
     <ClInclude Include="Util\MemoryStream.h">
       <Filter>Header Files\Util</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\IPostProcess.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\LightPipeline.h">
       <Filter>Header Files\Graphics\Pipelines</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\RenderTexture.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\GenericPostProcess.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\BumpMapPipeline.h">
@@ -446,9 +434,6 @@
     <ClInclude Include="Core\Console.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\BloomPostProcess.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Platform\BatWinAPI.h">
       <Filter>Header Files\Platform</Filter>
     </ClInclude>
@@ -522,6 +507,9 @@
       <Filter>Header Files\Graphics\Passes</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\ShaderManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Passes\BloomPass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -27,6 +27,8 @@ namespace Bat
 
 		static bool IsDepthStencilEnabled();
 		static void SetDepthStencilEnabled( bool enabled );
+
+		static void FlushMessages();
 	private:
 		static void SetD3DClass( D3DClass& d3d );
 	};

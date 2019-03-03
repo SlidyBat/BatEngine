@@ -17,7 +17,22 @@ namespace Bat
 		{
 			pRenderTargetViews.emplace_back( pRenderTargets->m_pRenderTargetView.Get() );
 		}
-		RenderContext::GetDeviceContext()->OMSetRenderTargets( (UINT)count, pRenderTargetViews.data(), RenderContext::GetDepthStencilView() );
+		RenderContext::GetDeviceContext()->OMSetRenderTargets( (UINT)count,
+			pRenderTargetViews.data(),
+			RenderContext::GetDepthStencilView()
+		);
+	}
+
+	void RenderTexture::UnbindAll()
+	{
+		static ID3D11RenderTargetView* pNullViews[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = {
+			nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr
+		};
+
+		RenderContext::GetDeviceContext()->OMSetRenderTargets( D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT,
+			pNullViews,
+			nullptr
+		);
 	}
 
 	RenderTexture RenderTexture::Backbuffer()

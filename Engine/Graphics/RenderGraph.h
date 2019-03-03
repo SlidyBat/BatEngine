@@ -20,7 +20,12 @@ namespace Bat
 		void AddPass( const std::string& name, std::unique_ptr<IRenderPass> pass );
 		size_t GetPassCount() const;
 		IRenderPass* GetPassByIndex( size_t idx );
+		IRenderPass* GetPassByName( const std::string& name );
 		int GetPassIndexByName( const std::string& name );
+		bool IsPassEnabled( const std::string& name );
+		bool IsPassEnabled( size_t idx );
+		void SetPassEnabled( const std::string& name, bool enabled );
+		void SetPassEnabled( size_t idx, bool enabled );
 
 		// Takes ownership of a texture and binds it to a certain name so it may be used by passes
 		void AddTextureResource( const std::string& name, std::unique_ptr<Texture> pTexture );
@@ -62,5 +67,6 @@ namespace Bat
 		std::unordered_map<std::string, std::unique_ptr<RenderTexture>> m_mapRenderTextures;
 		std::unordered_map<std::string, NodeDataType> m_mapResourceTypes;
 		std::vector<std::vector<NodeAndResource>> m_vNodeAndResourceBindings;
+		std::vector<bool> m_vPassEnabled;
 	};
 }
