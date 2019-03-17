@@ -358,6 +358,7 @@ copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDi
     <ClInclude Include="Graphics\UI\UltralightAdapters\GPUDriverD3D11.h" />
     <ClInclude Include="Graphics\UI\UltralightAdapters\PlatformD3D11.h" />
     <ClInclude Include="Networking\Networking.h" />
+    <ClInclude Include="Util\StateMachine.h" />
     <ClInclude Include="Util\TokenStream.h" />
     <ClInclude Include="Util\BatAssert.h" />
     <ClInclude Include="Core\Common.h" />

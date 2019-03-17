@@ -79,6 +79,9 @@
     <Filter Include="Header Files\Graphics\Passes">
       <UniqueIdentifier>{9c24934d-5295-4f26-977f-7b7afa62b490}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Audio">
+      <UniqueIdentifier>{242d89d1-68e2-429a-96a3-f57da96f1c9b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -243,20 +246,20 @@
     <ClCompile Include="Graphics\MoveableCamera.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Audio\Audio.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\RenderData.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Graphics\ShaderManager.cpp">
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\RenderGraph.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RenderData.cpp">
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\IRenderPass.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\ShaderManager.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Audio\Audio.cpp">
+      <Filter>Source Files\Audio</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -485,21 +488,6 @@
     <ClInclude Include="Audio\Audio.h">
       <Filter>Header Files\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\RenderGraph.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\IRenderPass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\RenderNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\RenderData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\ByteSwap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\Passes\ClearRenderTargetPass.h">
       <Filter>Header Files\Graphics\Passes</Filter>
     </ClInclude>
@@ -507,13 +495,31 @@
       <Filter>Header Files\Graphics\Passes</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\ShaderManager.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Passes\BloomPass.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Graphics\RenderNode.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RenderGraph.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RenderData.h">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Passes\MotionBlurPass.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Graphics\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Passes\BloomPass.h">
+      <Filter>Header Files\Graphics\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\IRenderPass.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\StateMachine.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\ByteSwap.h">
+      <Filter>Header Files\Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -575,7 +581,9 @@
     <FxCompile Include="Graphics\Shaders\BloomPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
-    <FxCompile Include="Graphics\Shaders\MotionBlurPS.hlsl" />
+    <FxCompile Include="Graphics\Shaders\MotionBlurPS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shaders\Common.hlsli">

@@ -8,6 +8,7 @@
 #include "Audio.h"
 #include "Scene.h"
 #include "RenderGraph.h"
+#include "StateMachine.h"
 
 namespace Bat
 {
@@ -15,8 +16,10 @@ namespace Bat
 	class Window;
 	class IHost;
 	class IPeer;
+	template <class Application>
+	class Scene;
 
-	class Application : public ILayer
+	class Application : public ILayer, public StateMachine<Application>
 	{
 	public:
 		Application( Graphics& gfx, Window& wnd );
