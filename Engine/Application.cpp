@@ -20,6 +20,7 @@
 #include "Passes/ClearRenderTargetPass.h"
 #include "Passes/SkyboxPass.h"
 #include "Passes/BloomPass.h"
+#include "Passes/MotionBlurPass.h"
 
 namespace Bat
 {
@@ -144,21 +145,26 @@ namespace Bat
 		// start fresh
 		rendergraph.Reset();
 
+		int post_process_count = 0;
+		if( bloom_enabled ) post_process_count++;
+		if( motion_blur_enabled ) post_process_count++;
+
 		// initialize resources
 		// render texture to draw scene to
-		if( bloom_enabled )
+		if( post_process_count )
 		{
 			rendergraph.AddRenderTextureResource( "target", std::make_unique<RenderTexture>( wnd.GetWidth(), wnd.GetHeight() ) );
 
 			// render texture 1 for bloom
 			rendergraph.AddRenderTextureResource( "rt1", std::make_unique<RenderTexture>( wnd.GetWidth(), wnd.GetHeight() ) );
-			// render texture 2 for bloom
+			// render texture 2 for bloom & motion blur
 			rendergraph.AddRenderTextureResource( "rt2", std::make_unique<RenderTexture>( wnd.GetWidth(), wnd.GetHeight() ) );
 		}
 		else
 		{
 			rendergraph.AddRenderTextureResource( "target", std::make_unique<RenderTexture>( RenderTexture::Backbuffer() ) );
 		}
+		rendergraph.AddTextureResource( "depth", std::make_unique<Texture>( Texture::DepthBuffer() ) );
 		rendergraph.AddTextureResource( "skybox", std::make_unique<Texture>( "Assets\\skybox.dds" ) );
 
 		// add passes
@@ -170,7 +176,7 @@ namespace Bat
 
 		rendergraph.AddPass( "skybox", std::make_unique<SkyboxPass>() );
 		rendergraph.BindToResource( "skybox.skyboxtex", "skybox" );
-		if( !bloom_enabled )
+		if( !post_process_count )
 		{
 			rendergraph.MarkOutput( "skybox.dst" );
 		}
@@ -178,11 +184,40 @@ namespace Bat
 		{
 			rendergraph.BindToResource( "skybox.dst", "target" );
 
-			rendergraph.AddPass( "bloom", std::make_unique<BloomPass>() );
-			rendergraph.BindToResource( "bloom.src", "target" );
-			rendergraph.BindToResource( "bloom.buffer1", "rt1" );
-			rendergraph.BindToResource( "bloom.buffer2", "rt2" );
-			rendergraph.MarkOutput( "bloom.dst" );
+			if( bloom_enabled )
+			{
+				post_process_count--;
+
+				rendergraph.AddPass( "bloom", std::make_unique<BloomPass>() );
+				rendergraph.BindToResource( "bloom.src", "target" );
+				rendergraph.BindToResource( "bloom.buffer1", "rt1" );
+				rendergraph.BindToResource( "bloom.buffer2", "rt2" );
+				if( !post_process_count )
+				{
+					rendergraph.MarkOutput( "bloom.dst" );
+				}
+				else
+				{
+					rendergraph.BindToResource( "bloom.dst", "rt2" );
+				}
+			}
+
+			if( motion_blur_enabled )
+			{
+				post_process_count--;
+
+				rendergraph.AddPass( "motionblur", std::make_unique<MotionBlurPass>() );
+				rendergraph.BindToResource( "motionblur.src", bloom_enabled ? "rt2" : "target" );
+				rendergraph.BindToResource( "motionblur.depth", "depth" );
+				if( !post_process_count )
+				{
+					rendergraph.MarkOutput( "motionblur.dst" );
+				}
+				else
+				{
+					rendergraph.BindToResource( "motionblur.dst", "target" );
+				}
+			}
 		}
 	}
 }

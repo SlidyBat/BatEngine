@@ -158,6 +158,7 @@ namespace Bat
 	void Graphics::EndFrame()
 	{
 		RenderScene();
+		RenderTexture::Backbuffer().Bind();
 		RenderText();
 		RenderUI();
 		RenderImGui();

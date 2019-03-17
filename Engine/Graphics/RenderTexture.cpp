@@ -7,7 +7,7 @@
 
 namespace Bat
 {
-	void RenderTexture::BindMultiple( const RenderTexture* pRenderTargets, const size_t count )
+	void RenderTexture::BindMultiple( const RenderTexture* pRenderTargets, const size_t count, bool bind_depth )
 	{
 		ASSERT( count <= D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, "Too many render targets!" );
 
@@ -19,7 +19,7 @@ namespace Bat
 		}
 		RenderContext::GetDeviceContext()->OMSetRenderTargets( (UINT)count,
 			pRenderTargetViews.data(),
-			RenderContext::GetDepthStencilView()
+			bind_depth ? RenderContext::GetDepthStencilView() : NULL
 		);
 	}
 
@@ -51,9 +51,12 @@ namespace Bat
 		Resize( width, height );
 	}
 
-	void RenderTexture::Bind()
+	void RenderTexture::Bind( bool bind_depth )
 	{
-		RenderContext::GetDeviceContext()->OMSetRenderTargets( 1, m_pRenderTargetView.GetAddressOf(), RenderContext::GetDepthStencilView() );
+		RenderContext::GetDeviceContext()->OMSetRenderTargets( 1,
+			m_pRenderTargetView.GetAddressOf(),
+			bind_depth ? RenderContext::GetDepthStencilView() : NULL
+		);
 	}
 
 	void RenderTexture::Clear( const float red, const float green, const float blue, const float alpha )

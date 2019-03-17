@@ -32,7 +32,6 @@ namespace Bat
 			// initialize shaders
 			m_pTextureVS = ResourceManager::GetVertexShader( "Graphics/Shaders/TextureVS.hlsl" );
 			m_pTextureVS->AddConstantBuffer<CB_TexturePipelineMatrix>();
-			m_pTexturePS = ResourceManager::GetPixelShader( "Graphics/Shaders/TexturePS.hlsl" );
 			m_pBrightExtractPS = ResourceManager::GetPixelShader( "Graphics/Shaders/BrightExtractPS.hlsl" );
 			m_pBrightExtractPS->AddConstantBuffer<CB_Globals>();
 			m_pGaussBlurHorPS = ResourceManager::GetPixelShader( "Graphics/Shaders/GaussBlurHorPS.hlsl" );
@@ -73,6 +72,8 @@ namespace Bat
 
 		virtual void Execute( SceneGraph& scene, RenderData& data )
 		{
+			RenderContext::SetDepthStencilEnabled( false );
+
 			RenderTexture* src = data.GetRenderTexture( "src" );
 			RenderTexture* rt1 = data.GetRenderTexture( "buffer1" );
 			RenderTexture* rt2 = data.GetRenderTexture( "buffer2" );
@@ -82,7 +83,7 @@ namespace Bat
 			int height = src->GetTextureHeight();
 
 			CB_TexturePipelineMatrix transform;
-			transform.viewproj = DirectX::XMMatrixOrthographicLH( (float)width, (float)height, 0.1f, 1000.0f );
+			transform.viewproj = DirectX::XMMatrixOrthographicLH( (float)width, (float)height, Graphics::ScreenNear, Graphics::ScreenFar );
 			transform.world = DirectX::XMMatrixIdentity();
 			RenderContext::GetDeviceContext()->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
@@ -134,7 +135,6 @@ namespace Bat
 	private:
 		int m_iBlurPasses = 1;
 
-		Resource<PixelShader> m_pTexturePS;
 		Resource<VertexShader> m_pTextureVS;
 		Resource<PixelShader> m_pBrightExtractPS;
 		Resource<PixelShader> m_pGaussBlurHorPS;

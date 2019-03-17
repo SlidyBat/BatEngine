@@ -28,6 +28,7 @@ namespace Bat
 		void BuildRenderGraph();
 	public:
 		bool bloom_enabled = true;
+		bool motion_blur_enabled = true;
 	private:
 		Graphics& gfx;
 		Window& wnd;

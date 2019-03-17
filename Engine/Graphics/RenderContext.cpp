@@ -31,6 +31,11 @@ namespace Bat
 		return g_pD3DClass->GetDepthStencilView();
 	}
 
+	ID3D11ShaderResourceView* RenderContext::GetDepthShaderResourceView()
+	{
+		return g_pD3DClass->GetDepthShaderResourceView();
+	}
+
 	IDXGISwapChain* RenderContext::GetSwapChain()
 	{
 		return g_pD3DClass->GetSwapChain();

@@ -127,6 +127,16 @@ namespace Bat
 		return Texture( pPixels, width * sizeof( *pPixels ), width, height, DXGI_FORMAT_R32G32B32A32_FLOAT, usage );
 	}
 
+	Texture Texture::DepthBuffer()
+	{
+		Texture depth;
+		depth.m_pTexture = nullptr;
+		depth.m_pTextureView = RenderContext::GetDepthShaderResourceView();
+		// TODO: fill out width/height
+
+		return depth;
+	}
+
 	void Texture::UpdatePixels( const void* pPixels, size_t pitch )
 	{
 		auto pDeviceContext = RenderContext::GetDeviceContext();

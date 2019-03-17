@@ -28,6 +28,7 @@ namespace Bat
 		static Texture FromDDS( const std::wstring& filename );
 		static Texture FromColour( const Colour* pPixels, int width, int height, D3D11_USAGE usage = D3D11_USAGE_DEFAULT );
 		static Texture FromD3DCOLORVALUE( const D3DCOLORVALUE* pPixels, int width, int height, D3D11_USAGE usage = D3D11_USAGE_DEFAULT );
+		static Texture DepthBuffer();
 
 		static size_t GetBPPForFormat( DXGI_FORMAT fmt );
 

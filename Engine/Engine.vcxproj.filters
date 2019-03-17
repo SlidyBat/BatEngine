@@ -512,6 +512,9 @@
     <ClInclude Include="Graphics\Passes\BloomPass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Passes\MotionBlurPass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\mario.png">
@@ -572,6 +575,7 @@
     <FxCompile Include="Graphics\Shaders\BloomPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
+    <FxCompile Include="Graphics\Shaders\MotionBlurPS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shaders\Common.hlsli">

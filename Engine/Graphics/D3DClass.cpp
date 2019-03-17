@@ -1,7 +1,6 @@
 #include "PCH.h"
 #include "D3DClass.h"
 
-#include <d3d11.h>
 #include "COMException.h"
 #include "RenderTexture.h"
 #include "Common.h"
@@ -129,21 +128,47 @@ namespace Bat
 		COM_THROW_IF_FAILED( m_pDevice->CreateRenderTargetView( pBackBuffer.Get(), NULL, &m_pRenderTargetView ) );
 
 		//Describe our Depth/Stencil Buffer
-		D3D11_TEXTURE2D_DESC depthStencilDesc;
-		depthStencilDesc.Width = (UINT)wnd.GetWidth();
-		depthStencilDesc.Height = (UINT)wnd.GetHeight();
-		depthStencilDesc.MipLevels = 1;
-		depthStencilDesc.ArraySize = 1;
-		depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		depthStencilDesc.SampleDesc.Count = 1;
-		depthStencilDesc.SampleDesc.Quality = 0;
-		depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
-		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-		depthStencilDesc.CPUAccessFlags = 0;
-		depthStencilDesc.MiscFlags = 0;
+		D3D11_TEXTURE2D_DESC depthStencilBufferDesc;
+		depthStencilBufferDesc.Width = (UINT)wnd.GetWidth();
+		depthStencilBufferDesc.Height = (UINT)wnd.GetHeight();
+		depthStencilBufferDesc.MipLevels = 1;
+		depthStencilBufferDesc.ArraySize = 1;
+		depthStencilBufferDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
+		depthStencilBufferDesc.SampleDesc.Count = 1;
+		depthStencilBufferDesc.SampleDesc.Quality = 0;
+		depthStencilBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		depthStencilBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+		depthStencilBufferDesc.CPUAccessFlags = 0;
+		depthStencilBufferDesc.MiscFlags = 0;
 
-		COM_THROW_IF_FAILED( m_pDevice->CreateTexture2D( &depthStencilDesc, NULL, &m_pDepthStencilBuffer ) );
-		COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilView( m_pDepthStencilBuffer.Get(), NULL, &m_pDepthStencilView ) );
+		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
+		depthStencilViewDesc.Flags = 0;
+		depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT ;
+		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		depthStencilViewDesc.Texture2D.MipSlice = 0;
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC depthShaderResourceViewDesc;
+		depthShaderResourceViewDesc.Format                    = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		depthShaderResourceViewDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
+		depthShaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+		depthShaderResourceViewDesc.Texture2D.MipLevels       = -1;
+
+		COM_THROW_IF_FAILED(
+			m_pDevice->CreateTexture2D( &depthStencilBufferDesc, NULL, &m_pDepthStencilBuffer )
+		);
+		COM_THROW_IF_FAILED(
+			m_pDevice->CreateDepthStencilView( m_pDepthStencilBuffer.Get(),
+				&depthStencilViewDesc,
+				&m_pDepthStencilView
+			)
+		);
+		COM_THROW_IF_FAILED(
+			m_pDevice->CreateShaderResourceView(
+				m_pDepthStencilBuffer.Get(),
+				&depthShaderResourceViewDesc,
+				&m_pDepthShaderResourceView
+			)
+		);
 
 		m_pDeviceContext->OMSetRenderTargets( 1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get() );
 
@@ -253,6 +278,11 @@ namespace Bat
 	ID3D11DepthStencilView* D3DClass::GetDepthStencilView() const
 	{
 		return m_pDepthStencilView.Get();
+	}
+
+	ID3D11ShaderResourceView* D3DClass::GetDepthShaderResourceView() const
+	{
+		return m_pDepthShaderResourceView.Get();
 	}
 
 	IDXGISwapChain* D3DClass::GetSwapChain() const

@@ -159,8 +159,12 @@ namespace Bat
 				}
 			}
 
+			RenderTexture::UnbindAll();
+
 			// run the pass
 			m_vRenderPasses[i]->Execute( scene, data );
+
+			RenderTexture::UnbindAll();
 		}
 	}
 
@@ -243,7 +247,7 @@ namespace Bat
 
 		return nullptr;
 	}
-	RenderTexture * RenderGraph::GetRenderTextureResource( const std::string & name )
+	RenderTexture* RenderGraph::GetRenderTextureResource( const std::string& name )
 	{
 		auto it = m_mapRenderTextures.find( name );
 		if( it != m_mapRenderTextures.end() )

@@ -8,6 +8,7 @@
 
 #include "Window.h"
 #include <wrl.h>
+#include <d3d11.h>
 
 #ifdef _DEBUG
 #include <initguid.h>
@@ -15,15 +16,6 @@
 #include <dxgidebug.h>
 #pragma comment( lib, "dxguid.lib" )
 #endif
-
-struct IDXGISwapChain;
-struct ID3D11Device;
-struct ID3D11DeviceContext;
-struct ID3D11RenderTargetView;
-struct ID3D11RasterizerState;
-struct ID3D11DepthStencilView;
-struct ID3D11Texture2D;
-struct ID3D11DepthStencilState;
 
 namespace Bat
 {
@@ -40,11 +32,12 @@ namespace Bat
 		void PresentScene();
 		void Resize( int width = 0, int height = 0 );
 
-		ID3D11Device*           GetDevice() const;
-		ID3D11DeviceContext*    GetDeviceContext() const;
-		ID3D11RenderTargetView* GetRenderTargetView() const;
-		ID3D11DepthStencilView* GetDepthStencilView() const;
-		IDXGISwapChain*         GetSwapChain() const;
+		ID3D11Device*             GetDevice() const;
+		ID3D11DeviceContext*      GetDeviceContext() const;
+		ID3D11RenderTargetView*   GetRenderTargetView() const;
+		ID3D11DepthStencilView*   GetDepthStencilView() const;
+		ID3D11ShaderResourceView* GetDepthShaderResourceView() const;
+		IDXGISwapChain*           GetSwapChain() const;
 
 		void GetVideoCardInfo( std::wstring& cardName, int& memory ) const;
 
@@ -74,8 +67,9 @@ namespace Bat
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_pRenderTargetView;
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState>		m_pRasterState;
 
-		Microsoft::WRL::ComPtr<ID3D11DepthStencilView>		m_pDepthStencilView;
 		Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pDepthStencilBuffer;
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilView>		m_pDepthStencilView;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_pDepthShaderResourceView;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilState>		m_pDepthStencilEnabledState;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilState>		m_pDepthStencilDisabledState;
 

@@ -11,14 +11,14 @@ namespace Bat
 	class RenderTexture
 	{
 	public:
-		static void BindMultiple( const RenderTexture* pRenderTargets, const size_t count );
+		static void BindMultiple( const RenderTexture* pRenderTargets, const size_t count, bool bind_depth = true );
 		static void UnbindAll();
 		static RenderTexture Backbuffer();
 	public:
 		RenderTexture() = default;
 		RenderTexture( int width, int height );
 
-		void Bind();
+		void Bind( bool bind_depth = true );
 		void Clear( const float red, const float green, const float blue, const float alpha );
 		void Resize( int width, int height );
 		ID3D11ShaderResourceView* GetTextureView() const { return m_pShaderResourceView.Get(); }
