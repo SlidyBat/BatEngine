@@ -19,9 +19,9 @@ namespace Bat
 			case Logger::LOG_SEVERITY_INFO:
 				return spdlog::level::info;
 			case Logger::LOG_SEVERITY_WARN:
-				return spdlog::level::warn;
-			case Logger::LOG_SEVERITY_ERROR:
 				return spdlog::level::err;
+			case Logger::LOG_SEVERITY_ERROR:
+				return spdlog::level::critical;
 			default:
 				ASSERT( false, "Unhandled log severity" );
 				return spdlog::level::info;
