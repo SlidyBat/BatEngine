@@ -82,6 +82,12 @@
     <Filter Include="Source Files\Audio">
       <UniqueIdentifier>{242d89d1-68e2-429a-96a3-f57da96f1c9b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Physics">
+      <UniqueIdentifier>{4858747f-fbc6-4a2e-a5dc-1a133cbfffc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Physics">
+      <UniqueIdentifier>{5921b60e-36ac-4e6c-ad1a-4cd4114258e3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -260,6 +266,12 @@
     </ClCompile>
     <ClCompile Include="Audio\Audio.cpp">
       <Filter>Source Files\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\EngineSystems.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\Physics.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -520,6 +532,12 @@
     </ClInclude>
     <ClInclude Include="Util\ByteSwap.h">
       <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\Physics.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\EngineSystems.h">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

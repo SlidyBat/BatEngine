@@ -79,46 +79,12 @@ namespace Bat
 		Light* m_pLight = nullptr;
 	};
 
-	class SecondState : public State<Application>
-	{
-		virtual void OnEnter(Application& app) override
-		{
-			BAT_LOG( "Entered SecondState" );
-		}
-		virtual void OnExit(Application& app) override
-		{
-			BAT_LOG( "Exited SecondState" );
-		}
-		virtual void Execute(Application& app) override
-		{
-			app.PopState();
-		}
-	};
-	class InitialState : public State<Application>
-	{
-	public:
-		virtual void OnEnter(Application& app) override
-		{
-			BAT_LOG( "Entered InitialState" );
-		}
-		virtual void OnExit(Application& app) override
-		{
-			BAT_LOG( "Exited InitialState" );
-		}
-		virtual void Execute(Application& app) override
-		{
-			app.PushState( std::make_unique<SecondState>() );
-		}
-	};
-
-
 	Application::Application( Graphics& gfx, Window& wnd )
 		:
 		gfx( gfx ),
 		wnd( wnd ),
 		camera( wnd.input ),
-		scene( SceneLoader::LoadScene( "Assets\\Ignore\\Sponza\\Sponza.gltf" ) ),
-		StateMachine<Application>( *this )
+		scene( SceneLoader::LoadScene( "Assets\\Ignore\\Sponza\\Sponza.gltf" ) )
 	{
 		camera.SetPosition( { 0.0f, 0.0f, -10.0f } );
 
@@ -147,8 +113,6 @@ namespace Bat
 				BuildRenderGraph();
 			}
 		} );
-
-		PushState( std::make_unique<InitialState>() );
 	}
 
 	Application::~Application()
@@ -165,8 +129,6 @@ namespace Bat
 			fps_string = "FPS: " + std::to_string( fps_counter );
 			fps_counter = 0;
 			elapsed_time -= 1.0f;
-
-			Execute();
 		}
 
 		camera.Update( deltatime );

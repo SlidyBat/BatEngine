@@ -3,12 +3,12 @@
 
 #include <objbase.h>
 
-COMInitialize::COMInitialize()
+void COMInitialize::Initialize()
 {
 	CoInitializeEx( NULL, COINIT_MULTITHREADED | COINIT_DISABLE_OLE1DDE );
 }
 
-COMInitialize::~COMInitialize()
+void COMInitialize::Shutdown()
 {
 	CoUninitialize();
 }

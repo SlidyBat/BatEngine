@@ -10,12 +10,14 @@
 #define BAT_LOG(...)   Bat::Logger::GetLogger()->info(Bat::Format(__VA_ARGS__))
 #define BAT_WARN(...)  Bat::Logger::GetLogger()->error(Bat::Format(__VA_ARGS__))
 #define BAT_ERROR(...) Bat::Logger::GetLogger()->critical(Bat::Format(__VA_ARGS__))
+#define BAT_ABORT(...) BAT_ERROR(Bat::Format(__VA_ARGS__)); ASSERT(false, Bat::Format(__VA_ARGS__));
 #else
 #define BAT_DEBUG(...)
 #define BAT_TRACE(...)
 #define BAT_LOG(...)   Bat::Logger::GetLogger()->info(Bat::Format(__VA_ARGS__))
 #define BAT_WARN(...)  Bat::Logger::GetLogger()->error(Bat::Format(__VA_ARGS__))
 #define BAT_ERROR(...) Bat::Logger::GetLogger()->critical(Bat::Format(__VA_ARGS__))
+#define BAT_ABORT(...) BAT_ERROR(Bat::Format(__VA_ARGS__)); BAT_ASSERT(false, Bat::Format(__VA_ARGS__));
 #endif
 
 namespace Bat

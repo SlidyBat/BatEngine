@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BatWinAPI.h"
+#include "Common.h"
 #include "StringLib.h"
 
 #ifdef _DEBUG
@@ -11,8 +12,8 @@
 #define ASSERT( expr, ... ) if( expr ) {} \
 	else \
 	{\
-		Utils::AssertMessage( #expr, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__ ); \
-		__debugbreak(); \
+		Detail::AssertMessage( #expr, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__ ); \
+		BAT_DEBUG_BREAK(); \
 	}
 #else
 #define ASSERT( expr, ... )
@@ -20,7 +21,7 @@
 
 namespace Bat
 {
-	namespace Utils
+	namespace Detail
 	{
 		template <typename... Args>
 		inline void AssertMessage( const std::string& expr, const std::string& file, const std::string& function, int line, Args&&... args )

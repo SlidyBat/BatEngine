@@ -10,40 +10,22 @@
 #include "Window.h"
 #include "Graphics.h"
 #include "FileWatchdog.h"
+#include "Physics.h"
 #include "Application.h"
+#include "EngineSystems.h"
 
 using namespace Bat;
-
-static void InitializeSubsystems()
-{
-	Logger::Initialize();
-	BAT_TRACE( "Initialized logger" );
-	Networking::Initialize();
-	BAT_TRACE( "Initialized networking" );
-	JobSystem::Initialize();
-	BAT_TRACE("Initialized job system");
-	FileWatchdog::Initialize();
-	BAT_TRACE( "Initialized file watchdog" );
-}
-
-static void DestroySubsystems()
-{
-	FileWatchdog::Shutdown();
-	BAT_TRACE( "Shut down file watchdog" );
-	JobSystem::Shutdown();
-	BAT_TRACE("Shut down job system");
-	Networking::Shutdown();
-	BAT_TRACE( "Shut down networking" );
-	Logger::Shutdown();
-	BAT_TRACE( "Shut down logger" );
-}
 
 int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow )
 {
 	try
 	{
-		COMInitialize coinit;
-		InitializeSubsystems();
+		BAT_INIT_SYSTEM( Logger );
+		BAT_INIT_SYSTEM( Networking );
+		BAT_INIT_SYSTEM( JobSystem );
+		BAT_INIT_SYSTEM( FileWatchdog );
+		BAT_INIT_SYSTEM( Physics );
+		BAT_INIT_SYSTEM( COMInitialize );
 
 		Window wnd( { 50, 50 }, Graphics::InitialScreenWidth, Graphics::InitialScreenHeight, "Bat Engine", Graphics::FullScreen );
 		BAT_TRACE( "Initialized window" );
@@ -88,7 +70,6 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine,
 	}
 
 	ResourceManager::CleanUp();
-	DestroySubsystems();
 
 	return 0;
 }

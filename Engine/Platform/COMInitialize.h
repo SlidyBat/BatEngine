@@ -3,6 +3,6 @@
 class COMInitialize
 {
 public:
-	COMInitialize();
-	~COMInitialize();
+	static void Initialize();
+	static void Shutdown();
 };

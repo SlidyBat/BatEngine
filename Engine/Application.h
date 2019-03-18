@@ -8,7 +8,6 @@
 #include "Audio.h"
 #include "Scene.h"
 #include "RenderGraph.h"
-#include "StateMachine.h"
 
 namespace Bat
 {
@@ -19,7 +18,7 @@ namespace Bat
 	template <class Application>
 	class Scene;
 
-	class Application : public ILayer, public StateMachine<Application>
+	class Application : public ILayer
 	{
 	public:
 		Application( Graphics& gfx, Window& wnd );
@@ -31,7 +30,7 @@ namespace Bat
 		void BuildRenderGraph();
 	public:
 		bool bloom_enabled = true;
-		bool motion_blur_enabled = true;
+		bool motion_blur_enabled = false;
 	private:
 		Graphics& gfx;
 		Window& wnd;
