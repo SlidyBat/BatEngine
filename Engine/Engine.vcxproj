@@ -90,7 +90,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Core;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)Networking;$(ProjectDir)Audio;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;$(ProjectDir)ThirdParty\irrKlang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Core;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)Networking;$(ProjectDir)Audio;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;$(ProjectDir)ThirdParty\irrKlang\include;$(ProjectDir)ThirdParty\PhysX\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -101,13 +101,14 @@
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\DirectXTK\Bin\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform);$(ProjectDir)ThirdParty\irrKlang\lib\$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies);Ws2_32.lib;winmm.lib;dxguid.lib;DirectXTK.lib;assimp-vc140-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib;irrKlang.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\DirectXTK\Bin\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform);$(ProjectDir)ThirdParty\irrKlang\lib\$(Platform);$(ProjectDir)ThirdParty\PhysX\lib\$(Configuration)-$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);Ws2_32.lib;winmm.lib;dxguid.lib;DirectXTK.lib;assimp-vc140-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib;irrKlang.lib;PhysX.lib;PhysXCommon.lib;PhysXFoundation.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)ThirdParty\Assimp\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"
 xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDir)"
-copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDir)"</Command>
+copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDir)"
+xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -119,7 +120,7 @@ copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDi
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Core;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)Networking;$(ProjectDir)Audio;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;$(ProjectDir)ThirdParty\irrKlang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Core;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)Networking;$(ProjectDir)Audio;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;$(ProjectDir)ThirdParty\irrKlang\include;$(ProjectDir)ThirdParty\PhysX\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -130,13 +131,14 @@ copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDi
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\DirectXTK\Bin\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform);$(ProjectDir)ThirdParty\irrKlang\lib\$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies);Ws2_32.lib;winmm.lib;dxguid.lib;DirectXTK.lib;assimp-vc140-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib;irrKlang.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\DirectXTK\Bin\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform);$(ProjectDir)ThirdParty\irrKlang\lib\$(Platform);$(ProjectDir)ThirdParty\PhysX\lib\$(Configuration)-$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);Ws2_32.lib;winmm.lib;dxguid.lib;DirectXTK.lib;assimp-vc140-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib;irrKlang.lib;PhysX.lib;PhysXCommon.lib;PhysXFoundation.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)ThirdParty\Assimp\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"
 xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDir)"
-copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDir)"</Command>
+copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDir)"
+xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -150,7 +152,7 @@ copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDi
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Core;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)Networking;$(ProjectDir)Audio;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;$(ProjectDir)ThirdParty\irrKlang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Core;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)Networking;$(ProjectDir)Audio;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;$(ProjectDir)ThirdParty\irrKlang\include;$(ProjectDir)ThirdParty\PhysX\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;%(PreprocessorDefinitions);NDEBUG</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -163,13 +165,14 @@ copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDi
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\DirectXTK\Bin\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform);$(ProjectDir)ThirdParty\irrKlang\lib\$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies);Ws2_32.lib;winmm.lib;dxguid.lib;DirectXTK.lib;assimp-vc140-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib;irrKlang.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\DirectXTK\Bin\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform);$(ProjectDir)ThirdParty\irrKlang\lib\$(Platform);$(ProjectDir)ThirdParty\PhysX\lib\$(Configuration)-$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);Ws2_32.lib;winmm.lib;dxguid.lib;DirectXTK.lib;assimp-vc140-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib;irrKlang.lib;PhysX.lib;PhysXCommon.lib;PhysXFoundation.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)ThirdParty\Assimp\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"
 xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDir)"
-copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDir)"</Command>
+copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDir)"
+xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -183,7 +186,7 @@ copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDi
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Core;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)Networking;$(ProjectDir)Audio;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;$(ProjectDir)ThirdParty\irrKlang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Core;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)Networking;$(ProjectDir)Audio;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;$(ProjectDir)ThirdParty\irrKlang\include;$(ProjectDir)ThirdParty\PhysX\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;%(PreprocessorDefinitions);NDEBUG</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -196,13 +199,14 @@ copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDi
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\DirectXTK\Bin\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform);$(ProjectDir)ThirdParty\irrKlang\lib\$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies);Ws2_32.lib;winmm.lib;dxguid.lib;DirectXTK.lib;assimp-vc140-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib;irrKlang.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\DirectXTK\Bin\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform);$(ProjectDir)ThirdParty\irrKlang\lib\$(Platform);$(ProjectDir)ThirdParty\PhysX\lib\$(Configuration)-$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);Ws2_32.lib;winmm.lib;dxguid.lib;DirectXTK.lib;assimp-vc140-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib;irrKlang.lib;PhysX.lib;PhysXCommon.lib;PhysXFoundation.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)ThirdParty\Assimp\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"
 xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDir)"
-copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDir)"</Command>
+copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDir)"
+xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
