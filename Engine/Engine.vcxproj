@@ -227,7 +227,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClCompile Include="Graphics\UI\UltralightAdapters\FontLoaderWin.cpp" />
     <ClCompile Include="Graphics\UI\UltralightAdapters\GPUDriverD3D11.cpp" />
     <ClCompile Include="Networking\Networking.cpp" />
-    <ClCompile Include="Physics\EngineSystems.cpp" />
+    <ClCompile Include="Core\EngineSystems.cpp" />
     <ClCompile Include="Physics\Physics.cpp" />
     <ClCompile Include="Util\TokenStream.cpp" />
     <ClCompile Include="Util\FileWatchdog.cpp" />

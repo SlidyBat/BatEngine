@@ -267,11 +267,11 @@
     <ClCompile Include="Audio\Audio.cpp">
       <Filter>Source Files\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="Physics\EngineSystems.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
     <ClCompile Include="Physics\Physics.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\EngineSystems.cpp">
+      <Filter>Source Files\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
