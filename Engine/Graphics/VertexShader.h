@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PCH.h"
+#include <atomic>
 #include <wrl.h>
 
 #include "ConstantBuffer.h"

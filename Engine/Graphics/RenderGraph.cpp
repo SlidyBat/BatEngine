@@ -125,7 +125,7 @@ namespace Bat
 			return;
 		}
 
-		for( int i = 0; i < m_vRenderPasses.size(); i++ )
+		for( size_t i = 0; i < m_vRenderPasses.size(); i++ )
 		{
 			if( !IsPassEnabled( i ) )
 			{
@@ -135,7 +135,7 @@ namespace Bat
 			RenderData data;
 
 			// bind to output if this is the output pass
-			if( i == m_OutputNode->pass_idx )
+			if( i == (size_t)m_OutputNode->pass_idx )
 			{
 				data.AddRenderTexture( m_OutputNode->name, &target );
 			}

@@ -19,6 +19,7 @@
 #include <typeindex>
 #include <mutex>
 #include <filesystem>
+#include <atomic>
 
 // STL containers
 #include <string>
