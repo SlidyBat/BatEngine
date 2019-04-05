@@ -19,19 +19,31 @@ build:
 
 after_build:
   - cd "c:\build"
+
   # Delete unnecessary debug files
   - if exist .\*.pdb  /f del \*.pdb
   - if exist .\*.ipdb /f del \*.ipdb
   - if exist .\*.iobj /f del \*.iobj
+
   # Make name not so long
   - set APPVEYOR_REPO_COMMIT=%APPVEYOR_REPO_COMMIT:~0,7%
+
   # Package files into zip
-  - 7z a engine_build.zip ".\Build\Release-x64\*.exe"
-  - 7z a engine_build.zip ".\Build\Release-x64\*.dll"
+  # See https://sevenzip.osdn.jp/chm/cmdline/commands/add.htm for details on how the `a` command works
+  
+  - 7z a engine_build.zip ".\Build\Release-x64\*.exe" # Add all exe files
+  - 7z a engine_build.zip ".\Build\Release-x64\*.dll" # Add all dll files
+
+  # Note: The following files must be added with directories/paths intact, can't just add to root directory
+  #       like the exe/dll files.
+
+  # Add all shaders
   - cd "Engine"
   - 7z a ..\engine_build.zip "Graphics\Shaders\*.hlsl"
   - 7z a ..\engine_build.zip "Graphics\Shaders\*.hlsli"
   - 7z a ..\engine_build.zip "Graphics\Shaders\Ultralight\"
+
+  # Add all assets
   - 7z a ..\engine_build.zip "Assets\"
 
 artifacts:
