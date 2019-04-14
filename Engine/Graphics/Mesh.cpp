@@ -1,12 +1,11 @@
 #include "PCH.h"
 #include "Mesh.h"
 
-#include "RenderContext.h"
 #include "Camera.h"
 
 namespace Bat
 {
-	Mesh::Mesh( const MeshParameters& params, const std::vector<int>& indices, const Material& material )
+	Mesh::Mesh( const MeshParameters& params, const std::vector<unsigned int>& indices, const Material& material )
 		:
 		m_bufIndices( indices ),
 		m_Material( material )
@@ -14,90 +13,78 @@ namespace Bat
 		SetData( params );
 	}
 
-	void Mesh::Bind( IPipeline* pPipeline ) const
+	void Mesh::Bind( IGPUContext* pContext, IPipeline* pPipeline ) const
 	{
 		// TODO: support other primitives?
-		RenderContext::GetDeviceContext()->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+		pContext->SetPrimitiveTopology( PrimitiveTopology::TRIANGLELIST );
 
-		// bind buffers
-		std::vector<ID3D11Buffer*> buffers;
-		buffers.reserve( (int)VertexAttribute::TotalAttributes );
-		std::vector<UINT> strides;
-		strides.reserve( (int)VertexAttribute::TotalAttributes );
+		size_t slot = 0;
 
 		if( pPipeline->RequiresVertexAttribute( VertexAttribute::Position ) )
 		{
-			ASSERT( m_bufPosition.GetVertexCount() > 0, "Shader requires model to have vertex position data" );
-			buffers.emplace_back( m_bufPosition );
-			strides.emplace_back( m_bufPosition.GetStride() );
+			ASSERT( m_bufPosition->GetVertexCount() > 0, "Shader requires model to have vertex position data" );
+			pContext->SetVertexBuffer( m_bufPosition, slot++ );
 		}
 		if( pPipeline->RequiresVertexAttribute( VertexAttribute::Colour ) )
 		{
-			ASSERT( m_bufColour.GetVertexCount() > 0, "Shader requires model to have vertex colour data" );
-			buffers.emplace_back( m_bufColour );
-			strides.emplace_back( m_bufColour.GetStride() );
+			ASSERT( m_bufColour->GetVertexCount() > 0, "Shader requires model to have vertex colour data" );
+			pContext->SetVertexBuffer( m_bufColour, slot++ );
 		}
 		if( pPipeline->RequiresVertexAttribute( VertexAttribute::Normal ) )
 		{
-			ASSERT( m_bufNormal.GetVertexCount() > 0, "Shader requires model to have vertex normal data" );
-			buffers.emplace_back( m_bufNormal );
-			strides.emplace_back( m_bufNormal.GetStride() );
+			ASSERT( m_bufNormal->GetVertexCount() > 0, "Shader requires model to have vertex normal data" );
+			pContext->SetVertexBuffer( m_bufNormal, slot++ );
 		}
 		if( pPipeline->RequiresVertexAttribute( VertexAttribute::UV ) )
 		{
-			ASSERT( m_bufUV.GetVertexCount() > 0, "Shader requires model to have vertex UV data" );
-			buffers.emplace_back( m_bufUV );
-			strides.emplace_back( m_bufUV.GetStride() );
+			ASSERT( m_bufUV->GetVertexCount() > 0, "Shader requires model to have vertex UV data" );
+			pContext->SetVertexBuffer( m_bufUV, slot++ );
 		}
 		if( pPipeline->RequiresVertexAttribute( VertexAttribute::Tangent ) )
 		{
-			ASSERT( m_bufTangent.GetVertexCount() > 0, "Shader requires model to have vertex tangent data" );
-			buffers.emplace_back( m_bufTangent );
-			strides.emplace_back( m_bufTangent.GetStride() );
+			ASSERT( m_bufTangent->GetVertexCount() > 0, "Shader requires model to have vertex tangent data" );
+			pContext->SetVertexBuffer( m_bufTangent, slot++ );
 		}
 		if( pPipeline->RequiresVertexAttribute( VertexAttribute::Bitangent ) )
 		{
-			ASSERT( m_bufTangent.GetVertexCount() > 0, "Shader requires model to have vertex bitangent data" );
-			buffers.emplace_back( m_bufBitangent );
-			strides.emplace_back( m_bufBitangent.GetStride() );
+			ASSERT( m_bufBitangent->GetVertexCount() > 0, "Shader requires model to have vertex bitangent data" );
+			pContext->SetVertexBuffer( m_bufBitangent, slot++ );
 		}
 
-		std::vector<UINT> offsets( buffers.size() );
-		RenderContext::GetDeviceContext()->IASetVertexBuffers( 0, (UINT)buffers.size(), buffers.data(), strides.data(), offsets.data() );
-		m_bufIndices.Bind();
+		pContext->SetIndexBuffer( m_bufIndices );
 	}
 
 	void Mesh::SetData( const MeshParameters& params )
 	{
 		if( !params.position.empty() )
 		{
-			m_bufPosition.SetData( params.position );
+			m_bufPosition.Reset( params.position );
 		}
 		if( !params.colour.empty() )
 		{
-			m_bufColour.SetData( params.colour );
+			m_bufColour.Reset( params.colour );
 		}
 		if( !params.normal.empty() )
 		{
-			m_bufNormal.SetData( params.normal );
+			m_bufNormal.Reset( params.normal );
 		}
 		if( !params.uv.empty() )
 		{
-			m_bufUV.SetData( params.uv );
+			m_bufUV.Reset( params.uv );
 		}
 		if( !params.tangent.empty() )
 		{
-			m_bufTangent.SetData( params.tangent );
+			m_bufTangent.Reset( params.tangent );
 		}
 		if( !params.bitangent.empty() )
 		{
-			m_bufBitangent.SetData( params.bitangent );
+			m_bufBitangent.Reset( params.bitangent );
 		}
 	}
 
-	void Mesh::SetIndices( const std::vector<int>& indices )
+	void Mesh::SetIndices( const std::vector<unsigned int>& indices )
 	{
-		m_bufIndices.SetData( indices );
+		m_bufIndices.Reset( indices );
 	}
 
 	Material& Mesh::GetMaterial()
@@ -107,11 +94,11 @@ namespace Bat
 
 	size_t Mesh::GetVertexCount() const
 	{
-		return m_bufPosition.GetVertexCount();
+		return m_bufPosition->GetVertexCount();
 	}
 
 	size_t Mesh::GetIndexCount() const
 	{
-		return m_bufIndices.GetIndexCount();
+		return m_bufIndices->GetIndexCount();
 	}
 }

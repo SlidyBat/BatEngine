@@ -2,9 +2,8 @@
 
 #include "IPipeline.h"
 #include "Colour.h"
-#include "VertexShader.h"
-#include "PixelShader.h"
 #include "Mesh.h"
+#include "ConstantBuffer.h"
 
 namespace Bat
 {
@@ -22,21 +21,19 @@ namespace Bat
 			transform.world = world;
 			transform.viewproj = viewproj;
 		}
-		CB_ColourPipelineMatrix* GetTransformMatrix()
-		{
-			return &transform;
-		}
-	private:
+
 		CB_ColourPipelineMatrix transform;
 	};
 
 	class ColourPipeline : public IPipeline
 	{
 	public:
-		ColourPipeline( const std::string& vsFilename, const std::string& psFilename );
+		ColourPipeline( const std::string& vs_filename, const std::string& ps_filename );
 
-		void BindParameters( IPipelineParameters& pParameters ) override;
-		void Render( UINT vertexcount ) override;
-		void RenderIndexed( UINT indexcount ) override;
+		void BindParameters( IGPUContext* pContext, IPipelineParameters& pParameters ) override;
+		void Render( IGPUContext* pContext, size_t vertexcount ) override;
+		void RenderIndexed( IGPUContext* pContext, size_t indexcount ) override;
+	private:
+		ConstantBuffer<CB_ColourPipelineMatrix> m_cbufTransform;
 	};
 }

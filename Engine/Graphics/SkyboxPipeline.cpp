@@ -1,7 +1,6 @@
 #include "PCH.h"
 #include "SkyboxPipeline.h"
 
-#include "RenderContext.h"
 #include "VertexTypes.h"
 #include "COMException.h"
 
@@ -9,33 +8,30 @@ namespace Bat
 {
 	SkyboxPipeline::SkyboxPipeline( const std::string& vsFilename, const std::string& psFilename )
 		:
-		IPipeline( vsFilename, psFilename )
-	{
-		m_VertexShader.AddConstantBuffer<CB_SkyboxPipelineMatrix>();
-
-		std::vector<Vec4> positions = {
+		IPipeline( vsFilename, psFilename ),
+		m_bufPositions({
 			// Front Face
 			Vec4( -1.0f, -1.0f, -1.0f, 1.0f ),
 			Vec4( -1.0f,  1.0f, -1.0f, 1.0f ),
-			Vec4( 1.0f,  1.0f, -1.0f, 1.0f ),
-			Vec4( 1.0f, -1.0f, -1.0f, 1.0f ),
+			Vec4(  1.0f,  1.0f, -1.0f, 1.0f ),
+			Vec4(  1.0f, -1.0f, -1.0f, 1.0f ),
 
 			// Back Face            
 			Vec4( -1.0f, -1.0f, 1.0f, 1.0f ),
-			Vec4( 1.0f, -1.0f, 1.0f, 1.0f ),
-			Vec4( 1.0f,  1.0f, 1.0f, 1.0f ),
+			Vec4(  1.0f, -1.0f, 1.0f, 1.0f ),
+			Vec4(  1.0f,  1.0f, 1.0f, 1.0f ),
 			Vec4( -1.0f,  1.0f, 1.0f, 1.0f ),
 
 			// Top Face                
 			Vec4( -1.0f, 1.0f, -1.0f, 1.0f ),
 			Vec4( -1.0f, 1.0f,  1.0f, 1.0f ),
-			Vec4( 1.0f, 1.0f,  1.0f, 1.0f ),
-			Vec4( 1.0f, 1.0f, -1.0f, 1.0f ),
+			Vec4(  1.0f, 1.0f,  1.0f, 1.0f ),
+			Vec4(  1.0f, 1.0f, -1.0f, 1.0f ),
 
 			// Bottom Face            
 			Vec4( -1.0f, -1.0f, -1.0f, 1.0f ),
-			Vec4( 1.0f, -1.0f, -1.0f, 1.0f ),
-			Vec4( 1.0f, -1.0f,  1.0f, 1.0f ),
+			Vec4(  1.0f, -1.0f, -1.0f, 1.0f ),
+			Vec4(  1.0f, -1.0f,  1.0f, 1.0f ),
 			Vec4( -1.0f, -1.0f,  1.0f, 1.0f ),
 
 			// Left Face            
@@ -48,10 +44,8 @@ namespace Bat
 			Vec4( 1.0f, -1.0f, -1.0f, 1.0f ),
 			Vec4( 1.0f,  1.0f, -1.0f, 1.0f ),
 			Vec4( 1.0f,  1.0f,  1.0f, 1.0f ),
-			Vec4( 1.0f, -1.0f,  1.0f, 1.0f ),
-		};
-
-		const std::vector<int> indices = {
+			Vec4( 1.0f, -1.0f,  1.0f, 1.0f ) }),
+		m_bufIndices({
 			// Front Face
 			2,  1,  0,
 			3,  2,  0,
@@ -74,32 +68,33 @@ namespace Bat
 
 			// Right Face
 			22, 21, 20,
-			23, 22, 20
-		};
-			
-		m_bufPositions.SetData( positions );
-		m_bufIndices.SetData( indices );
-	}
+			23, 22, 20 })
+	{}
 
-	void SkyboxPipeline::BindParameters( IPipelineParameters& pParameters )
+	void SkyboxPipeline::BindParameters( IGPUContext* pContext, IPipelineParameters& pParameters )
 	{
-		auto pTextureParameters = static_cast<SkyboxPipelineParameters&>(pParameters);
-		m_bufPositions.Bind( 0 );
-		m_bufIndices.Bind();
-		m_VertexShader.Bind();
-		m_PixelShader.Bind();
-		m_VertexShader.GetConstantBuffer( 0 ).SetData( &pTextureParameters.transform );
-		m_PixelShader.SetResource( 0, pTextureParameters.texture );
+		auto params = static_cast<SkyboxPipelineParameters&>(pParameters);
+
+		CB_SkyboxPipelineMatrix transform;
+		transform.viewproj = params.transform;
+		m_cbufTransform.Update( pContext, transform );
+
+		pContext->SetVertexBuffer( m_bufPositions, 0 );
+		pContext->SetIndexBuffer( m_bufIndices );
+		pContext->SetVertexShader( m_pVertexShader.get() );
+		pContext->SetPixelShader( m_pPixelShader.get() );
+		pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, 0 );
+		pContext->BindTexture( params.texture, 0 );
 	}
 
-	void SkyboxPipeline::Render( UINT vertexcount )
+	void SkyboxPipeline::Render( IGPUContext* pContext, size_t vertexcount )
 	{
 		ASSERT( false, "Skybox does not support non-indexed rendering" );
 	}
 
-	void SkyboxPipeline::RenderIndexed( UINT indexcount )
+	void SkyboxPipeline::RenderIndexed( IGPUContext* pContext, size_t indexcount )
 	{
-		auto pDeviceContext = RenderContext::GetDeviceContext();
-		pDeviceContext->DrawIndexed( (UINT)m_bufIndices.GetIndexCount(), 0, 0 );
+		pContext->SetPrimitiveTopology( PrimitiveTopology::TRIANGLELIST );
+		pContext->DrawIndexed( m_bufIndices->GetIndexCount() );
 	}
 }

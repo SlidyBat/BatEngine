@@ -1,7 +1,7 @@
 #pragma once
 
-#include "VertexShader.h"
-#include "PixelShader.h"
+#include "IGPUDevice.h"
+#include "ResourceManager.h"
 
 namespace Bat
 {
@@ -14,23 +14,23 @@ namespace Bat
 	class IPipeline
 	{
 	public:
-		IPipeline( const std::string& vsFilename, const std::string& psFilename )
+		IPipeline( const std::string& vs_filename, const std::string& ps_filename )
 			:
-			m_VertexShader( vsFilename ),
-			m_PixelShader( psFilename )
+			m_pVertexShader( ResourceManager::GetVertexShader( vs_filename ) ),
+			m_pPixelShader( ResourceManager::GetPixelShader( ps_filename ) )
 		{}
 		virtual ~IPipeline() = default;
 
-		virtual bool RequiresVertexAttribute( const VertexAttribute attribute )
+		virtual bool RequiresVertexAttribute( VertexAttribute attribute )
 		{
-			return m_VertexShader.RequiresVertexAttribute( attribute );
+			return m_pVertexShader->RequiresVertexAttribute( attribute );
 		}
 
-		virtual void BindParameters( IPipelineParameters& pParameters ) = 0;
-		virtual void Render( UINT vertexcount ) = 0;
-		virtual void RenderIndexed( UINT indexcount ) = 0;
+		virtual void BindParameters( IGPUContext* pContext, IPipelineParameters& pParameters ) = 0;
+		virtual void Render( IGPUContext* pContext, size_t vertexcount ) = 0;
+		virtual void RenderIndexed( IGPUContext* pContext, size_t indexcount ) = 0;
 	protected:
-		VertexShader m_VertexShader;
-		PixelShader m_PixelShader;
+		Resource<IVertexShader> m_pVertexShader;
+		Resource<IPixelShader> m_pPixelShader;
 	};
 }

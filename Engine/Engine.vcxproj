@@ -231,7 +231,6 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClCompile Include="Physics\Physics.cpp" />
     <ClCompile Include="Util\TokenStream.cpp" />
     <ClCompile Include="Util\FileWatchdog.cpp" />
-    <ClCompile Include="Graphics\IndexBuffer.cpp" />
     <ClCompile Include="Graphics\Material.cpp" />
     <ClCompile Include="Graphics\Mesh.cpp" />
     <ClCompile Include="Graphics\Model.cpp" />
@@ -248,9 +247,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     </ClCompile>
     <ClCompile Include="Graphics\BumpMapPipeline.cpp" />
     <ClCompile Include="Platform\COMInitialize.cpp" />
-    <ClCompile Include="Graphics\ConstantBuffer.cpp" />
     <ClCompile Include="Graphics\Light.cpp" />
-    <ClCompile Include="Graphics\RenderContext.cpp" />
     <ClCompile Include="Core\ResourceManager.cpp" />
     <ClCompile Include="Graphics\Scene.cpp" />
     <ClCompile Include="Util\JobSystem.cpp">
@@ -261,7 +258,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     </ClCompile>
     <ClCompile Include="Core\Log.cpp" />
     <ClCompile Include="Graphics\MoveableCamera.cpp" />
-    <ClCompile Include="Graphics\RenderTexture.cpp" />
+    <ClCompile Include="Graphics\RenderTarget.cpp" />
     <ClCompile Include="Graphics\SkyboxPipeline.cpp" />
     <ClCompile Include="Util\StackAllocator.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
@@ -314,7 +311,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClCompile Include="Core\Globals.cpp" />
     <ClCompile Include="Graphics\Camera.cpp" />
     <ClCompile Include="Graphics\ColourPipeline.cpp" />
-    <ClCompile Include="Graphics\D3DClass.cpp" />
+    <ClCompile Include="Graphics\D3DGPUDevice.cpp" />
     <ClCompile Include="Graphics\LightPipeline.cpp" />
     <ClCompile Include="Graphics\SceneLoader.cpp" />
     <ClCompile Include="Platform\GDIPManager.cpp">
@@ -326,10 +323,8 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClCompile Include="Graphics\Graphics.cpp" />
     <ClCompile Include="Platform\Input.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Graphics\PixelShader.cpp" />
     <ClCompile Include="Graphics\Texture.cpp" />
     <ClCompile Include="Graphics\TexturePipeline.cpp" />
-    <ClCompile Include="Graphics\VertexShader.cpp" />
     <ClCompile Include="Util\MathLib.cpp" />
     <ClCompile Include="Util\MemoryStream.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
@@ -343,6 +338,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="Audio\Audio.h" />
+    <ClInclude Include="Graphics\IGPUDevice.h" />
     <ClInclude Include="Graphics\IRenderPass.h" />
     <ClInclude Include="Graphics\Passes\BloomPass.h" />
     <ClInclude Include="Graphics\Passes\ClearRenderTargetPass.h" />
@@ -353,6 +349,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Graphics\RenderNode.h" />
     <ClInclude Include="Graphics\ShaderManager.h" />
     <ClInclude Include="Core\EngineSystems.h" />
+    <ClInclude Include="Graphics\GraphicsFormats.h" />
     <ClInclude Include="Physics\Physics.h" />
     <ClInclude Include="Util\ByteSwap.h" />
     <ClInclude Include="Util\ChunkedAllocator.h" />
@@ -379,14 +376,13 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Platform\COMInitialize.h" />
     <ClInclude Include="Graphics\Light.h" />
     <ClInclude Include="Graphics\Material.h" />
-    <ClInclude Include="Graphics\RenderContext.h" />
     <ClInclude Include="Core\ResourceManager.h" />
     <ClInclude Include="Graphics\Scene.h" />
     <ClInclude Include="Util\JobSystem.h" />
     <ClInclude Include="Events\KeyboardEvents.h" />
     <ClInclude Include="Core\Log.h" />
     <ClInclude Include="Graphics\MoveableCamera.h" />
-    <ClInclude Include="Graphics\RenderTexture.h" />
+    <ClInclude Include="Graphics\RenderTarget.h" />
     <ClInclude Include="Graphics\SkyboxPipeline.h" />
     <ClInclude Include="Util\PoolAllocator.h" />
     <ClInclude Include="Util\StackAllocator.h" />
@@ -409,14 +405,13 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Graphics\SceneLoader.h" />
     <ClInclude Include="Util\COMException.h" />
     <ClInclude Include="Graphics\ConstantBuffer.h" />
-    <ClInclude Include="Graphics\D3DClass.h" />
+    <ClInclude Include="Graphics\D3DGPUDevice.h" />
     <ClInclude Include="Core\ILayer.h" />
     <ClInclude Include="Platform\GDIPManager.h" />
     <ClInclude Include="Graphics\Graphics.h" />
     <ClInclude Include="Graphics\IndexBuffer.h" />
     <ClInclude Include="Graphics\IPipeline.h" />
     <ClInclude Include="Graphics\Model.h" />
-    <ClInclude Include="Graphics\PixelShader.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Graphics\Texture.h" />
     <ClInclude Include="Platform\Input.h" />
@@ -425,7 +420,6 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Util\MathLib.h" />
     <ClInclude Include="Graphics\VertexTypes.h" />
     <ClInclude Include="Graphics\VertexBuffer.h" />
-    <ClInclude Include="Graphics\VertexShader.h" />
     <ClInclude Include="Util\MemoryStream.h" />
     <ClInclude Include="Platform\Window.h" />
     <ClInclude Include="Events\WindowEvents.h" />

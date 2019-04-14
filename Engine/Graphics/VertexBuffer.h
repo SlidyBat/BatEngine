@@ -1,9 +1,5 @@
 #pragma once
 
-#include <d3d11.h>
-#include <wrl.h>
-
-#include "COMException.h"
 #include "Graphics.h"
 
 namespace Bat
@@ -13,69 +9,45 @@ namespace Bat
 	{
 	public:
 		VertexBuffer() = default;
-		VertexBuffer( const V* pData, const UINT size )
-		{
-			SetData( pData, size );
-		}
+		VertexBuffer( const V* pData, const size_t size )
+			:
+			m_pVertexBuffer( gpu->CreateVertexBuffer( pData, sizeof( V ), size ) )
+		{}
 		VertexBuffer( const std::vector<V>& vertices )
 			:
-			VertexBuffer( vertices.data(), (UINT)vertices.size() )
+			VertexBuffer( vertices.data(), vertices.size() )
 		{}
 
-		void SetData( const V* pData, const UINT size )
+		void Reset( const V* pData, const size_t size )
 		{
-			m_iSize = size;
-			auto pDevice = RenderContext::GetDevice();
-
-			D3D11_BUFFER_DESC vertexBufferDesc;
-			vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-			vertexBufferDesc.ByteWidth = UINT( sizeof( V ) * size );
-			vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-			vertexBufferDesc.CPUAccessFlags = 0;
-			vertexBufferDesc.MiscFlags = 0;
-			vertexBufferDesc.StructureByteStride = 0;
-
-			D3D11_SUBRESOURCE_DATA vertexData;
-			vertexData.pSysMem = pData;
-			vertexData.SysMemPitch = 0;
-			vertexData.SysMemSlicePitch = 0;
-
-			COM_THROW_IF_FAILED( pDevice->CreateBuffer( &vertexBufferDesc, &vertexData, &m_pVertexBuffer ) );
+			m_pVertexBuffer.reset( gpu->CreateVertexBuffer( pData, sizeof( V ), size ) );
 		}
 
-		void SetData( const std::vector<V>& vertices )
+		void Reset( const std::vector<V>& data )
 		{
-			SetData( vertices.data(), (UINT)vertices.size() );
+			Reset( data.data(), data.size() );
 		}
 
-		operator ID3D11Buffer*() const
+		void Update( IGPUContext* pContext, const V* pData )
 		{
-			return m_pVertexBuffer.Get();
+			pContext->UpdateBuffer( m_pVertexBuffer.get(), pData );
 		}
 
-		ID3D11Buffer* const * GetAddressOf() const
+		operator IVertexBuffer*() const
 		{
-			return m_pVertexBuffer.GetAddressOf();
+			return m_pVertexBuffer.get();
 		}
 
-		size_t GetVertexCount() const
+		IVertexBuffer* operator->()
 		{
-			return (size_t)m_iSize;
+			return m_pVertexBuffer.get();
 		}
 
-		UINT GetStride() const
+		const IVertexBuffer* operator->() const
 		{
-			return sizeof( V );
-		}
-
-		void Bind( UINT slot ) const
-		{
-			UINT stride = sizeof( V );
-			UINT offset = 0;
-			RenderContext::GetDeviceContext()->IASetVertexBuffers( slot, 1, m_pVertexBuffer.GetAddressOf(), &stride, &offset );
+			return m_pVertexBuffer.get();
 		}
 	private:
-		Microsoft::WRL::ComPtr<ID3D11Buffer> m_pVertexBuffer = nullptr;
-		UINT m_iSize = 0;
+		std::unique_ptr<IVertexBuffer> m_pVertexBuffer = nullptr;
 	};
 }

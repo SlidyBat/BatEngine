@@ -1,37 +1,31 @@
 #include "PCH.h"
 #include "ColourPipeline.h"
 
-#include "RenderContext.h"
-#include "VertexTypes.h"
-#include "COMException.h"
-#include "RenderContext.h"
-
 namespace Bat
 {
-	ColourPipeline::ColourPipeline( const std::string& vsFilename, const std::string& psFilename )
+	ColourPipeline::ColourPipeline( const std::string& vs_filename, const std::string& ps_filename )
 		:
-		IPipeline( vsFilename, psFilename )
+		IPipeline( vs_filename, ps_filename )
+	{}
+
+	void ColourPipeline::BindParameters( IGPUContext* pContext, IPipelineParameters& pParameters )
 	{
-		m_VertexShader.AddConstantBuffer<CB_ColourPipelineMatrix>();
+		auto params = static_cast<ColourPipelineParameters&>(pParameters);
+
+		m_cbufTransform.Update( pContext, params.transform );
+		pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, 0 );
+
+		pContext->SetVertexShader( m_pVertexShader.get() );
+		pContext->SetPixelShader( m_pPixelShader.get() );
 	}
 
-	void ColourPipeline::BindParameters( IPipelineParameters& pParameters )
+	void ColourPipeline::Render( IGPUContext* pContext, size_t vertexcount )
 	{
-		auto pColourParameters = static_cast<ColourPipelineParameters&>(pParameters);
-		m_VertexShader.Bind();
-		m_PixelShader.Bind();
-		m_VertexShader.GetConstantBuffer( 0 ).SetData( pColourParameters.GetTransformMatrix() );
+		pContext->Draw( vertexcount );
 	}
 
-	void ColourPipeline::Render( UINT vertexcount )
+	void ColourPipeline::RenderIndexed( IGPUContext* pContext, size_t indexcount )
 	{
-		auto pDeviceContext = RenderContext::GetDeviceContext();
-		pDeviceContext->Draw( vertexcount, 0 );
-	}
-
-	void ColourPipeline::RenderIndexed( UINT indexcount )
-	{
-		auto pDeviceContext = RenderContext::GetDeviceContext();
-		pDeviceContext->DrawIndexed( indexcount, 0, 0 );
+		pContext->DrawIndexed( indexcount );
 	}
 }

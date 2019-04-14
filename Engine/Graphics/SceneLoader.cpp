@@ -151,24 +151,24 @@ namespace Bat
 			if( storetype == TextureStorageType::IndexCompressed )
 			{
 				int idx = GetTextureIndex( &str );
-				return std::make_shared<Texture>( reinterpret_cast<uint8_t*>(pScene->mTextures[idx]->pcData),
+				return std::make_shared<Texture>( reinterpret_cast<char*>(pScene->mTextures[idx]->pcData),
 					pScene->mTextures[idx]->mWidth );
 			}
 			else if( storetype == TextureStorageType::IndexNonCompressed )
 			{
 				int idx = GetTextureIndex( &str );
-				return std::make_shared<Texture>( reinterpret_cast<uint8_t*>(pScene->mTextures[idx]->pcData),
+				return std::make_shared<Texture>( reinterpret_cast<char*>(pScene->mTextures[idx]->pcData),
 					pScene->mTextures[idx]->mWidth * pScene->mTextures[idx]->mHeight );
 			}
 			else if( storetype == TextureStorageType::EmbeddedCompressed )
 			{
 				auto pTex = pScene->GetEmbeddedTexture( str.C_Str() );
-				return std::make_shared<Texture>( reinterpret_cast<uint8_t*>(pTex->pcData), pTex->mWidth );
+				return std::make_shared<Texture>( reinterpret_cast<char*>(pTex->pcData), pTex->mWidth );
 			}
 			else if( storetype == TextureStorageType::EmbeddedNonCompressed )
 			{
 				auto pTex = pScene->GetEmbeddedTexture( str.C_Str() );
-				return std::make_shared<Texture>( reinterpret_cast<uint8_t*>(pTex->pcData), pTex->mWidth * pTex->mHeight );
+				return std::make_shared<Texture>( reinterpret_cast<char*>(pTex->pcData), pTex->mWidth * pTex->mHeight );
 			}
 			else
 			{
@@ -188,7 +188,7 @@ namespace Bat
 		}
 
 		MeshParameters params;
-		std::vector<int> indices;
+		std::vector<unsigned int> indices;
 		Material material;
 		
 		if( pMesh->mMaterialIndex >= 0 )

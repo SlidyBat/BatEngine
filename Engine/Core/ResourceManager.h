@@ -7,8 +7,8 @@ namespace Bat
 	class Texture;
 	class Colour;
 	class Mesh;
-	class VertexShader;
-	class PixelShader;
+	class IVertexShader;
+	class IPixelShader;
 
 	template <typename T>
 	using Resource = std::shared_ptr<T>;
@@ -18,8 +18,8 @@ namespace Bat
 	public:
 		static Resource<Texture>        GetTexture( const std::string& filename );
 		static Resource<Texture>        GetColourTexture( const Colour& colour );
-		static Resource<VertexShader>   GetVertexShader( const std::string& filename );
-		static Resource<PixelShader>    GetPixelShader( const std::string& filename );
+		static Resource<IVertexShader>   GetVertexShader( const std::string& filename );
+		static Resource<IPixelShader>    GetPixelShader( const std::string& filename );
 
 		static void CleanUp();
 	};

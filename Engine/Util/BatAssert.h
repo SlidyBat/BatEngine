@@ -3,6 +3,7 @@
 #include "BatWinAPI.h"
 #include "Common.h"
 #include "StringLib.h"
+#include "Log.h"
 
 #ifdef _DEBUG
 #define ENGINE_ENABLE_ASSERTS
@@ -16,7 +17,11 @@
 		BAT_DEBUG_BREAK(); \
 	}
 #else
-#define ASSERT( expr, ... )
+#define ASSERT( expr, ... ) if( expr ) {} \
+	else \
+	{\
+		BAT_ERROR( __VA_ARGS__ ); \
+	}
 #endif
 
 namespace Bat

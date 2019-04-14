@@ -9,6 +9,7 @@ namespace Bat
 {
 	class RenderData;
 	class SceneGraph;
+	class IGPUContext;
 
 	class IRenderPass
 	{
@@ -19,7 +20,7 @@ namespace Bat
 		virtual const std::vector<RenderNode>& GetNodes() const = 0;
 		virtual NodeType GetNodeType( const std::string& name ) const = 0;
 		virtual NodeDataType GetNodeDataType( const std::string& name ) const = 0;
-		virtual void Execute( SceneGraph& scene, RenderData& data ) = 0;
+		virtual void Execute( IGPUContext* pContext, SceneGraph& scene, RenderData& data ) = 0;
 	};
 
 	class BaseRenderPass : public IRenderPass

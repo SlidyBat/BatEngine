@@ -1,14 +1,12 @@
 #pragma once
 
 #include "IRenderPass.h"
-#include "RenderTexture.h"
 #include "RenderData.h"
 #include "SkyboxPipeline.h"
 #include "MathLib.h"
 #include "Camera.h"
 #include "Scene.h"
 #include "ShaderManager.h"
-#include "RenderContext.h"
 
 namespace Bat
 {
@@ -26,14 +24,14 @@ namespace Bat
 			return "Renders skybox. Ideally this should be after all geometry has been rendered so that most of the pixels are occluded";
 		}
 
-		virtual void Execute( SceneGraph& scene, RenderData& data ) override
+		virtual void Execute( IGPUContext* pContext, SceneGraph& scene, RenderData& data ) override
 		{
-			RenderContext::SetDepthStencilEnabled( true );
+			pContext->SetDepthStencilEnabled( true );
 
-			RenderTexture* target = data.GetRenderTexture( "dst" );
-			target->Bind();
+			IRenderTarget* target = data.GetRenderTarget( "dst" );
+			pContext->SetRenderTarget( target );
 
-			Texture* pSkybox = data.GetTexture( "skyboxtex" );
+			ITexture* pSkybox = data.GetTexture( "skyboxtex" );
 			if( pSkybox )
 			{
 				Camera* cam = scene.GetActiveCamera();
@@ -41,10 +39,10 @@ namespace Bat
 				auto w = DirectX::XMMatrixTranslation( pos.x, pos.y, pos.z );
 				auto t = w * cam->GetViewMatrix() * cam->GetProjectionMatrix();
 
-				SkyboxPipelineParameters params( t, pSkybox->GetTextureView() );
+				SkyboxPipelineParameters params( t, pSkybox );
 				auto pPipeline = ShaderManager::GetPipeline( "skybox" );
-				pPipeline->BindParameters( params );
-				pPipeline->RenderIndexed( 0 ); // skybox uses its own index buffer & index count, doesnt matter what we pass in
+				pPipeline->BindParameters( pContext, params );
+				pPipeline->RenderIndexed( pContext, 0 ); // skybox uses its own index buffer & index count, doesnt matter what we pass in
 			}
 		}
 	};

@@ -2,23 +2,27 @@
 
 #include <string>
 #include <unordered_map>
+#include "IGPUDevice.h"
 
 namespace Bat
 {
 	class Texture;
-	class RenderTexture;
+	class RenderTarget;
 
 	class RenderData
 	{
 		friend class RenderGraph;
 	public:
-		Texture* GetTexture( const std::string& name );
-		RenderTexture* GetRenderTexture( const std::string& name );
+		ITexture* GetTexture( const std::string& name );
+		IRenderTarget* GetRenderTarget( const std::string& name );
+		IDepthStencil* GetDepthStencil( const std::string& name );
 
-		void AddTexture( const std::string& name, Texture* pTexture );
-		void AddRenderTexture( const std::string& name, RenderTexture* pRenderTexture );
+		void AddTexture( const std::string& name, ITexture* pTexture );
+		void AddRenderTarget( const std::string& name, IRenderTarget* pRenderTexture );
+		void AddDepthStencil( const std::string& name, IDepthStencil* pDepthStencil );
 	private:
-		std::unordered_map<std::string, Texture*> m_mapTextures;
-		std::unordered_map<std::string, RenderTexture*> m_mapRenderTextures;
+		std::unordered_map<std::string, ITexture*> m_mapTextures;
+		std::unordered_map<std::string, IRenderTarget*> m_mapRenderTextures;
+		std::unordered_map<std::string, IDepthStencil*> m_mapDepthStencils;
 	};
 }

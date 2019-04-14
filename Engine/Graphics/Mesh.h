@@ -27,12 +27,12 @@ namespace Bat
 	{
 	public:
 		Mesh() = default;
-		Mesh( const MeshParameters& params, const std::vector<int>& indices, const Material& material = {} );
+		Mesh( const MeshParameters& params, const std::vector<unsigned int>& indices, const Material& material = {} );
 
-		void Bind( IPipeline* pPipeline ) const;
+		void Bind( IGPUContext* pContext, IPipeline* pPipeline ) const;
 
 		void SetData( const MeshParameters& params );
-		void SetIndices( const std::vector<int>& indices );
+		void SetIndices( const std::vector<unsigned int>& indices );
 
 		Material& GetMaterial();
 

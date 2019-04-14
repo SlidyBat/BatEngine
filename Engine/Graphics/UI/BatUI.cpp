@@ -6,7 +6,7 @@
 #include "UI/UltralightAdapters/FontLoaderWin.h"
 #include "UI/UltralightAdapters/FileSystemBasic.h"
 
-#include "RenderContext.h"
+#include "IGPUDevice.h"
 #include "Common.h"
 #include "Window.h"
 #include "WindowEvents.h"
@@ -57,10 +57,10 @@ namespace Bat
 			m_Wnd( wnd )
 		{}
 
-		virtual ID3D11Device* device() override { return RenderContext::GetDevice(); }
-		virtual ID3D11DeviceContext* immediate_context() override { return RenderContext::GetDeviceContext(); }
-		virtual IDXGISwapChain* swap_chain() override { return RenderContext::GetSwapChain(); }
-		virtual ID3D11RenderTargetView* render_target_view() override { return RenderContext::GetBackBufferView(); }
+		virtual ID3D11Device* device() override { return (ID3D11Device*)gpu->GetImpl(); }
+		virtual ID3D11DeviceContext* immediate_context() override { return (ID3D11DeviceContext*)gpu->GetContext()->GetImpl(); }
+		virtual IDXGISwapChain* swap_chain() override { ASSERT( false, "Unimplemented" ); return nullptr; }
+		virtual ID3D11RenderTargetView* render_target_view() override { ASSERT( false, "Unimplemented" ); return nullptr; }
 
 		// Scale is calculated from monitor DPI, see Application::SetScale
 		virtual void set_scale( double scale ) override { m_flScale = scale; }

@@ -3,9 +3,8 @@
 #include "ResourceManager.h"
 #include "IRenderPass.h"
 #include "RenderData.h"
-#include "RenderContext.h"
 #include "TexturePipeline.h"
-#include "Globals.h"
+#include "ConstantBuffer.h"
 
 namespace Bat
 {
@@ -31,13 +30,9 @@ namespace Bat
 
 			// initialize shaders
 			m_pTextureVS = ResourceManager::GetVertexShader( "Graphics/Shaders/TextureVS.hlsl" );
-			m_pTextureVS->AddConstantBuffer<CB_TexturePipelineMatrix>();
 			m_pBrightExtractPS = ResourceManager::GetPixelShader( "Graphics/Shaders/BrightExtractPS.hlsl" );
-			m_pBrightExtractPS->AddConstantBuffer<CB_Globals>();
 			m_pGaussBlurHorPS = ResourceManager::GetPixelShader( "Graphics/Shaders/GaussBlurHorPS.hlsl" );
-			m_pGaussBlurHorPS->AddConstantBuffer<CB_Globals>();
 			m_pGaussBlurVerPS = ResourceManager::GetPixelShader( "Graphics/Shaders/GaussBlurVerPS.hlsl" );
-			m_pGaussBlurVerPS->AddConstantBuffer<CB_Globals>();
 
 			m_pBloomShader = ResourceManager::GetPixelShader( "Graphics/Shaders/BloomPS.hlsl" );
 
@@ -61,85 +56,97 @@ namespace Bat
 				{ 1.0f, 1.0f }
 			};
 
-			const std::vector<int> indices = { 0, 1, 2,  2, 3, 0 };
+			const std::vector<uint32_t> indices = { 0, 1, 2,  2, 3, 0 };
 
-			m_bufPosition.SetData( positions );
-			m_bufUV.SetData( uvs );
-			m_bufIndices.SetData( indices );
+			m_bufPosition.Reset( positions );
+			m_bufUV.Reset( uvs );
+			m_bufIndices.Reset( indices );
 		}
 
 		virtual std::string GetDescription() const override { return "Bloom pass"; }
 
-		virtual void Execute( SceneGraph& scene, RenderData& data )
+		virtual void Execute( IGPUContext* pContext, SceneGraph& scene, RenderData& data )
 		{
-			RenderContext::SetDepthStencilEnabled( false );
+			IRenderTarget* src = data.GetRenderTarget( "src" );
+			IRenderTarget* rt1 = data.GetRenderTarget( "buffer1" );
+			IRenderTarget* rt2 = data.GetRenderTarget( "buffer2" );
+			IRenderTarget* dst = data.GetRenderTarget( "dst" );
 
-			RenderTexture* src = data.GetRenderTexture( "src" );
-			RenderTexture* rt1 = data.GetRenderTexture( "buffer1" );
-			RenderTexture* rt2 = data.GetRenderTexture( "buffer2" );
-			RenderTexture* dst = data.GetRenderTexture( "dst" );
+			size_t width = src->GetWidth();
+			size_t height = src->GetHeight();
 
-			int width = src->GetTextureWidth();
-			int height = src->GetTextureHeight();
+			pContext->SetPrimitiveTopology( PrimitiveTopology::TRIANGLELIST );
 
 			CB_TexturePipelineMatrix transform;
 			transform.viewproj = DirectX::XMMatrixOrthographicLH( (float)width, (float)height, Graphics::ScreenNear, Graphics::ScreenFar );
 			transform.world = DirectX::XMMatrixIdentity();
-			RenderContext::GetDeviceContext()->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+			m_cbufTransform.Update( pContext, transform );
+			pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, 0 );
 
-			CB_Globals psGlobals;
-			psGlobals.resolution = { (float)width, (float)height };
-			psGlobals.time = g_pGlobals->elapsed_time;
+			CB_Globals globals;
+			globals.resolution = { (float)width, (float)height };
+			globals.time = g_pGlobals->elapsed_time;
+			m_cbufGlobals.Update( pContext, globals );
+			pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufGlobals, 0 );
 
-			m_pBrightExtractPS->GetConstantBuffer( 0 ).SetData( &psGlobals );
-			m_pGaussBlurHorPS->GetConstantBuffer( 0 ).SetData( &psGlobals );
-			m_pGaussBlurVerPS->GetConstantBuffer( 0 ).SetData( &psGlobals );
+			pContext->SetVertexBuffer( m_bufPosition, 0 );
+			pContext->SetVertexBuffer( m_bufUV, 1 );
+			pContext->SetIndexBuffer( m_bufIndices );
 
-			m_bufPosition.Bind( 0 );
-			m_bufUV.Bind( 1 );
-			m_bufIndices.Bind();
+			pContext->SetVertexShader( m_pTextureVS.get() );
 
-			m_pTextureVS->Bind();
-			m_pTextureVS->GetConstantBuffer( 0 ).SetData( &transform );
-
-			rt1->Bind();
-			m_pBrightExtractPS->Bind();
-			m_pBrightExtractPS->SetResource( 0, src->GetTextureView() );
-			RenderContext::GetDeviceContext()->DrawIndexed( m_bufIndices.GetIndexCount(), 0, 0 );
+			pContext->SetRenderTarget( rt1 );
+			pContext->SetPixelShader( m_pBrightExtractPS.get() );
+			pContext->BindTexture( src, 0 );
+			pContext->DrawIndexed( m_bufIndices->GetIndexCount() );
 
 			for( int i = 0; i < m_iBlurPasses * 2; i++ )
 			{
-				RenderTexture::UnbindAll();
+				// Unbind whatever is currently bound, to avoid binding on input/output at same time
+				pContext->SetRenderTarget( nullptr );
+				pContext->UnbindTextureSlot( 0 );
+
 				if( i % 2 == 0 )
 				{
-					m_pGaussBlurHorPS->Bind();
-					m_pGaussBlurHorPS->SetResource( 0, rt1->GetTextureView() );
-					rt2->Bind();
+					pContext->SetPixelShader( m_pGaussBlurHorPS.get() );
+					pContext->BindTexture( rt1, 0 );
+					pContext->SetRenderTarget( rt2 );
 				}
 				else
 				{
-					m_pGaussBlurVerPS->Bind();
-					m_pGaussBlurVerPS->SetResource( 0, rt2->GetTextureView() );
-					rt1->Bind();
+					pContext->SetPixelShader( m_pGaussBlurHorPS.get() );
+					pContext->BindTexture( rt2, 0 );
+					pContext->SetRenderTarget( rt1 );
 				}
-				RenderContext::GetDeviceContext()->DrawIndexed( m_bufIndices.GetIndexCount(), 0, 0 );
+
+				pContext->DrawIndexed( m_bufIndices->GetIndexCount() );
 			}
 
-			RenderTexture::UnbindAll();
-			m_pBloomShader->Bind();
-			m_pBloomShader->SetResource( 0, src->GetTextureView() );
-			m_pBloomShader->SetResource( 1, rt1->GetTextureView() );
-			dst->Bind();
-			RenderContext::GetDeviceContext()->DrawIndexed( m_bufIndices.GetIndexCount(), 0, 0 );
+			// Unbind whatever is currently bound, to avoid binding on input/output at same time
+			pContext->SetRenderTarget( nullptr );
+			pContext->UnbindTextureSlot( 0 );
+
+			pContext->SetPixelShader( m_pBloomShader.get() );
+			pContext->BindTexture( src, 0 );
+			pContext->BindTexture( rt1, 1 );
+			pContext->SetRenderTarget( dst );
+			pContext->DrawIndexed( m_bufIndices->GetIndexCount() );
+
+			// Unbind again
+			pContext->UnbindTextureSlot( 0 );
+			pContext->UnbindTextureSlot( 1 );
 		}
 	private:
 		int m_iBlurPasses = 1;
 
-		Resource<VertexShader> m_pTextureVS;
-		Resource<PixelShader> m_pBrightExtractPS;
-		Resource<PixelShader> m_pGaussBlurHorPS;
-		Resource<PixelShader> m_pGaussBlurVerPS;
-		Resource<PixelShader> m_pBloomShader;
+		Resource<IVertexShader> m_pTextureVS;
+		Resource<IPixelShader> m_pBrightExtractPS;
+		Resource<IPixelShader> m_pGaussBlurHorPS;
+		Resource<IPixelShader> m_pGaussBlurVerPS;
+		Resource<IPixelShader> m_pBloomShader;
+
+		ConstantBuffer<CB_Globals> m_cbufGlobals;
+		ConstantBuffer<CB_TexturePipelineMatrix> m_cbufTransform;
 
 		VertexBuffer<Vec4> m_bufPosition;
 		VertexBuffer<Vec2> m_bufUV;

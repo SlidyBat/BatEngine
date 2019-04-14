@@ -1,14 +1,9 @@
 #pragma once
 
-#include <d3d11.h>
-#include <d3dcompiler.h>
-#include <wrl.h>
-
 #include "IPipeline.h"
 #include "Texture.h"
-#include "VertexShader.h"
-#include "PixelShader.h"
 #include "Mesh.h"
+#include "ConstantBuffer.h"
 
 namespace Bat
 {
@@ -21,7 +16,7 @@ namespace Bat
 	class TexturePipelineParameters : public IPipelineParameters
 	{
 	public:
-		TexturePipelineParameters( const DirectX::XMMATRIX& world, const DirectX::XMMATRIX& viewproj, ID3D11ShaderResourceView* pTexture )
+		TexturePipelineParameters( const DirectX::XMMATRIX& world, const DirectX::XMMATRIX& viewproj, ITexture* pTexture )
 			:
 			texture( pTexture )
 		{
@@ -30,7 +25,7 @@ namespace Bat
 		}
 	public:
 		CB_TexturePipelineMatrix transform;
-		ID3D11ShaderResourceView* texture;
+		ITexture* texture;
 	};
 
 	class TexturePipeline : public IPipeline
@@ -38,8 +33,10 @@ namespace Bat
 	public:
 		TexturePipeline( const std::string& vsFilename, const std::string& psFilename );
 
-		void BindParameters( IPipelineParameters& pParameters ) override;
-		void Render( UINT vertexcount ) override;
-		void RenderIndexed( UINT indexcount ) override;
+		void BindParameters( IGPUContext* pContext, IPipelineParameters& pParameters ) override;
+		void Render( IGPUContext* pContext, size_t vertexcount ) override;
+		void RenderIndexed( IGPUContext* pContext, size_t indexcount ) override;
+	private:
+		ConstantBuffer<CB_TexturePipelineMatrix> m_cbufTransform;
 	};
 }

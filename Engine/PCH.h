@@ -40,3 +40,4 @@
 #include "Log.h"
 #include "MathLib.h"
 #include "StringLib.h"
+#include "Globals.h"

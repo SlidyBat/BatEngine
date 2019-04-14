@@ -3,36 +3,37 @@
 
 #include "VertexTypes.h"
 #include "COMException.h"
-#include "RenderContext.h"
 #include "Material.h"
 
 namespace Bat
 {
-	TexturePipeline::TexturePipeline( const std::string& vsFilename, const std::string& psFilename )
+	TexturePipeline::TexturePipeline( const std::string& vs_filename, const std::string& ps_filename )
 		:
-		IPipeline( vsFilename, psFilename )
+		IPipeline( vs_filename, ps_filename )
+	{}
+
+	void TexturePipeline::BindParameters( IGPUContext* pContext, IPipelineParameters& pParameters )
 	{
-		m_VertexShader.AddConstantBuffer<CB_TexturePipelineMatrix>();
+		auto params = static_cast<TexturePipelineParameters&>(pParameters);
+
+		CB_TexturePipelineMatrix transform;
+		transform.world = params.transform.world;
+		transform.viewproj = params.transform.viewproj;
+		m_cbufTransform.Update( pContext, transform );
+		pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, 0 );
+
+		pContext->SetVertexShader( m_pVertexShader.get() );
+		pContext->SetPixelShader( m_pPixelShader.get() );
+		pContext->BindTexture( params.texture, 0 );
 	}
 
-	void TexturePipeline::BindParameters( IPipelineParameters& pParameters )
+	void TexturePipeline::Render( IGPUContext* pContext, size_t vertexcount )
 	{
-		auto pTextureParameters = static_cast<TexturePipelineParameters&>(pParameters);
-		m_VertexShader.Bind();
-		m_PixelShader.Bind();
-		m_VertexShader.GetConstantBuffer( 0 ).SetData( &pTextureParameters.transform );
-		m_PixelShader.SetResource( 0, pTextureParameters.texture );
+		pContext->Draw( vertexcount );
 	}
 
-	void TexturePipeline::Render( UINT vertexcount )
+	void TexturePipeline::RenderIndexed( IGPUContext* pContext, size_t indexcount )
 	{
-		auto pDeviceContext = RenderContext::GetDeviceContext();
-		pDeviceContext->Draw( vertexcount, 0 );
-	}
-
-	void TexturePipeline::RenderIndexed( UINT indexcount )
-	{
-		auto pDeviceContext = RenderContext::GetDeviceContext();
-		pDeviceContext->DrawIndexed( indexcount, 0, 0 );
+		pContext->DrawIndexed( indexcount );
 	}
 }

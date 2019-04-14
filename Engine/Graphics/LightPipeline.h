@@ -1,16 +1,9 @@
 #pragma once
 
-#include "PCH.h"
-
-#include <d3d11.h>
-#include <d3dcompiler.h>
-#include <wrl.h>
-
 #include "IPipeline.h"
 #include "Texture.h"
-#include "VertexShader.h"
-#include "PixelShader.h"
 #include "Mesh.h"
+#include "ConstantBuffer.h"
 
 namespace Bat
 {
@@ -28,6 +21,8 @@ namespace Bat
 		Vec3 cameraPos;
 		float time;
 		float shininess;
+		float _pad0[3];
+		float _pad1[4];
 	};
 
 	struct CB_LightPipelineLight
@@ -64,13 +59,16 @@ namespace Bat
 	public:
 		LightPipeline( const std::string& vsFilename, const std::string& psFilename );
 
-		void BindParameters( IPipelineParameters& pParameters ) override;
-		void Render( UINT vertexcount ) override;
-		void RenderIndexed( UINT indexcount ) override;
+		void BindParameters( IGPUContext* pContext, IPipelineParameters& pParameters ) override;
+		void Render( IGPUContext* pContext, size_t vertexcount ) override;
+		void RenderIndexed( IGPUContext* pContext, size_t indexcount ) override;
 
 		Light* GetLight() const { return m_pLight; }
 		void SetLight( Light* pLight ) { m_pLight = pLight; }
 	protected:
+		ConstantBuffer<CB_LightPipelineMatrix> m_cbufTransform;
+		ConstantBuffer<CB_LightPipelineLightingParams> m_cbufLightParams;
+		ConstantBuffer<CB_LightPipelineLight> m_cbufLight;
 		Light* m_pLight = nullptr;
 	};
 }

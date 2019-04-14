@@ -3,7 +3,6 @@
 #include "ResourceManager.h"
 #include "IRenderPass.h"
 #include "RenderData.h"
-#include "RenderContext.h"
 #include "TexturePipeline.h"
 #include "Scene.h"
 #include "Globals.h"
@@ -27,13 +26,11 @@ namespace Bat
 			// initialize render nodes
 			AddRenderNode( "src", NodeType::INPUT, NodeDataType::RENDER_TEXTURE );  // the initial texture that bloom should be applied to
 			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TEXTURE ); // the output render texture
-			AddRenderNode( "depth", NodeType::INPUT, NodeDataType::TEXTURE );       // depth buffer
+			AddRenderNode( "depth", NodeType::INPUT, NodeDataType::DEPTH_STENCIL );       // depth buffer
 
 			// initialize shaders
 			m_pTextureVS = ResourceManager::GetVertexShader( "Graphics/Shaders/TextureVS.hlsl" );
-			m_pTextureVS->AddConstantBuffer<CB_TexturePipelineMatrix>();
 			m_pMotionBlurPS = ResourceManager::GetPixelShader( "Graphics/Shaders/MotionBlurPS.hlsl" );
-			m_pMotionBlurPS->AddConstantBuffer<CB_Globals>();
 
 			// initialize buffers
 			const float left   = -400.0f;
@@ -55,57 +52,59 @@ namespace Bat
 				{ 1.0f, 1.0f }
 			};
 
-			const std::vector<int> indices = { 0, 1, 2,  2, 3, 0 };
+			const std::vector<unsigned int> indices = { 0, 1, 2,  2, 3, 0 };
 
-			m_bufPosition.SetData( positions );
-			m_bufUV.SetData( uvs );
-			m_bufIndices.SetData( indices );
+			m_bufPosition.Reset( positions );
+			m_bufUV.Reset( uvs );
+			m_bufIndices.Reset( indices );
 		}
 
 		virtual std::string GetDescription() const override { return "Bloom pass"; }
 
-		virtual void Execute( SceneGraph& scene, RenderData& data )
+		virtual void Execute( IGPUContext* pContext, SceneGraph& scene, RenderData& data )
 		{
-			RenderContext::SetDepthStencilEnabled( false );
+			pContext->SetDepthStencilEnabled( false );
 
-			RenderTexture* src = data.GetRenderTexture( "src" );
-			RenderTexture* dst = data.GetRenderTexture( "dst" );
-			Texture* depth = data.GetTexture( "depth" );
+			pContext->SetPrimitiveTopology( PrimitiveTopology::TRIANGLELIST );
+
+			IRenderTarget* src = data.GetRenderTarget( "src" );
+			IRenderTarget* dst = data.GetRenderTarget( "dst" );
+			IDepthStencil* depth = data.GetDepthStencil( "depth" );
 			Camera* cam = scene.GetActiveCamera();
 
-			int width = src->GetTextureWidth();
-			int height = src->GetTextureHeight();
+			size_t width = src->GetWidth();
+			size_t height = src->GetHeight();
 
 			CB_TexturePipelineMatrix transform;
 			transform.viewproj = DirectX::XMMatrixOrthographicLH( (float)width, (float)height, Graphics::ScreenNear, Graphics::ScreenFar );
 			transform.world = DirectX::XMMatrixIdentity();
-			RenderContext::GetDeviceContext()->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+			m_cbufTransform.Update( pContext, transform );
+			pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, 0 );
 
-			CB_Globals psGlobals;
-			psGlobals.resolution = { (float)width, (float)height };
-			psGlobals.time = g_pGlobals->elapsed_time;
+			CB_Globals ps_globals;
+			ps_globals.resolution = { (float)width, (float)height };
+			ps_globals.time = g_pGlobals->elapsed_time;
 			DirectX::XMMATRIX viewproj = cam->GetViewMatrix() * cam->GetProjectionMatrix();
-			psGlobals.inv_viewproj = DirectX::XMMatrixInverse( nullptr, viewproj );
-			psGlobals.prev_viewproj = m_matPrevViewProj;
+			ps_globals.inv_viewproj = DirectX::XMMatrixInverse( nullptr, viewproj );
+			ps_globals.prev_viewproj = m_matPrevViewProj;
+			m_cbufGlobals.Update( pContext, ps_globals );
+			pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufGlobals, 0 );
 
-			m_pMotionBlurPS->GetConstantBuffer( 0 ).SetData( &psGlobals );
+			pContext->SetVertexBuffer( m_bufPosition, 0 );
+			pContext->SetVertexBuffer( m_bufUV, 0 );
+			pContext->SetIndexBuffer( m_bufIndices );
 
-			m_bufPosition.Bind( 0 );
-			m_bufUV.Bind( 1 );
-			m_bufIndices.Bind();
+			pContext->SetVertexShader( m_pTextureVS.get() );
+			pContext->SetPixelShader( m_pMotionBlurPS.get() );
 
-			m_pTextureVS->Bind();
-			m_pTextureVS->GetConstantBuffer( 0 ).SetData( &transform );
+			pContext->SetRenderTarget( dst );
+			pContext->BindTexture( src, 0 );
+			// pContext->BindTexture( depth, 1 );
 
-			dst->Bind( false );
-			m_pMotionBlurPS->Bind();
-			m_pMotionBlurPS->SetResource( 0, src->GetTextureView() );
-			m_pMotionBlurPS->SetResource( 1, depth->GetTextureView() );
-
-			RenderContext::GetDeviceContext()->DrawIndexed( m_bufIndices.GetIndexCount(), 0, 0 );
+			pContext->DrawIndexed( m_bufIndices->GetIndexCount() );
 
 			// Unbind depth buffer
-			m_pMotionBlurPS->SetResource( 1, nullptr );
+			pContext->UnbindTextureSlot( 1 );
 
 			m_matPrevViewProj = viewproj;
 		}
@@ -114,11 +113,14 @@ namespace Bat
 
 		DirectX::XMMATRIX m_matPrevViewProj = DirectX::XMMatrixIdentity();
 
-		Resource<VertexShader> m_pTextureVS;
-		Resource<PixelShader> m_pMotionBlurPS;
+		Resource<IVertexShader> m_pTextureVS;
+		Resource<IPixelShader> m_pMotionBlurPS;
 
 		VertexBuffer<Vec4> m_bufPosition;
 		VertexBuffer<Vec2> m_bufUV;
 		IndexBuffer m_bufIndices;
+
+		ConstantBuffer<CB_TexturePipelineMatrix> m_cbufTransform;
+		ConstantBuffer<CB_Globals> m_cbufGlobals;
 	};
 }

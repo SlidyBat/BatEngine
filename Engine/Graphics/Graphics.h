@@ -1,9 +1,6 @@
 #pragma once
 
-#include "D3DClass.h"
-
-#include <DirectXColors.h>
-#include "RenderTexture.h"
+#include "IGPUDevice.h"
 #include "ResourceManager.h"
 #include "UI/BatUI.h"
 
@@ -33,9 +30,6 @@ namespace Bat
 
 		void Resize( int width, int height );
 
-		int GetScreenWidth() const;
-		int GetScreenHeight() const;
-
 		SceneGraph* GetActiveScene() const { return m_pSceneGraph; }
 		void SetActiveScene( SceneGraph* pSceneGraph ) { m_pSceneGraph = pSceneGraph; }
 
@@ -44,31 +38,19 @@ namespace Bat
 
 		void SetRenderGraph( RenderGraph* graph );
 
-		bool IsDepthStencilEnabled() const;
-		void SetDepthStencilEnabled( bool enable );
-		void EnableDepthStencil() { SetDepthStencilEnabled( true ); }
-		void DisableDepthStencil() { SetDepthStencilEnabled( true ); }
-
 		void BeginFrame();
 		void EndFrame();
 
-		void DrawText( std::wstring text, const Vec2& pos, const DirectX::FXMVECTOR col = DirectX::Colors::White );
-
 		DirectX::XMMATRIX GetOrthoMatrix() const;
 	private:
-		ID3D11Device* GetDevice() const;
-		ID3D11DeviceContext* GetDeviceContext() const;
-
 		void RenderScene();
-		void RenderText();
 		void RenderUI();
 		void RenderImGui();
 
+		void AddSamplers();
+		void BindSamplers();
 	private:
-		D3DClass d3d;
-
 		DirectX::XMMATRIX m_matOrtho;
-
 
 		int m_iScreenWidth = InitialScreenWidth;
 		int m_iScreenHeight = InitialScreenHeight;
@@ -76,25 +58,10 @@ namespace Bat
 		SceneGraph* m_pSceneGraph = nullptr;
 
 		RenderGraph* m_pRenderGraph = nullptr;
-	private:
-		struct TextDrawCommand
-		{
-			TextDrawCommand( std::wstring text, Vec2 pos, DirectX::FXMVECTOR col )
-				:
-				text( std::move( text ) ),
-				pos( pos ),
-				col( col )
-			{}
 
-			std::wstring text;
-			Vec2 pos;
-			DirectX::FXMVECTOR col;
-		};
+		std::vector<std::unique_ptr<ISampler>> m_pSamplers;
 
-		std::unique_ptr<DirectX::SpriteBatch> m_pSpriteBatch;
-		std::unique_ptr<DirectX::SpriteFont> m_pFont;
-		std::vector<TextDrawCommand> m_TextDrawCommands;
-	private: // UI
+		// UI
 		BatUI m_UI;
 	public:
 		static constexpr bool	FullScreen = false;

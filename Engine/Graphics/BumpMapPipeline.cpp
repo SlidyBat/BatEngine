@@ -11,19 +11,24 @@
 
 namespace Bat
 {
-	BumpMapPipeline::BumpMapPipeline( const std::string& vsFilename, const std::string& psFilename )
+	BumpMapPipeline::BumpMapPipeline( const std::string& vs_filename, const std::string& ps_filename )
 		:
-		LightPipeline( vsFilename, psFilename )
+		LightPipeline( vs_filename, ps_filename )
 	{}
 
-	void BumpMapPipeline::BindParameters( IPipelineParameters& pParameters )
+	void BumpMapPipeline::BindParameters( IGPUContext* pContext, IPipelineParameters& pParameters )
 	{
-		auto pTextureParameters = static_cast<LightPipelineParameters&>(pParameters);
+		auto params = static_cast<LightPipelineParameters&>(pParameters);
+
+		m_cbufTransform.Update( pContext, params.transform );
+		pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, 0 );
 
 		CB_LightPipelineLightingParams ps_params;
-		ps_params.cameraPos = pTextureParameters.camera.GetPosition();
+		ps_params.cameraPos = params.camera.GetPosition();
 		ps_params.time = g_pGlobals->elapsed_time;
-		ps_params.shininess = pTextureParameters.material.GetShininess();
+		ps_params.shininess = params.material.GetShininess();
+		m_cbufLightParams.Update( pContext, ps_params );
+		pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufLightParams, 0 );
 
 		const float time = g_pGlobals->elapsed_time;
 		CB_LightPipelineLight ps_light;
@@ -31,25 +36,20 @@ namespace Bat
 		ps_light.lightAmbient = m_pLight->GetAmbient();
 		ps_light.lightDiffuse = m_pLight->GetDiffuse();
 		ps_light.lightSpecular = m_pLight->GetSpecular();
+		m_cbufLight.Update( pContext, ps_light );
+		pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufLight, 1 );
 
-		m_VertexShader.Bind();
-		m_PixelShader.Bind();
-		m_VertexShader.GetConstantBuffer( 0 ).SetData( &pTextureParameters.transform );
-		m_PixelShader.GetConstantBuffer( 0 ).SetData( &ps_params );
-		m_PixelShader.GetConstantBuffer( 1 ).SetData( &ps_light );
+		pContext->SetVertexShader( m_pVertexShader.get() );
+		pContext->SetPixelShader( m_pPixelShader.get() );
 
-		ASSERT( pTextureParameters.material.GetDiffuseTexture(), "Material doesn't have diffuse texture" );
-		ASSERT( pTextureParameters.material.GetSpecularTexture(), "Material doesn't have specular texture" );
-		ASSERT( pTextureParameters.material.GetEmissiveTexture(), "Material doesn't have emissive texture" );
-		ASSERT( pTextureParameters.material.GetBumpMapTexture(), "Material doesn't have bump map" );
+		ASSERT( params.material.GetDiffuseTexture(), "Material doesn't have diffuse texture" );
+		ASSERT( params.material.GetSpecularTexture(), "Material doesn't have specular texture" );
+		ASSERT( params.material.GetEmissiveTexture(), "Material doesn't have emissive texture" );
+		ASSERT( params.material.GetBumpMapTexture(), "Material doesn't have bump map" );
 
-		ID3D11ShaderResourceView* pTextures[] = {
-			pTextureParameters.material.GetDiffuseTexture()->GetTextureView(),
-			pTextureParameters.material.GetSpecularTexture()->GetTextureView(),
-			pTextureParameters.material.GetEmissiveTexture()->GetTextureView(),
-			pTextureParameters.material.GetBumpMapTexture()->GetTextureView()
-		};
-
-		m_PixelShader.SetResources( 0, pTextures, 4 );
+		pContext->BindTexture( *params.material.GetDiffuseTexture(), 0 );
+		pContext->BindTexture( *params.material.GetSpecularTexture(), 1 );
+		pContext->BindTexture( *params.material.GetEmissiveTexture(), 2 );
+		pContext->BindTexture( *params.material.GetBumpMapTexture(), 3 );
 	}
 }

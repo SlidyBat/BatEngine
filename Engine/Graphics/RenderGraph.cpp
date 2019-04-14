@@ -3,8 +3,6 @@
 
 #include "IRenderPass.h"
 #include "RenderData.h"
-#include "Texture.h"
-#include "RenderTexture.h"
 
 namespace Bat
 {
@@ -63,16 +61,22 @@ namespace Bat
 		m_vPassEnabled[idx] = enabled;
 	}
 
-	void RenderGraph::AddTextureResource( const std::string& name, std::unique_ptr<Texture> pTexture )
+	void RenderGraph::AddTextureResource( const std::string& name, std::unique_ptr<ITexture> pTexture )
 	{
 		m_mapTextures[name] = std::move( pTexture );
 		m_mapResourceTypes[name] = NodeDataType::TEXTURE;
 	}
 
-	void RenderGraph::AddRenderTextureResource( const std::string& name, std::unique_ptr<RenderTexture> pRenderTexture )
+	void RenderGraph::AddRenderTextureResource( const std::string& name, std::unique_ptr<IRenderTarget> pRenderTexture )
 	{
 		m_mapRenderTextures[name] = std::move( pRenderTexture );
 		m_mapResourceTypes[name] = NodeDataType::RENDER_TEXTURE;
+	}
+
+	void RenderGraph::AddDepthStencilResource( const std::string& name, std::unique_ptr<IDepthStencil> pDepthStencil )
+	{
+		m_mapDepthStencils[name] = std::move( pDepthStencil );
+		m_mapResourceTypes[name] = NodeDataType::DEPTH_STENCIL;
 	}
 
 	void RenderGraph::BindToResource( const std::string& node_name, const std::string& resource )
@@ -96,7 +100,7 @@ namespace Bat
 		if( pass->GetNodeDataType( node->name ) != resource_type )
 		{
 			BAT_ERROR( "Failed to bind node '%s' to resource '%s'. Mismatched types.", node_name, resource );
-			ASSERT( false, "" );
+			ASSERT( false, "Failed to bind node '%s' to resource '%s'. Mismatched types.", node_name, resource );
 			return;
 		}
 
@@ -117,7 +121,7 @@ namespace Bat
 		}
 	}
 
-	void RenderGraph::Render( SceneGraph& scene, RenderTexture& target )
+	void RenderGraph::Render( SceneGraph& scene, IRenderTarget* target )
 	{
 		if( !m_OutputNode )
 		{
@@ -137,7 +141,7 @@ namespace Bat
 			// bind to output if this is the output pass
 			if( i == (size_t)m_OutputNode->pass_idx )
 			{
-				data.AddRenderTexture( m_OutputNode->name, &target );
+				data.AddRenderTarget( m_OutputNode->name, target );
 			}
 
 			// bind any resources
@@ -151,7 +155,10 @@ namespace Bat
 						data.AddTexture( nar.node.name, GetTextureResource( nar.resource ) );
 						break;
 					case NodeDataType::RENDER_TEXTURE:
-						data.AddRenderTexture( nar.node.name, GetRenderTextureResource( nar.resource ) );
+						data.AddRenderTarget( nar.node.name, GetRenderTextureResource( nar.resource ) );
+						break;
+					case NodeDataType::DEPTH_STENCIL:
+						data.AddDepthStencil( nar.node.name, GetDepthStencilResource( nar.resource ) );
 						break;
 					default:
 						ASSERT( false, "Unhandled node data type" );
@@ -159,12 +166,8 @@ namespace Bat
 				}
 			}
 
-			RenderTexture::UnbindAll();
-
 			// run the pass
-			m_vRenderPasses[i]->Execute( scene, data );
-
-			RenderTexture::UnbindAll();
+			m_vRenderPasses[i]->Execute( gpu->GetContext(), scene, data );
 		}
 	}
 
@@ -227,6 +230,7 @@ namespace Bat
 
 		return node;
 	}
+
 	NodeDataType RenderGraph::GetResourceType( const std::string& name )
 	{
 		auto it = m_mapResourceTypes.find( name );
@@ -237,7 +241,8 @@ namespace Bat
 
 		return NodeDataType::INVALID;
 	}
-	Texture* RenderGraph::GetTextureResource( const std::string& name )
+
+	ITexture* RenderGraph::GetTextureResource( const std::string& name )
 	{
 		auto it = m_mapTextures.find( name );
 		if( it != m_mapTextures.end() )
@@ -247,10 +252,22 @@ namespace Bat
 
 		return nullptr;
 	}
-	RenderTexture* RenderGraph::GetRenderTextureResource( const std::string& name )
+
+	IRenderTarget* RenderGraph::GetRenderTextureResource( const std::string& name )
 	{
 		auto it = m_mapRenderTextures.find( name );
 		if( it != m_mapRenderTextures.end() )
+		{
+			return it->second.get();
+		}
+
+		return nullptr;
+	}
+
+	IDepthStencil* RenderGraph::GetDepthStencilResource( const std::string& name )
+	{
+		auto it = m_mapDepthStencils.find( name );
+		if( it != m_mapDepthStencils.end() )
 		{
 			return it->second.get();
 		}

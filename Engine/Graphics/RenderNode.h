@@ -15,7 +15,8 @@ namespace Bat
 	{
 		INVALID = -1,
 		TEXTURE,
-		RENDER_TEXTURE
+		RENDER_TEXTURE,
+		DEPTH_STENCIL
 	};
 
 	struct RenderNode

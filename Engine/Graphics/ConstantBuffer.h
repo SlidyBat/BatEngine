@@ -1,25 +1,41 @@
 #pragma once
 
-#include <d3d11.h>
-#include <wrl.h>
-
-#include "COMException.h"
+#include "Graphics.h"
 
 namespace Bat
 {
+	template<typename T>
 	class ConstantBuffer
 	{
 	public:
-		ConstantBuffer( const size_t size );
-		ConstantBuffer( const void* pData, const size_t size );
+		ConstantBuffer()
+			:
+			m_pConstantBuffer( gpu->CreateConstantBuffer( nullptr, sizeof( T ) ) )
+		{
+			static_assert( sizeof( T ) % 16 == 0, "Constant buffer struct is not 16 byte aligned!" );
+		}
+		ConstantBuffer( const T& data )
+			:
+			m_pConstantBuffer( gpu->CreateConstantBuffer( &data, sizeof( T ) ) )
+		{
+			static_assert( sizeof( T ) % 16 == 0, "Constant buffer struct is not 16 byte aligned!" );
+		}
 
-		void SetData( const void* pData );
+		operator IConstantBuffer*() const
+		{
+			return m_pConstantBuffer.get();
+		}
 
-		operator ID3D11Buffer*() const;
+		IConstantBuffer* operator->()
+		{
+			return m_pConstantBuffer.get();
+		}
 
-		ID3D11Buffer* const * GetAddressOf() const;
+		void Update( IGPUContext* pContext, const T& data )
+		{
+			pContext->UpdateBuffer( m_pConstantBuffer.get(), &data );
+		}
 	private:
-		Microsoft::WRL::ComPtr<ID3D11Buffer> m_pConstantBuffer;
-		size_t m_iSize;
+		std::unique_ptr<IConstantBuffer> m_pConstantBuffer = nullptr;
 	};
 }

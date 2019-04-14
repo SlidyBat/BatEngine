@@ -1,30 +1,56 @@
 #pragma once
 
 #include <vector>
-#include <d3d11.h>
-#include <wrl.h>
-
-#include "COMException.h"
+#include "Graphics.h"
 
 namespace Bat
 {
-	class IndexBuffer
+	template<typename T>
+	class IndexBufferT
 	{
 	public:
-		IndexBuffer() = default;
-		IndexBuffer( const int* pData, const UINT size );
-		IndexBuffer( const std::vector<int>& indices );
+		IndexBufferT() = default;
+		IndexBufferT( const T* pData, const size_t size )
+			:
+			m_pIndexBuffer( gpu->CreateIndexBuffer( pData, sizeof( T ), size ) )
+		{}
+		IndexBufferT( const std::vector<T>& vertices )
+			:
+			IndexBufferT( vertices.data(), vertices.size() )
+		{}
 
-		void SetData( const int* pData, const UINT size );
-		void SetData( const std::vector<int>& indices );
+		void Reset( const T* pData, const size_t size )
+		{
+			m_pIndexBuffer.reset( gpu->CreateIndexBuffer( pData, sizeof( T ), size ) );
+		}
 
-		operator ID3D11Buffer*() const;
+		void Reset( const std::vector<T>& data )
+		{
+			Reset( data.data(), data.size() );
+		}
 
-		void Bind() const;
+		void Update( IGPUContext* pContext, const T* pData )
+		{
+			pContext->UpdateBuffer( m_pIndexBuffer.get(), pData );
+		}
 
-		UINT GetIndexCount() const;
+		operator IIndexBuffer*() const
+		{
+			return m_pIndexBuffer.get();
+		}
+
+		IIndexBuffer* operator->()
+		{
+			return m_pIndexBuffer.get();
+		}
+		
+		const IIndexBuffer* operator->() const
+		{
+			return m_pIndexBuffer.get();
+		}
 	private:
-		Microsoft::WRL::ComPtr<ID3D11Buffer>	m_pIndexBuffer;
-		UINT m_iSize = 0;
+		std::unique_ptr<IIndexBuffer> m_pIndexBuffer = nullptr;
 	};
+
+	using IndexBuffer = IndexBufferT<uint32_t>;
 }

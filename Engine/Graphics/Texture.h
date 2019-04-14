@@ -1,9 +1,9 @@
 #pragma once
 
-#include <d3d11.h>
-#include <wrl.h>
 #include "Colour.h"
 #include "StringLib.h"
+#include "IGPUDevice.h"
+#include <memory>
 
 namespace Bat
 {
@@ -11,32 +11,23 @@ namespace Bat
 	{
 	public:
 		Texture() = default;
-		Texture( const std::string& filename )
+		Texture( const std::string& filename );
+		Texture( const std::wstring& filename )
 			:
-			Texture( Bat::StringToWide( filename ) )
+			Texture( Bat::WideToString( filename ) )
 		{}
-		Texture( const std::wstring& filename );
-		Texture( const uint8_t* pData, size_t size );
-		Texture( const void* pPixels, size_t pitch, int width, int height, DXGI_FORMAT format, D3D11_USAGE usage = D3D11_USAGE_DEFAULT );
+		Texture( const char* pData, size_t size );
+		Texture( const void* pPixels, size_t pitch, size_t width, size_t height, TexFormat format, GPUResourceUsage usage = USAGE_DEFAULT );
 
-		size_t GetWidth() const { return m_iWidth; }
-		size_t GetHeight() const { return m_iHeight; }
+		operator ITexture*( );
+		ITexture* operator->();
+		const ITexture* operator->() const;
 
-		void UpdatePixels( const void* pPixels, size_t pitch );
-		ID3D11ShaderResourceView* GetTextureView() const;
+		static Texture FromColour( const Colour* pPixels, int width, int height, GPUResourceUsage usage = USAGE_DEFAULT );
 
-		static Texture FromDDS( const std::wstring& filename );
-		static Texture FromColour( const Colour* pPixels, int width, int height, D3D11_USAGE usage = D3D11_USAGE_DEFAULT );
-		static Texture FromD3DCOLORVALUE( const D3DCOLORVALUE* pPixels, int width, int height, D3D11_USAGE usage = D3D11_USAGE_DEFAULT );
-		static Texture DepthBuffer();
-
-		static size_t GetBPPForFormat( DXGI_FORMAT fmt );
+		static size_t GetBPPForFormat( TexFormat fmt );
 
 	private:
-		Microsoft::WRL::ComPtr<ID3D11Resource>				m_pTexture = nullptr;
-		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_pTextureView = nullptr;
-
-		size_t m_iWidth = 0;
-		size_t m_iHeight = 0;
+		std::unique_ptr<ITexture> m_pTexture = nullptr;
 	};
 }

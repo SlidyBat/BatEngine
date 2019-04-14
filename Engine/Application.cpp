@@ -35,10 +35,12 @@ namespace Bat
 			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TEXTURE );
 		}
 
-		virtual void Execute( SceneGraph& scene, RenderData& data ) override
+		virtual void Execute( IGPUContext* pContext, SceneGraph& scene, RenderData& data ) override
 		{
-			RenderTexture* target = data.GetRenderTexture( "dst" );
-			target->Bind();
+			IRenderTarget* target = data.GetRenderTarget( "dst" );
+			pContext->SetRenderTarget( target );
+
+			m_pContext = pContext;
 
 			scene.AcceptVisitor( *this );
 		}
@@ -47,7 +49,7 @@ namespace Bat
 
 		virtual void Visit( const DirectX::XMMATRIX& transform, ISceneNode& node ) override
 		{
-			RenderContext::SetDepthStencilEnabled( true );
+			m_pContext->SetDepthStencilEnabled( true );
 
 			size_t count = node.GetModelCount();
 			for( size_t i = 0; i < count; i++ )
@@ -68,23 +70,24 @@ namespace Bat
 
 					Material material = pMesh->GetMaterial();
 					LightPipelineParameters params( *cam, w, vp, material );
-					pMesh->Bind( pPipeline );
-					pPipeline->BindParameters( params );
-					pPipeline->RenderIndexed( (UINT)pMesh->GetIndexCount() );
+					pMesh->Bind( m_pContext, pPipeline );
+					pPipeline->BindParameters( m_pContext, params );
+					pPipeline->RenderIndexed( m_pContext, pMesh->GetIndexCount() );
 				}
 			}
 		}
 	private:
 		Graphics& gfx;
 		Light* m_pLight = nullptr;
+		IGPUContext* m_pContext = nullptr;
 	};
 
 	Application::Application( Graphics& gfx, Window& wnd )
 		:
 		gfx( gfx ),
 		wnd( wnd ),
-		camera( wnd.input ),
-		scene( SceneLoader::LoadScene( "Assets\\Ignore\\Sponza\\Sponza.gltf" ) )
+		camera( wnd.input, 100.0f ),
+		scene( SceneLoader::LoadScene( "Assets\\Ignore\\Car\\Scene.gltf" ) )
 	{
 		camera.SetPosition( { 0.0f, 0.0f, -10.0f } );
 
@@ -98,7 +101,7 @@ namespace Bat
 		snd = Audio::CreateSoundPlaybackDevice();
 		snd->SetListenerPosition( { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f } );
 
-		wnd.input.OnEventDispatched<KeyPressedEvent>( [&]( const KeyPressedEvent& e )
+		wnd.input.OnEventDispatched<KeyPressedEvent>( [&,light=light,&cam=camera]( const KeyPressedEvent& e )
 		{
 			if( e.key == VK_OEM_3 )
 			{
@@ -111,6 +114,10 @@ namespace Bat
 				bloom_enabled = !bloom_enabled;
 				// re-build render graoh
 				BuildRenderGraph();
+			}
+			else if( e.key == 'C' )
+			{
+				light->SetPosition( camera.GetPosition() );
 			}
 		} );
 	}
@@ -137,7 +144,6 @@ namespace Bat
 
 	void Application::OnRender()
 	{
-		gfx.DrawText( Bat::StringToWide( fps_string ).c_str(), DirectX::XMFLOAT2{ 15.0f, 15.0f } );
 	}
 
 	void Application::BuildRenderGraph()
@@ -153,23 +159,30 @@ namespace Bat
 		// render texture to draw scene to
 		if( post_process_count )
 		{
-			rendergraph.AddRenderTextureResource( "target", std::make_unique<RenderTexture>( wnd.GetWidth(), wnd.GetHeight() ) );
+			rendergraph.AddRenderTextureResource( "target",
+				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
 
 			// render texture 1 for bloom
-			rendergraph.AddRenderTextureResource( "rt1", std::make_unique<RenderTexture>( wnd.GetWidth(), wnd.GetHeight() ) );
+			rendergraph.AddRenderTextureResource( "rt1",
+				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
 			// render texture 2 for bloom & motion blur
-			rendergraph.AddRenderTextureResource( "rt2", std::make_unique<RenderTexture>( wnd.GetWidth(), wnd.GetHeight() ) );
+			rendergraph.AddRenderTextureResource( "rt2",
+				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
 		}
 		else
 		{
-			rendergraph.AddRenderTextureResource( "target", std::make_unique<RenderTexture>( RenderTexture::Backbuffer() ) );
+			rendergraph.AddRenderTextureResource( "target", nullptr );
 		}
-		rendergraph.AddTextureResource( "depth", std::make_unique<Texture>( Texture::DepthBuffer() ) );
-		rendergraph.AddTextureResource( "skybox", std::make_unique<Texture>( "Assets\\skybox.dds" ) );
+
+		auto depth = std::unique_ptr<IDepthStencil>( gpu->CreateDepthStencil( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R24G8_TYPELESS ) );
+		gpu->GetContext()->SetDepthStencil( depth.get() );
+		rendergraph.AddDepthStencilResource( "depth", std::move( depth ) );
+		rendergraph.AddTextureResource( "skybox", std::unique_ptr<ITexture>( gpu->CreateTexture( "Assets\\skybox.dds" ) ) );
 
 		// add passes
 		rendergraph.AddPass( "crt", std::make_unique<ClearRenderTargetPass>() );
 		rendergraph.BindToResource( "crt.buffer", "target" );
+		rendergraph.BindToResource( "crt.depth", "depth" );
 
 		rendergraph.AddPass( "renderer", std::make_unique<SceneRenderer>( gfx, light ) );
 		rendergraph.BindToResource( "renderer.dst", "target" );

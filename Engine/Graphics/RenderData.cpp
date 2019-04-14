@@ -3,7 +3,7 @@
 
 namespace Bat
 {
-	Texture* RenderData::GetTexture( const std::string& name )
+	ITexture* RenderData::GetTexture( const std::string& name )
 	{
 		auto it = m_mapTextures.find( name );
 		if( it != m_mapTextures.end() )
@@ -14,7 +14,7 @@ namespace Bat
 		return nullptr;
 	}
 
-	RenderTexture* RenderData::GetRenderTexture( const std::string& name )
+	IRenderTarget* RenderData::GetRenderTarget( const std::string& name )
 	{
 		auto it = m_mapRenderTextures.find( name );
 		if( it != m_mapRenderTextures.end() )
@@ -25,13 +25,29 @@ namespace Bat
 		return nullptr;
 	}
 
-	void RenderData::AddTexture( const std::string& name, Texture* pTexture )
+	IDepthStencil* RenderData::GetDepthStencil( const std::string& name )
+	{
+		auto it = m_mapDepthStencils.find( name );
+		if( it != m_mapDepthStencils.end() )
+		{
+			return it->second;
+		}
+
+		return nullptr;
+	}
+
+	void RenderData::AddTexture( const std::string& name, ITexture* pTexture )
 	{
 		m_mapTextures[name] = pTexture;
 	}
 
-	void RenderData::AddRenderTexture( const std::string& name, RenderTexture* pRenderTexture )
+	void RenderData::AddRenderTarget( const std::string& name, IRenderTarget* pRenderTexture )
 	{
 		m_mapRenderTextures[name] = pRenderTexture;
+	}
+
+	void RenderData::AddDepthStencil( const std::string& name, IDepthStencil* pDepthStencil )
+	{
+		m_mapDepthStencils[name] = pDepthStencil;
 	}
 }

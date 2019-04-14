@@ -5,8 +5,7 @@
 #include "Texture.h"
 #include "Colour.h"
 #include "Mesh.h"
-#include "VertexShader.h"
-#include "PixelShader.h"
+#include "IGPUDevice.h"
 
 namespace Bat
 {
@@ -14,8 +13,8 @@ namespace Bat
 	using ResourceMap = std::unordered_map<std::string, Resource<T>>;
 
 	static ResourceMap<Texture>        g_mapTextures;
-	static ResourceMap<VertexShader>   g_mapVShaders;
-	static ResourceMap<PixelShader>    g_mapPShaders;
+	static ResourceMap<IVertexShader>   g_mapVShaders;
+	static ResourceMap<IPixelShader>    g_mapPShaders;
 
 	static std::unordered_map<unsigned int, Resource<Texture>>        g_mapColours;
 
@@ -45,12 +44,12 @@ namespace Bat
 		return it->second;
 	}
 	
-	Resource<VertexShader> ResourceManager::GetVertexShader( const std::string& filename )
+	Resource<IVertexShader> ResourceManager::GetVertexShader( const std::string& filename )
 	{
 		auto it = g_mapVShaders.find( filename );
 		if( it == g_mapVShaders.end() )
 		{
-			auto pResource = std::make_shared<VertexShader>( filename );
+			auto pResource = std::shared_ptr<IVertexShader>( gpu->CreateVertexShader( filename ) );
 			g_mapVShaders[filename] = pResource;
 			return pResource;
 		}
@@ -58,12 +57,12 @@ namespace Bat
 		return it->second;
 	}
 
-	Resource<PixelShader> ResourceManager::GetPixelShader( const std::string& filename )
+	Resource<IPixelShader> ResourceManager::GetPixelShader( const std::string& filename )
 	{
 		auto it = g_mapPShaders.find( filename );
 		if( it == g_mapPShaders.end() )
 		{
-			auto pResource = std::make_shared<PixelShader>( filename );
+			auto pResource = std::shared_ptr<IPixelShader>( gpu->CreatePixelShader( filename ) );
 			g_mapPShaders[filename] = pResource;
 			return pResource;
 		}

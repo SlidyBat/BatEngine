@@ -1,9 +1,16 @@
 #pragma once
 
-struct GlobalValues
+namespace Bat
 {
-	float elapsed_time;
-	float deltatime;
-};
+	class IGPUDevice;
 
-extern GlobalValues* g_pGlobals;
+	struct GlobalValues
+	{
+		float elapsed_time;
+		float deltatime;
+	};
+
+	extern GlobalValues* g_pGlobals;
+
+	extern IGPUDevice* gpu;
+}
