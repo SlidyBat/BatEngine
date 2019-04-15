@@ -49,11 +49,11 @@ namespace Bat
 		PoolAllocator( const PoolAllocator& ) = delete;
 		PoolAllocator& operator=( const PoolAllocator& ) = delete;
 
-		PoolAllocator( PoolAllocator&& donor )
+		PoolAllocator( PoolAllocator&& donor ) noexcept
 		{
 			*this = std::move( donor );
 		}
-		PoolAllocator& operator=( PoolAllocator&& rhs )
+		PoolAllocator& operator=( PoolAllocator&& rhs ) noexcept
 		{
 			m_iCapacity = rhs.m_iCapacity;
 			m_pChunks = std::move( rhs.m_pChunks );

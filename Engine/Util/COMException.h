@@ -13,12 +13,16 @@ class COMException : public std::exception
 {
 public:
 	COMException( HRESULT hr )
+		:
+		hr( hr )
 	{
 		_com_error error( hr );
 		whatmsg = error.ErrorMessage();
 	}
 
 	COMException(HRESULT hr, const std::string& message)
+		:
+		hr( hr )
 	{
 		_com_error error( hr );
 		whatmsg = "Error: " + message + '\n';
@@ -26,6 +30,8 @@ public:
 	}
 
 	COMException( HRESULT hr, const std::string& file, const std::string& function, int line )
+		:
+		hr( hr )
 	{
 		_com_error error( hr );
 		whatmsg = error.ErrorMessage();
@@ -37,6 +43,8 @@ public:
 	}
 
 	COMException( HRESULT hr, const std::string& message, const std::string& file, const std::string& function, int line )
+		:
+		hr( hr )
 	{
 		_com_error error( hr );
 		whatmsg = "Error: " + message + '\n';
@@ -47,6 +55,8 @@ public:
 		whatmsg += "Function: " + function + '\n';
 		whatmsg += "Line: " + std::to_string( line ) + '\n';
 	}
+
+	HRESULT GetHResult() const { return hr; }
 
 	virtual const char* what() const override
 	{
