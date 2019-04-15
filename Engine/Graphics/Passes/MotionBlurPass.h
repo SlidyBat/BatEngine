@@ -52,7 +52,7 @@ namespace Bat
 				{ 1.0f, 1.0f }
 			};
 
-			const std::vector<unsigned int> indices = { 0, 1, 2,  2, 3, 0 };
+			const std::vector<uint32_t> indices = { 0, 1, 2,  2, 3, 0 };
 
 			m_bufPosition.Reset( positions );
 			m_bufUV.Reset( uvs );
@@ -91,7 +91,7 @@ namespace Bat
 			pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufGlobals, 0 );
 
 			pContext->SetVertexBuffer( m_bufPosition, 0 );
-			pContext->SetVertexBuffer( m_bufUV, 0 );
+			pContext->SetVertexBuffer( m_bufUV, 1 );
 			pContext->SetIndexBuffer( m_bufIndices );
 
 			pContext->SetVertexShader( m_pTextureVS.get() );
@@ -99,7 +99,8 @@ namespace Bat
 
 			pContext->SetRenderTarget( dst );
 			pContext->BindTexture( src, 0 );
-			// pContext->BindTexture( depth, 1 );
+			pContext->SetDepthStencil( nullptr ); // Unbind depth stencil from output
+			pContext->BindTexture( depth, 1 );
 
 			pContext->DrawIndexed( m_bufIndices->GetIndexCount() );
 
