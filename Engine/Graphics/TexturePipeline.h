@@ -9,8 +9,8 @@ namespace Bat
 {
 	struct CB_TexturePipelineMatrix
 	{
-		DirectX::XMMATRIX world;
-		DirectX::XMMATRIX viewproj;
+		DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
+		DirectX::XMMATRIX viewproj = DirectX::XMMatrixIdentity();
 	};
 
 	class TexturePipelineParameters : public IPipelineParameters

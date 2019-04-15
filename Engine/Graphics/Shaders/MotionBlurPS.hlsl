@@ -5,7 +5,7 @@
 Texture2D sceneTexture : register(t0);
 Texture2D depthTexture : register(t1);
 
-cbuffer Globals
+cbuffer Globals : register(b0)
 {
     float2 resolution;
     float time;
@@ -54,6 +54,7 @@ float4 main(PixelInputType input) : SV_TARGET
         // Add the current color to our color sum.
         color += currentColor;
     }
+	
     // Average all of the samples to get the final blur color.
     return color / NUM_SAMPLES;
 }

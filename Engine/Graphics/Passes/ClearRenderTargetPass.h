@@ -25,7 +25,7 @@ namespace Bat
 			if( depth )
 			{
 				pContext->SetDepthStencil( depth );
-				pContext->ClearDepthStencil( depth, CLEAR_FLAG_DEPTH, 1.0f, 0 );
+				pContext->ClearDepthStencil( depth, CLEAR_FLAG_DEPTH | CLEAR_FLAG_STENCIL, 1.0f, 0 );
 			}
 		}
 	};

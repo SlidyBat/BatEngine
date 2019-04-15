@@ -35,12 +35,9 @@ namespace Bat
 		Graphics& gfx;
 		Window& wnd;
 		ISoundEngine* snd;
-		ISound* bell;
 		MoveableCamera camera;
 		SceneGraph scene;
 		Light* light;
-		Model* model;
-		Overlay* overlay;
 		RenderGraph rendergraph;
 
 		// fps calculation

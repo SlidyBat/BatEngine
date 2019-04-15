@@ -14,11 +14,11 @@ namespace Bat
 	private:
 		struct CB_Globals
 		{
-			Vec2 resolution;
-			float time;
-			float pad;
-			DirectX::XMMATRIX inv_viewproj;
-			DirectX::XMMATRIX prev_viewproj;
+			Vec2 resolution = { 0.0f, 0.0f };
+			float time = 0.0f;
+			float pad = 0.0f;
+			DirectX::XMMATRIX inv_viewproj = DirectX::XMMatrixIdentity();
+			DirectX::XMMATRIX prev_viewproj = DirectX::XMMatrixIdentity();
 		};
 	public:
 		MotionBlurPass()
@@ -59,7 +59,7 @@ namespace Bat
 			m_bufIndices.Reset( indices );
 		}
 
-		virtual std::string GetDescription() const override { return "Bloom pass"; }
+		virtual std::string GetDescription() const override { return "Motion blur pass"; }
 
 		virtual void Execute( IGPUContext* pContext, SceneGraph& scene, RenderData& data )
 		{
@@ -100,18 +100,16 @@ namespace Bat
 			pContext->SetRenderTarget( dst );
 			pContext->BindTexture( src, 0 );
 			pContext->SetDepthStencil( nullptr ); // Unbind depth stencil from output
-			pContext->BindTexture( depth, 1 );
+			pContext->BindTexture( depth, 1 ); // Bind to input
 
 			pContext->DrawIndexed( m_bufIndices->GetIndexCount() );
 
-			// Unbind depth buffer
+			// Unbind depth stencil from input again
 			pContext->UnbindTextureSlot( 1 );
 
 			m_matPrevViewProj = viewproj;
 		}
 	private:
-		int m_iBlurPasses = 1;
-
 		DirectX::XMMATRIX m_matPrevViewProj = DirectX::XMMatrixIdentity();
 
 		Resource<IVertexShader> m_pTextureVS;

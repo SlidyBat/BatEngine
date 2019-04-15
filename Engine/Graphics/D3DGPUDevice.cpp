@@ -112,7 +112,7 @@ namespace Bat
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_pRenderTargetView = nullptr;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_pShaderResourceView = nullptr;
 
-		TexFormat m_Format;
+		TexFormat m_Format = TEX_FORMAT_UNKNOWN;
 		size_t m_iWidth = 0;
 		size_t m_iHeight = 0;
 	};
@@ -1506,6 +1506,7 @@ namespace Bat
 		pResource.As( &pTexture2D );
 		D3D11_TEXTURE2D_DESC desc;
 		pTexture2D->GetDesc( &desc );
+		m_Format = (TexFormat)desc.Format;
 		m_iWidth = desc.Width;
 		m_iHeight = desc.Height;
 

@@ -86,7 +86,7 @@ namespace Bat
 		:
 		gfx( gfx ),
 		wnd( wnd ),
-		camera( wnd.input, 100.0f ),
+		camera( wnd.input, 500.0f ),
 		scene( SceneLoader::LoadScene( "Assets\\Ignore\\Car\\Scene.gltf" ) )
 	{
 		camera.SetPosition( { 0.0f, 0.0f, -10.0f } );

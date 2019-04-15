@@ -67,6 +67,8 @@ namespace Bat
 
 		virtual void Execute( IGPUContext* pContext, SceneGraph& scene, RenderData& data )
 		{
+			pContext->SetDepthStencilEnabled( false );
+
 			IRenderTarget* src = data.GetRenderTarget( "src" );
 			IRenderTarget* rt1 = data.GetRenderTarget( "buffer1" );
 			IRenderTarget* rt2 = data.GetRenderTarget( "buffer2" );
