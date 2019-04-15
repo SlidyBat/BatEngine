@@ -24,13 +24,13 @@ namespace Bat
 
 		virtual size_t GetModelCount() = 0;
 		virtual Model* GetModel( size_t index ) = 0;
-		virtual Model* AddModel( const Model& model ) = 0;
-		virtual void RemoveModel( Model* pModel ) = 0;
+		virtual Model* AddModel( std::vector<Resource<Mesh>> pMeshes ) = 0;
+		virtual void RemoveModel( size_t index ) = 0;
 
 		virtual size_t GetLightCount() = 0;
 		virtual Light* GetLight( size_t index ) = 0;
-		virtual Light* AddLight( const Light& model ) = 0;
-		virtual void RemoveLight( Light* pModel ) = 0;
+		virtual Light* AddLight() = 0;
+		virtual void RemoveLight( size_t index ) = 0;
 
 		virtual DirectX::XMMATRIX GetTransform() const = 0;
 		virtual void SetTransform( const DirectX::XMMATRIX& transform ) = 0;
@@ -52,13 +52,13 @@ namespace Bat
 
 		virtual size_t GetModelCount() override;
 		virtual Model* GetModel( size_t index ) override;
-		virtual Model* AddModel( const Model& model ) override;
-		virtual void RemoveModel( Model* id ) override;
+		virtual Model* AddModel( std::vector<Resource<Mesh>> pMeshes ) override;
+		virtual void RemoveModel( size_t index ) override;
 
 		virtual size_t GetLightCount() override;
 		virtual Light* GetLight( size_t index ) override;
-		virtual Light* AddLight( const Light& light ) override;
-		virtual void RemoveLight( Light* pLight ) override;
+		virtual Light* AddLight() override;
+		virtual void RemoveLight( size_t index ) override;
 
 		virtual DirectX::XMMATRIX GetTransform() const override;
 		virtual void SetTransform( const DirectX::XMMATRIX& transform ) override;

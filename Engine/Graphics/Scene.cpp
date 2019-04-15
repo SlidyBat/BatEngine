@@ -56,20 +56,15 @@ namespace Bat
 		return m_pModels[index].get();
 	}
 
-	Model* BasicSceneNode::AddModel( const Model& model )
+	Model* BasicSceneNode::AddModel( std::vector<Resource<Mesh>> pMeshes )
 	{
-		m_pModels.emplace_back( std::make_unique<Model>( model ) );
+		m_pModels.emplace_back( std::make_unique<Model>( pMeshes ) );
 		return m_pModels.back().get();
 	}
 
-	void BasicSceneNode::RemoveModel( Model* pModel )
+	void BasicSceneNode::RemoveModel( size_t index )
 	{
-		m_pModels.erase( std::remove_if( m_pModels.begin(), m_pModels.end(),
-			[pModel]( const std::unique_ptr<Model>& l )
-			{
-				return l.get() == pModel;
-			}
-		) );
+		m_pModels.erase( m_pModels.begin() + index );
 	}
 
 	size_t BasicSceneNode::GetLightCount()
@@ -82,20 +77,15 @@ namespace Bat
 		return m_pLights[index].get();
 	}
 
-	Light* BasicSceneNode::AddLight( const Light& light )
+	Light* BasicSceneNode::AddLight()
 	{
-		m_pLights.emplace_back( std::make_unique<Light>( light ) );
+		m_pLights.emplace_back( std::make_unique<Light>() );
 		return m_pLights.back().get();
 	}
 
-	void BasicSceneNode::RemoveLight( Light* pLight )
+	void BasicSceneNode::RemoveLight( size_t index )
 	{
-		m_pLights.erase( std::remove_if( m_pLights.begin(), m_pLights.end(),
-			[pLight]( const std::unique_ptr<Light>& l )
-			{
-				return l.get() == pLight;
-			}
-		) );
+		m_pLights.erase( m_pLights.begin() + index );
 	}
 
 	DirectX::XMMATRIX BasicSceneNode::GetTransform() const

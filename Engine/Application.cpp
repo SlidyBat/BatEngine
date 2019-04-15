@@ -91,7 +91,7 @@ namespace Bat
 	{
 		camera.SetPosition( { 0.0f, 0.0f, -10.0f } );
 
-		light = scene.GetRootNode().AddLight( {} );
+		light = scene.GetRootNode().AddLight();
 		scene.SetActiveCamera( &camera );
 		gfx.SetActiveScene( &scene );
 

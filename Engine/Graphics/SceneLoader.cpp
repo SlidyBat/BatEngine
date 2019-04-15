@@ -309,7 +309,7 @@ namespace Bat
 				aiMesh* pMesh = pAssimpScene->mMeshes[pAssimpNode->mMeshes[i]];
 				meshes.emplace_back( ProcessMesh( pMesh, pAssimpScene, dir ) );
 			}
-			node.AddModel( { meshes } );
+			node.AddModel( meshes );
 		}
 
 		for( UINT i = 0; i < pAssimpNode->mNumChildren; i++ )
