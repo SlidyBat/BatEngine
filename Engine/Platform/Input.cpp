@@ -1,6 +1,7 @@
 #include "PCH.h"
 #include "Input.h"
 
+#include <imgui.h>
 #include "MouseEvents.h"
 #include "KeyboardEvents.h"
 
@@ -19,6 +20,12 @@ namespace Bat
 		ASSERT( key >= 0, "Invalid keyboard key '%i'", key );
 		ASSERT( key < MaxKeys, "Invalid keyboard key '%i'", key );
 
+		ImGuiIO& io = ImGui::GetIO();
+		if( io.WantCaptureKeyboard )
+		{
+			return;
+		}
+
 		DispatchEvent<KeyCharEvent>( key, repeated );
 	}
 
@@ -33,6 +40,12 @@ namespace Bat
 		ASSERT( key >= 0, "Invalid keyboard key '%i'", key );
 		ASSERT( key < MaxKeys, "Invalid keyboard key '%i'", key );
 
+		ImGuiIO& io = ImGui::GetIO();
+		if( io.WantCaptureKeyboard )
+		{
+			return;
+		}
+
 		m_bKeyIsPressed[key] = true;
 
 		DispatchEvent<KeyPressedEvent>( key, repeated );
@@ -42,6 +55,12 @@ namespace Bat
 	{
 		ASSERT( key >= 0, "Invalid keyboard key '%i'", key );
 		ASSERT( key < MaxKeys, "Invalid keyboard key '%i'", key );
+
+		ImGuiIO& io = ImGui::GetIO();
+		if( io.WantCaptureKeyboard )
+		{
+			return;
+		}
 
 		m_bKeyIsPressed[key] = false;
 
@@ -55,6 +74,12 @@ namespace Bat
 
 	void Input::OnMouseMoved( const Vei2& pos )
 	{
+		ImGuiIO& io = ImGui::GetIO();
+		if( io.WantCaptureMouse )
+		{
+			return;
+		}
+
 		DispatchEvent<MouseMovedEvent>( pos, m_vecMousePosition );
 
 		m_vecMousePosition = pos;
@@ -62,6 +87,12 @@ namespace Bat
 
 	void Input::OnMouseWheelScrolled( const Vei2& pos, const float delta )
 	{
+		ImGuiIO& io = ImGui::GetIO();
+		if( io.WantCaptureMouse )
+		{
+			return;
+		}
+
 		m_vecMousePosition = pos;
 
 		DispatchEvent<MouseScrolledEvent>( pos, delta );
@@ -69,6 +100,12 @@ namespace Bat
 
 	void Input::OnMouseButtonDown( const Vei2& pos, const MouseButton mb )
 	{
+		ImGuiIO& io = ImGui::GetIO();
+		if( io.WantCaptureMouse )
+		{
+			return;
+		}
+
 		m_vecMousePosition = pos;
 		m_bMouseButtonIsDown[(int)mb] = true;
 
@@ -77,6 +114,12 @@ namespace Bat
 
 	void Input::OnMouseButtonUp( const Vei2& pos, const MouseButton mb )
 	{
+		ImGuiIO& io = ImGui::GetIO();
+		if( io.WantCaptureMouse )
+		{
+			return;
+		}
+
 		m_vecMousePosition = pos;
 		m_bMouseButtonIsDown[(int)mb] = false;
 
@@ -85,6 +128,12 @@ namespace Bat
 
 	void Input::OnMouseButtonDblClick( const Vei2& pos, const MouseButton mb )
 	{
+		ImGuiIO& io = ImGui::GetIO();
+		if( io.WantCaptureMouse )
+		{
+			return;
+		}
+
 		m_vecMousePosition = pos;
 		m_bMouseButtonIsDown[(int)mb] = true;
 
