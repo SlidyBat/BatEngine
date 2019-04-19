@@ -116,7 +116,7 @@ namespace Bat
 				}
 				else
 				{
-					pContext->SetPixelShader( m_pGaussBlurHorPS.get() );
+					pContext->SetPixelShader( m_pGaussBlurVerPS.get() );
 					pContext->BindTexture( rt2, 0 );
 					pContext->SetRenderTarget( rt1 );
 				}
