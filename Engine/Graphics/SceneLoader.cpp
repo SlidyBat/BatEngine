@@ -290,6 +290,7 @@ namespace Bat
 		}
 
 		auto pBatMesh = std::make_shared<Mesh>( params, indices, material );
+		pBatMesh->SetName( pMesh->mName.C_Str() );
 		LoadedMesh loaded_mesh;
 		loaded_mesh.pAssimpMesh = pMesh;
 		loaded_mesh.pBatMesh = pBatMesh;
@@ -300,6 +301,8 @@ namespace Bat
 
 	static void ProcessNode( aiNode* pAssimpNode, const aiScene* pAssimpScene, ISceneNode& node, const std::string& dir )
 	{
+		node.SetName( pAssimpNode->mName.C_Str() );
+
 		if( pAssimpNode->mNumMeshes > 0 )
 		{
 			std::vector<Resource<Mesh>> meshes;
