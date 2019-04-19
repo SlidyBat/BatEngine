@@ -324,7 +324,7 @@ namespace Bat
 		}
 	}
 
-	SceneGraph SceneLoader::LoadScene( const std::string& filename )
+	std::unique_ptr<ISceneNode> SceneLoader::LoadScene( const std::string& filename )
 	{
 		if( !std::ifstream( filename ) )
 		{
@@ -335,7 +335,7 @@ namespace Bat
 		
 		FrameTimer ft;
 
-		SceneGraph scene;
+		std::unique_ptr<ISceneNode> node = std::make_unique<BasicSceneNode>();
 
 		std::filesystem::path filepath( filename );
 		std::string directory = filepath.parent_path().string();
@@ -350,13 +350,13 @@ namespace Bat
 			return {};
 		}
 
-		ProcessNode( pAssimpScene->mRootNode, pAssimpScene, scene.GetRootNode(), directory );
+		ProcessNode( pAssimpScene->mRootNode, pAssimpScene, *node, directory );
 
 		float time = ft.Mark();
 		BAT_LOG( "Loaded model '%s' in %.2fs", filename, time );
 
 		g_LoadedMeshes.clear();
 
-		return std::move( scene );
+		return std::move( node );
 	}
 }

@@ -18,6 +18,9 @@ namespace Bat
 	public:
 		Model( std::vector<Resource<Mesh>> pMeshes );
 
+		void SetName( const std::string& name ) { m_szName = name; }
+		std::string GetName() const { return m_szName; }
+
 		void Bind();
 
 		std::vector<Resource<Mesh>>& GetMeshes();
@@ -49,5 +52,7 @@ namespace Bat
 		bool m_bDirty = false;
 
 		std::vector<Resource<Mesh>> m_pMeshes;
+
+		std::string m_szName;
 	};
 }

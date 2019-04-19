@@ -87,11 +87,11 @@ namespace Bat
 		gfx( gfx ),
 		wnd( wnd ),
 		camera( wnd.input, 500.0f ),
-		scene( SceneLoader::LoadScene( "Assets\\Ignore\\Car\\Scene.gltf" ) )
+		scene( SceneLoader::LoadScene( "Assets\\Ignore\\Sponza\\Sponza.gltf" ) )
 	{
 		camera.SetPosition( { 0.0f, 0.0f, -10.0f } );
 
-		light = scene.GetRootNode().AddLight();
+		light = scene->AddLight();
 		scene.SetActiveCamera( &camera );
 		gfx.SetActiveScene( &scene );
 
@@ -142,8 +142,43 @@ namespace Bat
 		snd->SetListenerPosition( camera.GetPosition(), camera.GetForwardVector() );
 	}
 
+	static void AddModelTree( Model* pModel )
+	{
+		if( ImGui::TreeNode( "Model" ) )
+		{
+			auto meshes = pModel->GetMeshes();
+			for( auto mesh : meshes )
+			{
+				ImGui::Text( mesh->GetName().c_str() );
+			}
+
+			ImGui::TreePop();
+		}
+	}
+
+	static void AddNodeTree( ISceneNode* node )
+	{
+		if( ImGui::TreeNode( node->GetName().c_str() ) )
+		{
+			auto children = node->GetChildNodes();
+			for( auto child : children )
+			{
+				AddNodeTree( child );
+			}
+
+			const size_t model_count = node->GetModelCount();
+			for( size_t i = 0; i < model_count; i++ )
+			{
+				AddModelTree( node->GetModel( i ) );
+			}
+
+			ImGui::TreePop();
+		}
+	}
+
 	void Application::OnRender()
 	{
+		AddNodeTree( scene.GetRootNode() );
 	}
 
 	void Application::BuildRenderGraph()

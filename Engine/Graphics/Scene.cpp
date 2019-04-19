@@ -108,13 +108,39 @@ namespace Bat
 		}
 	}
 
-	ISceneNode& SceneGraph::GetRootNode()
+	SceneGraph::SceneGraph( std::unique_ptr<ISceneNode> node )
+		:
+		m_pRootNode( std::move( node ) )
 	{
-		return m_RootNode;
+	}
+
+	void SceneGraph::SetRootNode( std::unique_ptr<ISceneNode> node )
+	{
+		m_pRootNode = std::move( node );
+	}
+
+	ISceneNode* SceneGraph::GetRootNode()
+	{
+		return m_pRootNode.get();
+	}
+
+	const ISceneNode* SceneGraph::GetRootNode() const
+	{
+		return m_pRootNode.get();
 	}
 
 	void SceneGraph::AcceptVisitor( ISceneVisitor& visitor )
 	{
-		m_RootNode.AcceptVisitor( m_RootNode.GetTransform(), visitor );
+		m_pRootNode->AcceptVisitor( m_pRootNode->GetTransform(), visitor );
+	}
+
+	ISceneNode* SceneGraph::operator->()
+	{
+		return m_pRootNode.get();
+	}
+
+	const ISceneNode* SceneGraph::operator->() const
+	{
+		return m_pRootNode.get();
 	}
 }

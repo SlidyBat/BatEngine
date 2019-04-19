@@ -29,6 +29,9 @@ namespace Bat
 		Mesh() = default;
 		Mesh( const MeshParameters& params, const std::vector<unsigned int>& indices, const Material& material = {} );
 
+		void SetName( const std::string& name ) { m_szName = name; }
+		std::string GetName() const { return m_szName; }
+
 		void Bind( IGPUContext* pContext, IPipeline* pPipeline ) const;
 
 		void SetData( const MeshParameters& params );
@@ -47,5 +50,7 @@ namespace Bat
 		VertexBuffer<Vec3> m_bufBitangent;
 		IndexBuffer m_bufIndices;
 		Material m_Material;
+
+		std::string m_szName;
 	};
 }

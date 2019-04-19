@@ -17,6 +17,9 @@ namespace Bat
 	public:
 		virtual ~ISceneNode() = default;
 
+		virtual void SetName( const std::string& name ) = 0;
+		virtual std::string GetName() const = 0;
+
 		virtual ISceneNode* GetParentNode() = 0;
 		virtual std::vector<ISceneNode*> GetChildNodes() = 0;
 		virtual void AddChildNode( std::unique_ptr<ISceneNode> pNode ) = 0;
@@ -42,8 +45,10 @@ namespace Bat
 	{
 	public:
 		BasicSceneNode( const DirectX::XMMATRIX& transform = DirectX::XMMatrixIdentity(), ISceneNode* pParent = nullptr );
-
 		BasicSceneNode( BasicSceneNode&& ) = default;
+
+		virtual void SetName( const std::string& name ) { m_szName = name; }
+		virtual std::string GetName() const { return m_szName; }
 
 		virtual ISceneNode* GetParentNode() override;
 		virtual std::vector<ISceneNode*> GetChildNodes() override;
@@ -70,6 +75,7 @@ namespace Bat
 		std::vector<std::unique_ptr<ISceneNode>> m_pChildNodes;
 		std::vector<std::unique_ptr<Model>> m_pModels;
 		std::vector<std::unique_ptr<Light>> m_pLights;
+		std::string m_szName;
 	};
 
 	class ISceneVisitor
@@ -83,15 +89,23 @@ namespace Bat
 	class SceneGraph
 	{
 	public:
-		ISceneNode& GetRootNode();
+		SceneGraph() = default;
+		SceneGraph( std::unique_ptr<ISceneNode> node );
+
+		void SetRootNode( std::unique_ptr<ISceneNode> node );
+		ISceneNode* GetRootNode();
+		const ISceneNode* GetRootNode() const;
 		void AcceptVisitor( ISceneVisitor& visitor );
 
 		// Gets the current active camera if there is one, otherwise nullptr
 		Camera* GetActiveCamera() const { return m_pCamera; }
 		// Sets the current active camera. Set to nullptr to remove camera
 		void SetActiveCamera( Camera* pCamera ) { m_pCamera = pCamera; }
+
+		ISceneNode* operator->();
+		const ISceneNode* operator->() const;
 	private:
-		BasicSceneNode m_RootNode;
+		std::unique_ptr<ISceneNode> m_pRootNode = std::make_unique<BasicSceneNode>();
 		Camera* m_pCamera = nullptr;
 	};
 }

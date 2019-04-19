@@ -8,6 +8,6 @@ namespace Bat
 	class SceneLoader
 	{
 	public:
-		static SceneGraph LoadScene( const std::string& filename );
+		static std::unique_ptr<ISceneNode> LoadScene( const std::string& filename );
 	};
 }
