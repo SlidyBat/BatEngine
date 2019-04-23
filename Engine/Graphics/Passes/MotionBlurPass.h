@@ -30,10 +30,10 @@ namespace Bat
 			m_pMotionBlurPS = ResourceManager::GetPixelShader( "Graphics/Shaders/MotionBlurPS.hlsl" );
 
 			// initialize buffers
-			const float left   = -400.0f;
-			const float right  =  400.0f;
-			const float top    =  300.0f;
-			const float bottom = -300.0f;
+			const float left   = -Graphics::InitialScreenWidth / 2.0f;
+			const float right  =  Graphics::InitialScreenWidth / 2.0f;
+			const float top    =  Graphics::InitialScreenHeight / 2.0f;
+			const float bottom = -Graphics::InitialScreenHeight / 2.0f;
 
 			const std::vector<Vec4> positions = {
 				{ left,  bottom, 1.0f, 1.0f },
