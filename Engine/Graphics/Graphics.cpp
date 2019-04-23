@@ -71,6 +71,8 @@ namespace Bat
 
 	Graphics::~Graphics()
 	{
+		delete gpu;
+
 		ImGui_ImplDX11_Shutdown();
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
