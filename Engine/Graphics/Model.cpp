@@ -3,8 +3,6 @@
 
 #include "Mesh.h"
 
-#include "LightPipeline.h"
-
 namespace Bat
 {
 	Model::Model( std::vector<Resource<Mesh>> pMeshes )

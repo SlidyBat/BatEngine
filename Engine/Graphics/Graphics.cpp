@@ -5,9 +5,8 @@
 
 #include "GraphicsFormats.h"
 #include "TexturePipeline.h"
-#include "LightPipeline.h"
 #include "ColourPipeline.h"
-#include "BumpMapPipeline.h"
+#include "LitGenericPipeline.h"
 #include "SkyboxPipeline.h"
 
 #include "MathLib.h"
@@ -30,39 +29,6 @@ namespace Bat
 {
 	IGPUDevice* gpu = nullptr;
 
-	void Graphics::AddSamplers()
-	{
-		SamplerDesc sampler_desc;
-		sampler_desc.filter = SampleFilter::MIN_MAG_MIP_LINEAR;
-		sampler_desc.mip_lod_bias = 0.0f;
-		sampler_desc.max_anisotropy = 1;
-		sampler_desc.comparison_func = ComparisonFunc::ALWAYS;
-		sampler_desc.border_color[0] = 0.0f;
-		sampler_desc.border_color[1] = 0.0f;
-		sampler_desc.border_color[2] = 0.0f;
-		sampler_desc.border_color[3] = 0.0f;
-
-		// wrap sampler
-		sampler_desc.address_u = TextureAddressMode::WRAP;
-		sampler_desc.address_v = TextureAddressMode::WRAP;
-		sampler_desc.address_w = TextureAddressMode::WRAP;
-		m_pSamplers.emplace_back( gpu->CreateSampler( sampler_desc ) );
-
-		// clamp sampler
-		sampler_desc.address_u = TextureAddressMode::CLAMP;
-		sampler_desc.address_v = TextureAddressMode::CLAMP;
-		sampler_desc.address_w = TextureAddressMode::CLAMP;
-		m_pSamplers.emplace_back( gpu->CreateSampler( sampler_desc ) );	
-	}
-
-	void Graphics::BindSamplers()
-	{
-		for( size_t i = 0; i < m_pSamplers.size(); i++ )
-		{
-			gpu->GetContext()->SetSampler( ShaderType::PIXEL, m_pSamplers[i].get(), i );
-		}
-	}
-
 	Graphics::Graphics( Window& wnd )
 		:
 		m_UI( wnd )
@@ -79,11 +45,8 @@ namespace Bat
 
 		ShaderManager::AddPipeline( "texture", std::make_unique<TexturePipeline>( "Graphics/Shaders/TextureVS.hlsl", "Graphics/Shaders/TexturePS.hlsl" ) );
 		ShaderManager::AddPipeline( "colour", std::make_unique <ColourPipeline>( "Graphics/Shaders/ColourVS.hlsl", "Graphics/Shaders/ColourPS.hlsl" ) );
-		ShaderManager::AddPipeline( "light", std::make_unique<LightPipeline>( "Graphics/Shaders/LightVS.hlsl", "Graphics/Shaders/LightPS.hlsl" ) );
-		ShaderManager::AddPipeline( "bumpmap", std::make_unique<BumpMapPipeline>( "Graphics/Shaders/BumpMapVS.hlsl", "Graphics/Shaders/BumpMapPS.hlsl" ) );
+		ShaderManager::AddPipeline( "litgeneric", std::make_unique<LitGenericPipeline>( "Graphics/Shaders/LitGenericVS.hlsl", "Graphics/Shaders/LitGenericPS.hlsl" ) );
 		ShaderManager::AddPipeline( "skybox", std::make_unique<SkyboxPipeline>( "Graphics/Shaders/SkyboxVS.hlsl", "Graphics/Shaders/SkyboxPS.hlsl" ) );
-
-		AddSamplers();
 
 		wnd.OnEventDispatched<WindowResizeEvent>( [=]( const WindowResizeEvent& e )
 		{
@@ -142,7 +105,7 @@ namespace Bat
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
-		BindSamplers();
+		ShaderManager::BindShaderGlobals( m_pSceneGraph->GetActiveCamera(), { (float)m_iScreenWidth, (float)m_iScreenHeight }, gpu->GetContext() );
 	}
 
 	void Graphics::EndFrame()

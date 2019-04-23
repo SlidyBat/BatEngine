@@ -1,4 +1,4 @@
-#include "Common.hlsli"
+#include "CommonPS.hlsli"
 
 #define BLACK_AND_WHITE
 #define LINES_AND_FLICKER
@@ -7,13 +7,7 @@
 
 #define FREQUENCY 15.0
 
-Texture2D shaderTexture;
-
-cbuffer Globals
-{
-    float2 resolution;
-    float time;
-};
+Texture2D SceneTexture : register(T_SLOT_0);
 
 struct PixelInputType
 {
@@ -56,7 +50,7 @@ float randomBlotch(float2 uv, float seed)
     float s = 0.01 * rand(seed + 2.0);
 	
     float2 p = float2(x, y) - uv;
-    p.x *= resolution.x / resolution.y;
+    p.x *= Globals.Resolution.x / Globals.Resolution.y;
     float a = atan2(p.y, p.x);
     float v = 1.0;
     float ss = s * s * (sin(6.2831 * a * x) * 0.1 + 1.0);
@@ -72,10 +66,10 @@ float randomBlotch(float2 uv, float seed)
 
 float4 main(PixelInputType input) : SV_TARGET
 {
-    float xPixelWidth = 6 * (1.0f / resolution.x);
-    float yPixelWidth = 6 * (1.0f / resolution.y);
+    float xPixelWidth = 6 * (1.0f / Globals.Resolution.x);
+    float yPixelWidth = 6 * (1.0f / Globals.Resolution.y);
     float xModTex = input.tex.x - fmod(input.tex.x, xPixelWidth);
     float yModTex = input.tex.y - fmod(input.tex.y, yPixelWidth);
 
-    return shaderTexture.Sample(ClampSampler, float2(xModTex, yModTex));
+    return SceneTexture.Sample(ClampSampler, float2(xModTex, yModTex));
 }

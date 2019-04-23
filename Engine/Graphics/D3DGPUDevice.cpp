@@ -26,10 +26,12 @@
 #pragma comment( lib, "d3dcompiler.lib" )
 
 #ifdef _DEBUG
-#define DXGI_CALL( fn ) { m_pDevice->FlushMessages(); fn; auto msg = m_pDevice->FlushMessages(); if( !msg.empty() ) { ASSERT( false, msg ); } }
+#define DXGI_DEVICE_CALL( dev, fn ) { dev->FlushMessages(); fn; auto msg = dev->FlushMessages(); if( !msg.empty() ) { ASSERT( false, msg ); } }
 #else
-#define DXGI_CALL( fn ) fn
+#define DXGI_DEVICE_CALL( dev, fn ) fn
 #endif
+
+#define DXGI_CALL( fn ) DXGI_DEVICE_CALL( m_pDevice, fn )
 
 namespace Bat
 {
@@ -1217,16 +1219,20 @@ namespace Bat
 
 	void D3DGPUDevice::SwapBuffers()
 	{
-		if( m_bVSyncEnabled )
+		HRESULT hr;
+		if( FAILED( hr = m_pSwapChain->Present( m_bVSyncEnabled, 0 ) ) )
 		{
-			m_pSwapChain->Present( 1, 0 );
-		}
-		else
-		{
-			m_pSwapChain->Present( 0, 0 );
+			if( hr == DXGI_ERROR_DEVICE_REMOVED )
+			{
+				THROW_COM_ERROR( m_pDevice->GetDeviceRemovedReason(), "Device removed error" );
+			}
+			else
+			{
+				THROW_COM_ERROR( hr, "Swap chain present error" );
+			}
 		}
 
-		FlushMessages();
+		auto msg = FlushMessages();
 	}
 
 	static const char* FeatureLevel2String( D3D_FEATURE_LEVEL level )
@@ -1263,7 +1269,7 @@ namespace Bat
 		FileWatchdog::AddFileChangeListener( filename, BIND_MEM_FN( D3DPixelShader::OnFileChanged ) );
 
 #ifdef _DEBUG
-		m_pShader->SetPrivateData( WKPDID_D3DDebugObjectName, (UINT)filename.size(), filename.c_str() );
+		D3D_SET_OBJECT_NAME_N_A( m_pShader, (UINT)filename.size(), filename.c_str() );
 #endif
 	}
 
@@ -1337,7 +1343,7 @@ namespace Bat
 		FileWatchdog::AddFileChangeListener( filename, BIND_MEM_FN( D3DVertexShader::OnFileChanged ) );
 
 #ifdef _DEBUG
-		m_pShader->SetPrivateData( WKPDID_D3DDebugObjectName, (UINT)filename.size(), filename.c_str() );
+		D3D_SET_OBJECT_NAME_N_A( m_pShader, (UINT)filename.size(), filename.c_str() );
 #endif
 	}
 
@@ -1511,7 +1517,7 @@ namespace Bat
 		m_iHeight = desc.Height;
 
 #ifdef _DEBUG
-		m_pTexture->SetPrivateData( WKPDID_D3DDebugObjectName, (UINT)filename.size(), filename.c_str() );
+		D3D_SET_OBJECT_NAME_N_A( m_pTexture, (UINT)filename.size(), filename.c_str() );
 #endif
 	}
 

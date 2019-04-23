@@ -1,12 +1,6 @@
-#include "Common.hlsli"
+#include "CommonPS.hlsli"
 
-Texture2D shaderTexture;
-
-cbuffer Globals
-{
-    float2 resolution;
-    float time;
-};
+Texture2D SceneTexture : register(T_SLOT_0);
 
 struct PixelInputType
 {
@@ -16,7 +10,7 @@ struct PixelInputType
 
 float4 main(PixelInputType input) : SV_TARGET
 {
-    float4 col = shaderTexture.Sample(ClampSampler, input.tex);
+    float4 col = SceneTexture.Sample(ClampSampler, input.tex);
     float brightness = dot(col.rgb, float3(0.2126f, 0.7152f, 0.0722f));
     if (brightness > 1.0f)
     {

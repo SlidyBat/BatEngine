@@ -22,19 +22,17 @@ namespace Bat
 		Resource<Texture> GetEmissiveTexture() const { return m_pEmissive; }
 		void SetEmissiveTexture( Resource<Texture> pTexture ) { m_pEmissive = pTexture; }
 
-		Resource<Texture> GetBumpMapTexture() const { return m_pBumpMap; }
-		void SetBumpMapTexture( Resource<Texture> pTexture ) { m_pBumpMap = pTexture; }
+		Resource<Texture> GetNormalTexture() const { return m_pNormalMap; }
+		void SetNormalTexture( Resource<Texture> pTexture ) { m_pNormalMap = pTexture; }
 
 		float GetShininess() const { return m_fShininess; }
 		void SetShininess( const float shininess ) { m_fShininess = shininess; }
-
-		const char* GetDefaultPipelineName() const;
 	private:
 		Resource<Texture> m_pAmbient = nullptr;
 		Resource<Texture> m_pDiffuse = nullptr;
 		Resource<Texture> m_pSpecular = nullptr;
 		Resource<Texture> m_pEmissive = nullptr;
-		Resource<Texture> m_pBumpMap = nullptr;
+		Resource<Texture> m_pNormalMap = nullptr;
 		float m_fShininess = 32.0f;
 	};
 }

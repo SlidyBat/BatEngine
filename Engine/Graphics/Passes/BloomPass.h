@@ -11,12 +11,6 @@ namespace Bat
 	class BloomPass : public BaseRenderPass
 	{
 	private:
-		struct CB_Globals
-		{
-			Vec2 resolution;
-			float time;
-			float pad;
-		};
 	public:
 		BloomPass( int blurpasses = 5 )
 		{
@@ -85,12 +79,6 @@ namespace Bat
 			m_cbufTransform.Update( pContext, transform );
 			pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, 0 );
 
-			CB_Globals globals;
-			globals.resolution = { (float)width, (float)height };
-			globals.time = g_pGlobals->elapsed_time;
-			m_cbufGlobals.Update( pContext, globals );
-			pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufGlobals, 0 );
-
 			pContext->SetVertexBuffer( m_bufPosition, 0 );
 			pContext->SetVertexBuffer( m_bufUV, 1 );
 			pContext->SetIndexBuffer( m_bufIndices );
@@ -147,7 +135,6 @@ namespace Bat
 		Resource<IPixelShader> m_pGaussBlurVerPS;
 		Resource<IPixelShader> m_pBloomShader;
 
-		ConstantBuffer<CB_Globals> m_cbufGlobals;
 		ConstantBuffer<CB_TexturePipelineMatrix> m_cbufTransform;
 
 		VertexBuffer<Vec4> m_bufPosition;

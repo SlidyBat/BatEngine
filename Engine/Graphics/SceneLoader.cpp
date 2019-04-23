@@ -278,7 +278,7 @@ namespace Bat
 			{
 				pTexture = LoadMaterialTexture( pMaterial, aiTextureType_HEIGHT, pScene, dir );
 			}
-			material.SetBumpMapTexture( pTexture );
+			material.SetNormalTexture( pTexture );
 
 			float shininess = 0.0f;
 			pMaterial->Get( AI_MATKEY_SHININESS, shininess );

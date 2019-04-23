@@ -14,9 +14,6 @@ namespace Bat
 	private:
 		struct CB_Globals
 		{
-			Vec2 resolution = { 0.0f, 0.0f };
-			float time = 0.0f;
-			float pad = 0.0f;
 			DirectX::XMMATRIX inv_viewproj = DirectX::XMMatrixIdentity();
 			DirectX::XMMATRIX prev_viewproj = DirectX::XMMatrixIdentity();
 		};
@@ -82,13 +79,11 @@ namespace Bat
 			pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, 0 );
 
 			CB_Globals ps_globals;
-			ps_globals.resolution = { (float)width, (float)height };
-			ps_globals.time = g_pGlobals->elapsed_time;
 			DirectX::XMMATRIX viewproj = cam->GetViewMatrix() * cam->GetProjectionMatrix();
 			ps_globals.inv_viewproj = DirectX::XMMatrixInverse( nullptr, viewproj );
 			ps_globals.prev_viewproj = m_matPrevViewProj;
 			m_cbufGlobals.Update( pContext, ps_globals );
-			pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufGlobals, 0 );
+			pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufGlobals, PS_CBUF_SLOT_0 );
 
 			pContext->SetVertexBuffer( m_bufPosition, 0 );
 			pContext->SetVertexBuffer( m_bufUV, 1 );

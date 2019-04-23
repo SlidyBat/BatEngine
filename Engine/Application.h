@@ -29,15 +29,14 @@ namespace Bat
 
 		void BuildRenderGraph();
 	public:
-		bool bloom_enabled = true;
-		bool motion_blur_enabled = true;
+		bool bloom_enabled = false;
+		bool motion_blur_enabled = false;
 	private:
 		Graphics& gfx;
 		Window& wnd;
 		ISoundEngine* snd;
 		MoveableCamera camera;
 		SceneGraph scene;
-		Light* light;
 		RenderGraph rendergraph;
 
 		// fps calculation

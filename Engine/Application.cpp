@@ -12,7 +12,6 @@
 #include "MouseEvents.h"
 #include "NetworkEvents.h"
 #include "TexturePipeline.h"
-#include "LightPipeline.h"
 #include "Globals.h"
 #include "IRenderPass.h"
 #include "ShaderManager.h"
@@ -21,79 +20,22 @@
 #include "Passes/SkyboxPass.h"
 #include "Passes/BloomPass.h"
 #include "Passes/MotionBlurPass.h"
+#include "Passes/ForwardOpaquePass.h"
 
 namespace Bat
 {
-	class SceneRenderer : public BaseRenderPass, public ISceneVisitor
-	{
-	public: // BaseRenderPass
-		SceneRenderer( Graphics& gfx, Light* pLight = nullptr )
-			:
-			gfx( gfx ),
-			m_pLight( pLight )
-		{
-			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TEXTURE );
-		}
-
-		virtual void Execute( IGPUContext* pContext, SceneGraph& scene, RenderData& data ) override
-		{
-			IRenderTarget* target = data.GetRenderTarget( "dst" );
-			pContext->SetRenderTarget( target );
-
-			m_pContext = pContext;
-
-			scene.AcceptVisitor( *this );
-		}
-	public: // ISceneVisitor
-		void SetLight( Light* pLight ) { m_pLight = pLight; }
-
-		virtual void Visit( const DirectX::XMMATRIX& transform, ISceneNode& node ) override
-		{
-			m_pContext->SetDepthStencilEnabled( true );
-
-			size_t count = node.GetModelCount();
-			for( size_t i = 0; i < count; i++ )
-			{
-				Camera* cam = gfx.GetActiveScene()->GetActiveCamera();
-				Model* pModel = node.GetModel( i );
-				DirectX::XMMATRIX w = transform * pModel->GetWorldMatrix();
-				DirectX::XMMATRIX vp = cam->GetViewMatrix() * cam->GetProjectionMatrix();
-
-				pModel->Bind();
-
-				auto& meshes = pModel->GetMeshes();
-				for( auto& pMesh : meshes )
-				{
-					auto szPipelineName = pMesh->GetMaterial().GetDefaultPipelineName();
-					auto pPipeline = static_cast<LightPipeline*>( ShaderManager::GetPipeline( szPipelineName ) );
-					pPipeline->SetLight( m_pLight );
-
-					Material material = pMesh->GetMaterial();
-					LightPipelineParameters params( *cam, w, vp, material );
-					pMesh->Bind( m_pContext, pPipeline );
-					pPipeline->BindParameters( m_pContext, params );
-					pPipeline->RenderIndexed( m_pContext, pMesh->GetIndexCount() );
-				}
-			}
-		}
-	private:
-		Graphics& gfx;
-		Light* m_pLight = nullptr;
-		IGPUContext* m_pContext = nullptr;
-	};
-
 	Application::Application( Graphics& gfx, Window& wnd )
 		:
 		gfx( gfx ),
 		wnd( wnd ),
-		camera( wnd.input, 500.0f ),
+		camera( wnd.input, 250.0f ),
 		scene( SceneLoader::LoadScene( "Assets\\Ignore\\Sponza\\Sponza.gltf" ) )
 	{
 		camera.SetPosition( { 0.0f, 0.0f, -10.0f } );
 
-		light = scene->AddLight();
 		scene.SetActiveCamera( &camera );
 		gfx.SetActiveScene( &scene );
+		scene.GetRootNode()->GetModel( 0 )->SetScale( 0.5f );
 
 		BuildRenderGraph();
 		gfx.SetRenderGraph( &rendergraph );
@@ -101,7 +43,7 @@ namespace Bat
 		snd = Audio::CreateSoundPlaybackDevice();
 		snd->SetListenerPosition( { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f } );
 
-		wnd.input.OnEventDispatched<KeyPressedEvent>( [&,light=light,&cam=camera]( const KeyPressedEvent& e )
+		wnd.input.OnEventDispatched<KeyPressedEvent>( [&,&scene=scene,&cam=camera]( const KeyPressedEvent& e )
 		{
 			if( e.key == VK_OEM_3 )
 			{
@@ -112,12 +54,21 @@ namespace Bat
 			{
 				// toggle bloom
 				bloom_enabled = !bloom_enabled;
+				// re-build render graph
+				BuildRenderGraph();
+			}
+			else if( e.key == 'M' )
+			{
+				// toggle motion blur
+				motion_blur_enabled = !motion_blur_enabled;
 				// re-build render graoh
 				BuildRenderGraph();
 			}
 			else if( e.key == 'C' )
 			{
-				light->SetPosition( camera.GetPosition() );
+				Light* light = scene->AddLight();
+				light->SetPosition( cam.GetPosition() );
+				light->SetRange( 250.0f );
 			}
 		} );
 	}
@@ -219,7 +170,7 @@ namespace Bat
 		rendergraph.BindToResource( "crt.buffer", "target" );
 		rendergraph.BindToResource( "crt.depth", "depth" );
 
-		rendergraph.AddPass( "renderer", std::make_unique<SceneRenderer>( gfx, light ) );
+		rendergraph.AddPass( "renderer", std::make_unique<ForwardOpaquePass>() );
 		rendergraph.BindToResource( "renderer.dst", "target" );
 
 		rendergraph.AddPass( "skybox", std::make_unique<SkyboxPass>() );

@@ -132,12 +132,6 @@
     <ClCompile Include="Util\MemoryStream.cpp">
       <Filter>Source Files\Util</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\LightPipeline.cpp">
-      <Filter>Source Files\Graphics\Pipelines</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\BumpMapPipeline.cpp">
-      <Filter>Source Files\Graphics\Pipelines</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\SkyboxPipeline.cpp">
       <Filter>Source Files\Graphics\Pipelines</Filter>
     </ClCompile>
@@ -258,6 +252,9 @@
     <ClCompile Include="Physics\Physics.cpp">
       <Filter>Source Files\Physics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\LitGenericPipeline.cpp">
+      <Filter>Source Files\Graphics\Pipelines</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -334,12 +331,6 @@
     </ClInclude>
     <ClInclude Include="Util\MemoryStream.h">
       <Filter>Header Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\LightPipeline.h">
-      <Filter>Header Files\Graphics\Pipelines</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\BumpMapPipeline.h">
-      <Filter>Header Files\Graphics\Pipelines</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\SkyboxPipeline.h">
       <Filter>Header Files\Graphics\Pipelines</Filter>
@@ -521,6 +512,15 @@
     <ClInclude Include="Graphics\GraphicsFormats.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\LitGenericPipeline.h">
+      <Filter>Header Files\Graphics\Pipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Passes\ForwardOpaquePass.h">
+      <Filter>Header Files\Graphics\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ShaderBuffers.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\mario.png">
@@ -536,30 +536,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Graphics\Shaders\ColourPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Graphics\Shaders\ColourVS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Graphics\Shaders\TexturePS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Graphics\Shaders\TextureVS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Graphics\Shaders\LightVS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Graphics\Shaders\LightPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Graphics\Shaders\BumpMapPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Graphics\Shaders\BumpMapVS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
     <FxCompile Include="Graphics\Shaders\PostProcessPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
@@ -584,9 +560,19 @@
     <FxCompile Include="Graphics\Shaders\MotionBlurPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
+    <FxCompile Include="Graphics\Shaders\LitGenericVS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\LitGenericPS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\ColourPS.hlsl" />
+    <FxCompile Include="Graphics\Shaders\ColourVS.hlsl" />
+    <FxCompile Include="Graphics\Shaders\TexturePS.hlsl" />
+    <FxCompile Include="Graphics\Shaders\TextureVS.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Graphics\Shaders\Common.hlsli">
+    <None Include="Graphics\Shaders\CommonPS.hlsli">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

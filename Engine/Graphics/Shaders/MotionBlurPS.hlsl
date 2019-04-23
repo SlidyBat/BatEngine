@@ -1,17 +1,14 @@
-#include "Common.hlsli"
+#include "CommonPS.hlsli"
 
 #define NUM_SAMPLES 5
 
-Texture2D sceneTexture : register(t0);
-Texture2D depthTexture : register(t1);
+Texture2D SceneTexture : register(T_SLOT_0);
+Texture2D DepthTexture : register(T_SLOT_1);
 
-cbuffer Globals : register(b0)
+cbuffer Transform : register(B_SLOT_0)
 {
-    float2 resolution;
-    float time;
-    float pad;
-    float4x4 inv_viewproj;
-    float4x4 prev_viewproj;
+	float4x4 inv_viewproj;
+	float4x4 prev_viewproj;
 };
 
 struct PixelInputType
@@ -25,7 +22,7 @@ float4 main(PixelInputType input) : SV_TARGET
     // https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch27.html
 
     // Get the depth buffer value at this pixel.
-    float zOverW = depthTexture.Sample(ClampSampler, input.tex).r;
+    float zOverW = DepthTexture.Sample(ClampSampler, input.tex).r;
     // H is the viewport position at this pixel in the range -1 to 1.
     float4 H = float4(input.tex.x * 2 - 1, (1 - input.tex.y) * 2 - 1, zOverW, 1);
     // Transform by the view-projection inverse.
@@ -45,12 +42,12 @@ float4 main(PixelInputType input) : SV_TARGET
     float2 velocity = (currentPos.xy - previousPos.xy) / 2.f;
     
     // Get the initial color at this pixel.
-    float4 color = sceneTexture.Sample(ClampSampler, input.tex);
+    float4 color = SceneTexture.Sample(ClampSampler, input.tex);
     input.tex += velocity;
     for (int i = 1; i < NUM_SAMPLES; ++i, input.tex += velocity)
     {
         // Sample the color buffer along the velocity vector.
-        float4 currentColor = sceneTexture.Sample(ClampSampler, input.tex);
+        float4 currentColor = SceneTexture.Sample(ClampSampler, input.tex);
         // Add the current color to our color sum.
         color += currentColor;
     }

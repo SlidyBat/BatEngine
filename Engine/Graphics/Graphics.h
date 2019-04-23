@@ -46,9 +46,6 @@ namespace Bat
 		void RenderScene();
 		void RenderUI();
 		void RenderImGui();
-
-		void AddSamplers();
-		void BindSamplers();
 	private:
 		DirectX::XMMATRIX m_matOrtho;
 
@@ -59,20 +56,18 @@ namespace Bat
 
 		RenderGraph* m_pRenderGraph = nullptr;
 
-		std::vector<std::unique_ptr<ISampler>> m_pSamplers;
-
 		// UI
 		BatUI m_UI;
 	public:
 		static constexpr bool	FullScreen = false;
 		static constexpr int	VSyncEnabled = false;
-		static constexpr float	ScreenFar = 1000.0f;
+		static constexpr float	ScreenFar = 2000.0f;
 		static constexpr float	ScreenNear = 0.1f;
 		static constexpr float	FOV = 90.0f;
 		static constexpr float  FOVRadians = FOV * (DirectX::XM_PI / 180.0f);
 
 		// only used when not in fullscreen
-		static constexpr int	InitialScreenWidth = 800;
-		static constexpr int	InitialScreenHeight = 600;
+		static constexpr int	InitialScreenWidth = 1200;
+		static constexpr int	InitialScreenHeight = 800;
 	};
 }

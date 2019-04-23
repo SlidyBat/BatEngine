@@ -46,12 +46,17 @@ namespace Bat
 		return false;
 	}
 
-	size_t BasicSceneNode::GetModelCount()
+	size_t BasicSceneNode::GetModelCount() const
 	{
 		return m_pModels.size();
 	}
 
-	Model * BasicSceneNode::GetModel( size_t index )
+	Model* BasicSceneNode::GetModel( size_t index )
+	{
+		return m_pModels[index].get();
+	}
+
+	const Model* BasicSceneNode::GetModel( size_t index ) const
 	{
 		return m_pModels[index].get();
 	}
@@ -67,12 +72,17 @@ namespace Bat
 		m_pModels.erase( m_pModels.begin() + index );
 	}
 
-	size_t BasicSceneNode::GetLightCount()
+	size_t BasicSceneNode::GetLightCount() const
 	{
 		return m_pLights.size();
 	}
 
 	Light* BasicSceneNode::GetLight( size_t index )
+	{
+		return m_pLights[index].get();
+	}
+
+	const Light* BasicSceneNode::GetLight( size_t index ) const
 	{
 		return m_pLights[index].get();
 	}

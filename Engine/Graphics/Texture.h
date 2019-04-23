@@ -19,6 +19,9 @@ namespace Bat
 		Texture( const char* pData, size_t size );
 		Texture( const void* pPixels, size_t pitch, size_t width, size_t height, TexFormat format, GPUResourceUsage usage = USAGE_DEFAULT );
 
+		ITexture* Get() { return m_pTexture.get(); }
+		const ITexture* Get() const { return m_pTexture.get(); }
+
 		operator ITexture*( );
 		ITexture* operator->();
 		const ITexture* operator->() const;

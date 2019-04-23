@@ -25,13 +25,15 @@ namespace Bat
 		virtual void AddChildNode( std::unique_ptr<ISceneNode> pNode ) = 0;
 		virtual bool RemoveChildNode( ISceneNode* pNode ) = 0;
 
-		virtual size_t GetModelCount() = 0;
+		virtual size_t GetModelCount() const = 0;
 		virtual Model* GetModel( size_t index ) = 0;
+		virtual const Model* GetModel( size_t index ) const = 0;
 		virtual Model* AddModel( std::vector<Resource<Mesh>> pMeshes ) = 0;
 		virtual void RemoveModel( size_t index ) = 0;
 
-		virtual size_t GetLightCount() = 0;
+		virtual size_t GetLightCount() const = 0;
 		virtual Light* GetLight( size_t index ) = 0;
+		virtual const Light* GetLight( size_t index ) const = 0;
 		virtual Light* AddLight() = 0;
 		virtual void RemoveLight( size_t index ) = 0;
 
@@ -55,13 +57,15 @@ namespace Bat
 		virtual void AddChildNode( std::unique_ptr<ISceneNode> pNode ) override;
 		virtual bool RemoveChildNode( ISceneNode* pNode ) override;
 
-		virtual size_t GetModelCount() override;
+		virtual size_t GetModelCount() const override;
 		virtual Model* GetModel( size_t index ) override;
+		virtual const Model* GetModel( size_t index ) const override;
 		virtual Model* AddModel( std::vector<Resource<Mesh>> pMeshes ) override;
 		virtual void RemoveModel( size_t index ) override;
 
-		virtual size_t GetLightCount() override;
+		virtual size_t GetLightCount() const override;
 		virtual Light* GetLight( size_t index ) override;
+		virtual const Light* GetLight( size_t index ) const override;
 		virtual Light* AddLight() override;
 		virtual void RemoveLight( size_t index ) override;
 

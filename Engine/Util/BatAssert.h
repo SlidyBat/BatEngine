@@ -13,7 +13,7 @@
 #define ASSERT( expr, ... ) if( expr ) {} \
 	else \
 	{\
-		Detail::AssertMessage( #expr, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__ ); \
+		::Bat::Detail::AssertMessage( #expr, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__ ); \
 		BAT_DEBUG_BREAK(); \
 	}
 #else

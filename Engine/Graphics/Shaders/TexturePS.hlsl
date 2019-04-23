@@ -1,6 +1,6 @@
-#include "Common.hlsli"
+#include "CommonPS.hlsli"
 
-Texture2D shaderTexture;
+Texture2D SceneTexture : register(T_SLOT_0);
 
 struct PixelInputType
 {
@@ -10,5 +10,5 @@ struct PixelInputType
 
 float4 main(PixelInputType input) : SV_TARGET
 {
-    return shaderTexture.Sample(WrapSampler, input.tex);;
+    return SceneTexture.Sample(WrapSampler, input.tex);;
 }

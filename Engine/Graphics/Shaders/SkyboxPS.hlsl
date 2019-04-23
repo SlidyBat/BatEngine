@@ -1,6 +1,6 @@
-#include "Common.hlsli"
+#include "CommonPS.hlsli"
 
-TextureCube cubemap;
+TextureCube SkyboxTexture : register(T_SLOT_0);
 
 struct PixelInputType
 {
@@ -10,5 +10,5 @@ struct PixelInputType
 
 float4 main(PixelInputType input) : SV_TARGET
 {
-    return cubemap.Sample(WrapSampler, input.tex);
+    return SkyboxTexture.Sample(WrapSampler, input.tex);
 }
