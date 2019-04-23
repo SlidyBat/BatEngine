@@ -26,7 +26,7 @@ struct PixelInput
     float2 tex : TEXCOORD;
 };
 
-float3 DoLight( PixelInput input, Light light )
+float3 DoLight( PixelInput input, float3 normal, Light light )
 {
 	float3 light_dir = light.Position - (float3)input.world_pos;
 	float light_distance = length( light_dir );
@@ -59,18 +59,25 @@ float3 DoLight( PixelInput input, Light light )
 			obj_specular = SpecularTexture.Sample( WrapSampler, input.tex ).rgb;
 		}
 	}
-	float3 obj_emissive = Mat.EmissiveColor.rgb;
-	if( Mat.HasEmissiveTexture )
-	{
-		if( any( obj_emissive ) )
-		{
-			obj_emissive *= EmissiveTexture.Sample( WrapSampler, input.tex ).rgb;
-		}
-		else
-		{
-			obj_emissive = EmissiveTexture.Sample( WrapSampler, input.tex ).rgb;
-		}
-	}
+
+	// diffuse
+	float diff = saturate( dot( normal, light_dir ) );
+	float3 diffuse = light.Diffuse * (diff * obj_diffuse) * attenuation;
+
+	// specular
+	float3 viewDir = normalize( Globals.CameraPos - (float3)input.world_pos );
+	float3 reflectDir = reflect( -light_dir, normal );
+	float spec = pow( saturate( dot( viewDir, reflectDir ) ), Mat.SpecularPower );
+	float3 specular = light.Specular * (spec * obj_specular) * attenuation;
+
+	float3 final = diffuse + specular;
+	
+	return final;
+}
+
+float4 main( PixelInput input ) : SV_TARGET
+{
+	float3 world_pos = (float3)input.world_pos;
 
 	float3 normal = input.normal;
 	if( Mat.HasNormalTexture )
@@ -94,32 +101,30 @@ float3 DoLight( PixelInput input, Light light )
 			ambient = Mat.AmbientColor.rgb;
 		}
 	}
+
 	ambient *= Mat.GlobalAmbient;
 
-	// diffuse
-	float diff = saturate( dot( normal, light_dir ) );
-	float3 diffuse = light.Diffuse * (diff * obj_diffuse) * attenuation;
-
-	// specular
-	float3 viewDir = normalize( Globals.CameraPos - (float3)input.world_pos );
-	float3 reflectDir = reflect( -light_dir, normal );
-	float spec = pow( saturate( dot( viewDir, reflectDir ) ), Mat.SpecularPower );
-	float3 specular = light.Specular * (spec * obj_specular) * attenuation;
-
-	float3 final = ambient + diffuse + specular + obj_emissive;
-	
-	return final;
-}
-
-float4 main( PixelInput input ) : SV_TARGET
-{
-	float3 world_pos = (float3)input.world_pos;
+	// emissive
+	float3 emissive = Mat.EmissiveColor.rgb;
+	if( Mat.HasEmissiveTexture )
+	{
+		if( any( emissive ) )
+		{
+			emissive *= EmissiveTexture.Sample( WrapSampler, input.tex ).rgb;
+		}
+		else
+		{
+			emissive = EmissiveTexture.Sample( WrapSampler, input.tex ).rgb;
+		}
+	}
 
 	float3 colour = 0.0f;
 	for( uint i = 0; i < NumLights; i++ )
 	{
-		colour += DoLight( input, Lights[i] );
+		colour += DoLight( input, normal, Lights[i] );
 	}
+
+	colour += ambient + emissive;
 
     return float4( colour, 1.0f );
 }

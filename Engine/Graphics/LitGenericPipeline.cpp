@@ -29,7 +29,7 @@ namespace Bat
 		pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, 0 );
 
 		CB_LitGenericPipelineMaterial material;
-		material.material.GlobalAmbient = { 0.01f, 0.01f, 0.01f };
+		material.material.GlobalAmbient = { 1.0f, 1.0f, 1.0f };
 		material.material.AmbientColor = { 0.0f, 0.0f, 0.0f };
 		material.material.DiffuseColor = { 0.0f, 0.0f, 0.0f };
 		material.material.SpecularColor = { 0.0f, 0.0f, 0.0f };
