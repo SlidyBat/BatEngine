@@ -30,10 +30,10 @@ namespace Bat
 
 		CB_LitGenericPipelineMaterial material;
 		material.material.GlobalAmbient = { 1.0f, 1.0f, 1.0f };
-		material.material.AmbientColor = { 0.0f, 0.0f, 0.0f };
-		material.material.DiffuseColor = { 0.0f, 0.0f, 0.0f };
-		material.material.SpecularColor = { 0.0f, 0.0f, 0.0f };
-		material.material.EmissiveColor = { 0.0f, 0.0f, 0.0f };
+		material.material.AmbientColor = params.material.GetAmbientColour();
+		material.material.DiffuseColor = params.material.GetDiffuseColour();
+		material.material.SpecularColor = params.material.GetSpecularColour();
+		material.material.EmissiveColor = params.material.GetEmissiveColour();
 
 		material.material.HasAmbientTexture  = (params.material.GetAmbientTexture() != nullptr);
 		material.material.HasDiffuseTexture  = (params.material.GetDiffuseTexture() != nullptr);
