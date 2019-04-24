@@ -16,6 +16,12 @@ namespace Bat
 			float BrightThreshold;
 			float _pad0[3];
 		};
+
+		struct CB_BlurSettings
+		{
+			int Horizontal;
+			float _pad0[3];
+		};
 	public:
 		BloomPass( int blurpasses = 5 )
 		{
@@ -30,8 +36,7 @@ namespace Bat
 			// initialize shaders
 			m_pTextureVS = ResourceManager::GetVertexShader( "Graphics/Shaders/TextureVS.hlsl" );
 			m_pBrightExtractPS = ResourceManager::GetPixelShader( "Graphics/Shaders/BrightExtractPS.hlsl" );
-			m_pGaussBlurHorPS = ResourceManager::GetPixelShader( "Graphics/Shaders/GaussBlurHorPS.hlsl" );
-			m_pGaussBlurVerPS = ResourceManager::GetPixelShader( "Graphics/Shaders/GaussBlurVerPS.hlsl" );
+			m_pGaussBlurPS = ResourceManager::GetPixelShader( "Graphics/Shaders/GaussBlurPS.hlsl" );
 
 			m_pBloomShader = ResourceManager::GetPixelShader( "Graphics/Shaders/BloomPS.hlsl" );
 
@@ -102,6 +107,9 @@ namespace Bat
 			pContext->BindTexture( src, 0 );
 			pContext->DrawIndexed( m_bufIndices->GetIndexCount() );
 
+			CB_BlurSettings blur_settings;
+			pContext->SetPixelShader( m_pGaussBlurPS.get() );
+			pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufBlurSettings, PS_CBUF_SLOT_0 );
 			for( int i = 0; i < m_iBlurPasses * 2; i++ )
 			{
 				// Unbind whatever is currently bound, to avoid binding on input/output at same time
@@ -110,13 +118,17 @@ namespace Bat
 
 				if( i % 2 == 0 )
 				{
-					pContext->SetPixelShader( m_pGaussBlurHorPS.get() );
+					blur_settings.Horizontal = true;
+					m_cbufBlurSettings.Update( pContext, blur_settings );
+
 					pContext->BindTexture( rt1, 0 );
 					pContext->SetRenderTarget( rt2 );
 				}
 				else
 				{
-					pContext->SetPixelShader( m_pGaussBlurVerPS.get() );
+					blur_settings.Horizontal = false;
+					m_cbufBlurSettings.Update( pContext, blur_settings );
+
 					pContext->BindTexture( rt2, 0 );
 					pContext->SetRenderTarget( rt1 );
 				}
@@ -144,11 +156,11 @@ namespace Bat
 
 		Resource<IVertexShader> m_pTextureVS;
 		Resource<IPixelShader> m_pBrightExtractPS;
-		Resource<IPixelShader> m_pGaussBlurHorPS;
-		Resource<IPixelShader> m_pGaussBlurVerPS;
+		Resource<IPixelShader> m_pGaussBlurPS;
 		Resource<IPixelShader> m_pBloomShader;
 
 		ConstantBuffer<CB_TexturePipelineMatrix> m_cbufTransform;
+		ConstantBuffer<CB_BlurSettings> m_cbufBlurSettings;
 		ConstantBuffer<CB_ThresholdBuf> m_cbufThreshold;
 
 		VertexBuffer<Vec4> m_bufPosition;

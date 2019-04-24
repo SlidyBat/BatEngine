@@ -548,12 +548,6 @@
     <FxCompile Include="Graphics\Shaders\BrightExtractPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
-    <FxCompile Include="Graphics\Shaders\GaussBlurHorPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Graphics\Shaders\GaussBlurVerPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
     <FxCompile Include="Graphics\Shaders\BloomPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
@@ -570,6 +564,7 @@
     <FxCompile Include="Graphics\Shaders\ColourVS.hlsl" />
     <FxCompile Include="Graphics\Shaders\TexturePS.hlsl" />
     <FxCompile Include="Graphics\Shaders\TextureVS.hlsl" />
+    <FxCompile Include="Graphics\Shaders\GaussBlurPS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shaders\CommonPS.hlsli">
