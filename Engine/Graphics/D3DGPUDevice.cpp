@@ -125,8 +125,7 @@ namespace Bat
 		D3DPixelShader( ID3D11Device* pDevice, const std::string& filename );
 
 		virtual std::string GetName() const override { return m_szName; }
-		ID3D11PixelShader* GetShader() { return m_pShader.Get(); }
-		const ID3D11PixelShader* GetShader() const { return m_pShader.Get(); }
+		ID3D11PixelShader* GetShader( ID3D11Device* pDevice );
 	private:
 		void LoadFromFile( ID3D11Device* pDevice, const std::string& filename, bool crash_on_error );
 		void OnFileChanged( const std::string& filename );
@@ -145,8 +144,7 @@ namespace Bat
 
 		virtual std::string GetName() const override { return m_szName; }
 		virtual bool RequiresVertexAttribute( VertexAttribute attribute ) const override { return m_bUsesAttribute[(int)attribute]; }
-		ID3D11VertexShader* GetShader() { return m_pShader.Get(); }
-		const ID3D11VertexShader* GetShader() const { return m_pShader.Get(); }
+		ID3D11VertexShader* GetShader( ID3D11Device* pDevice );
 		ID3D11InputLayout* GetLayout() { return m_pInputLayout.Get(); }
 		const ID3D11InputLayout* GetLayout() const { return m_pInputLayout.Get(); }
 	private:
@@ -725,9 +723,9 @@ namespace Bat
 
 	void D3DGPUContext::SetPixelShader( IPixelShader* pShader )
 	{
-		ASSERT( dynamic_cast<D3DPixelShader*>( pShader ), "Shader is not D3D shader" );
 		m_pPixelShader = static_cast<D3DPixelShader*>( pShader );
-		DXGI_CALL( m_pDeviceContext->PSSetShader( m_pPixelShader ? m_pPixelShader->GetShader() : nullptr, nullptr, 0 ) );
+		auto pD3DDevice = static_cast<ID3D11Device*>(m_pDevice->GetImpl());
+		DXGI_CALL( m_pDeviceContext->PSSetShader( m_pPixelShader ? m_pPixelShader->GetShader( pD3DDevice ) : nullptr, nullptr, 0 ) );
 	}
 
 	IVertexShader* D3DGPUContext::GetVertexShader() const
@@ -737,9 +735,9 @@ namespace Bat
 
 	void D3DGPUContext::SetVertexShader( IVertexShader* pShader )
 	{
-		ASSERT( dynamic_cast<D3DVertexShader*>( pShader ), "Shader is not D3D shader" );
 		m_pVertexShader = static_cast<D3DVertexShader*>( pShader );
-		DXGI_CALL( m_pDeviceContext->VSSetShader( m_pVertexShader ? m_pVertexShader->GetShader() : nullptr, nullptr, 0 ) );
+		auto pD3DDevice = static_cast<ID3D11Device*>(m_pDevice->GetImpl());
+		DXGI_CALL( m_pDeviceContext->VSSetShader( m_pVertexShader ? m_pVertexShader->GetShader( pD3DDevice ) : nullptr, nullptr, 0 ) );
 		DXGI_CALL( m_pDeviceContext->IASetInputLayout( m_pVertexShader ? m_pVertexShader->GetLayout() : nullptr ) );
 	}
 
@@ -1273,6 +1271,27 @@ namespace Bat
 #endif
 	}
 
+	ID3D11PixelShader* D3DPixelShader::GetShader( ID3D11Device* pDevice )
+	{
+		if( IsDirty() )
+		{
+			while( true )
+			{
+				auto code = MemoryStream::FromFile( m_szName );
+				if( code.Size() > 0 )
+				{
+					break;
+				}
+			}
+
+			LoadFromFile( pDevice, m_szName, false );
+
+			SetDirty( false );
+		}
+
+		return m_pShader.Get();
+	}
+
 	void D3DPixelShader::LoadFromFile( ID3D11Device* pDevice, const std::string& filename, bool crash_on_error )
 	{
 		// compiled shader object
@@ -1345,6 +1364,27 @@ namespace Bat
 #ifdef _DEBUG
 		D3D_SET_OBJECT_NAME_N_A( m_pShader, (UINT)filename.size(), filename.c_str() );
 #endif
+	}
+
+	ID3D11VertexShader* D3DVertexShader::GetShader( ID3D11Device* pDevice )
+	{
+		if( IsDirty() )
+		{
+			while( true )
+			{
+				auto code = MemoryStream::FromFile( m_szName );
+				if( code.Size() > 0 )
+				{
+					break;
+				}
+			}
+
+			LoadFromFile( pDevice, m_szName, false );
+
+			SetDirty( false );
+		}
+
+		return m_pShader.Get();
 	}
 
 	void D3DVertexShader::CreateInputLayoutDescFromVertexShaderSignature( ID3D11Device* pDevice, const void * pCodeBytes, const size_t size )

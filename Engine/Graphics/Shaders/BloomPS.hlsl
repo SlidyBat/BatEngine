@@ -16,5 +16,5 @@ float4 main(PixelInputType input) : SV_TARGET
     float3 hdrColour = SceneTexture.Sample(ClampSampler, input.tex).rgb;
     float3 bloomColour = BlurTexture.Sample(ClampSampler, input.tex).rgb;
     hdrColour += bloomColour; // additive blending
-    return float4(hdrColour, 1.0);
+    return float4(hdrColour, 1.0f);
 }
