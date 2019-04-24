@@ -11,6 +11,11 @@ namespace Bat
 	class BloomPass : public BaseRenderPass
 	{
 	private:
+		struct CB_ThresholdBuf
+		{
+			float BrightThreshold;
+			float _pad0[3];
+		};
 	public:
 		BloomPass( int blurpasses = 5 )
 		{
@@ -59,6 +64,8 @@ namespace Bat
 
 		virtual std::string GetDescription() const override { return "Bloom pass"; }
 
+		void SetThreshold( float threshold ) { m_flThreshold = threshold; }
+
 		virtual void Execute( IGPUContext* pContext, SceneGraph& scene, RenderData& data )
 		{
 			pContext->SetDepthStencilEnabled( false );
@@ -78,6 +85,11 @@ namespace Bat
 			transform.world = DirectX::XMMatrixIdentity();
 			m_cbufTransform.Update( pContext, transform );
 			pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, 0 );
+
+			CB_ThresholdBuf threshold;
+			threshold.BrightThreshold = m_flThreshold;
+			m_cbufThreshold.Update( pContext, threshold );
+			pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufThreshold, PS_CBUF_SLOT_0 );
 
 			pContext->SetVertexBuffer( m_bufPosition, 0 );
 			pContext->SetVertexBuffer( m_bufUV, 1 );
@@ -127,7 +139,8 @@ namespace Bat
 			pContext->UnbindTextureSlot( 1 );
 		}
 	private:
-		int m_iBlurPasses = 1;
+		int m_iBlurPasses = 5;
+		float m_flThreshold = 1.0f;
 
 		Resource<IVertexShader> m_pTextureVS;
 		Resource<IPixelShader> m_pBrightExtractPS;
@@ -136,6 +149,7 @@ namespace Bat
 		Resource<IPixelShader> m_pBloomShader;
 
 		ConstantBuffer<CB_TexturePipelineMatrix> m_cbufTransform;
+		ConstantBuffer<CB_ThresholdBuf> m_cbufThreshold;
 
 		VertexBuffer<Vec4> m_bufPosition;
 		VertexBuffer<Vec2> m_bufUV;

@@ -27,7 +27,12 @@ namespace Bat
 
 	IRenderPass* RenderGraph::GetPassByName( const std::string& name )
 	{
-		size_t idx = GetPassIndexByName( name );
+		int idx = GetPassIndexByName( name );
+		if( idx == -1 )
+		{
+			return nullptr;
+		}
+
 		return GetPassByIndex( idx );
 	}
 

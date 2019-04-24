@@ -2,6 +2,11 @@
 
 Texture2D SceneTexture : register(T_SLOT_0);
 
+cbuffer ThresholdBuf : register(B_SLOT_0)
+{
+	float BrightThreshold;
+}
+
 struct PixelInputType
 {
     float4 position : SV_POSITION;
@@ -12,7 +17,7 @@ float4 main(PixelInputType input) : SV_TARGET
 {
     float4 col = SceneTexture.Sample(ClampSampler, input.tex);
     float brightness = dot(col.rgb, float3(0.2126f, 0.7152f, 0.0722f));
-    if (brightness > 1.0f)
+    if (brightness > BrightThreshold)
     {
         return col;
     }

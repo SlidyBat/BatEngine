@@ -80,17 +80,17 @@ namespace Bat
 
 	void Application::OnUpdate( float deltatime )
 	{
-		elapsed_time += deltatime;
-		fps_counter += 1;
-		if( elapsed_time > 1.0f )
-		{
-			fps_string = "FPS: " + std::to_string( fps_counter );
-			fps_counter = 0;
-			elapsed_time -= 1.0f;
-		}
-
 		camera.Update( deltatime );
 		snd->SetListenerPosition( camera.GetPosition(), camera.GetForwardVector() );
+
+		if( bloom_enabled )
+		{
+			auto bloom = static_cast<BloomPass*>( rendergraph.GetPassByName( "bloom" ) );
+			if( bloom )
+			{
+				bloom->SetThreshold( bloom_threshold );
+			}
+		}
 	}
 
 	static void AddModelTree( Model* pModel )
@@ -130,6 +130,8 @@ namespace Bat
 	void Application::OnRender()
 	{
 		AddNodeTree( scene.GetRootNode() );
+
+		ImGui::SliderFloat( "Bloom threshold", &bloom_threshold, 0.0f, 100.0f );
 	}
 
 	void Application::BuildRenderGraph()

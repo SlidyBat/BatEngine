@@ -39,9 +39,6 @@ namespace Bat
 		SceneGraph scene;
 		RenderGraph rendergraph;
 
-		// fps calculation
-		int fps_counter = 0;
-		float elapsed_time = 0.0f;
-		std::string fps_string = "FPS: 0";
+		float bloom_threshold = 1.0f;
 	};
 }
