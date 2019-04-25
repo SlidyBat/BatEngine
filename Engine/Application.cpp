@@ -76,6 +76,27 @@ namespace Bat
 				imgui = !imgui;
 			}
 		} );
+
+		g_Console.AddCommand( "load_scene", [&scene = scene, &cam = camera, &gfx = gfx]( const CommandArgs_t & args )
+		{
+			scene = SceneLoader::LoadScene( std::string( args[1] ) );
+			scene.SetActiveCamera( &cam );
+			gfx.SetActiveScene( &scene );
+		} );
+
+		g_Console.AddCommand( "add_model", [&scene = scene, &cam = camera]( const CommandArgs_t & args )
+		{
+			scene->AddChildNode( SceneLoader::LoadScene( std::string( args[1] ) ) );
+
+			auto pos = cam.GetPosition();
+			scene->GetChildNodes().back()->SetTransform( DirectX::XMMatrixTranslation( pos.x, pos.y, pos.z ) );
+		} );
+
+		g_Console.AddCommand( "cam_speed", [&cam = camera]( const CommandArgs_t & args )
+		{
+			float speed = std::stof( std::string( args[1] ) );
+			cam.SetSpeed( speed );
+		} );
 	}
 
 	Application::~Application()
