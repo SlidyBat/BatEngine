@@ -21,6 +21,7 @@
 #include "Passes/BloomPass.h"
 #include "Passes/MotionBlurPass.h"
 #include "Passes/ForwardOpaquePass.h"
+#include "Passes/DrawLightsPass.h"
 
 namespace Bat
 {
@@ -28,8 +29,8 @@ namespace Bat
 		:
 		gfx( gfx ),
 		wnd( wnd ),
-		camera( wnd.input, 250.0f ),
-		scene( SceneLoader::LoadScene( "Assets\\Ignore\\Sponza\\Sponza.gltf" ) )
+		camera( wnd.input, 10.0f ),
+		scene( SceneLoader::LoadScene( "Assets/Ignore/DamagedHelmet/DamagedHelmet.gltf" ) )
 	{
 		camera.SetPosition( { 0.0f, 0.0f, -10.0f } );
 
@@ -190,8 +191,11 @@ namespace Bat
 		rendergraph.BindToResource( "crt.buffer", "target" );
 		rendergraph.BindToResource( "crt.depth", "depth" );
 
-		rendergraph.AddPass( "renderer", std::make_unique<ForwardOpaquePass>() );
-		rendergraph.BindToResource( "renderer.dst", "target" );
+		rendergraph.AddPass( "forward_opaque", std::make_unique<ForwardOpaquePass>() );
+		rendergraph.BindToResource( "forward_opaque.dst", "target" );
+
+		rendergraph.AddPass( "draw_lights", std::make_unique<DrawLightsPass>() );
+		rendergraph.BindToResource( "draw_lights.dst", "target" );
 
 		rendergraph.AddPass( "skybox", std::make_unique<SkyboxPass>() );
 		rendergraph.BindToResource( "skybox.skyboxtex", "skybox" );

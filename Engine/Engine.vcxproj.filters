@@ -521,6 +521,9 @@
     <ClInclude Include="Graphics\ShaderBuffers.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Passes\DrawLightsPass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\mario.png">
