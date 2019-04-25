@@ -560,11 +560,21 @@
     <FxCompile Include="Graphics\Shaders\LitGenericPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
-    <FxCompile Include="Graphics\Shaders\ColourPS.hlsl" />
-    <FxCompile Include="Graphics\Shaders\ColourVS.hlsl" />
-    <FxCompile Include="Graphics\Shaders\TexturePS.hlsl" />
-    <FxCompile Include="Graphics\Shaders\TextureVS.hlsl" />
-    <FxCompile Include="Graphics\Shaders\GaussBlurPS.hlsl" />
+    <FxCompile Include="Graphics\Shaders\ColourPS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\ColourVS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\GaussBlurPS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\TexturePS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\TextureVS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shaders\CommonPS.hlsli">

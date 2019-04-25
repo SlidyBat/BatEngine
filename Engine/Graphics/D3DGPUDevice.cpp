@@ -201,6 +201,10 @@ namespace Bat
 		// Pops top render target on RT stack.
 		virtual void PopRenderTarget() override;
 
+		virtual void SetRenderTargetAndViewport( IRenderTarget* pRT ) override;
+		virtual void PushRenderTargetAndViewport( IRenderTarget* pRT ) override;
+		virtual void PopRenderTargetAndViewport() override;
+
 		virtual void ClearRenderTarget( IRenderTarget* pRT, float r, float g, float b, float a ) override;
 		virtual void ClearDepthStencil( IDepthStencil* pDepthStencil, int clearflag, float depth, uint8_t stencil ) override;
 
@@ -647,6 +651,38 @@ namespace Bat
 	{
 		m_RenderTargetStack.pop_back();
 		BindRenderTarget();
+	}
+
+	void D3DGPUContext::SetRenderTargetAndViewport( IRenderTarget* pRT )
+	{
+		SetRenderTarget( pRT );
+
+		Viewport vp;
+		vp.top_left = { 0.0f, 0.0f };
+		vp.width = pRT->GetWidth();
+		vp.height = pRT->GetHeight();
+		vp.min_depth = 0.0f;
+		vp.max_depth = 1.0f;
+		SetViewport( vp );
+	}
+
+	void D3DGPUContext::PushRenderTargetAndViewport( IRenderTarget* pRT )
+	{
+		PushRenderTarget( pRT );
+
+		Viewport vp;
+		vp.top_left = { 0.0f, 0.0f };
+		vp.width = pRT->GetWidth();
+		vp.height = pRT->GetHeight();
+		vp.min_depth = 0.0f;
+		vp.max_depth = 1.0f;
+		PushViewport( vp );
+	}
+
+	void D3DGPUContext::PopRenderTargetAndViewport()
+	{
+		PopRenderTarget();
+		PopViewport();
 	}
 
 	void D3DGPUContext::ClearDepthStencil( IDepthStencil* pDepthStencil, int clearflag, float depth, uint8_t stencil )

@@ -15,24 +15,24 @@ struct PixelInputType
 
 float4 main(PixelInputType input) : SV_TARGET
 {
-    const float weight[] = { 0.227027f, 0.1945946f, 0.1216216f, 0.054054f, 0.016216f };
-    float2 tex_offset = 1.0f / Globals.Resolution; // gets size of single texel
-    float4 result = SceneTexture.Sample(ClampSampler, input.tex) * weight[0]; // current fragment's contribution
+    const float offsets[] = { 0.0f, 1.3846153846f, 3.2307692308f };
+    const float weight[] = { 0.2270270270f, 0.3162162162f, 0.0702702703f };
     
+    float4 result = SceneTexture.Sample(ClampSampler, input.tex) * weight[0]; // current fragment's contribution
     if( Horizontal )
     {
-        for (int i = 1; i < 5; ++i)
+        for (int i = 1; i < 3; ++i)
         {
-            result += SceneTexture.Sample(ClampSampler, input.tex + float2(tex_offset.x * i, 0.0f)) * weight[i];
-            result += SceneTexture.Sample(ClampSampler, input.tex - float2(tex_offset.x * i, 0.0f)) * weight[i];
+            result += SceneTexture.Sample( ClampSampler, input.tex + float2(offsets[i], 0.0f) / Globals.Resolution.x ) * weight[i];
+            result += SceneTexture.Sample( ClampSampler, input.tex - float2(offsets[i], 0.0f) / Globals.Resolution.x ) * weight[i];
         }
     }
     else
     {
-        for( int i = 1; i < 5; ++i )
+        for( int i = 1; i < 3; ++i )
         {
-            result += SceneTexture.Sample( ClampSampler, input.tex + float2(0.0f, tex_offset.y * i) ) * weight[i];
-            result += SceneTexture.Sample( ClampSampler, input.tex - float2(0.0f, tex_offset.y * i) ) * weight[i];
+            result += SceneTexture.Sample( ClampSampler, input.tex + float2(0.0f, offsets[i]) / Globals.Resolution.y ) * weight[i];
+            result += SceneTexture.Sample( ClampSampler, input.tex - float2(0.0f, offsets[i]) / Globals.Resolution.y ) * weight[i];
         }
     }
 

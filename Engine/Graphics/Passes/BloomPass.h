@@ -41,16 +41,11 @@ namespace Bat
 			m_pBloomShader = ResourceManager::GetPixelShader( "Graphics/Shaders/BloomPS.hlsl" );
 
 			// initialize buffers
-			const float left   = -Graphics::InitialScreenWidth / 2.0f;
-			const float right  =  Graphics::InitialScreenWidth / 2.0f;
-			const float top    =  Graphics::InitialScreenHeight / 2.0f;
-			const float bottom = -Graphics::InitialScreenHeight / 2.0f;
-
 			const std::vector<Vec4> positions = {
-				{ left,  bottom, 1.0f, 1.0f },
-				{ left,  top,    1.0f, 1.0f },
-				{ right, top,    1.0f, 1.0f },
-				{ right, bottom, 1.0f, 1.0f }
+				{ -1.0f, -1.0f, 1.0f, 1.0f },
+				{ -1.0f,  1.0f, 1.0f, 1.0f },
+				{  1.0f,  1.0f, 1.0f, 1.0f },
+				{  1.0f, -1.0f, 1.0f, 1.0f }
 			};
 
 			const std::vector<Vec2> uvs = {
@@ -74,6 +69,7 @@ namespace Bat
 		virtual void Execute( IGPUContext* pContext, SceneGraph& scene, RenderData& data )
 		{
 			pContext->SetDepthStencilEnabled( false );
+			pContext->SetDepthStencil( nullptr );
 
 			IRenderTarget* src = data.GetRenderTarget( "src" );
 			IRenderTarget* rt1 = data.GetRenderTarget( "buffer1" );
@@ -83,10 +79,18 @@ namespace Bat
 			size_t width = src->GetWidth();
 			size_t height = src->GetHeight();
 
+			Viewport vp;
+			vp.top_left = { 0.0f, 0.0f };
+			vp.width = (float)rt1->GetWidth();
+			vp.height = (float)rt1->GetHeight();
+			vp.min_depth = 0.0f;
+			vp.max_depth = 1.0f;
+			pContext->PushViewport( vp );
+
 			pContext->SetPrimitiveTopology( PrimitiveTopology::TRIANGLELIST );
 
 			CB_TexturePipelineMatrix transform;
-			transform.viewproj = DirectX::XMMatrixOrthographicLH( (float)width, (float)height, Graphics::ScreenNear, Graphics::ScreenFar );
+			transform.viewproj = DirectX::XMMatrixIdentity();
 			transform.world = DirectX::XMMatrixIdentity();
 			m_cbufTransform.Update( pContext, transform );
 			pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, 0 );
@@ -139,6 +143,8 @@ namespace Bat
 			// Unbind whatever is currently bound, to avoid binding on input/output at same time
 			pContext->SetRenderTarget( nullptr );
 			pContext->UnbindTextureSlot( 0 );
+
+			pContext->PopViewport();
 
 			pContext->SetPixelShader( m_pBloomShader.get() );
 			pContext->BindTexture( src, 0 );

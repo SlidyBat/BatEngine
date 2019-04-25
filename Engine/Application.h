@@ -40,5 +40,12 @@ namespace Bat
 		RenderGraph rendergraph;
 
 		float bloom_threshold = 1.0f;
+
+		bool imgui_menu_enabled = false;
+
+		// FPS
+		float elapsed_time = 0.0f;
+		int fps_counter = 0;
+		std::string fps_string;
 	};
 }

@@ -110,6 +110,13 @@ namespace Bat
 		// Pops top render target on RT stack.
 		virtual void PopRenderTarget() = 0;
 
+		// Sets current render target and also sets viewport with same size
+		virtual void SetRenderTargetAndViewport( IRenderTarget* pRT ) = 0;
+		// Pushes render target on to RT stack and also pushes viewport with same size
+		virtual void PushRenderTargetAndViewport( IRenderTarget* pRT ) = 0;
+		// Pops top render target & viewport from stack
+		virtual void PopRenderTargetAndViewport() = 0;
+
 		// Clears specified render target with the set colour. Pass nullptr to clear backbuffer.
 		virtual void ClearRenderTarget( IRenderTarget* pRT, float r, float g, float b, float a ) = 0;
 		// See ClearFlag enum for list of valid flags (can be ORed together)

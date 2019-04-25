@@ -43,7 +43,7 @@ namespace Bat
 		snd = Audio::CreateSoundPlaybackDevice();
 		snd->SetListenerPosition( { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f } );
 
-		wnd.input.OnEventDispatched<KeyPressedEvent>( [&,&scene=scene,&cam=camera]( const KeyPressedEvent& e )
+		wnd.input.OnEventDispatched<KeyPressedEvent>( [&,&scene=scene,&cam=camera,&imgui=imgui_menu_enabled]( const KeyPressedEvent& e )
 		{
 			if( e.key == VK_OEM_3 )
 			{
@@ -70,6 +70,10 @@ namespace Bat
 				light->SetPosition( cam.GetPosition() );
 				light->SetRange( 250.0f );
 			}
+			else if( e.key == 'I' )
+			{
+				imgui = !imgui;
+			}
 		} );
 	}
 
@@ -80,6 +84,15 @@ namespace Bat
 
 	void Application::OnUpdate( float deltatime )
 	{
+		elapsed_time += deltatime;
+		fps_counter += 1;
+		if( elapsed_time > 1.0f )
+		{
+			fps_string = "FPS: " + std::to_string( fps_counter );
+			fps_counter = 0;
+			elapsed_time -= 1.0f;
+		}
+
 		camera.Update( deltatime );
 		snd->SetListenerPosition( camera.GetPosition(), camera.GetForwardVector() );
 
@@ -129,9 +142,14 @@ namespace Bat
 
 	void Application::OnRender()
 	{
-		AddNodeTree( scene.GetRootNode() );
+		if( imgui_menu_enabled )
+		{
+			ImGui::Text( fps_string.c_str() );
 
-		ImGui::SliderFloat( "Bloom threshold", &bloom_threshold, 0.0f, 100.0f );
+			AddNodeTree( scene.GetRootNode() );
+
+			ImGui::SliderFloat( "Bloom threshold", &bloom_threshold, 0.0f, 100.0f );
+		}
 	}
 
 	void Application::BuildRenderGraph()
@@ -152,10 +170,10 @@ namespace Bat
 
 			// render texture 1 for bloom
 			rendergraph.AddRenderTextureResource( "rt1",
-				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
+				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth() / 2, wnd.GetHeight() / 2, TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
 			// render texture 2 for bloom & motion blur
 			rendergraph.AddRenderTextureResource( "rt2",
-				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
+				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth() / 2, wnd.GetHeight() / 2, TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
 		}
 		else
 		{
