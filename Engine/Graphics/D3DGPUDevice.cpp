@@ -659,8 +659,8 @@ namespace Bat
 
 		Viewport vp;
 		vp.top_left = { 0.0f, 0.0f };
-		vp.width = pRT->GetWidth();
-		vp.height = pRT->GetHeight();
+		vp.width = (float)pRT->GetWidth();
+		vp.height = (float)pRT->GetHeight();
 		vp.min_depth = 0.0f;
 		vp.max_depth = 1.0f;
 		SetViewport( vp );
@@ -672,8 +672,8 @@ namespace Bat
 
 		Viewport vp;
 		vp.top_left = { 0.0f, 0.0f };
-		vp.width = pRT->GetWidth();
-		vp.height = pRT->GetHeight();
+		vp.width = (float)pRT->GetWidth();
+		vp.height = (float)pRT->GetHeight();
 		vp.min_depth = 0.0f;
 		vp.max_depth = 1.0f;
 		PushViewport( vp );
