@@ -17,7 +17,6 @@ namespace Bat
 	{
 	public:
 		static Resource<Texture>        GetTexture( const std::string& filename );
-		static Resource<Texture>        GetColourTexture( const Colour& colour );
 		static Resource<IVertexShader>   GetVertexShader( const std::string& filename );
 		static Resource<IPixelShader>    GetPixelShader( const std::string& filename );
 

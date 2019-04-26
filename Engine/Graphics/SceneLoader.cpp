@@ -92,56 +92,9 @@ namespace Bat
 		return std::stoi( &pStr->C_Str()[1] );
 	}
 
-	static Resource<Texture> LoadMaterialTexture( aiMaterial* pMaterial, aiTextureType type, const aiScene* pScene, const std::string& dir )
+	static void LoadMaterialTexture( Material& mat, aiMaterial* pMaterial, aiTextureType type, const aiScene* pScene, const std::string& dir, TextureStorageType storetype )
 	{
-		auto storetype = DetermineTextureStorageType( pScene, pMaterial, type );
-		if( storetype == TextureStorageType::None )
-		{
-			aiColor3D aiColour( 0.0f, 0.0f, 0.0f );
-			switch( type )
-			{
-			case aiTextureType_AMBIENT:
-			{
-				pMaterial->Get( AI_MATKEY_COLOR_AMBIENT, aiColour );
-				break;
-			}
-			case aiTextureType_DIFFUSE:
-				pMaterial->Get( AI_MATKEY_COLOR_DIFFUSE, aiColour );
-				// no diffuse is uggo, just use light diffuse
-				if( aiColour.IsBlack() )
-				{
-					aiColour.r = 1.0f;
-					aiColour.g = 1.0f;
-					aiColour.b = 1.0f;
-				}
-				break;
-			case aiTextureType_SPECULAR:
-				pMaterial->Get( AI_MATKEY_COLOR_SPECULAR, aiColour );
-				// no specular is uggo, just use light specular
-				if( aiColour.IsBlack() )
-				{
-					aiColour.r = 1.0f;
-					aiColour.g = 1.0f;
-					aiColour.b = 1.0f;
-				}
-				break;
-			case aiTextureType_EMISSIVE:
-				pMaterial->Get( AI_MATKEY_COLOR_EMISSIVE, aiColour );
-				break;
-			case aiTextureType_NORMALS:
-			case aiTextureType_HEIGHT:
-				return nullptr; // we don't create default bumpmaps
-			default:
-				ASSERT( false, "Unknown texture type" );
-			}
-			Colour colour;
-			colour.SetA( 255 );
-			colour.SetR( (unsigned char)(aiColour.r * 255) );
-			colour.SetG( (unsigned char)(aiColour.g * 255) );
-			colour.SetB( (unsigned char)(aiColour.b * 255) );
-
-			return ResourceManager::GetColourTexture( colour );
-		}
+		Resource<Texture> pTexture = nullptr;
 
 		for( UINT i = 0; i < pMaterial->GetTextureCount( type ) && i < 1; i++ )
 		{
@@ -151,33 +104,96 @@ namespace Bat
 			if( storetype == TextureStorageType::IndexCompressed )
 			{
 				int idx = GetTextureIndex( &str );
-				return std::make_shared<Texture>( reinterpret_cast<char*>(pScene->mTextures[idx]->pcData),
+				pTexture = std::make_shared<Texture>( reinterpret_cast<char*>(pScene->mTextures[idx]->pcData),
 					pScene->mTextures[idx]->mWidth );
 			}
 			else if( storetype == TextureStorageType::IndexNonCompressed )
 			{
 				int idx = GetTextureIndex( &str );
-				return std::make_shared<Texture>( reinterpret_cast<char*>(pScene->mTextures[idx]->pcData),
+				pTexture = std::make_shared<Texture>( reinterpret_cast<char*>(pScene->mTextures[idx]->pcData),
 					pScene->mTextures[idx]->mWidth * pScene->mTextures[idx]->mHeight );
 			}
 			else if( storetype == TextureStorageType::EmbeddedCompressed )
 			{
-				auto pTex = pScene->GetEmbeddedTexture( str.C_Str() );
-				return std::make_shared<Texture>( reinterpret_cast<char*>(pTex->pcData), pTex->mWidth );
+				auto pAiTex = pScene->GetEmbeddedTexture( str.C_Str() );
+				pTexture = std::make_shared<Texture>( reinterpret_cast<char*>(pAiTex->pcData), pAiTex->mWidth );
 			}
 			else if( storetype == TextureStorageType::EmbeddedNonCompressed )
 			{
-				auto pTex = pScene->GetEmbeddedTexture( str.C_Str() );
-				return std::make_shared<Texture>( reinterpret_cast<char*>(pTex->pcData), pTex->mWidth * pTex->mHeight );
+				auto pAiTex = pScene->GetEmbeddedTexture( str.C_Str() );
+				pTexture = std::make_shared<Texture>( reinterpret_cast<char*>(pAiTex->pcData), pAiTex->mWidth * pAiTex->mHeight );
 			}
 			else
 			{
 				const std::string filename = dir + '/' + str.C_Str();
-				return ResourceManager::GetTexture( filename );
+				pTexture = ResourceManager::GetTexture( filename );
 			}
 		}
 
-		return nullptr;
+		switch( type )
+		{
+			case aiTextureType_AMBIENT:
+				mat.SetAmbientTexture( std::move( pTexture ) );
+				break;
+			case aiTextureType_DIFFUSE:
+				mat.SetDiffuseTexture( std::move( pTexture ) );
+				break;
+			case aiTextureType_SPECULAR:
+				mat.SetSpecularTexture( std::move( pTexture ) );
+				break;
+			case aiTextureType_EMISSIVE:
+				mat.SetEmissiveTexture( std::move( pTexture ) );
+				break;
+			case aiTextureType_NORMALS:
+			case aiTextureType_HEIGHT:
+				mat.SetNormalTexture( std::move( pTexture ) );
+				break;
+			default:
+				ASSERT( false, "Unknown texture type" );
+		}
+	}
+
+	void LoadMaterialColour( Material& mat, aiMaterial* pMaterial, aiTextureType type )
+	{
+		aiColor3D aiColour( 0.0f, 0.0f, 0.0f );
+		switch( type )
+		{
+			case aiTextureType_AMBIENT:
+				pMaterial->Get( AI_MATKEY_COLOR_AMBIENT, aiColour );
+				mat.SetAmbientColour( aiColour.r, aiColour.g, aiColour.b );
+				break;
+			case aiTextureType_DIFFUSE:
+				pMaterial->Get( AI_MATKEY_COLOR_DIFFUSE, aiColour );
+				mat.SetDiffuseColour( aiColour.r, aiColour.g, aiColour.b );
+				break;
+			case aiTextureType_SPECULAR:
+				pMaterial->Get( AI_MATKEY_COLOR_SPECULAR, aiColour );
+				mat.SetSpecularColour( aiColour.r, aiColour.g, aiColour.b );
+				break;
+			case aiTextureType_EMISSIVE:
+				pMaterial->Get( AI_MATKEY_COLOR_EMISSIVE, aiColour );
+				mat.SetEmissiveColour( aiColour.r, aiColour.g, aiColour.b );
+				break;
+			case aiTextureType_NORMALS:
+			case aiTextureType_HEIGHT:
+				return; // we don't create default normal colours
+			default:
+				ASSERT( false, "Unknown texture type" );
+		}
+	}
+
+	static void LoadMaterialTextureType( Material& mat, aiMaterial* pMaterial, aiTextureType type, const aiScene* pScene, const std::string& dir )
+	{
+		auto storetype = DetermineTextureStorageType( pScene, pMaterial, type );
+
+		if( storetype == TextureStorageType::None )
+		{
+			LoadMaterialColour( mat, pMaterial, type );
+		}
+		else
+		{
+			LoadMaterialTexture( mat, pMaterial, type, pScene, dir, storetype );
+		}
 	}
 
 	static Resource<Mesh> ProcessMesh( aiMesh* pMesh, const aiScene* pScene, const std::string& dir )
@@ -263,22 +279,15 @@ namespace Bat
 			aiMaterial* pMaterial = pScene->mMaterials[pMesh->mMaterialIndex];
 			Resource<Texture> pTexture = nullptr;
 
-			pTexture = LoadMaterialTexture( pMaterial, aiTextureType_DIFFUSE, pScene, dir );
-			material.SetDiffuseTexture( pTexture );
-			pTexture = LoadMaterialTexture( pMaterial, aiTextureType_SPECULAR, pScene, dir );
-			material.SetSpecularTexture( pTexture );
-			pTexture = LoadMaterialTexture( pMaterial, aiTextureType_EMISSIVE, pScene, dir );
-			if( !pTexture )
+			LoadMaterialTextureType( material, pMaterial, aiTextureType_DIFFUSE, pScene, dir );
+			LoadMaterialTextureType( material, pMaterial, aiTextureType_SPECULAR, pScene, dir );
+			LoadMaterialTextureType( material, pMaterial, aiTextureType_EMISSIVE, pScene, dir );
+			LoadMaterialTextureType( material, pMaterial, aiTextureType_AMBIENT, pScene, dir );
+			LoadMaterialTextureType( material, pMaterial, aiTextureType_NORMALS, pScene, dir );
+			if( !material.GetNormalTexture() )
 			{
-				pTexture = LoadMaterialTexture( pMaterial, aiTextureType_AMBIENT, pScene, dir );
+				LoadMaterialTextureType( material, pMaterial, aiTextureType_HEIGHT, pScene, dir );
 			}
-			material.SetEmissiveTexture( pTexture );
-			pTexture = LoadMaterialTexture( pMaterial, aiTextureType_NORMALS, pScene, dir );
-			if( !pTexture )
-			{
-				pTexture = LoadMaterialTexture( pMaterial, aiTextureType_HEIGHT, pScene, dir );
-			}
-			material.SetNormalTexture( pTexture );
 
 			float shininess = 0.0f;
 			pMaterial->Get( AI_MATKEY_SHININESS, shininess );

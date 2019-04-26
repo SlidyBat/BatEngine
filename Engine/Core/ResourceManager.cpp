@@ -16,8 +16,6 @@ namespace Bat
 	static ResourceMap<IVertexShader>   g_mapVShaders;
 	static ResourceMap<IPixelShader>    g_mapPShaders;
 
-	static std::unordered_map<unsigned int, Resource<Texture>>        g_mapColours;
-
 	Resource<Texture> ResourceManager::GetTexture( const std::string& filename )
 	{
 		auto it = g_mapTextures.find( filename );
@@ -25,19 +23,6 @@ namespace Bat
 		{
 			auto pResource = std::make_shared<Texture>( StringToWide( filename ) );
 			g_mapTextures[filename] = pResource;
-			return pResource;
-		}
-
-		return it->second;
-	}
-
-	Resource<Texture> ResourceManager::GetColourTexture( const Colour& colour )
-	{
-		auto it = g_mapColours.find( colour.GetValue() );
-		if( it == g_mapColours.end() )
-		{
-			auto pResource = std::make_shared<Texture>( Texture::FromColour( &colour, 1, 1 ) );
-			g_mapColours[colour.GetValue()] = pResource;
 			return pResource;
 		}
 
