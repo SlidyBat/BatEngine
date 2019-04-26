@@ -3,6 +3,8 @@
 
 namespace Bat
 {
+	using namespace DirectX;
+
 	Camera::Camera( const Vec3& pos, const Vec3& rot, float fov, float ar, float screen_near, float screen_far )
 		:
 		m_vecPosition( pos ),
@@ -129,6 +131,23 @@ namespace Bat
 		return m_vecRight;
 	}
 
+	Vec3 Camera::GetLookAtVector() const
+	{
+		static const XMFLOAT3 defaultLookAt = { 0.0f, 0.0f, 1.0f };
+		XMVECTOR lookAtVec = XMLoadFloat3( &defaultLookAt );
+
+		XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(
+			Math::DegToRad( m_angRotation.x ),
+			Math::DegToRad( m_angRotation.y ),
+			Math::DegToRad( m_angRotation.z ) );
+
+		lookAtVec = XMVector3TransformCoord( lookAtVec, rotationMatrix );
+
+		Vec3 res;
+		XMStoreFloat3( &res, lookAtVec );
+		return res;
+	}
+
 	DirectX::XMMATRIX Camera::GetViewMatrix() const
 	{
 		return m_matViewMatrix;
@@ -147,8 +166,6 @@ namespace Bat
 
 	void Camera::UpdateViewMatrix()
 	{
-		using namespace DirectX;
-
 		// view matrix calculations
 		static const XMFLOAT3 up = { 0.0f, 1.0f, 0.0f };
 		XMVECTOR upVec = XMLoadFloat3( &up );

@@ -8,7 +8,6 @@
 #include "FileWatchdog.h"
 
 #include "WindowEvents.h"
-#include "KeyboardEvents.h"
 #include "MouseEvents.h"
 #include "NetworkEvents.h"
 #include "TexturePipeline.h"
@@ -29,10 +28,17 @@ namespace Bat
 		:
 		gfx( gfx ),
 		wnd( wnd ),
-		camera( wnd.input, 10.0f ),
-		scene( SceneLoader::LoadScene( "Assets/Ignore/DamagedHelmet/DamagedHelmet.gltf" ) )
+		camera( wnd.input, 250.0f, 100.0f ),
+		scene( SceneLoader::LoadScene( "Assets/Ignore/Sponza/Sponza.gltf" ) )
 	{
 		camera.SetPosition( { 0.0f, 0.0f, -10.0f } );
+		flashlight = scene->AddLight();
+		flashlight->SetType( LightType::SPOT );
+		flashlight->SetSpotlightAngle( 0.5f );
+
+		sun = scene->AddLight();
+		sun->SetType( LightType::DIRECTIONAL );
+		sun->SetEnabled( false );
 
 		scene.SetActiveCamera( &camera );
 		gfx.SetActiveScene( &scene );
@@ -44,47 +50,16 @@ namespace Bat
 		snd = Audio::CreateSoundPlaybackDevice();
 		snd->SetListenerPosition( { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f } );
 
-		wnd.input.OnEventDispatched<KeyPressedEvent>( [&,&scene=scene,&cam=camera,&imgui=imgui_menu_enabled]( const KeyPressedEvent& e )
-		{
-			if( e.key == VK_OEM_3 )
-			{
-				BAT_LOG( "Toggling console" );
-				g_Console.SetVisible( !g_Console.IsVisible() );
-			}
-			else if( e.key == 'B' )
-			{
-				// toggle bloom
-				bloom_enabled = !bloom_enabled;
-				// re-build render graph
-				BuildRenderGraph();
-			}
-			else if( e.key == 'M' )
-			{
-				// toggle motion blur
-				motion_blur_enabled = !motion_blur_enabled;
-				// re-build render graoh
-				BuildRenderGraph();
-			}
-			else if( e.key == 'C' )
-			{
-				Light* light = scene->AddLight();
-				light->SetPosition( cam.GetPosition() );
-				light->SetRange( 250.0f );
-			}
-			else if( e.key == 'I' )
-			{
-				imgui = !imgui;
-			}
-		} );
+		wnd.input.AddEventListener<KeyPressedEvent>( *this );
 
-		g_Console.AddCommand( "load_scene", [&scene = scene, &cam = camera, &gfx = gfx]( const CommandArgs_t & args )
+		g_Console.AddCommand( "load_scene", [&scene = scene, &cam = camera, &gfx = gfx]( const CommandArgs_t& args )
 		{
 			scene = SceneLoader::LoadScene( std::string( args[1] ) );
 			scene.SetActiveCamera( &cam );
 			gfx.SetActiveScene( &scene );
 		} );
 
-		g_Console.AddCommand( "add_model", [&scene = scene, &cam = camera]( const CommandArgs_t & args )
+		g_Console.AddCommand( "add_model", [&scene = scene, &cam = camera]( const CommandArgs_t& args )
 		{
 			scene->AddChildNode( SceneLoader::LoadScene( std::string( args[1] ) ) );
 
@@ -92,10 +67,15 @@ namespace Bat
 			scene->GetChildNodes().back()->SetTransform( DirectX::XMMatrixTranslation( pos.x, pos.y, pos.z ) );
 		} );
 
-		g_Console.AddCommand( "cam_speed", [&cam = camera]( const CommandArgs_t & args )
+		g_Console.AddCommand( "cam_speed", [&cam = camera]( const CommandArgs_t& args )
 		{
 			float speed = std::stof( std::string( args[1] ) );
 			cam.SetSpeed( speed );
+		} );
+
+		g_Console.AddCommand( "sun_toggle", [&sun = sun]( const CommandArgs_t & args )
+		{
+			sun->SetEnabled( !sun->IsEnabled() );
 		} );
 	}
 
@@ -116,7 +96,9 @@ namespace Bat
 		}
 
 		camera.Update( deltatime );
-		snd->SetListenerPosition( camera.GetPosition(), camera.GetForwardVector() );
+		flashlight->SetPosition( camera.GetPosition() );
+		flashlight->SetDirection( camera.GetLookAtVector() );
+		snd->SetListenerPosition( camera.GetPosition(), camera.GetLookAtVector() );
 
 		if( bloom_enabled )
 		{
@@ -171,6 +153,48 @@ namespace Bat
 			AddNodeTree( scene.GetRootNode() );
 
 			ImGui::SliderFloat( "Bloom threshold", &bloom_threshold, 0.0f, 100.0f );
+		}
+	}
+
+	void Application::OnEvent( const KeyPressedEvent& e )
+	{
+		if( e.key == VK_OEM_3 )
+		{
+			BAT_LOG( "Toggling console" );
+			g_Console.SetVisible( !g_Console.IsVisible() );
+		}
+		else if( e.key == 'B' )
+		{
+			// toggle bloom
+			bloom_enabled = !bloom_enabled;
+			// re-build render graph
+			BuildRenderGraph();
+		}
+		else if( e.key == 'M' )
+		{
+			// toggle motion blur
+			motion_blur_enabled = !motion_blur_enabled;
+			// re-build render graoh
+			BuildRenderGraph();
+		}
+		else if( e.key == 'C' )
+		{
+			Light* light = scene->AddLight();
+			light->SetPosition( camera.GetPosition() );
+			light->SetRange( 250.0f );
+		}
+		else if( e.key == 'F' )
+		{
+			flashlight->SetEnabled( !flashlight->IsEnabled() );
+			snd->Play( "Assets/click.wav" );
+		}
+		else if( e.key == 'P' )
+		{
+			sun->SetDirection( camera.GetLookAtVector() );
+		}
+		else if( e.key == 'I' )
+		{
+			imgui_menu_enabled = !imgui_menu_enabled;
 		}
 	}
 

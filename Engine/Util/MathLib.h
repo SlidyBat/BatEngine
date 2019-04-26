@@ -26,7 +26,9 @@ namespace Bat
 
 		void AngleVectors( const DirectX::XMFLOAT3& angles, DirectX::XMFLOAT3* forward = nullptr, DirectX::XMFLOAT3* right = nullptr, DirectX::XMFLOAT3* up = nullptr );
 
+		// Returns a random int in the range [min, max]
 		int GetRandomInt( int min, int max );
+		// Returns a random float in the range [min, max)
 		float GetRandomFloat( float min, float max );
 	}
 

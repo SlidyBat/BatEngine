@@ -32,21 +32,26 @@ struct Material
 	float2  Padding;
 };
 
+#define POINT_LIGHT       0
+#define DIRECTIONAL_LIGHT 1
+#define SPOT_LIGHT        2
+
 #define MAX_LIGHTS 16
 struct Light
 {
 	float3 Position;
 	float _pad0;
 
-	float3 Diffuse;
-	float _pad2;
+	float3 Direction;
+	float SpotlightAngle;
 
-	float3 Specular;
+	float3 Colour;
 	float _pad3;
 
 	float Range;
+	float Intensity;
 	uint Type;
-	float2 _pad4;
+	float Pad;
 };
 
 struct GlobalsBuf

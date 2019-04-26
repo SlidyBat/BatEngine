@@ -26,7 +26,7 @@ struct PixelInput
     float2 tex : TEXCOORD;
 };
 
-float3 DoLight( Material material, float3 normal, float3 world_pos, Light light )
+float3 DoPointLight( Light light, Material material, float3 normal, float3 world_pos )
 {
 	float3 light_dir = light.Position - world_pos;
 	float light_distance = length( light_dir );
@@ -36,17 +36,79 @@ float3 DoLight( Material material, float3 normal, float3 world_pos, Light light 
 
 	// diffuse
 	float diff = saturate( dot( normal, light_dir ) );
-	float3 diffuse = light.Diffuse * (diff * material.DiffuseColor.rgb) * attenuation;
+	float3 diffuse = light.Colour * (diff * material.DiffuseColor.rgb) * attenuation * light.Intensity;
 
 	// specular
 	float3 viewDir = normalize( Globals.CameraPos - world_pos );
 	float3 reflectDir = reflect( -light_dir, normal );
 	float spec = pow( saturate( dot( viewDir, reflectDir ) ), material.SpecularPower );
-	float3 specular = light.Specular * (spec * material.SpecularColor.rgb) * attenuation;
+	float3 specular = light.Colour * (spec * material.SpecularColor.rgb) * attenuation * light.Intensity;
 
 	float3 final = diffuse + specular;
-	
+
 	return final;
+}
+
+float3 DoDirectionalLight( Light light, Material material, float3 normal, float3 world_pos )
+{
+	float3 light_dir = normalize( -light.Direction ).xyz;
+
+	// diffuse
+	float diff = saturate( dot( normal, light_dir ) );
+	float3 diffuse = light.Colour * (diff * material.DiffuseColor.rgb) * light.Intensity;
+
+	// specular
+	float3 viewDir = normalize( Globals.CameraPos - world_pos );
+	float3 reflectDir = reflect( -light_dir, normal );
+	float spec = pow( saturate( dot( viewDir, reflectDir ) ), material.SpecularPower );
+	float3 specular = light.Colour * (spec * material.SpecularColor.rgb) * light.Intensity;
+
+	float3 final = diffuse + specular;
+
+	return final;
+}
+
+float3 DoSpotLight( Light light, Material material, float3 normal, float3 world_pos )
+{
+	float3 light_dir = light.Position - world_pos;
+	float light_distance = length( light_dir );
+	light_dir /= light_distance; // normalize
+
+	float attenuation = 1.0f - smoothstep( light.Range * 0.75f, light.Range, light_distance );
+
+	float min_theta = cos( light.SpotlightAngle );
+	float max_theta = lerp( min_theta, 1, 0.5f );
+	float theta = dot( light.Direction.xyz, -light_dir );
+	float spot_intensity = smoothstep( min_theta, max_theta, theta );
+
+	// diffuse
+	float diff = saturate( dot( normal, light_dir ) );
+	float3 diffuse = light.Colour * (diff * material.DiffuseColor.rgb) * light.Intensity * spot_intensity;
+
+	// specular
+	float3 viewDir = normalize( Globals.CameraPos - world_pos );
+	float3 reflectDir = reflect( -light_dir, normal );
+	float spec = pow( saturate( dot( viewDir, reflectDir ) ), material.SpecularPower );
+	float3 specular = light.Colour * (spec * material.SpecularColor.rgb) * light.Intensity * spot_intensity;
+
+	float3 final = diffuse + specular;
+
+	return final;
+}
+
+float3 DoLight( Light light, Material material, float3 normal, float3 world_pos )
+{
+	switch( light.Type )
+	{
+		case POINT_LIGHT:
+			return DoPointLight( light, material, normal, world_pos );
+		case DIRECTIONAL_LIGHT:
+			return DoDirectionalLight( light, material, normal, world_pos );
+		case SPOT_LIGHT:
+			return DoSpotLight( light, material, normal, world_pos );
+		default:
+			return float3(0.0f, 0.0f, 0.0f);
+	}
 }
 
 float4 main( PixelInput input ) : SV_TARGET
@@ -104,10 +166,12 @@ float4 main( PixelInput input ) : SV_TARGET
 		}
 	}
 
+	float3 world_pos = input.world_pos.xyz;
+
 	float3 colour = 0.0f;
 	for( uint i = 0; i < NumLights; i++ )
 	{
-		colour += DoLight( material, normal, input.world_pos.xyz, Lights[i] );
+		colour += DoLight( Lights[i], material, normal, world_pos );
 	}
 
 	colour += ambient + emissive;

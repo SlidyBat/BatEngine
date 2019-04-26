@@ -39,6 +39,7 @@ namespace Bat
 
 		Vec3 GetForwardVector() const;
 		Vec3 GetRightVector() const;
+		Vec3 GetLookAtVector() const;
 
 		DirectX::XMMATRIX GetViewMatrix() const;
 		DirectX::XMMATRIX GetProjectionMatrix() const;

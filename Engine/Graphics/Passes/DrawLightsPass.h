@@ -51,10 +51,16 @@ namespace Bat
 			size_t count = node.GetLightCount();
 			for( size_t i = 0; i < count; i++ )
 			{
+				Light* light = node.GetLight( i );
+				if( light->GetType() != LightType::POINT )
+				{
+					continue;
+				}
+
 				DirectX::XMMATRIX w = transform * light_model->GetWorldMatrix();
 				DirectX::XMMATRIX vp = m_pCamera->GetViewMatrix() * m_pCamera->GetProjectionMatrix();
 
-				light_model->SetPosition( node.GetLight( i )->GetPosition() );
+				light_model->SetPosition( light->GetPosition() );
 				light_model->Bind();
 
 				auto& meshes = light_model->GetMeshes();

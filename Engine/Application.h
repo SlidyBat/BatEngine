@@ -8,6 +8,7 @@
 #include "Audio.h"
 #include "Scene.h"
 #include "RenderGraph.h"
+#include "KeyboardEvents.h"
 
 namespace Bat
 {
@@ -27,6 +28,8 @@ namespace Bat
 		virtual void OnUpdate( float deltatime ) override;
 		virtual void OnRender() override;
 
+		void OnEvent( const KeyPressedEvent& e );
+
 		void BuildRenderGraph();
 	public:
 		bool bloom_enabled = true;
@@ -38,6 +41,8 @@ namespace Bat
 		MoveableCamera camera;
 		SceneGraph scene;
 		RenderGraph rendergraph;
+		Light* flashlight;
+		Light* sun;
 
 		float bloom_threshold = 1.0f;
 

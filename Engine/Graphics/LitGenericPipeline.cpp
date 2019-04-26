@@ -30,7 +30,7 @@ namespace Bat
 
 		CB_LitGenericPipelineMaterial material;
 		material.material.GlobalAmbient = { 1.0f, 1.0f, 1.0f };
-		material.material.AmbientColor = params.material.GetAmbientColour();
+		material.material.AmbientColor = { 0.05f, 0.05f, 0.05f };
 		material.material.DiffuseColor = params.material.GetDiffuseColour();
 		material.material.SpecularColor = params.material.GetSpecularColour();
 		material.material.EmissiveColor = params.material.GetEmissiveColour();
@@ -46,16 +46,30 @@ namespace Bat
 		pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufMaterial, PS_CBUF_SLOT_0 );
 
 		CB_LitGenericPipelineLights lights;
-		size_t num_lights = std::min( MAX_LIGHTS, params.lights.size() );
-		lights.num_lights = (uint32_t)num_lights;
-		for( size_t i = 0; i < num_lights; i++ )
+		size_t j = 0;
+		for( size_t i = 0; i < params.lights.size(); i++ )
 		{
-			lights.lights[i].Position = params.lights[i]->GetPosition();
-			lights.lights[i].Diffuse = params.lights[i]->GetDiffuse();
-			lights.lights[i].Specular = params.lights[i]->GetSpecular();
-			lights.lights[i].Range = params.lights[i]->GetRange();
-			lights.lights[i].Type = 0; // TODO: implement more light types;
+			if( j == MAX_LIGHTS )
+			{
+				break;
+			}
+
+			if( !params.lights[i]->IsEnabled() )
+			{
+				continue;
+			}
+
+			lights.lights[j].Position = params.lights[i]->GetPosition();
+			lights.lights[j].Direction = params.lights[i]->GetDirection();
+			lights.lights[j].SpotlightAngle = params.lights[i]->GetSpotlightAngle();
+			lights.lights[j].Colour = params.lights[i]->GetColour();
+			lights.lights[j].Range = params.lights[i]->GetRange();
+			lights.lights[j].Intensity = params.lights[i]->GetIntensity();
+			lights.lights[j].Type = (int)params.lights[i]->GetType();
+
+			j++;
 		}
+		lights.num_lights = (uint32_t)j;
 		m_cbufLightParams.Update( pContext, lights );
 		pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufLightParams, PS_CBUF_SLOT_1 );
 

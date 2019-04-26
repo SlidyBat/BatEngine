@@ -122,13 +122,11 @@ namespace Bat
 		}
 	}
 
-	// Returns a random int in the range [min, max]
 	int Math::GetRandomInt( int min, int max )
 	{
 		return rng.GetRandomInt<int>( min, max );
 	}
 
-	// Returns a random float in the range [min, max)
 	float Math::GetRandomFloat( float min, float max )
 	{
 		return rng.GetRandomReal<float>( min, max );

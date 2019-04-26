@@ -41,17 +41,18 @@ namespace Bat
 	constexpr size_t MAX_LIGHTS = 16;
 	struct ShaderLight
 	{
-		Vec3       Position;
-		float      _pad0;
+		Vec3  Position;
+		float _pad0;
 
-		Vec3       Diffuse;
-		float      _pad2;
+		Vec3   Direction;
+		float  SpotlightAngle;
 
-		Vec3       Specular;
-		float      _pad3;
+		Vec3  Colour;
+		float _pad3;
 
-		float      Range;
-		uint32_t   Type;
-		float      _pad4[2];
+		float Range;
+		float Intensity;
+		int   Type;
+		float Pad;
 	};
 }
