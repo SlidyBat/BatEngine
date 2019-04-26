@@ -42,8 +42,6 @@ namespace Bat
 				static std::unique_ptr<ISceneNode> light_model_node = SceneLoader::LoadScene( "Assets/sphere.gltf" );
 				light_model = light_model_node->GetChildNodes()[2]->GetModel( 0 );
 				light_model->SetScale( 5.0f );
-
-				light_material.SetEmissiveColour( 3.0f, 3.0f, 3.0f );
 			}
 
 			m_pContext->SetDepthStencilEnabled( true );
@@ -56,6 +54,9 @@ namespace Bat
 				{
 					continue;
 				}
+
+				auto emissive = light->GetColour() * 3;
+				light_material.SetEmissiveColour( emissive.x, emissive.y, emissive.z );
 
 				DirectX::XMMATRIX w = transform * light_model->GetWorldMatrix();
 				DirectX::XMMATRIX vp = m_pCamera->GetViewMatrix() * m_pCamera->GetProjectionMatrix();
