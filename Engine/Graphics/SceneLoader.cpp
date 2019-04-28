@@ -168,7 +168,14 @@ namespace Bat
 				break;
 			case aiTextureType_SPECULAR:
 				pMaterial->Get( AI_MATKEY_COLOR_SPECULAR, aiColour );
-				mat.SetSpecularColour( aiColour.r, aiColour.g, aiColour.b );
+				if( aiColour.IsBlack() ) // Yuck!
+				{
+					mat.SetSpecularColour( 1.0f, 1.0f, 1.0f );
+				}
+				else
+				{
+					mat.SetSpecularColour( aiColour.r, aiColour.g, aiColour.b );
+				}
 				break;
 			case aiTextureType_EMISSIVE:
 				pMaterial->Get( AI_MATKEY_COLOR_EMISSIVE, aiColour );
