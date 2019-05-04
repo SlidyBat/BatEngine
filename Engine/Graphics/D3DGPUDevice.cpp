@@ -653,6 +653,15 @@ namespace Bat
 		BindRenderTarget();
 	}
 
+	void D3DGPUContext::UnbindRenderTargets()
+	{
+		if( !m_RenderTargetStack.empty() )
+		{
+			m_RenderTargetStack.back() = {};
+		}
+		BindRenderTarget();
+	}
+
 	void D3DGPUContext::SetRenderTargetAndViewport( IRenderTarget* pRT )
 	{
 		SetRenderTarget( pRT );
@@ -1561,23 +1570,26 @@ namespace Bat
 	{
 		std::wstring wfilename = Bat::StringToWide( filename );
 
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext;
+		pDevice->GetImmediateContext( &pContext );
+
 		if( !std::ifstream( filename ) )
 		{
 			BAT_WARN( "Could not open texture '%s', defaulting to 'error.png'", filename );
 			COM_THROW_IF_FAILED(
-				DirectX::CreateWICTextureFromFile( pDevice, L"Assets/error.png", &m_pTexture, &m_pTextureView )
+				DirectX::CreateWICTextureFromFile( pDevice, nullptr, L"Assets/error.png", &m_pTexture, &m_pTextureView )
 			);
 		}
 		else if( Bat::GetFileExtension( filename ) != "dds" )
 		{
 			COM_THROW_IF_FAILED(
-				DirectX::CreateWICTextureFromFile( pDevice, nullptr, wfilename.c_str(), &m_pTexture, &m_pTextureView )
+				DirectX::CreateWICTextureFromFile( pDevice, pContext.Get(), wfilename.c_str(), &m_pTexture, &m_pTextureView )
 			);
 		}
 		else
 		{
 			COM_THROW_IF_FAILED(
-				DirectX::CreateDDSTextureFromFile( pDevice, wfilename.c_str(), &m_pTexture, &m_pTextureView )
+				DirectX::CreateDDSTextureFromFile( pDevice, pContext.Get(), wfilename.c_str(), &m_pTexture, &m_pTextureView )
 			);
 		}
 
