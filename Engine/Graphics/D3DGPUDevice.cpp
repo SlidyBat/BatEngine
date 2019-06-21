@@ -200,6 +200,7 @@ namespace Bat
 		virtual void PushRenderTargets( const std::vector<IRenderTarget*>& pRTs ) override;
 		// Pops top render target on RT stack.
 		virtual void PopRenderTarget() override;
+		virtual void UnbindRenderTargets() override;
 
 		virtual void SetRenderTargetAndViewport( IRenderTarget* pRT ) override;
 		virtual void PushRenderTargetAndViewport( IRenderTarget* pRT ) override;

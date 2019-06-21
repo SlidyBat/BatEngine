@@ -109,6 +109,7 @@ namespace Bat
 		virtual void PushRenderTargets( const std::vector<IRenderTarget*>& pRTs ) = 0;
 		// Pops top render target on RT stack.
 		virtual void PopRenderTarget() = 0;
+		virtual void UnbindRenderTargets() = 0;
 
 		// Sets current render target and also sets viewport with same size
 		virtual void SetRenderTargetAndViewport( IRenderTarget* pRT ) = 0;
