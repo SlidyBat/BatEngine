@@ -364,7 +364,7 @@ namespace Bat
 
 		if( pAssimpScene == nullptr )
 		{
-			ASSERT( false, "Failed to load model '%s'", filename );
+			ASSERT( false, "Failed to load model '%s' (%s)", filename, importer.GetErrorString() );
 			BAT_WARN( "Failed to load model '%s'", filename );
 			return {};
 		}
