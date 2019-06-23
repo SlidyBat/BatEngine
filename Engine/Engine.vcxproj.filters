@@ -255,6 +255,9 @@
     <ClCompile Include="Graphics\LitGenericPipeline.cpp">
       <Filter>Source Files\Graphics\Pipelines</Filter>
     </ClCompile>
+    <ClCompile Include="Frustum.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -523,6 +526,9 @@
     </ClInclude>
     <ClInclude Include="Graphics\Passes\DrawLightsPass.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Frustum.h">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -41,6 +41,11 @@ namespace Bat
 
 		size_t GetVertexCount() const;
 		size_t GetIndexCount() const;
+
+		// Returns mins of mesh in object space
+		const Vec3& GetMins() const { return m_vecMins; }
+		// Returns maxs of mesh in object space
+		const Vec3& GetMaxs() const { return m_vecMaxs; }
 	private:
 		VertexBuffer<Vec3> m_bufPosition;
 		VertexBuffer<Vec4> m_bufColour;
@@ -50,6 +55,8 @@ namespace Bat
 		VertexBuffer<Vec3> m_bufBitangent;
 		IndexBuffer m_bufIndices;
 		Material m_Material;
+		Vec3 m_vecMins;
+		Vec3 m_vecMaxs;
 
 		std::string m_szName;
 	};

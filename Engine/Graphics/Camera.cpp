@@ -162,6 +162,7 @@ namespace Bat
 	{
 		UpdateViewMatrix();
 		UpdateProjectionMatrix();
+		UpdateFrustum();
 	}
 
 	void Camera::UpdateViewMatrix()
@@ -198,6 +199,12 @@ namespace Bat
 
 		XMStoreFloat3( &m_vecForward, forward );
 		XMStoreFloat3( &m_vecRight, right );
+	}
+
+	void Camera::UpdateFrustum()
+	{
+		auto transform = m_matViewMatrix * m_matProjMatrix;
+		m_Frustum = Frustum( transform );
 	}
 
 	void Camera::UpdateProjectionMatrix()

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "PCH.h"
-
+#include "Frustum.h"
 #include "Graphics.h"
 
 namespace Bat
@@ -41,6 +40,8 @@ namespace Bat
 		Vec3 GetRightVector() const;
 		Vec3 GetLookAtVector() const;
 
+		const Frustum& GetFrustum() const { return m_Frustum; }
+
 		DirectX::XMMATRIX GetViewMatrix() const;
 		DirectX::XMMATRIX GetProjectionMatrix() const;
 
@@ -48,7 +49,10 @@ namespace Bat
 	private:
 		void UpdateProjectionMatrix();
 		void UpdateViewMatrix();
+		void UpdateFrustum();
 	private:
+		Frustum m_Frustum;
+
 		float m_flFOV = 90.0f;
 		float m_flAspectRatio = 1.3333333f;
 		float m_flScreenNear = Graphics::ScreenNear;

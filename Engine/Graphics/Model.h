@@ -25,18 +25,23 @@ namespace Bat
 
 		std::vector<Resource<Mesh>>& GetMeshes();
 
-		DirectX::XMFLOAT3 GetPosition() const;
+		const Vec3& GetPosition() const;
 		void SetPosition( const float x, const float y, const float z );
-		void SetPosition( const DirectX::XMFLOAT3& pos );
+		void SetPosition( const Vec3& pos );
 		void MoveBy( const float dx, const float dy, const float dz );
 
-		DirectX::XMFLOAT3 GetRotation() const;
+		const Vec3& GetRotation() const;
 		void SetRotation( const float pitch, const float yaw, const float roll );
-		void SetRotation( const DirectX::XMFLOAT3& ang );
+		void SetRotation( const Vec3& ang );
 		void RotateBy( const float dpitch, const float dyaw, const float droll );
 
 		float GetScale() const;
 		void SetScale( const float scale );
+
+		// Returns mins of model in object space
+		const Vec3& GetMins() const;
+		// Returns maxs of model in object space
+		const Vec3& GetMaxs() const;
 
 		DirectX::XMMATRIX GetWorldMatrix() const;
 	protected:
@@ -46,10 +51,12 @@ namespace Bat
 		void UpdateWorldMatrix();
 	protected:
 		DirectX::XMMATRIX m_matWorldMatrix = DirectX::XMMatrixIdentity();
-		DirectX::XMFLOAT3 m_vecPosition = { 0.0f, 0.0f, 0.0f };
+		Vec3 m_vecPosition = { 0.0f, 0.0f, 0.0f };
 		float m_flScale = 1.0f;
-		DirectX::XMFLOAT3 m_angRotation = { 0.0f, 0.0f, 0.0f };
+		Vec3 m_angRotation = { 0.0f, 0.0f, 0.0f };
 		bool m_bDirty = false;
+		Vec3 m_vecMins;
+		Vec3 m_vecMaxs;
 
 		std::vector<Resource<Mesh>> m_pMeshes;
 

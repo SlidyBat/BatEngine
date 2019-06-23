@@ -90,7 +90,7 @@ namespace Bat
 		fps_counter += 1;
 		if( elapsed_time > 1.0f )
 		{
-			fps_string = "FPS: " + std::to_string( fps_counter );
+			fps_string = std::to_string( fps_counter );
 			fps_counter = 0;
 			elapsed_time -= 1.0f;
 		}
@@ -148,11 +148,11 @@ namespace Bat
 	{
 		if( imgui_menu_enabled )
 		{
-			ImGui::Text( fps_string.c_str() );
-
-			AddNodeTree( scene.GetRootNode() );
+			ImGui::Text( "FPS: %s", fps_string.c_str() );
 
 			ImGui::SliderFloat( "Bloom threshold", &bloom_threshold, 0.0f, 100.0f );
+
+			AddNodeTree( scene.GetRootNode() );
 		}
 	}
 

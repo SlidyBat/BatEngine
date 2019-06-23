@@ -42,6 +42,7 @@ namespace Bat
 			for( size_t i = 0; i < count; i++ )
 			{
 				Model* pModel = node.GetModel( i );
+
 				DirectX::XMMATRIX w = transform * pModel->GetWorldMatrix();
 				DirectX::XMMATRIX vp = m_pCamera->GetViewMatrix() * m_pCamera->GetProjectionMatrix();
 
@@ -50,6 +51,16 @@ namespace Bat
 				auto& meshes = pModel->GetMeshes();
 				for( auto& pMesh : meshes )
 				{
+					// World space mins/maxs
+					Vec3 wmins = DirectX::XMVector3Transform( pMesh->GetMins(), w );
+					Vec3 wmaxs = DirectX::XMVector3Transform( pMesh->GetMaxs(), w );
+
+					// View frustum culling on mesh level
+					if( !m_pCamera->GetFrustum().IsBoxInside( wmins, wmaxs ) )
+					{
+						continue;
+					}
+
 					auto pPipeline = static_cast<LitGenericPipeline*>(ShaderManager::GetPipeline( "litgeneric" ));
 
 					LitGenericPipelineParameters params( w, vp, pMesh->GetMaterial(), m_Lights );
@@ -65,7 +76,16 @@ namespace Bat
 			size_t num_lights = node->GetLightCount();
 			for( size_t i = 0; i < num_lights; i++ )
 			{
-				m_Lights.push_back( node->GetLight( i ) );
+				Light* light = node->GetLight( i );
+
+				// View frustum culling
+				if( light->GetType() == LightType::POINT &&
+					!m_pCamera->GetFrustum().IsSphereInside( light->GetPosition(), light->GetRange() ) )
+				{
+					continue;
+				}
+
+				m_Lights.push_back( light );
 			}
 
 			auto children = node->GetChildNodes();

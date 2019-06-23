@@ -119,6 +119,10 @@ namespace Bat
 			y = src.y;
 			z = src.z;
 		}
+		Vec3( const DirectX::XMVECTOR v )
+		{
+			DirectX::XMStoreFloat3( this, v );
+		}
 
 		Vec3& operator=( const DirectX::XMFLOAT3& src )
 		{
@@ -145,6 +149,29 @@ namespace Bat
 			res.z = -z;
 
 			return res;
+		}
+		Vec3 operator+( const Vec3& rhs ) const
+		{
+			Vec3 res;
+			res.x = x + rhs.x;
+			res.y = y + rhs.y;
+			res.z = z + rhs.z;
+
+			return res;
+		}
+		Vec3 operator-( const Vec3& rhs ) const
+		{
+			Vec3 res;
+			res.x = x - rhs.x;
+			res.y = y - rhs.y;
+			res.z = z - rhs.z;
+
+			return res;
+		}
+
+		operator DirectX::XMVECTOR() const
+		{
+			return DirectX::XMLoadFloat3( this );
 		}
 	};
 
