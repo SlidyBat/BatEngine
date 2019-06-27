@@ -4,18 +4,19 @@
 
 namespace Bat
 {
-	enum PlaneId
-	{
-		LEFT_PLANE,
-		RIGHT_PLANE,
-		BOTTOM_PLANE,
-		TOP_PLANE,
-		NEAR_PLANE,
-		FAR_PLANE,
-		TOTAL_PLANES
-	};
 	class Frustum
 	{
+	public:
+		enum PlaneId
+		{
+			LEFT_PLANE,
+			RIGHT_PLANE,
+			BOTTOM_PLANE,
+			TOP_PLANE,
+			NEAR_PLANE,
+			FAR_PLANE,
+			TOTAL_PLANES
+		};
 	public:
 		Frustum() = default;
 		Frustum( DirectX::XMMATRIX transform );

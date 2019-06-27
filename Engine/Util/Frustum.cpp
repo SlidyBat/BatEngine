@@ -41,7 +41,7 @@ namespace Bat
 		Vec3 centre = (mins + maxs) * 0.5f;
 		Vec3 extents = (maxs - mins) * 0.5f;
 
-		for( int i = 0; i < 6; i++ )
+		for( int i = 0; i < TOTAL_PLANES; i++ )
 		{
 			if( PlaneDotCoord( planes[i], { centre.x - extents.x, centre.y - extents.y, centre.z - extents.z } ) >= 0.0f )
 			{
@@ -84,7 +84,7 @@ namespace Bat
 
 	bool Frustum::IsSphereInside( const Vec3& centre, float radius ) const
 	{
-		for( int i = 0; i < 6; i++ )
+		for( int i = 0; i < TOTAL_PLANES; i++ )
 		{
 			if( PlaneDotCoord( planes[i], centre ) < -radius ) return false;
 		}
