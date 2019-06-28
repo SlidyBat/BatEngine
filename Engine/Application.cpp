@@ -136,10 +136,14 @@ namespace Bat
 	{
 		Entity e = node.Get();
 
-		std::string name = "<blank>";
+		std::string name;
 		if( world.HasComponent<NameComponent>( e ) )
 		{
 			name = world.GetComponent<NameComponent>( e ).name;
+		}
+		else
+		{
+			name = Format( "ent_%i", e.GetId().GetIndex() );
 		}
 
 		if( ImGui::TreeNode( name.c_str() ) )
@@ -153,6 +157,14 @@ namespace Bat
 			if( world.HasComponent<ModelComponent>( e ) )
 			{
 				AddModelTree( world.GetComponent<ModelComponent>( e ).model );
+			}
+			if( world.HasComponent<LightComponent>( e ) )
+			{
+				ImGui::Text( "Light" );
+			}
+			if( world.HasComponent<CameraComponent>( e ) )
+			{
+				ImGui::Text( "Camera" );
 			}
 
 			ImGui::TreePop();
