@@ -1,7 +1,8 @@
 #pragma once
 
 #include "IRenderPass.h"
-#include "Scene.h"
+#include "Entity.h"
+#include "CoreEntityComponents.h"
 #include "RenderData.h"
 #include "Graphics.h"
 #include "Mesh.h"
@@ -11,7 +12,7 @@
 
 namespace Bat
 {
-	class ForwardOpaquePass : public BaseRenderPass, public ISceneVisitor
+	class ForwardOpaquePass : public BaseRenderPass
 	{
 	public: // BaseRenderPass
 		ForwardOpaquePass()
@@ -19,36 +20,89 @@ namespace Bat
 			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TEXTURE );
 		}
 
-		virtual void Execute( IGPUContext* pContext, SceneGraph& scene, RenderData& data ) override
+		virtual void Execute( IGPUContext* pContext, SceneNode& scene, RenderData& data ) override
 		{
+			m_pCamera = FindCamera( scene );
+			if( !m_pCamera )
+			{
+				return;
+			}
+
 			m_Lights.clear();
-			GetLights( scene.GetRootNode() );
-			
-			m_pCamera = scene.GetActiveCamera();
+			GetLights( scene );
 
 			IRenderTarget* target = data.GetRenderTarget( "dst" );
 			pContext->SetRenderTarget( target );
 
 			m_pContext = pContext;
-
-			scene.AcceptVisitor( *this );
-		}
-	public: // ISceneVisitor
-		virtual void Visit( const DirectX::XMMATRIX& transform, ISceneNode& node ) override
-		{
 			m_pContext->SetDepthStencilEnabled( true );
 
-			size_t count = node.GetModelCount();
-			for( size_t i = 0; i < count; i++ )
+			DirectX::XMMATRIX transform = DirectX::XMMatrixIdentity();
+			Entity e = scene.Get();
+			if( world.HasComponent<TransformComponent>( e ) )
 			{
-				Model* pModel = node.GetModel( i );
+				transform = world.GetComponent<TransformComponent>( e ).transform;
+			}
 
-				DirectX::XMMATRIX w = transform * pModel->GetWorldMatrix();
+			Traverse( scene );
+		}
+	private:
+		void Traverse( const SceneNode& scene )
+		{
+			std::stack<const SceneNode*> stack;
+			std::stack<DirectX::XMMATRIX> transforms;
+
+			stack.push( &scene );
+
+			DirectX::XMMATRIX transform = DirectX::XMMatrixIdentity();
+			if( world.HasComponent<TransformComponent>( scene.Get() ) )
+			{
+				transform = world.GetComponent<TransformComponent>( scene.Get() ).transform;
+			}
+			transforms.push( transform );
+
+			while( !stack.empty() )
+			{
+				const SceneNode* node = stack.top();
+				stack.pop();
+				transform = transforms.top();
+				transforms.pop();
+
+				Entity e = node->Get();
+
+				Draw( transform, *node );
+
+				size_t num_children = node->GetNumChildNodes();
+				for( size_t i = 0; i < num_children; i++ )
+				{
+					stack.push( &node->GetChildNode( i ) );
+
+					if( world.HasComponent<TransformComponent>( node->Get() ) )
+					{
+						transforms.push( world.GetComponent<TransformComponent>( node->Get() ).transform * transform );
+					}
+					else
+					{
+						transforms.push( transform );
+					}
+				}
+			}
+		}
+
+		void Draw( const DirectX::XMMATRIX& transform, const SceneNode& node )
+		{
+			Entity e = node.Get();
+
+			if( world.HasComponent<ModelComponent>( e ) )
+			{
+				Model& model = world.GetComponent<ModelComponent>( e ).model;
+
+				DirectX::XMMATRIX w = transform * model.GetWorldMatrix();
 				DirectX::XMMATRIX vp = m_pCamera->GetViewMatrix() * m_pCamera->GetProjectionMatrix();
 
-				pModel->Bind();
+				model.Bind();
 
-				auto& meshes = pModel->GetMeshes();
+				auto& meshes = model.GetMeshes();
 				for( auto& pMesh : meshes )
 				{
 					// World space mins/maxs
@@ -71,27 +125,25 @@ namespace Bat
 			}
 		}
 
-		void GetLights( ISceneNode* node )
+		void GetLights( SceneNode& node )
 		{
-			size_t num_lights = node->GetLightCount();
-			for( size_t i = 0; i < num_lights; i++ )
+			Entity e = node.Get();
+			if( world.HasComponent<LightComponent>( e ) )
 			{
-				Light* light = node->GetLight( i );
+				Light& light = world.GetComponent<LightComponent>( e ).light;
 
 				// View frustum culling
-				if( light->GetType() == LightType::POINT &&
-					!m_pCamera->GetFrustum().IsSphereInside( light->GetPosition(), light->GetRange() ) )
+				if( light.GetType() != LightType::POINT ||
+					m_pCamera->GetFrustum().IsSphereInside( light.GetPosition(), light.GetRange() ) )
 				{
-					continue;
+					m_Lights.push_back( &light );
 				}
-
-				m_Lights.push_back( light );
 			}
 
-			auto children = node->GetChildNodes();
-			for( auto child : children )
+			size_t num_children = node.GetNumChildNodes();
+			for( size_t i = 0; i < num_children; i++ )
 			{
-				GetLights( child );
+				GetLights( node.GetChildNode( i ) );
 			}
 		}
 	private:

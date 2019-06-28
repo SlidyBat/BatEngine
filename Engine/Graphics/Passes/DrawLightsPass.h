@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IRenderPass.h"
-#include "Scene.h"
+#include "Entity.h"
 #include "RenderData.h"
 #include "Graphics.h"
 #include "Mesh.h"
@@ -12,7 +12,7 @@
 
 namespace Bat
 {
-	class DrawLightsPass : public BaseRenderPass, public ISceneVisitor
+	class DrawLightsPass : public BaseRenderPass
 	{
 	public: // BaseRenderPass
 		DrawLightsPass()
@@ -20,59 +20,99 @@ namespace Bat
 			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TEXTURE );
 		}
 
-		virtual void Execute( IGPUContext* pContext, SceneGraph& scene, RenderData& data ) override
+		virtual void Execute( IGPUContext* pContext, SceneNode& scene, RenderData& data ) override
 		{
-			m_pCamera = scene.GetActiveCamera();
+			m_pCamera = FindCamera( scene );
 
 			IRenderTarget* target = data.GetRenderTarget( "dst" );
 			pContext->SetRenderTarget( target );
 
 			m_pContext = pContext;
+			m_pContext->SetDepthStencilEnabled( true );
 
-			scene.AcceptVisitor( *this );
+			Traverse( scene );
 		}
-	public: // ISceneVisitor
-		virtual void Visit( const DirectX::XMMATRIX& transform, ISceneNode& node ) override
+	public:
+		void Traverse( const SceneNode& scene )
+		{
+			std::stack<const SceneNode*> stack;
+			std::stack<DirectX::XMMATRIX> transforms;
+
+			stack.push( &scene );
+
+			DirectX::XMMATRIX transform = DirectX::XMMatrixIdentity();
+			if( world.HasComponent<TransformComponent>( scene.Get() ) )
+			{
+				transform = world.GetComponent<TransformComponent>( scene.Get() ).transform;
+			}
+			transforms.push( transform );
+
+			while( !stack.empty() )
+			{
+				const SceneNode* node = stack.top();
+				stack.pop();
+				transform = transforms.top();
+				transforms.pop();
+
+				Entity e = node->Get();
+
+				Draw( transform, *node );
+
+				size_t num_children = node->GetNumChildNodes();
+				for( size_t i = 0; i < num_children; i++ )
+				{
+					stack.push( &node->GetChildNode( i ) );
+
+					if( world.HasComponent<TransformComponent>( node->Get() ) )
+					{
+						transforms.push( world.GetComponent<TransformComponent>( node->Get() ).transform * transform );
+					}
+					else
+					{
+						transforms.push( transform );
+					}
+				}
+			}
+		}
+
+		void Draw( const DirectX::XMMATRIX& transform, const SceneNode& node )
 		{
 			static Model* light_model = nullptr;
 			static Material light_material;
 
 			if( !light_model )
 			{
-				static std::unique_ptr<ISceneNode> light_model_node = SceneLoader::LoadScene( "Assets/sphere.gltf" );
-				light_model = light_model_node->GetChildNodes()[2]->GetModel( 0 );
+				static SceneNode light_model_node = SceneLoader::LoadScene( "Assets/sphere.gltf" );
+				Entity light_model_ent = light_model_node.GetChildNode( 2 ).Get();
+				light_model = &world.GetComponent<ModelComponent>( light_model_ent ).model;
 				light_model->SetScale( 5.0f );
 			}
 
-			m_pContext->SetDepthStencilEnabled( true );
-
-			size_t count = node.GetLightCount();
-			for( size_t i = 0; i < count; i++ )
+			Entity e = node.Get();
+			if( world.HasComponent<LightComponent>( e ) )
 			{
-				Light* light = node.GetLight( i );
-				if( light->GetType() != LightType::POINT )
+				Light* light = &world.GetComponent<LightComponent>( e ).light;
+				if( light->GetType() == LightType::POINT )
 				{
-					continue;
-				}
+					auto emissive = light->GetColour() * 3;
+					light_material.SetEmissiveColour( emissive.x, emissive.y, emissive.z );
 
-				auto emissive = light->GetColour() * 3;
-				light_material.SetEmissiveColour( emissive.x, emissive.y, emissive.z );
+					DirectX::XMMATRIX w = transform * light_model->GetWorldMatrix();
+					DirectX::XMMATRIX vp = m_pCamera->GetViewMatrix() * m_pCamera->GetProjectionMatrix();
 
-				DirectX::XMMATRIX w = transform * light_model->GetWorldMatrix();
-				DirectX::XMMATRIX vp = m_pCamera->GetViewMatrix() * m_pCamera->GetProjectionMatrix();
+					light_model->SetPosition( light->GetPosition() );
+					light_model->Bind();
 
-				light_model->SetPosition( light->GetPosition() );
-				light_model->Bind();
+					auto& meshes = light_model->GetMeshes();
+					for( auto& pMesh : meshes )
+					{
+						auto pPipeline = static_cast<LitGenericPipeline*>(ShaderManager::GetPipeline( "litgeneric" ));
 
-				auto& meshes = light_model->GetMeshes();
-				for( auto& pMesh : meshes )
-				{
-					auto pPipeline = static_cast<LitGenericPipeline*>(ShaderManager::GetPipeline( "litgeneric" ));
-
-					LitGenericPipelineParameters params( w, vp, light_material, {} );
-					pMesh->Bind( m_pContext, pPipeline );
-					pPipeline->BindParameters( m_pContext, params );
-					pPipeline->RenderIndexed( m_pContext, pMesh->GetIndexCount() );
+						LitGenericPipelineParameters params( w, vp, light_material, {} );
+						pMesh->Bind( m_pContext, pPipeline );
+						pPipeline->BindParameters( m_pContext, params );
+						pPipeline->RenderIndexed( m_pContext, pMesh->GetIndexCount() );
+					}
 				}
 			}
 		}

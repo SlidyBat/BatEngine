@@ -2,6 +2,7 @@
 
 #include "IGPUDevice.h"
 #include "ResourceManager.h"
+#include "Entity.h"
 #include "UI/BatUI.h"
 
 namespace DirectX
@@ -30,8 +31,8 @@ namespace Bat
 
 		void Resize( int width, int height );
 
-		SceneGraph* GetActiveScene() const { return m_pSceneGraph; }
-		void SetActiveScene( SceneGraph* pSceneGraph ) { m_pSceneGraph = pSceneGraph; }
+		SceneNode* GetActiveScene() const { return m_pSceneGraph; }
+		void SetActiveScene( SceneNode* pSceneGraph ) { m_pSceneGraph = pSceneGraph; }
 
 		BatUI& UI() { return m_UI; }
 		const BatUI& UI() const { return m_UI; }
@@ -43,6 +44,8 @@ namespace Bat
 
 		DirectX::XMMATRIX GetOrthoMatrix() const;
 	private:
+		Camera* FindSceneCamera() const;
+
 		void RenderScene();
 		void RenderUI();
 		void RenderImGui();
@@ -52,7 +55,7 @@ namespace Bat
 		int m_iScreenWidth = InitialScreenWidth;
 		int m_iScreenHeight = InitialScreenHeight;
 
-		SceneGraph* m_pSceneGraph = nullptr;
+		SceneNode* m_pSceneGraph;
 
 		RenderGraph* m_pRenderGraph = nullptr;
 

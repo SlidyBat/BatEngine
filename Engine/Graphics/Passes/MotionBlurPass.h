@@ -4,7 +4,7 @@
 #include "IRenderPass.h"
 #include "RenderData.h"
 #include "TexturePipeline.h"
-#include "Scene.h"
+#include "Entity.h"
 #include "Globals.h"
 
 namespace Bat
@@ -58,7 +58,7 @@ namespace Bat
 
 		virtual std::string GetDescription() const override { return "Motion blur pass"; }
 
-		virtual void Execute( IGPUContext* pContext, SceneGraph& scene, RenderData& data )
+		virtual void Execute( IGPUContext* pContext, SceneNode& scene, RenderData& data )
 		{
 			pContext->SetDepthStencilEnabled( false );
 
@@ -67,7 +67,7 @@ namespace Bat
 			IRenderTarget* src = data.GetRenderTarget( "src" );
 			IRenderTarget* dst = data.GetRenderTarget( "dst" );
 			IDepthStencil* depth = data.GetDepthStencil( "depth" );
-			Camera* cam = scene.GetActiveCamera();
+			Camera* cam = FindCamera( scene );
 
 			size_t width = src->GetWidth();
 			size_t height = src->GetHeight();

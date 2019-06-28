@@ -2,6 +2,7 @@
 
 #include "Frustum.h"
 #include "Graphics.h"
+#include "Entity.h"
 
 namespace Bat
 {
@@ -10,10 +11,6 @@ namespace Bat
 	public:
 		Camera( const Vec3& pos, const Vec3& rot, float fov = 90.0f, float ar = 4.0f / 3.0f, float screen_near = Graphics::ScreenNear, float screen_far = Graphics::ScreenFar );
 		Camera( float fov = 90.0f, float ar = 4.0f / 3.0f, float screen_near = Graphics::ScreenNear, float screen_far = Graphics::ScreenFar );
-		Camera( const Camera& src ) = delete;
-		Camera& operator=( const Camera& src ) = delete;
-		Camera( Camera&& donor ) = delete;
-		Camera& operator=( Camera&& donor ) = delete;
 
 		float GetFOV() const;
 		void SetFOV( float fov );
@@ -66,5 +63,15 @@ namespace Bat
 
 		DirectX::XMMATRIX m_matProjMatrix;
 		DirectX::XMMATRIX m_matViewMatrix;
+	};
+
+	struct CameraComponent : public Component<CameraComponent>
+	{
+		CameraComponent( Camera* camera )
+			:
+			camera( camera )
+		{}
+
+		Camera* camera;
 	};
 }

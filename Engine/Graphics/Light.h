@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PCH.h"
+#include "Entity.h"
 
 namespace Bat
 {
@@ -45,5 +46,16 @@ namespace Bat
 		float m_flIntensity = 1.0f;
 		Vec3 m_colColour = { 1.0f, 1.0f, 1.0f };
 		float m_flRange = 1000.0f;
+	};
+
+	struct LightComponent : public Component<LightComponent>
+	{
+		LightComponent() = default;
+		LightComponent( Light light )
+			:
+			light( light )
+		{}
+
+		Light light;
 	};
 }

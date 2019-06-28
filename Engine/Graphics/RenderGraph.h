@@ -5,12 +5,12 @@
 #include <unordered_map>
 #include <optional>
 
+#include "Entity.h"
 #include "RenderNode.h"
 
 namespace Bat
 {
 	class IRenderPass;
-	class SceneGraph;
 	class ITexture;
 	class IRenderTarget;
 	class IDepthStencil;
@@ -43,7 +43,7 @@ namespace Bat
 		//     MarkOutput( "Bloom.src" );
 		void MarkOutput( const std::string& out );
 
-		void Render( SceneGraph& scene, IRenderTarget* pTarget );
+		void Render( SceneNode& scene, IRenderTarget* pTarget );
 
 		// Clears all current resources
 		void ResetResources();

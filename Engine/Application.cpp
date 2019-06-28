@@ -28,21 +28,28 @@ namespace Bat
 		:
 		gfx( gfx ),
 		wnd( wnd ),
-		camera( wnd.input, 250.0f, 100.0f ),
 		scene( SceneLoader::LoadScene( "Assets/Ignore/Sponza/Sponza.gltf" ) )
 	{
-		camera.SetPosition( { 0.0f, 0.0f, -10.0f } );
-		flashlight = scene->AddLight();
+		Entity flashlight_ent = world.CreateEntity();
+		flashlight = &world.AddComponent<LightComponent>( flashlight_ent ).light;
 		flashlight->SetType( LightType::SPOT );
 		flashlight->SetSpotlightAngle( 0.5f );
+		scene.AddChildNode( flashlight_ent );
 
-		sun = scene->AddLight();
+		Entity sun_ent = world.CreateEntity();
+		sun = &world.AddComponent<LightComponent>( sun_ent ).light;
 		sun->SetType( LightType::DIRECTIONAL );
 		sun->SetEnabled( false );
+		scene.AddChildNode( sun_ent );
 
-		scene.SetActiveCamera( &camera );
+		Entity cam_ent = world.CreateEntity();
+		camera = new MoveableCamera( wnd.input, 250.0f, 100.0f );
+		camera->SetPosition( { 0.0f, 0.0f, -10.0f } );
+		world.AddComponent<CameraComponent>( cam_ent, camera );
+		scene.AddChildNode( cam_ent );
+
 		gfx.SetActiveScene( &scene );
-		scene.GetRootNode()->GetModel( 0 )->SetScale( 0.5f );
+		world.AddComponent<TransformComponent>( scene.Get(), DirectX::XMMatrixScaling( 0.5f, 0.5f, 0.5f ) );
 
 		BuildRenderGraph();
 		gfx.SetRenderGraph( &rendergraph );
@@ -52,7 +59,7 @@ namespace Bat
 
 		wnd.input.AddEventListener<KeyPressedEvent>( *this );
 
-		g_Console.AddCommand( "load_scene", [&scene = scene, &cam = camera, &gfx = gfx]( const CommandArgs_t& args )
+		/*g_Console.AddCommand( "load_scene", [&scene = scene, &cam = camera, &gfx = gfx]( const CommandArgs_t& args )
 		{
 			scene = SceneLoader::LoadScene( std::string( args[1] ) );
 			scene.SetActiveCamera( &cam );
@@ -65,12 +72,12 @@ namespace Bat
 
 			auto pos = cam.GetPosition();
 			scene->GetChildNodes().back()->SetTransform( DirectX::XMMatrixTranslation( pos.x, pos.y, pos.z ) );
-		} );
+		} );*/
 
 		g_Console.AddCommand( "cam_speed", [&cam = camera]( const CommandArgs_t& args )
 		{
 			float speed = std::stof( std::string( args[1] ) );
-			cam.SetSpeed( speed );
+			cam->SetSpeed( speed );
 		} );
 
 		g_Console.AddCommand( "sun_toggle", [&sun = sun]( const CommandArgs_t & args )
@@ -82,6 +89,7 @@ namespace Bat
 	Application::~Application()
 	{
 		delete snd;
+		delete camera;
 	}
 
 	void Application::OnUpdate( float deltatime )
@@ -95,10 +103,10 @@ namespace Bat
 			elapsed_time -= 1.0f;
 		}
 
-		camera.Update( deltatime );
-		flashlight->SetPosition( camera.GetPosition() );
-		flashlight->SetDirection( camera.GetLookAtVector() );
-		snd->SetListenerPosition( camera.GetPosition(), camera.GetLookAtVector() );
+		camera->Update( deltatime );
+		flashlight->SetPosition( camera->GetPosition() );
+		flashlight->SetDirection( camera->GetLookAtVector() );
+		snd->SetListenerPosition( camera->GetPosition(), camera->GetLookAtVector() );
 
 		if( bloom_enabled )
 		{
@@ -110,11 +118,11 @@ namespace Bat
 		}
 	}
 
-	static void AddModelTree( Model* pModel )
+	static void AddModelTree( Model& model )
 	{
 		if( ImGui::TreeNode( "Model" ) )
 		{
-			auto meshes = pModel->GetMeshes();
+			auto meshes = model.GetMeshes();
 			for( auto mesh : meshes )
 			{
 				ImGui::Text( mesh->GetName().c_str() );
@@ -124,20 +132,27 @@ namespace Bat
 		}
 	}
 
-	static void AddNodeTree( ISceneNode* node )
+	static void AddNodeTree( const SceneNode& node )
 	{
-		if( ImGui::TreeNode( node->GetName().c_str() ) )
+		Entity e = node.Get();
+
+		std::string name = "<blank>";
+		if( world.HasComponent<NameComponent>( e ) )
 		{
-			auto children = node->GetChildNodes();
-			for( auto child : children )
+			name = world.GetComponent<NameComponent>( e ).name;
+		}
+
+		if( ImGui::TreeNode( name.c_str() ) )
+		{
+			size_t num_children = node.GetNumChildNodes();
+			for( size_t i = 0; i < num_children; i++ )
 			{
-				AddNodeTree( child );
+				AddNodeTree( node.GetChildNode( i ) );
 			}
 
-			const size_t model_count = node->GetModelCount();
-			for( size_t i = 0; i < model_count; i++ )
+			if( world.HasComponent<ModelComponent>( e ) )
 			{
-				AddModelTree( node->GetModel( i ) );
+				AddModelTree( world.GetComponent<ModelComponent>( e ).model );
 			}
 
 			ImGui::TreePop();
@@ -152,7 +167,7 @@ namespace Bat
 
 			ImGui::SliderFloat( "Bloom threshold", &bloom_threshold, 0.0f, 100.0f );
 
-			AddNodeTree( scene.GetRootNode() );
+			AddNodeTree( scene );
 		}
 	}
 
@@ -179,9 +194,11 @@ namespace Bat
 		}
 		else if( e.key == 'C' )
 		{
-			Light* light = scene->AddLight();
-			light->SetPosition( camera.GetPosition() );
+			Entity light_ent = world.CreateEntity();
+			Light* light = &world.AddComponent<LightComponent>( light_ent ).light;
+			light->SetPosition( camera->GetPosition() );
 			light->SetRange( 250.0f );
+			scene.AddChildNode( light_ent );
 		}
 		else if( e.key == 'F' )
 		{
@@ -190,7 +207,7 @@ namespace Bat
 		}
 		else if( e.key == 'P' )
 		{
-			sun->SetDirection( camera.GetLookAtVector() );
+			sun->SetDirection( camera->GetLookAtVector() );
 		}
 		else if( e.key == 'I' )
 		{

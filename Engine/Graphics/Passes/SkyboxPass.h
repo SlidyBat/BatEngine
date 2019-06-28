@@ -5,7 +5,7 @@
 #include "SkyboxPipeline.h"
 #include "MathLib.h"
 #include "Camera.h"
-#include "Scene.h"
+#include "Entity.h"
 #include "ShaderManager.h"
 
 namespace Bat
@@ -24,17 +24,16 @@ namespace Bat
 			return "Renders skybox. Ideally this should be after all geometry has been rendered so that most of the pixels are occluded";
 		}
 
-		virtual void Execute( IGPUContext* pContext, SceneGraph& scene, RenderData& data ) override
+		virtual void Execute( IGPUContext* pContext, SceneNode& scene, RenderData& data ) override
 		{
 			pContext->SetDepthStencilEnabled( true );
 
 			IRenderTarget* target = data.GetRenderTarget( "dst" );
 			pContext->SetRenderTarget( target );
 
-			ITexture* pSkybox = data.GetTexture( "skyboxtex" );
-			if( pSkybox )
+			if( ITexture* pSkybox = data.GetTexture( "skyboxtex" ) )
 			{
-				Camera* cam = scene.GetActiveCamera();
+				Camera* cam = FindCamera( scene );
 				auto pos = cam->GetPosition();
 				auto w = DirectX::XMMatrixTranslation( pos.x, pos.y, pos.z );
 				auto t = w * cam->GetViewMatrix() * cam->GetProjectionMatrix();

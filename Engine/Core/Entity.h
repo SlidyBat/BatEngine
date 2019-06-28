@@ -4,6 +4,7 @@
 
 #include "Event.h"
 #include "ChunkedAllocator.h"
+#include "Tree.h"
 #include <bitset>
 
 namespace Bat
@@ -122,7 +123,7 @@ namespace Bat
 		uint32_t m_iEntityHead = 0;
 
 		using ComponentMask = std::bitset<MAX_COMPONENTS>;
-		std::vector<ComponentMask> m_EntityComponentMasks{ INITIAL_ENTITIES };
+		std::vector<ComponentMask> m_EntityComponentMasks{ INITIAL_ENTITIES, 0 };
 		std::array<std::unique_ptr<ChunkedAllocator>, MAX_COMPONENTS> m_pComponentAllocators;
 		std::array<std::unique_ptr<BaseComponentHelper>, MAX_COMPONENTS> m_pComponentHelpers;
 	};
@@ -194,4 +195,7 @@ namespace Bat
 
 		return *static_cast<ObjectChunkedAllocator<C>*>( m_pComponentAllocators[component_idx].get() );
 	}
+
+	using SceneNode = TreeNode<Entity>;
+	extern EntityManager world;
 }

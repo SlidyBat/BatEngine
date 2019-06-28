@@ -16,7 +16,7 @@ namespace Bat
 
 		virtual std::string GetDescription() const override { return "Clears render target and depth"; }
 
-		virtual void Execute( IGPUContext* pContext, SceneGraph& scene, RenderData& data ) override
+		virtual void Execute( IGPUContext* pContext, SceneNode& scene, RenderData& data ) override
 		{
 			IRenderTarget* target = data.GetRenderTarget( "buffer" );
 			pContext->ClearRenderTarget( target, 0.0f, 0.0f, 0.0f, 1.0f );

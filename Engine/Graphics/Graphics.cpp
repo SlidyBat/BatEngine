@@ -13,7 +13,6 @@
 #include "Camera.h"
 #include "Texture.h"
 #include "Light.h"
-#include "Scene.h"
 #include "RenderGraph.h"
 #include "Window.h"
 #include "SpriteBatch.h"
@@ -98,16 +97,17 @@ namespace Bat
 
 	void Graphics::BeginFrame()
 	{
-		if( m_pSceneGraph && m_pSceneGraph->GetActiveCamera() )
+		auto pCamera = FindSceneCamera();
+		if( pCamera )
 		{
-			m_pSceneGraph->GetActiveCamera()->Render();
+			pCamera->Render();
 		}
 
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
-		ShaderManager::BindShaderGlobals( m_pSceneGraph->GetActiveCamera(), { (float)m_iScreenWidth, (float)m_iScreenHeight }, gpu->GetContext() );
+		ShaderManager::BindShaderGlobals( pCamera, { (float)m_iScreenWidth, (float)m_iScreenHeight }, gpu->GetContext() );
 	}
 
 	void Graphics::EndFrame()
@@ -123,6 +123,26 @@ namespace Bat
 	DirectX::XMMATRIX Graphics::GetOrthoMatrix() const
 	{
 		return m_matOrtho;
+	}
+
+	Camera* Graphics::FindSceneCamera() const
+	{
+		if( !m_pSceneGraph )
+		{
+			return nullptr;
+		}
+
+		size_t num_childs = m_pSceneGraph->GetNumChildNodes();
+		for( size_t i = 0; i < num_childs; i++ )
+		{
+			Entity e = m_pSceneGraph->GetChildNode( i ).Get();
+			if( world.HasComponent<CameraComponent>( e ) )
+			{
+				return world.GetComponent<CameraComponent>( e ).camera;
+			}
+		}
+
+		return nullptr;
 	}
 
 	void Graphics::RenderScene()

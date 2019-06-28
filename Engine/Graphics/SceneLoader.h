@@ -1,13 +1,13 @@
 #pragma once
 
 #include "PCH.h"
-#include "Scene.h"
+#include "Entity.h"
 
 namespace Bat
 {
 	class SceneLoader
 	{
 	public:
-		static std::unique_ptr<ISceneNode> LoadScene( const std::string& filename );
+		static SceneNode LoadScene( const std::string& filename );
 	};
 }

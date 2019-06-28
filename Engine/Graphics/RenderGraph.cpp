@@ -126,7 +126,7 @@ namespace Bat
 		}
 	}
 
-	void RenderGraph::Render( SceneGraph& scene, IRenderTarget* target )
+	void RenderGraph::Render( SceneNode& scene, IRenderTarget* target )
 	{
 		if( !m_OutputNode )
 		{

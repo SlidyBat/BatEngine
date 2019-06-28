@@ -6,7 +6,7 @@
 #include "Texture.h"
 #include "Console.h"
 #include "Audio.h"
-#include "Scene.h"
+#include "Entity.h"
 #include "RenderGraph.h"
 #include "KeyboardEvents.h"
 
@@ -14,10 +14,7 @@ namespace Bat
 {
 	class Graphics;
 	class Window;
-	class IHost;
-	class IPeer;
-	template <class Application>
-	class Scene;
+	class Light;
 
 	class Application : public ILayer
 	{
@@ -38,8 +35,8 @@ namespace Bat
 		Graphics& gfx;
 		Window& wnd;
 		ISoundEngine* snd;
-		MoveableCamera camera;
-		SceneGraph scene;
+		MoveableCamera* camera;
+		SceneNode scene;
 		RenderGraph rendergraph;
 		Light* flashlight;
 		Light* sun;

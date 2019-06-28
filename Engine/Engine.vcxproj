@@ -250,7 +250,6 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClCompile Include="Platform\COMInitialize.cpp" />
     <ClCompile Include="Graphics\Light.cpp" />
     <ClCompile Include="Core\ResourceManager.cpp" />
-    <ClCompile Include="Graphics\Scene.cpp" />
     <ClCompile Include="Util\JobSystem.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -338,6 +337,8 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="Audio\Audio.h" />
+    <ClInclude Include="CoreEntityComponents.h" />
+    <ClInclude Include="Tree.h" />
     <ClInclude Include="Util\Frustum.h" />
     <ClInclude Include="Graphics\Passes\DrawLightsPass.h" />
     <ClInclude Include="Graphics\Passes\ForwardOpaquePass.h" />
@@ -381,7 +382,6 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Graphics\Light.h" />
     <ClInclude Include="Graphics\Material.h" />
     <ClInclude Include="Core\ResourceManager.h" />
-    <ClInclude Include="Graphics\Scene.h" />
     <ClInclude Include="Util\JobSystem.h" />
     <ClInclude Include="Events\KeyboardEvents.h" />
     <ClInclude Include="Core\Log.h" />

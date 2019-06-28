@@ -1,6 +1,8 @@
 #include "PCH.h"
 #include "IRenderPass.h"
 
+#include "Camera.h"
+
 namespace Bat
 {
 	const std::vector<RenderNode>& BaseRenderPass::GetNodes() const
@@ -40,6 +42,20 @@ namespace Bat
 		node.datatype = datatype;
 
 		m_vNodes.emplace_back( node );
+	}
 
+	Camera* BaseRenderPass::FindCamera( const SceneNode& scene )
+	{
+		size_t num_childs = scene.GetNumChildNodes();
+		for( size_t i = 0; i < num_childs; i++ )
+		{
+			Entity e = scene.GetChildNode( i ).Get();
+			if( world.HasComponent<CameraComponent>( e ) )
+			{
+				return world.GetComponent<CameraComponent>( e ).camera;
+			}
+		}
+
+		return nullptr;
 	}
 }

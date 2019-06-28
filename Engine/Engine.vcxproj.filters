@@ -204,9 +204,6 @@
     <ClCompile Include="Platform\Input.cpp">
       <Filter>Source Files\Platform</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Scene.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Core\ResourceManager.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
@@ -437,9 +434,6 @@
     <ClInclude Include="Platform\Input.h">
       <Filter>Header Files\Platform</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Scene.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Core\ResourceManager.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
@@ -529,6 +523,12 @@
     </ClInclude>
     <ClInclude Include="Graphics\Passes\DrawLightsPass.h">
       <Filter>Header Files\Graphics\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="Tree.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="CoreEntityComponents.h">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
