@@ -108,6 +108,60 @@ namespace Bat
 					// World space mins/maxs
 					Vec3 wmins = DirectX::XMVector3Transform( pMesh->GetMins(), w );
 					Vec3 wmaxs = DirectX::XMVector3Transform( pMesh->GetMaxs(), w );
+					// Re-Aligned space mins/maxs
+					// This just gets the AABB of the rotated AABB of the mesh
+					// Will have lots of empty space, but better than recalculating AABB for rotated mesh vertices
+					// TODO: Put a lot of this stuff in mathlib
+					Vec3 awmins = { FLT_MAX, FLT_MAX, FLT_MAX };
+					Vec3 awmaxs = { FLT_MIN, FLT_MIN, FLT_MIN };
+					if( wmins.x < awmins.x )
+					{
+						awmins.x = wmins.x;
+					}
+					if( wmins.y < awmins.y )
+					{
+						awmins.y = wmins.y;
+					}
+					if( wmins.z < awmins.z )
+					{
+						awmins.z = wmins.z;
+					}
+					if( wmaxs.x < awmins.x )
+					{
+						awmins.x = wmaxs.x;
+					}
+					if( wmaxs.y < awmins.y )
+					{
+						awmins.y = wmaxs.y;
+					}
+					if( wmaxs.z < awmins.z )
+					{
+						awmins.z = wmaxs.z;
+					}
+					if( wmins.x > awmaxs.x )
+					{
+						awmaxs.x = wmins.x;
+					}
+					if( wmins.y > awmaxs.y )
+					{
+						awmaxs.y = wmins.y;
+					}
+					if( wmins.z > awmaxs.z )
+					{
+						awmaxs.z = wmins.z;
+					}
+					if( wmaxs.x > awmaxs.x )
+					{
+						awmaxs.x = wmaxs.x;
+					}
+					if( wmaxs.y > awmaxs.y )
+					{
+						awmaxs.y = wmaxs.y;
+					}
+					if( wmaxs.z > awmaxs.z )
+					{
+						awmaxs.z = wmaxs.z;
+					}
 
 					// View frustum culling on mesh level
 					if( !m_pCamera->GetFrustum().IsBoxInside( wmins, wmaxs ) )
