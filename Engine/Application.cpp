@@ -50,7 +50,6 @@ namespace Bat
 		scene.AddChildNode( cam_ent );
 
 		gfx.SetActiveScene( &scene );
-		scene.Get().Add<TransformComponent>( DirectX::XMMatrixScaling( 0.5f, 0.5f, 0.5f ) );
 
 		BuildRenderGraph();
 		gfx.SetRenderGraph( &rendergraph );
@@ -120,12 +119,12 @@ namespace Bat
 		}
 	}
 
-	static void AddModelTree( Model& model )
+	static void AddModelTree( const ModelComponent& model )
 	{
 		if( ImGui::TreeNode( "Model" ) )
 		{
 			auto meshes = model.GetMeshes();
-			for( auto mesh : meshes )
+			for( const auto& mesh : meshes )
 			{
 				ImGui::Text( mesh->GetName().c_str() );
 			}
@@ -158,7 +157,7 @@ namespace Bat
 
 			if( e.Has<ModelComponent>() )
 			{
-				AddModelTree( e.Get<ModelComponent>().model );
+				AddModelTree( e.Get<ModelComponent>() );
 			}
 			if( e.Has<LightComponent>() )
 			{

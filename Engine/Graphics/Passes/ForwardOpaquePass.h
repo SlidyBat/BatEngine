@@ -3,6 +3,7 @@
 #include "IRenderPass.h"
 #include "Entity.h"
 #include "CoreEntityComponents.h"
+#include "Model.h"
 #include "RenderData.h"
 #include "Graphics.h"
 #include "Mesh.h"
@@ -69,10 +70,12 @@ namespace Bat
 				for( size_t i = 0; i < num_children; i++ )
 				{
 					stack.push( &node->GetChildNode( i ) );
+					
+					Entity child = node->GetChildNode( i ).Get();
 
-					if( e.Has<TransformComponent>() )
+					if( child.Has<TransformComponent>() )
 					{
-						transforms.push( e.Get<TransformComponent>().GetTransform() * transform );
+						transforms.push( child.Get<TransformComponent>().GetTransform() * transform );
 					}
 					else
 					{
@@ -88,12 +91,10 @@ namespace Bat
 
 			if( e.Has<ModelComponent>() )
 			{
-				Model& model = e.Get<ModelComponent>().model;
+				auto& model = e.Get<ModelComponent>();
 
-				DirectX::XMMATRIX w = transform * model.GetWorldMatrix();
+				DirectX::XMMATRIX w = transform;
 				DirectX::XMMATRIX vp = m_pCamera->GetViewMatrix() * m_pCamera->GetProjectionMatrix();
-
-				model.Bind();
 
 				auto& meshes = model.GetMeshes();
 				for( auto& pMesh : meshes )
@@ -157,7 +158,7 @@ namespace Bat
 					}
 
 					// View frustum culling on mesh level
-					if( !m_pCamera->GetFrustum().IsBoxInside( wmins, wmaxs ) )
+					if( !m_pCamera->GetFrustum().IsBoxInside( awmins, awmaxs ) )
 					{
 						continue;
 					}

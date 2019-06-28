@@ -63,9 +63,11 @@ namespace Bat
 				{
 					stack.push( &node->GetChildNode( i ) );
 
-					if( node->Get().Has<TransformComponent>() )
+					Entity child = node->GetChildNode( i ).Get();
+
+					if( child.Has<TransformComponent>() )
 					{
-						transforms.push( node->Get().Get<TransformComponent>().GetTransform() * transform );
+						transforms.push( child.Get<TransformComponent>().GetTransform() * transform );
 					}
 					else
 					{
@@ -77,15 +79,14 @@ namespace Bat
 
 		void Draw( const DirectX::XMMATRIX& transform, const SceneNode& node )
 		{
-			static Model* light_model = nullptr;
+			static Entity* light_model = nullptr;
 			static Material light_material;
 
 			if( !light_model )
 			{
 				static SceneNode light_model_node = SceneLoader::LoadScene( "Assets/sphere.gltf" );
-				Entity light_model_ent = light_model_node.GetChildNode( 2 ).Get();
-				light_model = &light_model_ent.Get<ModelComponent>().model;
-				light_model->SetScale( 5.0f );
+				light_model = &light_model_node.GetChildNode( 2 ).Get();
+				light_model->Get<TransformComponent>().SetScale( 5.0f );
 			}
 
 			Entity e = node.Get();
@@ -97,13 +98,10 @@ namespace Bat
 					auto emissive = light.GetColour() * 3;
 					light_material.SetEmissiveColour( emissive.x, emissive.y, emissive.z );
 
-					DirectX::XMMATRIX w = transform * light_model->GetWorldMatrix();
+					DirectX::XMMATRIX w = light_model->Get<TransformComponent>().GetTransform() * transform;
 					DirectX::XMMATRIX vp = m_pCamera->GetViewMatrix() * m_pCamera->GetProjectionMatrix();
 
-					light_model->SetPosition( e.Get<TransformComponent>().GetPosition() );
-					light_model->Bind();
-
-					auto& meshes = light_model->GetMeshes();
+					auto& meshes = light_model->Get<ModelComponent>().GetMeshes();
 					for( auto& pMesh : meshes )
 					{
 						auto pPipeline = static_cast<LitGenericPipeline*>(ShaderManager::GetPipeline( "litgeneric" ));

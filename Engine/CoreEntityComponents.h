@@ -2,7 +2,6 @@
 
 #include "MathLib.h"
 #include "Entity.h"
-#include "Model.h"
 
 namespace Bat
 {
@@ -28,12 +27,16 @@ namespace Bat
 		TransformComponent& SetPosition( float x, float y, float z ) { position = { x, y, z }; dirty = true; return *this; }
 		TransformComponent& SetPosition( const Vec3& pos ) { return SetPosition( pos.x, pos.y, pos.z ); }
 		const Vec3& GetPosition() const { return position; }
+		void MoveBy( const float dx, const float dy, const float dz ) { SetPosition( position + Vec3{ dx, dy, dz } ); }
+		void MoveBy( const Vec3& delta ) { MoveBy( delta.x, delta.y, delta.z ); }
 
-		TransformComponent& SetRotation( float pitch, float yaw, float roll ) { position = { pitch, yaw, roll }; dirty = true; return *this; }
-		TransformComponent& SetRotation( const Vec3& rot ) { return SetPosition( rot.x, rot.y, rot.z ); }
-		const Vec3& GetRotation() const { return position; }
+		TransformComponent& SetRotation( float pitch, float yaw, float roll ) { rotation = { pitch, yaw, roll }; dirty = true; return *this; }
+		TransformComponent& SetRotation( const Vec3& rot ) { return SetRotation( rot.x, rot.y, rot.z ); }
+		const Vec3& GetRotation() const { return rotation; }
+		void RotateBy( const float dpitch, const float dyaw, const float droll ) { SetRotation( rotation + Vec3{ dpitch, dyaw, droll } ); }
+		void RotateBy( const Vec3& delta ) { MoveBy( delta.x, delta.y, delta.z ); }
 
-		TransformComponent& SetScale( float uniform_scale ) { scale = uniform_scale; return *this; }
+		TransformComponent& SetScale( float uniform_scale ) { scale = uniform_scale; dirty = true; return *this; }
 		float GetScale() const { return scale; }
 
 		const DirectX::XMMATRIX& GetTransform() const
@@ -54,15 +57,5 @@ namespace Bat
 		float scale = 1.0f;
 		Vec3 rotation = { 0.0f, 0.0f, 0.0f };
 		mutable bool dirty = true;
-	};
-
-	struct ModelComponent : public Component<ModelComponent>
-	{
-		ModelComponent( const std::vector<Resource<Mesh>>& meshes )
-			:
-			model( meshes )
-		{}
-
-		Model model;
 	};
 }

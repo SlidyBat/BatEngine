@@ -168,6 +168,22 @@ namespace Bat
 
 			return res;
 		}
+		Vec3& operator+=( const Vec3& rhs )
+		{
+			x += rhs.x;
+			y += rhs.y;
+			z += rhs.z;
+
+			return *this;
+		}
+		Vec3& operator-=( const Vec3& rhs )
+		{
+			x -= rhs.x;
+			y -= rhs.y;
+			z -= rhs.z;
+
+			return *this;
+		}
 
 		operator DirectX::XMVECTOR() const
 		{
