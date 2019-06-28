@@ -12,33 +12,30 @@ namespace Bat
 		SPOT
 	};
 
-	class Light
+	class LightComponent : public Component<LightComponent>
 	{
 	public:
-		Light() = default;
-		
+		LightComponent() = default;
+
 		LightType GetType() const { return m_Type; }
-		void SetType( LightType type ) { m_Type = type; }
+		LightComponent& SetType( LightType type ) { m_Type = type; return *this; }
 
 		bool IsEnabled() const { return m_bEnabled; }
-		void SetEnabled( bool enabled ) { m_bEnabled = enabled; }
+		LightComponent& SetEnabled( bool enabled ) { m_bEnabled = enabled; return *this; }
 
-		Vec3 GetPosition() const { return m_vecPosition; }
-		void SetPosition( const Vec3& pos ) { m_vecPosition = pos; }
 		Vec3 GetDirection() const { return m_vecDirection; }
-		void SetDirection( const Vec3& dir ) { m_vecDirection = dir; }
+		LightComponent& SetDirection( const Vec3& dir ) { m_vecDirection = dir; return *this; }
 		float GetSpotlightAngle() const { return m_flSpotlightAngle; }
-		void SetSpotlightAngle( float ang ) { m_flSpotlightAngle = ang; }
+		LightComponent& SetSpotlightAngle( float ang ) { m_flSpotlightAngle = ang; return *this; }
 		Vec3 GetColour() const { return m_colColour; }
-		void SetColour( const Vec3& colour ) { m_colColour = colour; }
+		LightComponent& SetColour( const Vec3& colour ) { m_colColour = colour; return *this; }
 
 		float GetRange() const { return m_flRange; }
-		void SetRange( float attenuation ) { m_flRange = attenuation; }
+		LightComponent& SetRange( float attenuation ) { m_flRange = attenuation; return *this; }
 
 		float GetIntensity() const { return m_flIntensity; }
-		void SetIntensity( float intensity ) { m_flIntensity = intensity; }
+		LightComponent& SetIntensity( float intensity ) { m_flIntensity = intensity; return *this; }
 	private:
-		Vec3 m_vecPosition = { 0.0f, 0.0f, 0.0f };
 		bool m_bEnabled = true;
 		Vec3 m_vecDirection = { 0.0f, 0.0f, 0.0f };
 		float m_flSpotlightAngle = 1.0f;
@@ -46,16 +43,5 @@ namespace Bat
 		float m_flIntensity = 1.0f;
 		Vec3 m_colColour = { 1.0f, 1.0f, 1.0f };
 		float m_flRange = 1000.0f;
-	};
-
-	struct LightComponent : public Component<LightComponent>
-	{
-		LightComponent() = default;
-		LightComponent( Light light )
-			:
-			light( light )
-		{}
-
-		Light light;
 	};
 }

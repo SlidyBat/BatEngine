@@ -319,7 +319,7 @@ namespace Bat
 	static void ProcessNode( aiNode* pAssimpNode, const aiScene* pAssimpScene, SceneNode& node, const std::string& dir )
 	{
 		Entity e = node.Get();
-		world.AddComponent<NameComponent>( e, pAssimpNode->mName.C_Str() );
+		e.Add<NameComponent>( pAssimpNode->mName.C_Str() );
 
 		if( pAssimpNode->mNumMeshes > 0 )
 		{
@@ -330,7 +330,7 @@ namespace Bat
 				aiMesh* pMesh = pAssimpScene->mMeshes[pAssimpNode->mMeshes[i]];
 				meshes.emplace_back( ProcessMesh( pMesh, pAssimpScene, dir ) );
 			}
-			world.AddComponent<ModelComponent>( e, meshes );
+			e.Add<ModelComponent>( meshes );
 		}
 
 		for( UINT i = 0; i < pAssimpNode->mNumChildren; i++ )
@@ -340,7 +340,7 @@ namespace Bat
 			);
 
 			Entity child = world.CreateEntity();
-			world.AddComponent<TransformComponent>( child, transform );
+			child.Add<TransformComponent>( transform );
 			
 			size_t new_node_idx = node.AddChildNode( child );
 			ProcessNode( pAssimpNode->mChildren[i], pAssimpScene, node.GetChildNode( new_node_idx ), dir );

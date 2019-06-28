@@ -41,9 +41,9 @@ namespace Bat
 			stack.push( &scene );
 
 			DirectX::XMMATRIX transform = DirectX::XMMatrixIdentity();
-			if( world.HasComponent<TransformComponent>( scene.Get() ) )
+			if( scene.Get().Has<TransformComponent>() )
 			{
-				transform = world.GetComponent<TransformComponent>( scene.Get() ).transform;
+				transform = scene.Get().Get<TransformComponent>().GetTransform();
 			}
 			transforms.push( transform );
 
@@ -63,9 +63,9 @@ namespace Bat
 				{
 					stack.push( &node->GetChildNode( i ) );
 
-					if( world.HasComponent<TransformComponent>( node->Get() ) )
+					if( node->Get().Has<TransformComponent>() )
 					{
-						transforms.push( world.GetComponent<TransformComponent>( node->Get() ).transform * transform );
+						transforms.push( node->Get().Get<TransformComponent>().GetTransform() * transform );
 					}
 					else
 					{
@@ -84,23 +84,23 @@ namespace Bat
 			{
 				static SceneNode light_model_node = SceneLoader::LoadScene( "Assets/sphere.gltf" );
 				Entity light_model_ent = light_model_node.GetChildNode( 2 ).Get();
-				light_model = &world.GetComponent<ModelComponent>( light_model_ent ).model;
+				light_model = &light_model_ent.Get<ModelComponent>().model;
 				light_model->SetScale( 5.0f );
 			}
 
 			Entity e = node.Get();
-			if( world.HasComponent<LightComponent>( e ) )
+			if( e.Has<LightComponent>() )
 			{
-				Light* light = &world.GetComponent<LightComponent>( e ).light;
-				if( light->GetType() == LightType::POINT )
+				auto light = e.Get<LightComponent>();
+				if( light.GetType() == LightType::POINT )
 				{
-					auto emissive = light->GetColour() * 3;
+					auto emissive = light.GetColour() * 3;
 					light_material.SetEmissiveColour( emissive.x, emissive.y, emissive.z );
 
 					DirectX::XMMATRIX w = transform * light_model->GetWorldMatrix();
 					DirectX::XMMATRIX vp = m_pCamera->GetViewMatrix() * m_pCamera->GetProjectionMatrix();
 
-					light_model->SetPosition( light->GetPosition() );
+					light_model->SetPosition( e.Get<TransformComponent>().GetPosition() );
 					light_model->Bind();
 
 					auto& meshes = light_model->GetMeshes();

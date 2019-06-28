@@ -9,6 +9,8 @@
 
 namespace Bat
 {
+	class EntityManager;
+
 	class Entity
 	{
 	public:
@@ -39,10 +41,22 @@ namespace Bat
 		static const Id INVALID;
 
 		Entity() = default;
-		Entity( const Id id )
+		Entity( EntityManager& manager, const Id id )
 			:
-			id( id )
+			id( id ),
+			manager( &manager )
 		{}
+
+		template <typename C, typename... Args>
+		C& Add( Args&& ... args );
+		template <typename C>
+		void Remove();
+		template <typename C>
+		C& Get();
+		template <typename C>
+		const C& Get() const;
+		template <typename C>
+		bool Has() const;
 
 		bool operator==( const Entity rhs ) { return id == rhs.id; }
 		bool operator!= (const Entity rhs ) const { return id != rhs.id; }
@@ -50,6 +64,7 @@ namespace Bat
 
 		Id GetId() const { return id; }
 	private:
+		EntityManager* manager = nullptr;
 		Id id;
 	};
 
@@ -94,7 +109,7 @@ namespace Bat
 	class EntityManager : public EventDispatcher
 	{
 	public:
-		EntityManager() { m_EntityVersions.resize( INITIAL_ENTITIES ); }
+		EntityManager() { m_EntityVersions.resize( INITIAL_ENTITIES ); m_EntityComponentMasks.resize( INITIAL_ENTITIES ); }
 		
 		Entity CreateEntity();
 		void DestroyEntity( Entity entity );
@@ -107,6 +122,8 @@ namespace Bat
 		void RemoveComponent( Entity entity );
 		template <typename C>
 		C& GetComponent( Entity entity );
+		template <typename C>
+		const C& GetComponent( Entity entity ) const;
 		template <typename C>
 		bool HasComponent( Entity entity );
 	private:
@@ -123,7 +140,7 @@ namespace Bat
 		uint32_t m_iEntityHead = 0;
 
 		using ComponentMask = std::bitset<MAX_COMPONENTS>;
-		std::vector<ComponentMask> m_EntityComponentMasks{ INITIAL_ENTITIES, 0 };
+		std::vector<ComponentMask> m_EntityComponentMasks;
 		std::array<std::unique_ptr<ChunkedAllocator>, MAX_COMPONENTS> m_pComponentAllocators;
 		std::array<std::unique_ptr<BaseComponentHelper>, MAX_COMPONENTS> m_pComponentHelpers;
 	};
@@ -161,6 +178,19 @@ namespace Bat
 	template<typename C>
 	inline C& EntityManager::GetComponent( Entity entity )
 	{
+		ASSERT( HasComponent<C>( entity ), "Tried to get component we don't have" );
+		const size_t component_idx = C::GetIndex();
+		const size_t entity_idx = entity.GetId().GetIndex();
+		ObjectChunkedAllocator<C>& allocator = GetComponentAllocator<C>();
+
+		C* pComponent = allocator.Get( entity_idx );
+		return *pComponent;
+	}
+
+	template<typename C>
+	inline const C& EntityManager::GetComponent( Entity entity ) const
+	{
+		ASSERT( HasComponent<C>( entity ), "Tried to get component we don't have" );
 		const size_t component_idx = C::GetIndex();
 		const size_t entity_idx = entity.GetId().GetIndex();
 		ObjectChunkedAllocator<C>& allocator = GetComponentAllocator<C>();
@@ -194,6 +224,36 @@ namespace Bat
 		}
 
 		return *static_cast<ObjectChunkedAllocator<C>*>( m_pComponentAllocators[component_idx].get() );
+	}
+
+	template<typename C, typename ...Args>
+	inline C& Entity::Add( Args&& ...args )
+	{
+		return manager->AddComponent<C>( *this, std::forward<Args>( args )... );
+	}
+
+	template<typename C>
+	inline void Entity::Remove()
+	{
+		manager->RemoveComponent<C>( *this );
+	}
+
+	template<typename C>
+	inline C& Entity::Get()
+	{
+		return manager->GetComponent<C>( *this );
+	}
+
+	template<typename C>
+	inline const C& Entity::Get() const
+	{
+		return manager->GetComponent<C>( *this );
+	}
+
+	template<typename C>
+	inline bool Entity::Has() const
+	{
+		return manager->HasComponent<C>( *this );
 	}
 
 	using SceneNode = TreeNode<Entity>;

@@ -37,13 +37,6 @@ namespace Bat
 			m_pContext = pContext;
 			m_pContext->SetDepthStencilEnabled( true );
 
-			DirectX::XMMATRIX transform = DirectX::XMMatrixIdentity();
-			Entity e = scene.Get();
-			if( world.HasComponent<TransformComponent>( e ) )
-			{
-				transform = world.GetComponent<TransformComponent>( e ).transform;
-			}
-
 			Traverse( scene );
 		}
 	private:
@@ -55,9 +48,9 @@ namespace Bat
 			stack.push( &scene );
 
 			DirectX::XMMATRIX transform = DirectX::XMMatrixIdentity();
-			if( world.HasComponent<TransformComponent>( scene.Get() ) )
+			if( scene.Get().Has<TransformComponent>() )
 			{
-				transform = world.GetComponent<TransformComponent>( scene.Get() ).transform;
+				transform = scene.Get().Get<TransformComponent>().GetTransform();
 			}
 			transforms.push( transform );
 
@@ -77,9 +70,9 @@ namespace Bat
 				{
 					stack.push( &node->GetChildNode( i ) );
 
-					if( world.HasComponent<TransformComponent>( node->Get() ) )
+					if( e.Has<TransformComponent>() )
 					{
-						transforms.push( world.GetComponent<TransformComponent>( node->Get() ).transform * transform );
+						transforms.push( e.Get<TransformComponent>().GetTransform() * transform );
 					}
 					else
 					{
@@ -93,9 +86,9 @@ namespace Bat
 		{
 			Entity e = node.Get();
 
-			if( world.HasComponent<ModelComponent>( e ) )
+			if( e.Has<ModelComponent>() )
 			{
-				Model& model = world.GetComponent<ModelComponent>( e ).model;
+				Model& model = e.Get<ModelComponent>().model;
 
 				DirectX::XMMATRIX w = transform * model.GetWorldMatrix();
 				DirectX::XMMATRIX vp = m_pCamera->GetViewMatrix() * m_pCamera->GetProjectionMatrix();
@@ -182,15 +175,15 @@ namespace Bat
 		void GetLights( SceneNode& node )
 		{
 			Entity e = node.Get();
-			if( world.HasComponent<LightComponent>( e ) )
+			if( e.Has<LightComponent>() )
 			{
-				Light& light = world.GetComponent<LightComponent>( e ).light;
+				auto light = e.Get<LightComponent>();
 
 				// View frustum culling
 				if( light.GetType() != LightType::POINT ||
-					m_pCamera->GetFrustum().IsSphereInside( light.GetPosition(), light.GetRange() ) )
+					m_pCamera->GetFrustum().IsSphereInside( e.Get<TransformComponent>().GetPosition(), light.GetRange() ) )
 				{
-					m_Lights.push_back( &light );
+					m_Lights.push_back( e );
 				}
 			}
 
@@ -202,7 +195,7 @@ namespace Bat
 		}
 	private:
 		Camera* m_pCamera = nullptr;
-		std::vector<Light*> m_Lights;
+		std::vector<Entity> m_Lights;
 		IGPUContext* m_pContext = nullptr;
 	};
 }

@@ -10,7 +10,7 @@ namespace Bat
 {
 	struct LitGenericPipelineParameters : public IPipelineParameters
 	{
-		LitGenericPipelineParameters( DirectX::XMMATRIX world, DirectX::XMMATRIX viewproj, Material& material, const std::vector<Light*>& lights )
+		LitGenericPipelineParameters( DirectX::XMMATRIX world, DirectX::XMMATRIX viewproj, Material& material, const std::vector<Entity>& lights )
 			:
 			world( world ),
 			viewproj( viewproj ),
@@ -22,7 +22,7 @@ namespace Bat
 		DirectX::XMMATRIX viewproj;
 
 		Material& material;
-		const std::vector<Light*>& lights;
+		const std::vector<Entity>& lights;
 	};
 
 	class LitGenericPipeline : public IPipeline

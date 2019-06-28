@@ -1,5 +1,6 @@
 #include "PCH.h"
 
+#include "CoreEntityComponents.h"
 #include "Camera.h"
 #include "LitGenericPipeline.h"
 #include "VertexTypes.h"
@@ -54,18 +55,20 @@ namespace Bat
 				break;
 			}
 
-			if( !params.lights[i]->IsEnabled() )
+			auto l = params.lights[i].Get<LightComponent>();
+
+			if( !l.IsEnabled() )
 			{
 				continue;
 			}
 
-			lights.lights[j].Position = params.lights[i]->GetPosition();
-			lights.lights[j].Direction = params.lights[i]->GetDirection();
-			lights.lights[j].SpotlightAngle = params.lights[i]->GetSpotlightAngle();
-			lights.lights[j].Colour = params.lights[i]->GetColour();
-			lights.lights[j].Range = params.lights[i]->GetRange();
-			lights.lights[j].Intensity = params.lights[i]->GetIntensity();
-			lights.lights[j].Type = (int)params.lights[i]->GetType();
+			lights.lights[j].Position = params.lights[i].Get<TransformComponent>().GetPosition();
+			lights.lights[j].Direction = l.GetDirection();
+			lights.lights[j].SpotlightAngle = l.GetSpotlightAngle();
+			lights.lights[j].Colour = l.GetColour();
+			lights.lights[j].Range = l.GetRange();
+			lights.lights[j].Intensity = l.GetIntensity();
+			lights.lights[j].Type = (int)l.GetType();
 
 			j++;
 		}

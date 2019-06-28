@@ -25,8 +25,11 @@ namespace Bat
 		}
 
 		Entity::Id id( idx, version );
-		m_EntityComponentMasks.resize( idx + 1 );
-		Entity entity( id );
+		if( idx + 1 > m_EntityComponentMasks.size() )
+		{
+			m_EntityComponentMasks.resize( idx + 1 );
+		}
+		Entity entity( *this, id );
 
 		DispatchEvent<EntityCreatedEvent>( entity );
 

@@ -38,8 +38,8 @@ namespace Bat
 		MoveableCamera* camera;
 		SceneNode scene;
 		RenderGraph rendergraph;
-		Light* flashlight;
-		Light* sun;
+		Entity flashlight;
+		Entity sun;
 
 		float bloom_threshold = 1.0f;
 

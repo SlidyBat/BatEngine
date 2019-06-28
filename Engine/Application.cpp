@@ -30,26 +30,27 @@ namespace Bat
 		wnd( wnd ),
 		scene( SceneLoader::LoadScene( "Assets/Ignore/Sponza/Sponza.gltf" ) )
 	{
-		Entity flashlight_ent = world.CreateEntity();
-		flashlight = &world.AddComponent<LightComponent>( flashlight_ent ).light;
-		flashlight->SetType( LightType::SPOT );
-		flashlight->SetSpotlightAngle( 0.5f );
-		scene.AddChildNode( flashlight_ent );
+		flashlight = world.CreateEntity();
+		flashlight.Add<LightComponent>()
+			.SetType( LightType::SPOT )
+			.SetSpotlightAngle( 0.5f );
+		flashlight.Add<TransformComponent>();
+		scene.AddChildNode( flashlight );
 
-		Entity sun_ent = world.CreateEntity();
-		sun = &world.AddComponent<LightComponent>( sun_ent ).light;
-		sun->SetType( LightType::DIRECTIONAL );
-		sun->SetEnabled( false );
-		scene.AddChildNode( sun_ent );
+		sun = world.CreateEntity();
+		sun.Add<LightComponent>()	
+			.SetType( LightType::DIRECTIONAL )
+			.SetEnabled( false );
+		scene.AddChildNode( sun );
 
 		Entity cam_ent = world.CreateEntity();
 		camera = new MoveableCamera( wnd.input, 250.0f, 100.0f );
 		camera->SetPosition( { 0.0f, 0.0f, -10.0f } );
-		world.AddComponent<CameraComponent>( cam_ent, camera );
+		cam_ent.Add<CameraComponent>( camera );
 		scene.AddChildNode( cam_ent );
 
 		gfx.SetActiveScene( &scene );
-		world.AddComponent<TransformComponent>( scene.Get(), DirectX::XMMatrixScaling( 0.5f, 0.5f, 0.5f ) );
+		scene.Get().Add<TransformComponent>( DirectX::XMMatrixScaling( 0.5f, 0.5f, 0.5f ) );
 
 		BuildRenderGraph();
 		gfx.SetRenderGraph( &rendergraph );
@@ -82,7 +83,8 @@ namespace Bat
 
 		g_Console.AddCommand( "sun_toggle", [&sun = sun]( const CommandArgs_t & args )
 		{
-			sun->SetEnabled( !sun->IsEnabled() );
+			LightComponent& l = sun.Get<LightComponent>();
+			l.SetEnabled( !l.IsEnabled() );
 		} );
 	}
 
@@ -104,8 +106,8 @@ namespace Bat
 		}
 
 		camera->Update( deltatime );
-		flashlight->SetPosition( camera->GetPosition() );
-		flashlight->SetDirection( camera->GetLookAtVector() );
+		flashlight.Get<TransformComponent>().SetPosition( camera->GetPosition() );
+		flashlight.Get<LightComponent>().SetDirection( camera->GetLookAtVector() );
 		snd->SetListenerPosition( camera->GetPosition(), camera->GetLookAtVector() );
 
 		if( bloom_enabled )
@@ -139,7 +141,7 @@ namespace Bat
 		std::string name;
 		if( world.HasComponent<NameComponent>( e ) )
 		{
-			name = world.GetComponent<NameComponent>( e ).name;
+			name = e.Get<NameComponent>().name;
 		}
 		else
 		{
@@ -154,15 +156,15 @@ namespace Bat
 				AddNodeTree( node.GetChildNode( i ) );
 			}
 
-			if( world.HasComponent<ModelComponent>( e ) )
+			if( e.Has<ModelComponent>() )
 			{
-				AddModelTree( world.GetComponent<ModelComponent>( e ).model );
+				AddModelTree( e.Get<ModelComponent>().model );
 			}
-			if( world.HasComponent<LightComponent>( e ) )
+			if( e.Has<LightComponent>() )
 			{
 				ImGui::Text( "Light" );
 			}
-			if( world.HasComponent<CameraComponent>( e ) )
+			if( e.Has<CameraComponent>() )
 			{
 				ImGui::Text( "Camera" );
 			}
@@ -206,20 +208,22 @@ namespace Bat
 		}
 		else if( e.key == 'C' )
 		{
-			Entity light_ent = world.CreateEntity();
-			Light* light = &world.AddComponent<LightComponent>( light_ent ).light;
-			light->SetPosition( camera->GetPosition() );
-			light->SetRange( 250.0f );
-			scene.AddChildNode( light_ent );
+			Entity light = world.CreateEntity();
+			light.Add<LightComponent>()
+				.SetRange( 250.0f );
+			light.Add<TransformComponent>()
+				.SetPosition( camera->GetPosition() );
+			scene.AddChildNode( light );
 		}
 		else if( e.key == 'F' )
 		{
-			flashlight->SetEnabled( !flashlight->IsEnabled() );
+			auto& l = flashlight.Get<LightComponent>();
+			l.SetEnabled( !l.IsEnabled() );
 			snd->Play( "Assets/click.wav" );
 		}
 		else if( e.key == 'P' )
 		{
-			sun->SetDirection( camera->GetLookAtVector() );
+			sun.Get<LightComponent>().SetDirection( camera->GetLookAtVector() );
 		}
 		else if( e.key == 'I' )
 		{

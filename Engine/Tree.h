@@ -35,6 +35,7 @@ namespace Bat
 			m_ChildNodes.erase( m_ChildNodes.begin() + idx );
 		}
 
+		T& Get() { return m_Value; }
 		const T& Get() const { return m_Value; }
 		void Set( T value ) { m_Value = value; }
 	private:
