@@ -64,14 +64,4 @@ namespace Bat
 		DirectX::XMMATRIX m_matProjMatrix;
 		DirectX::XMMATRIX m_matViewMatrix;
 	};
-
-	struct CameraComponent : public Component<CameraComponent>
-	{
-		CameraComponent( Camera* camera )
-			:
-			camera( camera )
-		{}
-
-		Camera* camera;
-	};
 }

@@ -34,6 +34,9 @@ namespace Bat
 		SceneNode* GetActiveScene() const { return m_pSceneGraph; }
 		void SetActiveScene( SceneNode* pSceneGraph ) { m_pSceneGraph = pSceneGraph; }
 
+		Camera* GetActiveCamera() const { return m_pCamera; }
+		void SetActiveCamera( Camera* pCamera ) { m_pCamera = pCamera; }
+
 		BatUI& UI() { return m_UI; }
 		const BatUI& UI() const { return m_UI; }
 
@@ -56,6 +59,7 @@ namespace Bat
 		int m_iScreenHeight = InitialScreenHeight;
 
 		SceneNode* m_pSceneGraph;
+		Camera* m_pCamera;
 
 		RenderGraph* m_pRenderGraph = nullptr;
 

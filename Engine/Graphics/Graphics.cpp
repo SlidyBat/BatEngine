@@ -97,17 +97,16 @@ namespace Bat
 
 	void Graphics::BeginFrame()
 	{
-		auto pCamera = FindSceneCamera();
-		if( pCamera )
+		if( m_pCamera )
 		{
-			pCamera->Render();
+			m_pCamera->Render();
 		}
 
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
-		ShaderManager::BindShaderGlobals( pCamera, { (float)m_iScreenWidth, (float)m_iScreenHeight }, gpu->GetContext() );
+		ShaderManager::BindShaderGlobals( m_pCamera, { (float)m_iScreenWidth, (float)m_iScreenHeight }, gpu->GetContext() );
 	}
 
 	void Graphics::EndFrame()
@@ -125,32 +124,12 @@ namespace Bat
 		return m_matOrtho;
 	}
 
-	Camera* Graphics::FindSceneCamera() const
-	{
-		if( !m_pSceneGraph )
-		{
-			return nullptr;
-		}
-
-		size_t num_childs = m_pSceneGraph->GetNumChildNodes();
-		for( size_t i = 0; i < num_childs; i++ )
-		{
-			Entity e = m_pSceneGraph->GetChildNode( i ).Get();
-			if( world.HasComponent<CameraComponent>( e ) )
-			{
-				return world.GetComponent<CameraComponent>( e ).camera;
-			}
-		}
-
-		return nullptr;
-	}
-
 	void Graphics::RenderScene()
 	{
-		if( m_pSceneGraph && m_pRenderGraph )
+		if( m_pSceneGraph && m_pCamera && m_pRenderGraph )
 		{
 			// nullptr RT is backbuffer
-			m_pRenderGraph->Render( *m_pSceneGraph, nullptr );
+			m_pRenderGraph->Render( *m_pCamera, *m_pSceneGraph, nullptr );
 		}
 	}
 

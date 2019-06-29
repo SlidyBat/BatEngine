@@ -66,7 +66,7 @@ namespace Bat
 
 		void SetThreshold( float threshold ) { m_flThreshold = threshold; }
 
-		virtual void Execute( IGPUContext* pContext, SceneNode& scene, RenderData& data )
+		virtual void Execute( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data )
 		{
 			pContext->SetDepthStencilEnabled( false );
 			pContext->SetDepthStencil( nullptr );

@@ -21,9 +21,9 @@ namespace Bat
 			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TEXTURE );
 		}
 
-		virtual void Execute( IGPUContext* pContext, SceneNode& scene, RenderData& data ) override
+		virtual void Execute( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data ) override
 		{
-			m_pCamera = FindCamera( scene );
+			m_pCamera = &camera;
 			if( !m_pCamera )
 			{
 				return;
@@ -41,51 +41,7 @@ namespace Bat
 			Traverse( scene );
 		}
 	private:
-		void Traverse( const SceneNode& scene )
-		{
-			std::stack<const SceneNode*> stack;
-			std::stack<DirectX::XMMATRIX> transforms;
-
-			stack.push( &scene );
-
-			DirectX::XMMATRIX transform = DirectX::XMMatrixIdentity();
-			if( scene.Get().Has<TransformComponent>() )
-			{
-				transform = scene.Get().Get<TransformComponent>().GetTransform();
-			}
-			transforms.push( transform );
-
-			while( !stack.empty() )
-			{
-				const SceneNode* node = stack.top();
-				stack.pop();
-				transform = transforms.top();
-				transforms.pop();
-
-				Entity e = node->Get();
-
-				Draw( transform, *node );
-
-				size_t num_children = node->GetNumChildNodes();
-				for( size_t i = 0; i < num_children; i++ )
-				{
-					stack.push( &node->GetChildNode( i ) );
-					
-					Entity child = node->GetChildNode( i ).Get();
-
-					if( child.Has<TransformComponent>() )
-					{
-						transforms.push( child.Get<TransformComponent>().GetTransform() * transform );
-					}
-					else
-					{
-						transforms.push( transform );
-					}
-				}
-			}
-		}
-
-		void Draw( const DirectX::XMMATRIX& transform, const SceneNode& node )
+		virtual void Visit( const DirectX::XMMATRIX& transform, const SceneNode& node ) override
 		{
 			Entity e = node.Get();
 

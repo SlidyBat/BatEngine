@@ -28,6 +28,7 @@ namespace Bat
 		:
 		gfx( gfx ),
 		wnd( wnd ),
+		camera( wnd.input, 250.0f, 100.0f ),
 		scene( SceneLoader::LoadScene( "Assets/Ignore/Sponza/Sponza.gltf" ) )
 	{
 		flashlight = world.CreateEntity();
@@ -43,13 +44,10 @@ namespace Bat
 			.SetEnabled( false );
 		scene.AddChildNode( sun );
 
-		Entity cam_ent = world.CreateEntity();
-		camera = new MoveableCamera( wnd.input, 250.0f, 100.0f );
-		camera->SetPosition( { 0.0f, 0.0f, -10.0f } );
-		cam_ent.Add<CameraComponent>( camera );
-		scene.AddChildNode( cam_ent );
+		camera.SetPosition( { 0.0f, 0.0f, -10.0f } );
 
 		gfx.SetActiveScene( &scene );
+		gfx.SetActiveCamera( &camera );
 
 		BuildRenderGraph();
 		gfx.SetRenderGraph( &rendergraph );
@@ -77,7 +75,7 @@ namespace Bat
 		g_Console.AddCommand( "cam_speed", [&cam = camera]( const CommandArgs_t& args )
 		{
 			float speed = std::stof( std::string( args[1] ) );
-			cam->SetSpeed( speed );
+			cam.SetSpeed( speed );
 		} );
 
 		g_Console.AddCommand( "sun_toggle", [&sun = sun]( const CommandArgs_t & args )
@@ -90,7 +88,6 @@ namespace Bat
 	Application::~Application()
 	{
 		delete snd;
-		delete camera;
 	}
 
 	void Application::OnUpdate( float deltatime )
@@ -104,10 +101,10 @@ namespace Bat
 			elapsed_time -= 1.0f;
 		}
 
-		camera->Update( deltatime );
-		flashlight.Get<TransformComponent>().SetPosition( camera->GetPosition() );
-		flashlight.Get<LightComponent>().SetDirection( camera->GetLookAtVector() );
-		snd->SetListenerPosition( camera->GetPosition(), camera->GetLookAtVector() );
+		camera.Update( deltatime );
+		flashlight.Get<TransformComponent>().SetPosition( camera.GetPosition() );
+		flashlight.Get<LightComponent>().SetDirection( camera.GetLookAtVector() );
+		snd->SetListenerPosition( camera.GetPosition(), camera.GetLookAtVector() );
 
 		if( bloom_enabled )
 		{
@@ -163,10 +160,6 @@ namespace Bat
 			{
 				ImGui::Text( "Light" );
 			}
-			if( e.Has<CameraComponent>() )
-			{
-				ImGui::Text( "Camera" );
-			}
 
 			ImGui::TreePop();
 		}
@@ -211,7 +204,7 @@ namespace Bat
 			light.Add<LightComponent>()
 				.SetRange( 250.0f );
 			light.Add<TransformComponent>()
-				.SetPosition( camera->GetPosition() );
+				.SetPosition( camera.GetPosition() );
 			scene.AddChildNode( light );
 		}
 		else if( e.key == 'F' )
@@ -222,7 +215,7 @@ namespace Bat
 		}
 		else if( e.key == 'P' )
 		{
-			sun.Get<LightComponent>().SetDirection( camera->GetLookAtVector() );
+			sun.Get<LightComponent>().SetDirection( camera.GetLookAtVector() );
 		}
 		else if( e.key == 'I' )
 		{

@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <stack>
 
 #include "Entity.h"
 #include "RenderNode.h"
@@ -21,7 +22,7 @@ namespace Bat
 		virtual const std::vector<RenderNode>& GetNodes() const = 0;
 		virtual NodeType GetNodeType( const std::string& name ) const = 0;
 		virtual NodeDataType GetNodeDataType( const std::string& name ) const = 0;
-		virtual void Execute( IGPUContext* pContext, SceneNode& scene, RenderData& data ) = 0;
+		virtual void Execute( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data ) = 0;
 	};
 
 	class BaseRenderPass : public IRenderPass
@@ -31,9 +32,12 @@ namespace Bat
 		virtual const std::vector<RenderNode>& GetNodes() const override;
 		virtual NodeType GetNodeType( const std::string& name ) const override;
 		virtual NodeDataType GetNodeDataType( const std::string& name ) const override;
+
+		virtual void Visit( const DirectX::XMMATRIX& transform, const SceneNode& node ) {};
 	protected:
 		void AddRenderNode( std::string name, NodeType type, NodeDataType datatype );
-		Camera* FindCamera( const SceneNode& scene );
+
+		void Traverse( const SceneNode& scene );
 	private:
 		std::vector<RenderNode> m_vNodes;
 	};

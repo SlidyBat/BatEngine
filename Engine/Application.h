@@ -35,7 +35,7 @@ namespace Bat
 		Graphics& gfx;
 		Window& wnd;
 		ISoundEngine* snd;
-		MoveableCamera* camera;
+		MoveableCamera camera;
 		SceneNode scene;
 		RenderGraph rendergraph;
 		Entity flashlight;

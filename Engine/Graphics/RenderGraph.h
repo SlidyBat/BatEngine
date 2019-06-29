@@ -6,6 +6,7 @@
 #include <optional>
 
 #include "Entity.h"
+#include "Camera.h"
 #include "RenderNode.h"
 
 namespace Bat
@@ -43,7 +44,7 @@ namespace Bat
 		//     MarkOutput( "Bloom.src" );
 		void MarkOutput( const std::string& out );
 
-		void Render( SceneNode& scene, IRenderTarget* pTarget );
+		void Render( Camera& camera, SceneNode& scene, IRenderTarget* pTarget );
 
 		// Clears all current resources
 		void ResetResources();

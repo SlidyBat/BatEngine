@@ -24,7 +24,7 @@ namespace Bat
 			return "Renders skybox. Ideally this should be after all geometry has been rendered so that most of the pixels are occluded";
 		}
 
-		virtual void Execute( IGPUContext* pContext, SceneNode& scene, RenderData& data ) override
+		virtual void Execute( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data ) override
 		{
 			pContext->SetDepthStencilEnabled( true );
 
@@ -33,10 +33,9 @@ namespace Bat
 
 			if( ITexture* pSkybox = data.GetTexture( "skyboxtex" ) )
 			{
-				Camera* cam = FindCamera( scene );
-				auto pos = cam->GetPosition();
+				auto pos = camera.GetPosition();
 				auto w = DirectX::XMMatrixTranslation( pos.x, pos.y, pos.z );
-				auto t = w * cam->GetViewMatrix() * cam->GetProjectionMatrix();
+				auto t = w * camera.GetViewMatrix() * camera.GetProjectionMatrix();
 
 				SkyboxPipelineParameters params( t, pSkybox );
 				auto pPipeline = ShaderManager::GetPipeline( "skybox" );

@@ -1,6 +1,7 @@
 #include "PCH.h"
 #include "IRenderPass.h"
 
+#include "CoreEntityComponents.h"
 #include "Camera.h"
 
 namespace Bat
@@ -44,18 +45,47 @@ namespace Bat
 		m_vNodes.emplace_back( node );
 	}
 
-	Camera* BaseRenderPass::FindCamera( const SceneNode& scene )
+	void BaseRenderPass::Traverse( const SceneNode& scene )
 	{
-		size_t num_childs = scene.GetNumChildNodes();
-		for( size_t i = 0; i < num_childs; i++ )
+		std::stack<const SceneNode*> stack;
+		std::stack<DirectX::XMMATRIX> transforms;
+
+		stack.push( &scene );
+
+		DirectX::XMMATRIX transform = DirectX::XMMatrixIdentity();
+		if( scene.Get().Has<TransformComponent>() )
 		{
-			Entity e = scene.GetChildNode( i ).Get();
-			if( world.HasComponent<CameraComponent>( e ) )
+			transform = scene.Get().Get<TransformComponent>().GetTransform();
+		}
+		transforms.push( transform );
+
+		while( !stack.empty() )
+		{
+			const SceneNode* node = stack.top();
+			stack.pop();
+			transform = transforms.top();
+			transforms.pop();
+
+			Entity e = node->Get();
+
+			Visit( transform, *node );
+
+			size_t num_children = node->GetNumChildNodes();
+			for( size_t i = 0; i < num_children; i++ )
 			{
-				return world.GetComponent<CameraComponent>( e ).camera;
+				stack.push( &node->GetChildNode( i ) );
+
+				Entity child = node->GetChildNode( i ).Get();
+
+				if( child.Has<TransformComponent>() )
+				{
+					transforms.push( child.Get<TransformComponent>().GetTransform() * transform );
+				}
+				else
+				{
+					transforms.push( transform );
+				}
 			}
 		}
-
-		return nullptr;
 	}
 }

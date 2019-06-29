@@ -126,7 +126,7 @@ namespace Bat
 		}
 	}
 
-	void RenderGraph::Render( SceneNode& scene, IRenderTarget* target )
+	void RenderGraph::Render( Camera& camera, SceneNode& scene, IRenderTarget* target )
 	{
 		if( !m_OutputNode )
 		{
@@ -172,7 +172,7 @@ namespace Bat
 			}
 
 			// run the pass
-			m_vRenderPasses[i]->Execute( gpu->GetContext(), scene, data );
+			m_vRenderPasses[i]->Execute( gpu->GetContext(), camera, scene, data );
 		}
 	}
 
