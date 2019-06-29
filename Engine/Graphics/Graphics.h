@@ -3,7 +3,7 @@
 #include "IGPUDevice.h"
 #include "ResourceManager.h"
 #include "Entity.h"
-#include "UI/BatUI.h"
+#include "UI/HtmlUI.h"
 
 namespace DirectX
 {
@@ -37,8 +37,8 @@ namespace Bat
 		Camera* GetActiveCamera() const { return m_pCamera; }
 		void SetActiveCamera( Camera* pCamera ) { m_pCamera = pCamera; }
 
-		BatUI& UI() { return m_UI; }
-		const BatUI& UI() const { return m_UI; }
+		HtmlUI& UI() { return m_UI; }
+		const HtmlUI& UI() const { return m_UI; }
 
 		void SetRenderGraph( RenderGraph* graph );
 
@@ -47,8 +47,6 @@ namespace Bat
 
 		DirectX::XMMATRIX GetOrthoMatrix() const;
 	private:
-		Camera* FindSceneCamera() const;
-
 		void RenderScene();
 		void RenderUI();
 		void RenderImGui();
@@ -64,7 +62,7 @@ namespace Bat
 		RenderGraph* m_pRenderGraph = nullptr;
 
 		// UI
-		BatUI m_UI;
+		HtmlUI m_UI;
 	public:
 		static constexpr bool	FullScreen = false;
 		static constexpr int	VSyncEnabled = false;

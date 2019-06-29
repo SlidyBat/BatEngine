@@ -50,7 +50,7 @@ namespace Bat
 		void StartWatchingFile( const std::string& filename );
 		void StopWatchingFile();
 	private:
-		friend class BatUI;
+		friend class HtmlUI;
 
 		int m_iWidth;
 		int m_iHeight;
@@ -69,10 +69,10 @@ namespace Bat
 		FileWatchHandle_t m_hWatchHandle = FileWatchdog::INVALID_WATCH_HANDLE;
 	};
 
-	class BatUI
+	class HtmlUI
 	{
 	public:
-		BatUI( Window& wnd );
+		HtmlUI( Window& wnd );
 
 		void Update();
 		void Render();

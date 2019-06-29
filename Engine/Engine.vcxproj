@@ -223,7 +223,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClCompile Include="Graphics\RenderData.cpp" />
     <ClCompile Include="Graphics\RenderGraph.cpp" />
     <ClCompile Include="Graphics\ShaderManager.cpp" />
-    <ClCompile Include="Graphics\UI\BatUI.cpp" />
+    <ClCompile Include="Graphics\UI\HtmlUI.cpp" />
     <ClCompile Include="Graphics\UI\UltralightAdapters\FileSystemBasic.cpp" />
     <ClCompile Include="Graphics\UI\UltralightAdapters\FontLoaderWin.cpp" />
     <ClCompile Include="Graphics\UI\UltralightAdapters\GPUDriverD3D11.cpp" />
@@ -362,7 +362,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Core\Entity.h" />
     <ClInclude Include="Core\EntityEvents.h" />
     <ClInclude Include="Events\NetworkEvents.h" />
-    <ClInclude Include="Graphics\UI\BatUI.h" />
+    <ClInclude Include="Graphics\UI\HtmlUI.h" />
     <ClInclude Include="Graphics\UI\UltralightAdapters\FileSystemBasic.h" />
     <ClInclude Include="Graphics\UI\UltralightAdapters\FontLoaderWin.h" />
     <ClInclude Include="Graphics\UI\UltralightAdapters\GPUDriverD3D11.h" />

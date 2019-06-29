@@ -1,5 +1,5 @@
 #include "PCH.h"
-#include "BatUI.h"
+#include "HtmlUI.h"
 
 #include "UI/UltralightAdapters/GPUDriverD3D11.h"
 #include "UI/UltralightAdapters/PlatformD3D11.h"
@@ -280,7 +280,7 @@ namespace Bat
 		}
 	}
 
-	BatUI::BatUI( Window& wnd )
+	HtmlUI::HtmlUI( Window& wnd )
 		:
 		wnd( wnd ),
 		gpu_context( std::make_unique<BatPlatformD3D11>( wnd ) )
@@ -303,12 +303,12 @@ namespace Bat
 		renderer = Renderer::Create();
 	}
 
-	void BatUI::Update()
+	void HtmlUI::Update()
 	{
 		renderer->Update();
 	}
 
-	void BatUI::Render()
+	void HtmlUI::Render()
 	{
 		gpu_driver->BeginSynchronize();
 
@@ -324,7 +324,7 @@ namespace Bat
 		DrawOverlays();
 	}
 
-	Overlay* BatUI::CreateOverlay( int width, int height, const Vei2& pos, float scale/* = 1.0f*/ )
+	Overlay* HtmlUI::CreateOverlay( int width, int height, const Vei2& pos, float scale/* = 1.0f*/ )
 	{
 
 		Overlay* pOverlay = overlay_allocator.AllocObject( *renderer, gpu_driver.get(), wnd, width, height, pos, scale );
@@ -332,7 +332,7 @@ namespace Bat
 		return pOverlay;
 	}
 
-	void BatUI::DeleteOverlay( Overlay* pOverlay )
+	void HtmlUI::DeleteOverlay( Overlay* pOverlay )
 	{
 		overlay_allocator.FreeObject( pOverlay );
 		overlays.erase(
@@ -341,7 +341,7 @@ namespace Bat
 		);
 	}
 
-	void BatUI::DrawOverlays()
+	void HtmlUI::DrawOverlays()
 	{
 		for( Overlay* pOverlay : overlays )
 		{
