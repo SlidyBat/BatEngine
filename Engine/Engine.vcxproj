@@ -337,8 +337,8 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="Audio\Audio.h" />
-    <ClInclude Include="CoreEntityComponents.h" />
-    <ClInclude Include="Tree.h" />
+    <ClInclude Include="Core\CoreEntityComponents.h" />
+    <ClInclude Include="Util\Tree.h" />
     <ClInclude Include="Util\Frustum.h" />
     <ClInclude Include="Graphics\Passes\DrawLightsPass.h" />
     <ClInclude Include="Graphics\Passes\ForwardOpaquePass.h" />
