@@ -7,6 +7,7 @@
 #include "SceneLoader.h"
 #include "FileWatchdog.h"
 
+#include "CoreEntityComponents.h"
 #include "WindowEvents.h"
 #include "MouseEvents.h"
 #include "NetworkEvents.h"
@@ -28,21 +29,25 @@ namespace Bat
 		:
 		gfx( gfx ),
 		wnd( wnd ),
-		camera( wnd.input, 250.0f, 100.0f ),
-		scene( SceneLoader::LoadScene( "Assets/Ignore/Sponza/Sponza.gltf" ) )
+		camera( wnd.input, 2.0f, 100.0f )
 	{
+		scene.Set( world.CreateEntity() ); // Root entity;
+		size_t sponza = scene.AddChild( SceneLoader::LoadScene( "Assets/Ignore/Sponza/Sponza.gltf" ) );
+
 		flashlight = world.CreateEntity();
 		flashlight.Add<LightComponent>()
 			.SetType( LightType::SPOT )
 			.SetSpotlightAngle( 0.5f );
 		flashlight.Add<TransformComponent>();
-		scene.AddChildNode( flashlight );
+		scene.AddChild( flashlight );
 
 		sun = world.CreateEntity();
 		sun.Add<LightComponent>()	
 			.SetType( LightType::DIRECTIONAL )
 			.SetEnabled( false );
-		scene.AddChildNode( sun );
+		scene.AddChild( sun );
+
+		scene.GetChild( sponza ).Get().Add<TransformComponent>().SetScale( 0.01f );
 
 		camera.SetPosition( { 0.0f, 0.0f, -10.0f } );
 
@@ -52,8 +57,14 @@ namespace Bat
 		BuildRenderGraph();
 		gfx.SetRenderGraph( &rendergraph );
 
+		// Initialize sound device
 		snd = Audio::CreateSoundPlaybackDevice();
 		snd->SetListenerPosition( { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f } );
+
+		// Initialize physics objects
+		Physics::EnableFixedTimestep( 1.0f / 60.0f );
+		floor = Physics::CreateStaticObject( DirectX::XMMatrixRotationZ( Math::PI / 2.0f ) );
+		floor->AddPlaneShape();
 
 		wnd.input.AddEventListener<KeyPressedEvent>( *this );
 
@@ -66,7 +77,7 @@ namespace Bat
 
 		g_Console.AddCommand( "add_model", [&scene = scene, &cam = camera]( const CommandArgs_t& args )
 		{
-			scene->AddChildNode( SceneLoader::LoadScene( std::string( args[1] ) ) );
+			scene->AddChild( SceneLoader::LoadScene( std::string( args[1] ) ) );
 
 			auto pos = cam.GetPosition();
 			scene->GetChildNodes().back()->SetTransform( DirectX::XMMatrixTranslation( pos.x, pos.y, pos.z ) );
@@ -106,6 +117,13 @@ namespace Bat
 		flashlight.Get<LightComponent>().SetDirection( camera.GetLookAtVector() );
 		snd->SetListenerPosition( camera.GetPosition(), camera.GetLookAtVector() );
 
+		// Sync light entity transform with physics object transform
+		// Only manually for now
+		for( size_t i = 0; i < lights.size(); i++ )
+		{
+			lights[i].Get<TransformComponent>().SetTransform( lights_phys[i]->GetTransform() );
+		}
+
 		if( bloom_enabled )
 		{
 			auto bloom = static_cast<BloomPass*>( rendergraph.GetPassByName( "bloom" ) );
@@ -114,6 +132,8 @@ namespace Bat
 				bloom->SetThreshold( bloom_threshold );
 			}
 		}
+
+		Physics::Simulate( deltatime );
 	}
 
 	static void AddModelTree( const ModelComponent& model )
@@ -146,10 +166,10 @@ namespace Bat
 
 		if( ImGui::TreeNode( name.c_str() ) )
 		{
-			size_t num_children = node.GetNumChildNodes();
+			size_t num_children = node.GetNumChildren();
 			for( size_t i = 0; i < num_children; i++ )
 			{
-				AddNodeTree( node.GetChildNode( i ) );
+				AddNodeTree( node.GetChild( i ) );
 			}
 
 			if( e.Has<ModelComponent>() )
@@ -170,6 +190,7 @@ namespace Bat
 		if( imgui_menu_enabled )
 		{
 			ImGui::Text( "FPS: %s", fps_string.c_str() );
+			ImGui::Text( "Pos: %.2f %.2f %.2f", camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z );
 
 			ImGui::SliderFloat( "Bloom threshold", &bloom_threshold, 0.0f, 100.0f );
 
@@ -202,10 +223,16 @@ namespace Bat
 		{
 			Entity light = world.CreateEntity();
 			light.Add<LightComponent>()
-				.SetRange( 250.0f );
+				.SetRange( 2.5f );
 			light.Add<TransformComponent>()
 				.SetPosition( camera.GetPosition() );
-			scene.AddChildNode( light );
+			scene.AddChild( light );
+
+			IDynamicObject* phys = Physics::CreateDynamicObject( light.Get<TransformComponent>().GetTransform() );
+			phys->AddSphereShape( 0.1f );
+
+			lights.push_back( light );
+			lights_phys.push_back( phys );
 		}
 		else if( e.key == 'F' )
 		{
@@ -215,7 +242,10 @@ namespace Bat
 		}
 		else if( e.key == 'P' )
 		{
-			sun.Get<LightComponent>().SetDirection( camera.GetLookAtVector() );
+			for( size_t i = 0; i < lights.size(); i++ )
+			{
+				lights_phys[i]->AddLinearImpulse( { 0.0f, 10.0f, 0.0f } );
+			}
 		}
 		else if( e.key == 'I' )
 		{

@@ -41,8 +41,8 @@ namespace Bat
 			if( !light_model )
 			{
 				static SceneNode light_model_node = SceneLoader::LoadScene( "Assets/sphere.gltf" );
-				light_model = &light_model_node.GetChildNode( 2 ).Get();
-				light_model->Get<TransformComponent>().SetScale( 5.0f );
+				light_model = &light_model_node.GetChild( 2 ).Get();
+				light_model->Get<TransformComponent>().SetScale( 0.05f );
 			}
 
 			Entity e = node.Get();
@@ -62,7 +62,9 @@ namespace Bat
 					{
 						auto pPipeline = static_cast<LitGenericPipeline*>(ShaderManager::GetPipeline( "litgeneric" ));
 
-						LitGenericPipelineParameters params( w, vp, light_material, {} );
+						std::vector<Entity> empty;
+						std::vector<DirectX::XMMATRIX> empty2;
+						LitGenericPipelineParameters params( w, vp, light_material, empty, empty2 );
 						pMesh->Bind( m_pContext, pPipeline );
 						pPipeline->BindParameters( m_pContext, params );
 						pPipeline->RenderIndexed( m_pContext, pMesh->GetIndexCount() );

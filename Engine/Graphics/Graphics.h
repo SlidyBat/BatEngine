@@ -72,7 +72,7 @@ namespace Bat
 		static constexpr float  FOVRadians = FOV * (DirectX::XM_PI / 180.0f);
 
 		// only used when not in fullscreen
-		static constexpr int	InitialScreenWidth = 1600;
-		static constexpr int	InitialScreenHeight = 900;
+		static constexpr int	InitialScreenWidth = 1366;
+		static constexpr int	InitialScreenHeight = 768;
 	};
 }

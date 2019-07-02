@@ -62,8 +62,10 @@ namespace Bat
 				continue;
 			}
 
-			lights.lights[j].Position = params.lights[i].Get<TransformComponent>().GetPosition();
-			lights.lights[j].Direction = l.GetDirection();
+			DirectX::XMVECTOR vs, vr, vp;
+			DirectX::XMMatrixDecompose( &vs, &vr, &vp, params.light_transforms[i] );
+			lights.lights[j].Position = vp;
+			lights.lights[j].Direction = l.GetDirection(); // TODO: this should be influenced by the rotation of the transform
 			lights.lights[j].SpotlightAngle = l.GetSpotlightAngle();
 			lights.lights[j].Colour = l.GetColour();
 			lights.lights[j].Range = l.GetRange();

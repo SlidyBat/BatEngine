@@ -342,8 +342,8 @@ namespace Bat
 			Entity child = world.CreateEntity();
 			child.Add<TransformComponent>( transform );
 			
-			size_t new_node_idx = node.AddChildNode( child );
-			ProcessNode( pAssimpNode->mChildren[i], pAssimpScene, node.GetChildNode( new_node_idx ), dir );
+			size_t new_node_idx = node.AddChild( child );
+			ProcessNode( pAssimpNode->mChildren[i], pAssimpScene, node.GetChild( new_node_idx ), dir );
 		}
 	}
 

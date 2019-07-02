@@ -7,6 +7,7 @@
 #include "Console.h"
 #include "Audio.h"
 #include "Entity.h"
+#include "Physics.h"
 #include "RenderGraph.h"
 #include "KeyboardEvents.h"
 
@@ -40,6 +41,10 @@ namespace Bat
 		RenderGraph rendergraph;
 		Entity flashlight;
 		Entity sun;
+		IStaticObject* floor;
+		std::vector<Entity> lights;
+		std::vector<IDynamicObject*> lights_phys;
+
 
 		float bloom_threshold = 1.0f;
 

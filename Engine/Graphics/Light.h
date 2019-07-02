@@ -42,6 +42,6 @@ namespace Bat
 		LightType m_Type = LightType::POINT;
 		float m_flIntensity = 1.0f;
 		Vec3 m_colColour = { 1.0f, 1.0f, 1.0f };
-		float m_flRange = 1000.0f;
+		float m_flRange = 10.0f;
 	};
 }

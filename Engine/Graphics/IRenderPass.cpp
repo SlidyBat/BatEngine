@@ -66,16 +66,16 @@ namespace Bat
 			transform = transforms.top();
 			transforms.pop();
 
-			Entity e = node->Get();
-
 			Visit( transform, *node );
 
-			size_t num_children = node->GetNumChildNodes();
+			Entity e = node->Get();
+
+			size_t num_children = node->GetNumChildren();
 			for( size_t i = 0; i < num_children; i++ )
 			{
-				stack.push( &node->GetChildNode( i ) );
+				stack.push( &node->GetChild( i ) );
 
-				Entity child = node->GetChildNode( i ).Get();
+				Entity child = node->GetChild( i ).Get();
 
 				if( child.Has<TransformComponent>() )
 				{

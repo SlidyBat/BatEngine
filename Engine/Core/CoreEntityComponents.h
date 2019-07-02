@@ -51,6 +51,20 @@ namespace Bat
 
 			return transform;
 		}
+
+		void SetTransform( const DirectX::XMMATRIX& new_transform )
+		{
+			transform = new_transform;
+
+			DirectX::XMVECTOR tran, qrot, vscale;
+			DirectX::XMMatrixDecompose( &vscale, &qrot, &tran, transform );
+
+			position = tran;
+			rotation = qrot;
+			DirectX::XMStoreFloat( &scale, vscale );
+
+			dirty = false;
+		}
 	private:
 		mutable DirectX::XMMATRIX transform = DirectX::XMMatrixIdentity();
 		Vec3 position = { 0.0f, 0.0f, 0.0f };

@@ -254,4 +254,10 @@ namespace Bat
 			return res;
 		}
 	};
+
+	struct Plane
+	{
+		Vec3 n; // Plane normal
+		float d; // Distance from origin
+	};
 }
