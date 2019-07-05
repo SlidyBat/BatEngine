@@ -252,6 +252,16 @@ namespace Bat
 		{
 			imgui_menu_enabled = !imgui_menu_enabled;
 		}
+		else if( e.key == 'R' )
+		{
+			auto result = Physics::RayCast( camera.GetPosition(), camera.GetLookAtVector(), 500.0f, HIT_DYNAMICS );
+			if( result.hit )
+			{
+				BAT_LOG( "HIT!" );
+				IDynamicObject* dynamic_object = reinterpret_cast<IDynamicObject*>(result.object);
+				dynamic_object->AddLinearImpulse( (dynamic_object->GetPosition() - camera.GetPosition()).Normalize() * 10.0f );
+			}
+		}
 	}
 
 	void Application::BuildRenderGraph()

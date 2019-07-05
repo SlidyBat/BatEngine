@@ -13,6 +13,20 @@ namespace Bat
 		float restitution;
 	};
 
+	struct RayCastResult
+	{
+		bool hit; // Whether or not there was a hit. If false, other data in the result is invalid.
+		Vec3 position;
+		Vec3 normal;
+		IPhysicsObject* object;
+	};
+
+	enum RayCastFilterFlags
+	{
+		HIT_STATICS = (1 << 0),
+		HIT_DYNAMICS = (1 << 1),
+	};
+
 	class Physics
 	{
 	public:
@@ -35,6 +49,9 @@ namespace Bat
 		// Creates a new dynamic object (body with mass, inertia, velocity) with the given world position/rotation
 		// NOTE: must be freed using `delete`
 		static IDynamicObject* CreateDynamicObject( const Vec3& pos, const Vec3& ang );
+
+		// See RayCastFilterFlags for possible filter flags
+		static RayCastResult RayCast( const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter = (HIT_STATICS|HIT_DYNAMICS) );
 	public:
 		static constexpr PhysicsMaterial DEFAULT_MATERIAL = { 0.5f, 0.5f, 0.5f };
 	};

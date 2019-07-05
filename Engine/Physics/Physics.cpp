@@ -6,6 +6,7 @@
 #include <PhysX/PxPhysicsAPI.h>
 #include <PhysX/extensions/PxDefaultAllocator.h>
 #include <PhysX/common/windows/PxWindowsDelayLoadHook.h>
+#include <PhysX/cooking/PxCooking.h>
 
 #include "JobSystem.h"
 
@@ -15,6 +16,7 @@ namespace Bat
 {
 	static PxFoundation* g_pPxFoundation;
 	static PxPhysics*    g_pPxPhysics;
+	static PxCooking*    g_pPxCooking;
 	static PxScene*      g_pPxScene = nullptr;
 
 	static bool g_bFixedTimestep = false;
@@ -381,5 +383,39 @@ namespace Bat
 		g_pPxScene->addActor( *dynamic_actor );
 
 		return new PxDynamicObject( dynamic_actor );
+	}
+
+	RayCastResult Physics::RayCast( const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter )
+	{
+		PxQueryFilterData filter_data((PxQueryFlag::Enum)0);
+		if( filter & HIT_STATICS )
+		{
+			filter_data.flags |= PxQueryFlag::eSTATIC;
+		}
+		if( filter & HIT_DYNAMICS )
+		{
+			filter_data.flags |= PxQueryFlag::eDYNAMIC;
+		}
+
+		PxRaycastBuffer hit;
+		bool success = g_pPxScene->raycast( Bat2PxVec( origin ), Bat2PxVec( unit_direction ), max_distance, hit, PxHitFlag::ePOSITION | PxHitFlag::eNORMAL, filter_data );
+
+		RayCastResult result;
+		if( !success || !hit.hasBlock )
+		{
+			result.hit = false;
+			result.position = { 0.0f, 0.0f, 0.0f };
+			result.normal = { 0.0f, 0.0f, 0.0f };
+			result.object = nullptr;
+		}
+		else
+		{
+			result.hit = true;
+			result.position = Px2BatVec( hit.block.position );
+			result.normal = Px2BatVec( hit.block.normal );
+			result.object = reinterpret_cast<IPhysicsObject*>(hit.block.actor->userData);
+		}
+
+		return result;
 	}
 }

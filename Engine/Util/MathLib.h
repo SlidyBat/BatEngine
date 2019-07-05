@@ -158,6 +158,33 @@ namespace Bat
 			return *this;
 		}
 
+		float LengthSq() const
+		{
+			return x*x + y*y + z*z;
+		}
+		
+		float Length() const
+		{
+			return sqrt( LengthSq() );
+		}
+
+		Vec3& Normalize()
+		{
+			float length = Length();
+			x /= length;
+			y /= length;
+			z /= length;
+
+			return *this;
+		}
+
+		Vec3 Normalized() const
+		{
+			float length = Length();
+
+			return { x / length, y / length, z / length };
+		}
+
 		operator DirectX::XMVECTOR() const
 		{
 			return DirectX::XMLoadFloat3( this );
