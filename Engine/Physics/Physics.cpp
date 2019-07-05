@@ -56,25 +56,24 @@ namespace Bat
 
 	static PxVec3 Bat2PxVec( const Vec3& vec )
 	{
-		return { vec.x, vec.y, vec.x };
+		return { vec.x, vec.y, vec.z };
 	}
 
 	static Vec3 Px2BatVec( const PxVec3& vec )
 	{
-		return { vec.x, vec.y, vec.x };
+		return { vec.x, vec.y, vec.z };
 	}
-
-	static DirectX::XMMATRIX Transform2Mat( const PxTransform& transform )
+	
+	static PxQuat Bat2PxAng( const Vec3& ang )
 	{
-		PxMat44 transform_mat( transform );
-		return *reinterpret_cast<DirectX::XMMATRIX*>(&transform_mat.column0.x);
+		Vec4 q = Math::EulerToQuaternion( ang );
+		return { q.x, q.y, q.z, q.w };
 	}
-
-	static PxTransform Mat2Transform( const DirectX::XMMATRIX& mat )
+	
+	static Vec3 Px2BatAng( const PxQuat& q )
 	{
-		PxMat44 transform_mat = *reinterpret_cast<const PxMat44*>(&mat.r[0].m128_f32[0]);
-		PxTransform transform( transform_mat );
-		return transform;
+		Vec3 ang = Math::QuaternionToEuler( { q.x, q.y, q.z, q.w } );
+		return ang;
 	}
 
 	class PxStaticObject : public IStaticObject
@@ -133,16 +132,28 @@ namespace Bat
 			*maxs = Px2BatVec( bounds.maximum );
 		}
 
-		virtual DirectX::XMMATRIX GetTransform() const override
+		virtual Vec3 GetPosition() const
 		{
-			PxTransform transform = m_pStaticActor->getGlobalPose();
-			return Transform2Mat( transform );
+			return Px2BatVec( m_pStaticActor->getGlobalPose().p );
 		}
 
-		virtual void SetTransform( const DirectX::XMMATRIX& transform ) const override
+		virtual void SetPosition( const Vec3& pos )
 		{
-			PxTransform pose = Mat2Transform( transform );
-			m_pStaticActor->setGlobalPose( pose );
+			PxTransform transform = m_pStaticActor->getGlobalPose();
+			transform.p = Bat2PxVec( pos );
+			m_pStaticActor->setGlobalPose( transform );
+		}
+
+		virtual Vec3 GetRotation() const
+		{
+			return Px2BatAng( m_pStaticActor->getGlobalPose().q );
+		}
+
+		virtual void SetRotation( const Vec3& ang )
+		{
+			PxTransform transform = m_pStaticActor->getGlobalPose();
+			transform.q = Bat2PxAng( ang );
+			m_pStaticActor->setGlobalPose( transform );
 		}
 	private:
 		PxRigidStatic* m_pStaticActor;
@@ -198,36 +209,48 @@ namespace Bat
 			*maxs = Px2BatVec( bounds.maximum );
 		}
 
-		virtual DirectX::XMMATRIX GetTransform() const override
+		virtual Vec3 GetPosition() const
 		{
-			PxTransform transform = m_pDynamicActor->getGlobalPose();
-			return Transform2Mat( transform );
+			return Px2BatVec( m_pDynamicActor->getGlobalPose().p );
 		}
 
-		virtual void SetTransform( const DirectX::XMMATRIX& transform ) const override
+		virtual void SetPosition( const Vec3& pos )
 		{
-			PxTransform pose = Mat2Transform( transform );
-			m_pDynamicActor->setGlobalPose( pose );
+			PxTransform transform = m_pDynamicActor->getGlobalPose();
+			transform.p = Bat2PxVec( pos );
+			m_pDynamicActor->setGlobalPose( transform );
+		}
+
+		virtual Vec3 GetRotation() const
+		{
+			return Px2BatAng( m_pDynamicActor->getGlobalPose().q );
+		}
+
+		virtual void SetRotation( const Vec3& ang )
+		{
+			PxTransform transform = m_pDynamicActor->getGlobalPose();
+			transform.q = Bat2PxAng( ang );
+			m_pDynamicActor->setGlobalPose( transform );
 		}
 
 		virtual void SetKinematic( bool kinematic )  override { m_pDynamicActor->setRigidBodyFlag( PxRigidBodyFlag::eKINEMATIC, kinematic ); }
 		virtual bool IsKinematic() const  override { return m_pDynamicActor->getRigidBodyFlags() & PxRigidBodyFlag::eKINEMATIC; }
-		virtual void MoveTo( const DirectX::XMMATRIX& world_transform ) override
+		virtual void MoveTo( const Vec3& pos, const Vec3& ang ) override
 		{
-			m_pDynamicActor->setKinematicTarget( Mat2Transform( world_transform ) );
+			m_pDynamicActor->setKinematicTarget( PxTransform( Bat2PxVec( pos ), Bat2PxAng( ang ) ) );
 		}
 
 		virtual void SetGravityDisabled( bool grav_disabled )  override { m_pDynamicActor->setActorFlag( PxActorFlag::eDISABLE_GRAVITY, grav_disabled ); }
 		virtual bool IsGravityDisabled() const  override { return m_pDynamicActor->getActorFlags() & PxActorFlag::eDISABLE_GRAVITY; }
 
-		virtual void SetCentreOfMass( const DirectX::XMMATRIX& local_transform ) override
+		virtual void SetCentreOfMass( const Vec3& pos ) override
 		{
-			m_pDynamicActor->setCMassLocalPose( Mat2Transform( local_transform ) );
+			m_pDynamicActor->setCMassLocalPose( PxTransform( Bat2PxVec( pos ) ) );
 		}
-		virtual DirectX::XMMATRIX GetCentreOfMass() const override
+		virtual Vec3 GetCentreOfMass() const override
 		{
 			PxTransform transform = m_pDynamicActor->getCMassLocalPose();
-			return Transform2Mat( transform );
+			return Px2BatVec( transform.p );
 		}
 
 		virtual void SetMass( float mass )  override { m_pDynamicActor->setMass( mass ); }
@@ -344,17 +367,17 @@ namespace Bat
 		}
 	}
 
-	IStaticObject* Physics::CreateStaticObject( const DirectX::XMMATRIX& transform )
+	IStaticObject* Physics::CreateStaticObject( const Vec3& pos, const Vec3& ang )
 	{
-		PxRigidStatic* static_actor = g_pPxPhysics->createRigidStatic( Mat2Transform( transform ) );
+		PxRigidStatic* static_actor = g_pPxPhysics->createRigidStatic( PxTransform( Bat2PxVec( pos ), Bat2PxAng( ang ) ) );
 		g_pPxScene->addActor( *static_actor );
 
 		return new PxStaticObject( static_actor );
 	}
 
-	IDynamicObject* Physics::CreateDynamicObject( const DirectX::XMMATRIX& transform )
+	IDynamicObject* Physics::CreateDynamicObject( const Vec3& pos, const Vec3& ang )
 	{
-		PxRigidDynamic* dynamic_actor = g_pPxPhysics->createRigidDynamic( Mat2Transform( transform ) );
+		PxRigidDynamic* dynamic_actor = g_pPxPhysics->createRigidDynamic( PxTransform( Bat2PxVec( pos ), Bat2PxAng( ang ) ) );
 		g_pPxScene->addActor( *dynamic_actor );
 
 		return new PxDynamicObject( dynamic_actor );

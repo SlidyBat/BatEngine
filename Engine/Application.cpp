@@ -49,8 +49,6 @@ namespace Bat
 
 		scene.GetChild( sponza ).Get().Add<TransformComponent>().SetScale( 0.01f );
 
-		camera.SetPosition( { 0.0f, 0.0f, -10.0f } );
-
 		gfx.SetActiveScene( &scene );
 		gfx.SetActiveCamera( &camera );
 
@@ -63,7 +61,7 @@ namespace Bat
 
 		// Initialize physics objects
 		Physics::EnableFixedTimestep( 1.0f / 60.0f );
-		floor = Physics::CreateStaticObject( DirectX::XMMatrixRotationZ( Math::PI / 2.0f ) );
+		floor = Physics::CreateStaticObject( { 0.0f, 0.0f, 0.0f }, { 0.0f, Math::PI / 2.0f, 0.0f } );
 		floor->AddPlaneShape();
 
 		wnd.input.AddEventListener<KeyPressedEvent>( *this );
@@ -121,7 +119,9 @@ namespace Bat
 		// Only manually for now
 		for( size_t i = 0; i < lights.size(); i++ )
 		{
-			lights[i].Get<TransformComponent>().SetTransform( lights_phys[i]->GetTransform() );
+			auto& transform = lights[i].Get<TransformComponent>();
+			transform.SetPosition( lights_phys[i]->GetPosition() );
+			transform.SetRotation( lights_phys[i]->GetRotation() );
 		}
 
 		if( bloom_enabled )
@@ -228,8 +228,9 @@ namespace Bat
 				.SetPosition( camera.GetPosition() );
 			scene.AddChild( light );
 
-			IDynamicObject* phys = Physics::CreateDynamicObject( light.Get<TransformComponent>().GetTransform() );
-			phys->AddSphereShape( 0.1f );
+			auto transform = light.Get<TransformComponent>();
+			IDynamicObject* phys = Physics::CreateDynamicObject( camera.GetPosition(), { 0.0f, 0.0f, 0.0f } );
+			phys->AddSphereShape( 0.05f );
 
 			lights.push_back( light );
 			lights_phys.push_back( phys );

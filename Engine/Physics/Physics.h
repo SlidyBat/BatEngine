@@ -29,12 +29,12 @@ namespace Bat
 
 		static void Simulate( float deltatime );
 
-		// Creates a new static object (body with infinite mass/inertia) with the given world transform
+		// Creates a new static object (body with infinite mass/inertia) with the given world position/rotation
 		// NOTE: must be freed using `delete`
-		static IStaticObject* CreateStaticObject( const DirectX::XMMATRIX& transform );
-		// Creates a new dynamic object (body with mass, inertia, velocity) with the given world transform
+		static IStaticObject* CreateStaticObject( const Vec3& pos, const Vec3& ang );
+		// Creates a new dynamic object (body with mass, inertia, velocity) with the given world position/rotation
 		// NOTE: must be freed using `delete`
-		static IDynamicObject* CreateDynamicObject( const DirectX::XMMATRIX& transform );
+		static IDynamicObject* CreateDynamicObject( const Vec3& pos, const Vec3& ang );
 	public:
 		static constexpr PhysicsMaterial DEFAULT_MATERIAL = { 0.5f, 0.5f, 0.5f };
 	};
@@ -53,10 +53,14 @@ namespace Bat
 		// Gets AABB mins/maxs
 		virtual void GetBounds( Vec3* mins, Vec3* maxs ) const = 0;
 
-		// Gets transform from object space to world space
-		virtual DirectX::XMMATRIX GetTransform() const = 0;
-		// Sets the world space transform (avoid using on static objects)
-		virtual void SetTransform(const DirectX::XMMATRIX& transform) const = 0;
+		// Get world space position
+		virtual Vec3 GetPosition() const = 0;
+		// Set world space position
+		virtual void SetPosition( const Vec3& pos ) = 0;
+		// Get world space rotation (euler angle. x=pitch, y=yaw, z=roll)
+		virtual Vec3 GetRotation() const = 0;
+		// Set world space rotation (euler angle. x=pitch, y=yaw, z=roll)
+		virtual void SetRotation( const Vec3& ang ) = 0;
 	};
 
 	// Body with implicit infinite mass/inertia
@@ -76,14 +80,15 @@ namespace Bat
 		virtual void SetKinematic( bool kinematic ) = 0;
 		virtual bool IsKinematic() const = 0;
 		// Moves a kinematic actor to the desired position
-		virtual void MoveTo( const DirectX::XMMATRIX& world_transform ) = 0;
+		virtual void MoveTo( const Vec3& pos, const Vec3& ang ) = 0;
 
 		virtual void SetGravityDisabled( bool grav_disabled ) = 0;
 		virtual bool IsGravityDisabled() const = 0;
 
 		// Sets the centre of mass of the body (in local object space)
-		virtual void SetCentreOfMass( const DirectX::XMMATRIX& local_transform ) = 0;
-		virtual DirectX::XMMATRIX GetCentreOfMass() const = 0;
+		virtual void SetCentreOfMass( const Vec3& pos ) = 0;
+		// Sets the centre of mass of the body (in local object space)
+		virtual Vec3 GetCentreOfMass() const = 0;
 
 		// Sets mass of the body. Default is 1.
 		// Mass of 0 is considered infinite.

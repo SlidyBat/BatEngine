@@ -5,33 +5,6 @@
 
 namespace Bat
 {
-	namespace Math
-	{
-		constexpr float PI = DirectX::XM_PI;
-
-		constexpr inline float DegToRad( const float deg )
-		{
-			return deg * (PI / 180.0f);
-		}
-		constexpr inline float RadToDeg( const float rad )
-		{
-			return rad * (180.0f / PI);
-		}
-
-		__m128 Abs( __m128 m );
-		__m128 Sin( __m128 m_x );
-		float Sin( float x );
-		float Cos( float x );
-		void SinCos( float x, float* s, float* c );
-
-		void AngleVectors( const DirectX::XMFLOAT3& angles, DirectX::XMFLOAT3* forward = nullptr, DirectX::XMFLOAT3* right = nullptr, DirectX::XMFLOAT3* up = nullptr );
-
-		// Returns a random int in the range [min, max]
-		int GetRandomInt( int min, int max );
-		// Returns a random float in the range [min, max)
-		float GetRandomFloat( float min, float max );
-	}
-
 	template <typename T>
 	class _Vec2
 	{
@@ -260,4 +233,34 @@ namespace Bat
 		Vec3 n; // Plane normal
 		float d; // Distance from origin
 	};
+
+	namespace Math
+	{
+		constexpr float PI = DirectX::XM_PI;
+
+		constexpr inline float DegToRad( const float deg )
+		{
+			return deg * (PI / 180.0f);
+		}
+		constexpr inline float RadToDeg( const float rad )
+		{
+			return rad * (180.0f / PI);
+		}
+
+		Vec3 QuaternionToEuler( const Vec4& quat );
+		Vec4 EulerToQuaternion( const Vec3& euler );
+
+		__m128 Abs( __m128 m );
+		__m128 Sin( __m128 m_x );
+		float Sin( float x );
+		float Cos( float x );
+		void SinCos( float x, float* s, float* c );
+
+		void AngleVectors( const DirectX::XMFLOAT3 & angles, DirectX::XMFLOAT3 * forward = nullptr, DirectX::XMFLOAT3 * right = nullptr, DirectX::XMFLOAT3 * up = nullptr );
+
+		// Returns a random int in the range [min, max]
+		int GetRandomInt( int min, int max );
+		// Returns a random float in the range [min, max)
+		float GetRandomFloat( float min, float max );
+	}
 }
