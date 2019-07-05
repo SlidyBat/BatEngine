@@ -42,6 +42,7 @@ namespace Bat
 		Entity flashlight;
 		Entity sun;
 		IStaticObject* floor;
+		IDynamicObject* player;
 		std::vector<Entity> lights;
 		std::vector<IDynamicObject*> lights_phys;
 

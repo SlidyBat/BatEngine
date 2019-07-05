@@ -18,6 +18,15 @@ namespace Bat
 		bool hit; // Whether or not there was a hit. If false, other data in the result is invalid.
 		Vec3 position;
 		Vec3 normal;
+		float distance;
+		IPhysicsObject* object;
+	};
+
+	struct SweepResult
+	{
+		bool hit; // Whether or not there was a hit. If false, other data in the result is invalid.
+		Vec3 position;
+		float distance;
 		IPhysicsObject* object;
 	};
 
@@ -45,13 +54,16 @@ namespace Bat
 
 		// Creates a new static object (body with infinite mass/inertia) with the given world position/rotation
 		// NOTE: must be freed using `delete`
-		static IStaticObject* CreateStaticObject( const Vec3& pos, const Vec3& ang );
+		static IStaticObject* CreateStaticObject( const Vec3& pos, const Vec3& ang, void* userdata = nullptr );
 		// Creates a new dynamic object (body with mass, inertia, velocity) with the given world position/rotation
 		// NOTE: must be freed using `delete`
-		static IDynamicObject* CreateDynamicObject( const Vec3& pos, const Vec3& ang );
+		static IDynamicObject* CreateDynamicObject( const Vec3& pos, const Vec3& ang, void* userdata = nullptr );
 
 		// See RayCastFilterFlags for possible filter flags
 		static RayCastResult RayCast( const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter = (HIT_STATICS|HIT_DYNAMICS) );
+		static SweepResult SweepSphere( float radius, const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter = (HIT_STATICS | HIT_DYNAMICS) );
+		static SweepResult SweepCapsule( float radius, float half_height, const Vec3& rotation, const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter = (HIT_STATICS | HIT_DYNAMICS) );
+		static SweepResult SweepBox( float length_x, float length_y, float length_z, const Vec3& rotation, const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter = (HIT_STATICS | HIT_DYNAMICS) );
 	public:
 		static constexpr PhysicsMaterial DEFAULT_MATERIAL = { 0.5f, 0.5f, 0.5f };
 	};
@@ -62,6 +74,9 @@ namespace Bat
 		virtual void AddSphereShape( float radius, const PhysicsMaterial& material = Physics::DEFAULT_MATERIAL ) = 0;
 		virtual void AddCapsuleShape( float radius, float half_height, const PhysicsMaterial& material = Physics::DEFAULT_MATERIAL ) = 0;
 		virtual void AddBoxShape( float length_x, float length_y, float length_z, const PhysicsMaterial& material = Physics::DEFAULT_MATERIAL ) = 0;
+		virtual void AddSphereTrigger( float radius ) = 0;
+		virtual void AddCapsuleTrigger( float radius, float half_height ) = 0;
+		virtual void AddBoxTrigger( float length_x, float length_y, float length_z ) = 0;
 		// TODO: Convex shapes (PX cooking library)
 		
 		virtual size_t GetNumShapes() const = 0;
@@ -85,6 +100,7 @@ namespace Bat
 	{
 	public:
 		virtual void AddPlaneShape( const PhysicsMaterial& material = Physics::DEFAULT_MATERIAL ) = 0;
+		virtual void AddPlaneTrigger() = 0;
 		// Uh, nothing else really (these objects just sit there and do nothing)
 	};
 

@@ -88,6 +88,9 @@
     <Filter Include="Source Files\Physics">
       <UniqueIdentifier>{5921b60e-36ac-4e6c-ad1a-4cd4114258e3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Events">
+      <UniqueIdentifier>{a7dea087-ae73-4a86-a2f0-135255e2c793}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -254,6 +257,9 @@
     </ClCompile>
     <ClCompile Include="Graphics\UI\HtmlUI.cpp">
       <Filter>Source Files\Graphics\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Events\Event.cpp">
+      <Filter>Source Files\Events</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -529,6 +535,9 @@
     </ClInclude>
     <ClInclude Include="Core\CoreEntityComponents.h">
       <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Events\PhysicsEvents.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

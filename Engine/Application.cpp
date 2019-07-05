@@ -11,6 +11,7 @@
 #include "WindowEvents.h"
 #include "MouseEvents.h"
 #include "NetworkEvents.h"
+#include "PhysicsEvents.h"
 #include "TexturePipeline.h"
 #include "Globals.h"
 #include "IRenderPass.h"
@@ -63,6 +64,11 @@ namespace Bat
 		Physics::EnableFixedTimestep( 1.0f / 60.0f );
 		floor = Physics::CreateStaticObject( { 0.0f, 0.0f, 0.0f }, { 0.0f, Math::PI / 2.0f, 0.0f } );
 		floor->AddPlaneShape();
+		auto trigger = Physics::CreateStaticObject( { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } );
+		trigger->AddBoxTrigger( 5.0f, 5.0f, 5.0f );
+		player = Physics::CreateDynamicObject( camera.GetPosition(), camera.GetRotation() );
+		player->AddSphereShape( 0.1f );
+		player->SetKinematic( true );
 
 		wnd.input.AddEventListener<KeyPressedEvent>( *this );
 
@@ -92,6 +98,19 @@ namespace Bat
 			LightComponent& l = sun.Get<LightComponent>();
 			l.SetEnabled( !l.IsEnabled() );
 		} );
+
+		EventDispatcher::OnGlobalEventDispatched<PhysicsTriggerStartTouchEvent>( []( const PhysicsTriggerStartTouchEvent & e )
+		{
+			BAT_LOG( "Entered trigger" );
+		} );
+		EventDispatcher::OnGlobalEventDispatched<PhysicsTriggerEndTouchEvent>( []( const PhysicsTriggerEndTouchEvent & e )
+		{
+			BAT_LOG( "Exited trigger" );
+		} );
+		EventDispatcher::OnGlobalEventDispatched<PhysicsObjectStartTouchEvent>( []( const PhysicsObjectStartTouchEvent & e )
+		{
+			BAT_LOG( "Touch!" );
+		} );
 	}
 
 	Application::~Application()
@@ -114,6 +133,8 @@ namespace Bat
 		flashlight.Get<TransformComponent>().SetPosition( camera.GetPosition() );
 		flashlight.Get<LightComponent>().SetDirection( camera.GetLookAtVector() );
 		snd->SetListenerPosition( camera.GetPosition(), camera.GetLookAtVector() );
+
+		player->MoveTo( camera.GetPosition(), camera.GetRotation() );
 
 		// Sync light entity transform with physics object transform
 		// Only manually for now
@@ -254,7 +275,7 @@ namespace Bat
 		}
 		else if( e.key == 'R' )
 		{
-			auto result = Physics::RayCast( camera.GetPosition(), camera.GetLookAtVector(), 500.0f, HIT_DYNAMICS );
+			auto result = Physics::RayCast( camera.GetPosition() + camera.GetLookAtVector() * 0.5f, camera.GetLookAtVector(), 500.0f, HIT_DYNAMICS );
 			if( result.hit )
 			{
 				BAT_LOG( "HIT!" );
