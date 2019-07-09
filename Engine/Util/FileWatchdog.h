@@ -14,6 +14,7 @@ namespace Bat
 		static constexpr FileWatchHandle_t INVALID_WATCH_HANDLE = (uint32_t)-1;
 	public:
 		static void Initialize();
+		static void Service( float deltatime );
 		static void Shutdown();
 
 		static FileWatchHandle_t AddFileChangeListener( const std::string& filename, FileChangedCallback_t callback );

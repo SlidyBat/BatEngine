@@ -1321,15 +1321,6 @@ namespace Bat
 	{
 		if( IsDirty() )
 		{
-			while( true )
-			{
-				auto code = MemoryStream::FromFile( m_szName );
-				if( code.Size() > 0 )
-				{
-					break;
-				}
-			}
-
 			LoadFromFile( pDevice, m_szName, false );
 
 			SetDirty( false );
@@ -1416,15 +1407,6 @@ namespace Bat
 	{
 		if( IsDirty() )
 		{
-			while( true )
-			{
-				auto code = MemoryStream::FromFile( m_szName );
-				if( code.Size() > 0 )
-				{
-					break;
-				}
-			}
-
 			LoadFromFile( pDevice, m_szName, false );
 
 			SetDirty( false );
