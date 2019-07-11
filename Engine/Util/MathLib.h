@@ -1,6 +1,7 @@
 #pragma once
 
 #include <DirectXMath.h>
+#include <DirectXCollision.h>
 #include <intrin.h>
 
 namespace Bat
@@ -213,6 +214,10 @@ namespace Bat
 			y = src.y;
 			z = src.z;
 			w = src.w;
+		}
+		Vec4( const DirectX::XMVECTOR v )
+		{
+			DirectX::XMStoreFloat4( this, v );
 		}
 
 		Vec4& operator=( const DirectX::XMFLOAT4& src )
