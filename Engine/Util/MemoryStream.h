@@ -63,7 +63,7 @@ public:
 	void WriteInt16( int16_t val );
 	void WriteUInt64( uint64_t val );
 	void WriteUInt32( uint32_t val );
-	void WrtieUInt16( uint16_t val );
+	void WriteUInt16( uint16_t val );
 	void WriteChar( char val ); // really just an alias for WriteByte
 	void WriteShort( short val );
 	void WriteInt( int val );
