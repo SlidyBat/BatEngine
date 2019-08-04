@@ -366,7 +366,7 @@ namespace Bat
 		std::string directory = filepath.parent_path().string();
 
 		Assimp::Importer importer;
-		const aiScene* pAssimpScene = importer.ReadFile( filename, aiProcess_ConvertToLeftHanded | aiProcess_Triangulate | aiProcess_CalcTangentSpace );
+		const aiScene* pAssimpScene = importer.ReadFile( filename, aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_Fast | aiProcess_TransformUVCoords );
 
 		if( pAssimpScene == nullptr )
 		{
