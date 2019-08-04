@@ -26,15 +26,15 @@ namespace Bat
 	static std::vector<FileWatchCallbacks> watched_files;
 
 	// Checks whether file is open by another process
-	static bool FileIsWriting( const std::filesystem::path& path )
+	static bool FileIsAvailable( const std::filesystem::path& path )
 	{
 		HANDLE h = CreateFileW( path.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
 		if( h != INVALID_HANDLE_VALUE )
 		{
 			CloseHandle( h );
-			return false;
+			return true;
 		}
-		return (GetLastError() == ERROR_SHARING_VIOLATION);
+		return false;
 	}
 
 	void FileWatchdog::Service( float deltatime )
@@ -44,9 +44,14 @@ namespace Bat
 			const auto& filename = fwc.filename;
 			const std::filesystem::path path( filename );
 
+			if( !FileIsAvailable( path ) )
+			{
+				continue;
+			}
+
 			// file was written to since we last checked
 			const auto last_write_time = std::filesystem::last_write_time( path );
-			if( last_write_time > fwc.last_check_time && !FileIsWriting( path ) )
+			if( last_write_time > fwc.last_check_time )
 			{
 				const auto& listeners = fwc.listeners;
 				for( const auto& listener : listeners )
