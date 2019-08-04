@@ -34,11 +34,9 @@ PixelInputType main(VertexInputType input)
     output.world_pos = mul(pos, world);
 
     float3x3 world_trunc = (float3x3) world;
-    output.normal = normalize(mul(input.normal, world_trunc).xyz);
-    output.tangent = normalize(mul(input.tangent, world_trunc).xyz);
-    output.bitangent = normalize(mul(input.bitangent, world_trunc).xyz);
-    if (dot(cross(output.normal, output.tangent), output.bitangent) < 0.0)
-        output.tangent = -output.tangent;
+	output.normal = normalize( mul( input.normal, world_trunc ) );;
+	output.tangent = normalize( mul( input.tangent, world_trunc ) );;
+	output.bitangent = normalize( mul( input.bitangent, world_trunc ) );;
     output.tex = input.tex;
 
     return output;
