@@ -10,7 +10,7 @@ namespace Bat
 	public:
 		ClearRenderTargetPass()
 		{
-			AddRenderNode( "buffer", NodeType::INPUT, NodeDataType::RENDER_TEXTURE );
+			AddRenderNode( "buffer", NodeType::INPUT, NodeDataType::RENDER_TARGET );
 			AddRenderNode( "depth", NodeType::INPUT, NodeDataType::DEPTH_STENCIL );
 		}
 

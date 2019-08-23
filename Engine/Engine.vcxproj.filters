@@ -598,5 +598,8 @@
     <None Include="Graphics\Shaders\CommonPS.hlsli">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="RenderNodeDataTypes.def">
+      <Filter>Header Files\Graphics</Filter>
+    </None>
   </ItemGroup>
 </Project>

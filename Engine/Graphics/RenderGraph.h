@@ -29,12 +29,13 @@ namespace Bat
 		void SetPassEnabled( const std::string& name, bool enabled );
 		void SetPassEnabled( size_t idx, bool enabled );
 
-		// Takes ownership of a texture and binds it to a certain name so it may be used by passes
-		void AddTextureResource( const std::string& name, std::unique_ptr<ITexture> pTexture );
-		// Takes ownership of a render texture and binds it to a certain name so it may be used by passes
-		void AddRenderTextureResource( const std::string& name, std::unique_ptr<IRenderTarget> pTexture );
-		// Takes ownership of a depth stencil buffer and binds it to a certain name so it may be used by passes
-		void AddDepthStencilResource( const std::string& name, std::unique_ptr<IDepthStencil> pDepthStencil );
+#define RENDER_NODE_DATATYPE( type, name, capname ) \
+		/* Takes ownership of resource and binds it to a certain name so it may be used by passes */ \
+		void Add##name##Resource( const std::string& resource_name, std::unique_ptr<type> pResource ); \
+		/* Uses resource without owning it and binds it to a certain name so it may be used by passes */ \
+		void Add##name##Resource( const std::string& resource_name, type* pResource );
+#include "RenderNodeDataTypes.def"
+
 		// Binds a pass node to a created resource
 		// Example usage:
 		//     BindToResource( "depthprepass.dst", "DepthPrePassBuffer" );
@@ -67,10 +68,11 @@ namespace Bat
 
 		std::optional<Node_t> CreateNodeFromString( const std::string& str, NodeType expected_type = NodeType::INVALID );
 
-		NodeDataType GetResourceType( const std::string& name );
-		ITexture* GetTextureResource( const std::string& name );
-		IRenderTarget* GetRenderTextureResource( const std::string& name );
-		IDepthStencil* GetDepthStencilResource( const std::string& name );
+		NodeDataType GetResourceType( const std::string& resource_name );
+
+#define RENDER_NODE_DATATYPE( type, name, capname ) \
+		type* Get##name##Resource( const std::string& resource_name );
+#include "RenderNodeDataTypes.def"
 	private:
 		// passes
 		std::vector<std::unique_ptr<IRenderPass>> m_vRenderPasses;
@@ -78,11 +80,12 @@ namespace Bat
 		std::vector<bool> m_vPassEnabled;
 		std::optional<Node_t> m_OutputNode;
 
-		// resources
-		std::unordered_map<std::string, std::unique_ptr<ITexture>> m_mapTextures;
-		std::unordered_map<std::string, std::unique_ptr<IRenderTarget>> m_mapRenderTextures;
-		std::unordered_map<std::string, std::unique_ptr<IDepthStencil>> m_mapDepthStencils;
 		std::unordered_map<std::string, NodeDataType> m_mapResourceTypes;
 		std::vector<std::vector<NodeAndResource>> m_vNodeAndResourceBindings;
+
+#define RENDER_NODE_DATATYPE( type, name, capname ) \
+			std::unordered_map<std::string, std::unique_ptr<type>> m_mapOwning##name; \
+			std::unordered_map<std::string, type*> m_mapNonOwning##name;
+#include "RenderNodeDataTypes.def"
 	};
 }

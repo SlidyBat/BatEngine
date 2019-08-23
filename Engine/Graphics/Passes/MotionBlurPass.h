@@ -21,8 +21,8 @@ namespace Bat
 		MotionBlurPass()
 		{
 			// initialize render nodes
-			AddRenderNode( "src", NodeType::INPUT, NodeDataType::RENDER_TEXTURE );  // the initial texture that bloom should be applied to
-			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TEXTURE ); // the output render texture
+			AddRenderNode( "src", NodeType::INPUT, NodeDataType::RENDER_TARGET );  // the initial texture that bloom should be applied to
+			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TARGET ); // the output render texture
 			AddRenderNode( "depth", NodeType::INPUT, NodeDataType::DEPTH_STENCIL );       // depth buffer
 
 			// initialize shaders

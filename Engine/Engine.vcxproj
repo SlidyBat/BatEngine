@@ -618,6 +618,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shaders\CommonPS.hlsli" />
+    <None Include="RenderNodeDataTypes.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include "IGPUDevice.h"
+#include "Camera.h"
 
 namespace Bat
 {
@@ -12,17 +13,12 @@ namespace Bat
 	class RenderData
 	{
 		friend class RenderGraph;
-	public:
-		ITexture* GetTexture( const std::string& name );
-		IRenderTarget* GetRenderTarget( const std::string& name );
-		IDepthStencil* GetDepthStencil( const std::string& name );
-
-		void AddTexture( const std::string& name, ITexture* pTexture );
-		void AddRenderTarget( const std::string& name, IRenderTarget* pRenderTexture );
-		void AddDepthStencil( const std::string& name, IDepthStencil* pDepthStencil );
-	private:
-		std::unordered_map<std::string, ITexture*> m_mapTextures;
-		std::unordered_map<std::string, IRenderTarget*> m_mapRenderTextures;
-		std::unordered_map<std::string, IDepthStencil*> m_mapDepthStencils;
+#define RENDER_NODE_DATATYPE( type, name, capname ) \
+	public: \
+		type* Get##name( const std::string& resource_name ); \
+		void Add##name( const std::string& resource_name, type* pResource ); \
+	private: \
+		std::unordered_map<std::string, type*> m_map##name;
+#include "RenderNodeDataTypes.def"
 	};
 }

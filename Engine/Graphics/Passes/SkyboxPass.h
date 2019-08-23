@@ -16,7 +16,7 @@ namespace Bat
 		SkyboxPass()
 		{
 			AddRenderNode( "skyboxtex", NodeType::INPUT, NodeDataType::TEXTURE );
-			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TEXTURE );
+			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TARGET );
 		}
 
 		virtual std::string GetDescription() const override

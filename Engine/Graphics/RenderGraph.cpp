@@ -66,23 +66,20 @@ namespace Bat
 		m_vPassEnabled[idx] = enabled;
 	}
 
-	void RenderGraph::AddTextureResource( const std::string& name, std::unique_ptr<ITexture> pTexture )
-	{
-		m_mapTextures[name] = std::move( pTexture );
-		m_mapResourceTypes[name] = NodeDataType::TEXTURE;
+#define RENDER_NODE_DATATYPE( type, name, capname ) \
+	void RenderGraph::Add##name##Resource( const std::string& resource_name, std::unique_ptr<type> pResource ) \
+	{ \
+		ASSERT( GetResourceType( resource_name ) == NodeDataType::INVALID, "Resource added twice" ); \
+		m_mapOwning##name[resource_name] = std::move( pResource ); \
+		m_mapResourceTypes[resource_name] = NodeDataType::capname; \
+	} \
+	void RenderGraph::Add##name##Resource( const std::string& resource_name, type* pResource ) \
+	{ \
+		ASSERT( GetResourceType( resource_name ) == NodeDataType::INVALID, "Resource added twice" ); \
+		m_mapNonOwning##name[resource_name] = pResource; \
+		m_mapResourceTypes[resource_name] = NodeDataType::capname; \
 	}
-
-	void RenderGraph::AddRenderTextureResource( const std::string& name, std::unique_ptr<IRenderTarget> pRenderTexture )
-	{
-		m_mapRenderTextures[name] = std::move( pRenderTexture );
-		m_mapResourceTypes[name] = NodeDataType::RENDER_TEXTURE;
-	}
-
-	void RenderGraph::AddDepthStencilResource( const std::string& name, std::unique_ptr<IDepthStencil> pDepthStencil )
-	{
-		m_mapDepthStencils[name] = std::move( pDepthStencil );
-		m_mapResourceTypes[name] = NodeDataType::DEPTH_STENCIL;
-	}
+#include "RenderNodeDataTypes.def"
 
 	void RenderGraph::BindToResource( const std::string& node_name, const std::string& resource )
 	{
@@ -159,8 +156,8 @@ namespace Bat
 					case NodeDataType::TEXTURE:
 						data.AddTexture( nar.node.name, GetTextureResource( nar.resource ) );
 						break;
-					case NodeDataType::RENDER_TEXTURE:
-						data.AddRenderTarget( nar.node.name, GetRenderTextureResource( nar.resource ) );
+					case NodeDataType::RENDER_TARGET:
+						data.AddRenderTarget( nar.node.name, GetRenderTargetResource( nar.resource ) );
 						break;
 					case NodeDataType::DEPTH_STENCIL:
 						data.AddDepthStencil( nar.node.name, GetDepthStencilResource( nar.resource ) );
@@ -178,8 +175,11 @@ namespace Bat
 
 	void RenderGraph::ResetResources()
 	{
-		m_mapTextures.clear();
-		m_mapRenderTextures.clear();
+#define RENDER_NODE_DATATYPE( type, name, capname ) \
+		m_mapOwning##name.clear(); \
+		m_mapNonOwning##name.clear();
+#include "RenderNodeDataTypes.def"
+
 		m_mapResourceTypes.clear();
 		m_vNodeAndResourceBindings.clear();
 	}
@@ -236,9 +236,9 @@ namespace Bat
 		return node;
 	}
 
-	NodeDataType RenderGraph::GetResourceType( const std::string& name )
+	NodeDataType RenderGraph::GetResourceType( const std::string& resource_name )
 	{
-		auto it = m_mapResourceTypes.find( name );
+		auto it = m_mapResourceTypes.find( resource_name );
 		if( it != m_mapResourceTypes.end() )
 		{
 			return it->second;
@@ -247,36 +247,20 @@ namespace Bat
 		return NodeDataType::INVALID;
 	}
 
-	ITexture* RenderGraph::GetTextureResource( const std::string& name )
-	{
-		auto it = m_mapTextures.find( name );
-		if( it != m_mapTextures.end() )
-		{
-			return it->second.get();
-		}
-
-		return nullptr;
+#define RENDER_NODE_DATATYPE( type, name, capname ) \
+	type* RenderGraph::Get##name##Resource( const std::string& resource_name ) \
+	{ \
+		auto it = m_mapOwning##name.find( resource_name ); \
+		if( it != m_mapOwning##name.end() ) \
+		{ \
+			return it->second.get(); \
+		} \
+		auto it2 = m_mapNonOwning##name.find( resource_name ); \
+		if( it2 != m_mapNonOwning##name.end() ) \
+		{ \
+			return it2->second; \
+		} \
+		return nullptr; \
 	}
-
-	IRenderTarget* RenderGraph::GetRenderTextureResource( const std::string& name )
-	{
-		auto it = m_mapRenderTextures.find( name );
-		if( it != m_mapRenderTextures.end() )
-		{
-			return it->second.get();
-		}
-
-		return nullptr;
-	}
-
-	IDepthStencil* RenderGraph::GetDepthStencilResource( const std::string& name )
-	{
-		auto it = m_mapDepthStencils.find( name );
-		if( it != m_mapDepthStencils.end() )
-		{
-			return it->second.get();
-		}
-
-		return nullptr;
-	}
+#include "RenderNodeDataTypes.def"
 }

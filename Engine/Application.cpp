@@ -298,19 +298,19 @@ namespace Bat
 		// render texture to draw scene to
 		if( post_process_count )
 		{
-			rendergraph.AddRenderTextureResource( "target",
+			rendergraph.AddRenderTargetResource( "target",
 				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
 
 			// render texture 1 for bloom
-			rendergraph.AddRenderTextureResource( "rt1",
+			rendergraph.AddRenderTargetResource( "rt1",
 				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth() / 2, wnd.GetHeight() / 2, TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
 			// render texture 2 for bloom & motion blur
-			rendergraph.AddRenderTextureResource( "rt2",
+			rendergraph.AddRenderTargetResource( "rt2",
 				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth() / 2, wnd.GetHeight() / 2, TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
 		}
 		else
 		{
-			rendergraph.AddRenderTextureResource( "target", nullptr );
+			rendergraph.AddRenderTargetResource( "target", nullptr );
 		}
 
 		auto depth = std::unique_ptr<IDepthStencil>( gpu->CreateDepthStencil( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R24G8_TYPELESS ) );
