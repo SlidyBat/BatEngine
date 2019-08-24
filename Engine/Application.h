@@ -16,6 +16,7 @@ namespace Bat
 	class Graphics;
 	class Window;
 	class Light;
+	class RenderTarget;
 
 	class Application : public ILayer
 	{
@@ -26,8 +27,9 @@ namespace Bat
 		virtual void OnUpdate( float deltatime ) override;
 		virtual void OnRender() override;
 
+		void OnEvent( const WindowResizeEvent& e );
 		void OnEvent( const KeyPressedEvent& e );
-
+	private:
 		void BuildRenderGraph();
 	public:
 		bool bloom_enabled = true;

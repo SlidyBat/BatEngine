@@ -72,7 +72,7 @@ namespace Bat
 			m_Pos = pos;
 			m_dwStyle = WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_OVERLAPPEDWINDOW;
 
-			RECT windowRect = { 0, 0, m_iWidth, m_iHeight };
+			RECT windowRect = { 0, 0, (LONG)m_iWidth, (LONG)m_iHeight };
 			AdjustWindowRect( &windowRect, m_dwStyle, false );
 
 			m_hWnd = CreateWindowEx(
@@ -195,7 +195,7 @@ namespace Bat
 		case WM_MOUSEMOVE:
 		{
 			POINTS pos = MAKEPOINTS( lParam );
-			if( pos.x >= 0 && pos.x < GetWidth() && pos.y >= 0 && pos.y < GetHeight() )
+			if( pos.x >= 0 && pos.x < (SHORT)GetWidth() && pos.y >= 0 && pos.y < (SHORT)GetHeight() )
 			{
 				input.OnMouseMoved( { pos.x, pos.y } );
 				if( !input.IsMouseInWindow() )
@@ -320,8 +320,8 @@ namespace Bat
 		}
 		case WM_SIZE: // called when window is resized
 		{
-			m_iWidth = LOWORD( lParam );
-			m_iHeight = HIWORD( lParam );
+			m_iWidth = (size_t)LOWORD( lParam );
+			m_iHeight = (size_t)HIWORD( lParam );
 
 			DispatchEvent<WindowResizeEvent>( m_iWidth, m_iHeight );
 

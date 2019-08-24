@@ -9,9 +9,9 @@ namespace Bat
 	struct WindowResizeEvent
 	{
 		// New window width
-		int width;
+		size_t width;
 		// New window height
-		int height;
+		size_t height;
 	};
 
 	// Called when window is moved

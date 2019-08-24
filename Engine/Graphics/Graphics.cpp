@@ -34,13 +34,7 @@ namespace Bat
 	{
 		gpu = CreateD3DGPUDevice( wnd, VSyncEnabled, ScreenFar, ScreenNear );
 
-		Viewport vp;
-		vp.width = (float)wnd.GetWidth();
-		vp.height = (float)wnd.GetHeight();
-		vp.min_depth = 0.0f;
-		vp.max_depth = 1.0f;
-		vp.top_left = { 0.0f, 0.0f };
-		gpu->GetContext()->SetViewport( vp );
+		InitialiseResources( wnd.GetWidth(), wnd.GetHeight() );
 
 		ShaderManager::AddPipeline( "texture", std::make_unique<TexturePipeline>( "Graphics/Shaders/TextureVS.hlsl", "Graphics/Shaders/TexturePS.hlsl" ) );
 		ShaderManager::AddPipeline( "colour", std::make_unique <ColourPipeline>( "Graphics/Shaders/ColourVS.hlsl", "Graphics/Shaders/ColourPS.hlsl" ) );
@@ -51,13 +45,6 @@ namespace Bat
 		{
 			Resize( e.width, e.height );
 		} );
-
-		m_matOrtho = DirectX::XMMatrixOrthographicLH(
-			(float)wnd.GetWidth(),
-			(float)wnd.GetHeight(),
-			Graphics::ScreenNear,
-			Graphics::ScreenFar
-		);
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -78,16 +65,11 @@ namespace Bat
 		BAT_TRACE( "ImGui shut down" );
 	}
 
-	void Graphics::Resize( int width, int height )
+	void Graphics::Resize( size_t width, size_t height )
 	{
-		m_iScreenWidth = width;
-		m_iScreenHeight = height;
-		m_matOrtho = DirectX::XMMatrixOrthographicLH(
-			(float)width,
-			(float)height,
-			Graphics::ScreenNear,
-			Graphics::ScreenFar
-		);
+		InitialiseResources( width, height );
+
+		gpu->ResizeBuffers( width, height );
 	}
 
 	void Graphics::SetRenderGraph( RenderGraph* graph )
@@ -124,12 +106,31 @@ namespace Bat
 		return m_matOrtho;
 	}
 
+	void Graphics::InitialiseResources( size_t width, size_t height )
+	{
+		m_iScreenWidth = width;
+		m_iScreenHeight = height;
+		m_matOrtho = DirectX::XMMatrixOrthographicLH(
+			(float)width,
+			(float)height,
+			Graphics::ScreenNear,
+			Graphics::ScreenFar
+		);
+
+		Viewport vp;
+		vp.width = (float)width;
+		vp.height = (float)height;
+		vp.min_depth = 0.0f;
+		vp.max_depth = 1.0f;
+		vp.top_left = { 0.0f, 0.0f };
+		gpu->GetContext()->SetViewport( vp );
+	}
+
 	void Graphics::RenderScene()
 	{
 		if( m_pSceneGraph && m_pCamera && m_pRenderGraph )
 		{
-			// nullptr RT is backbuffer
-			m_pRenderGraph->Render( *m_pCamera, *m_pSceneGraph, nullptr );
+			m_pRenderGraph->Render( *m_pCamera, *m_pSceneGraph, gpu->GetBackbuffer() );
 		}
 	}
 

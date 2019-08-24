@@ -8,10 +8,10 @@
 
 #ifdef _DEBUG
 #define THROW_COM_ERROR( hr, msg ) ASSERT( false, COMException( hr, msg, __FILE__, __FUNCTION__, __LINE__ ).what() )
-#define COM_THROW_IF_FAILED( hr ) { if( FAILED( hr ) ) ASSERT( false, COMException( hr, "Error", __FILE__, __FUNCTION__, __LINE__ ).what() ); }
+#define COM_THROW_IF_FAILED( hr ) ASSERT( SUCCEEDED( hr ), COMException( hr, "Error", __FILE__, __FUNCTION__, __LINE__ ).what() )
 #else
 #define THROW_COM_ERROR( hr, msg ) throw COMException( hr, msg, __FILE__, __FUNCTION__, __LINE__ )
-#define COM_THROW_IF_FAILED( hr ) { if( FAILED( hr ) ) throw COMException( hr, __FILE__, __FUNCTION__, __LINE__ ); }
+#define COM_THROW_IF_FAILED( hr ) do { if( FAILED( hr ) ) throw COMException( hr, __FILE__, __FUNCTION__, __LINE__ ); } while( false )
 #endif
 
 class COMException : public std::exception

@@ -29,7 +29,7 @@ namespace Bat
 
 		~Graphics();
 
-		void Resize( int width, int height );
+		void Resize( size_t width, size_t height );
 
 		SceneNode* GetActiveScene() const { return m_pSceneGraph; }
 		void SetActiveScene( SceneNode* pSceneGraph ) { m_pSceneGraph = pSceneGraph; }
@@ -47,14 +47,16 @@ namespace Bat
 
 		DirectX::XMMATRIX GetOrthoMatrix() const;
 	private:
+		void InitialiseResources( size_t width, size_t height );
+
 		void RenderScene();
 		void RenderUI();
 		void RenderImGui();
 	private:
 		DirectX::XMMATRIX m_matOrtho;
 
-		int m_iScreenWidth = InitialScreenWidth;
-		int m_iScreenHeight = InitialScreenHeight;
+		int m_iScreenWidth = 0;
+		int m_iScreenHeight = 0;
 
 		SceneNode* m_pSceneGraph;
 		Camera* m_pCamera;

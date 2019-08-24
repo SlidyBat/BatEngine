@@ -26,12 +26,23 @@
 #pragma comment( lib, "d3dcompiler.lib" )
 
 #ifdef _DEBUG
-#define DXGI_DEVICE_CALL( dev, fn ) { dev->FlushMessages(); fn; auto msg = dev->FlushMessages(); if( !msg.empty() ) { ASSERT( false, msg ); } }
+#define DXGI_CALL( dev, fn ) do { \
+		dev->FlushMessages(); \
+		fn; \
+		auto msg = dev->FlushMessages(); \
+		if( !msg.empty() ) \
+		{ \
+			ASSERT( false, msg ); \
+		} \
+	} while( false )
 #else
-#define DXGI_DEVICE_CALL( dev, fn ) fn
+#define DXGI_CALL( dev, fn ) fn
 #endif
 
-#define DXGI_CALL( fn ) DXGI_DEVICE_CALL( m_pDevice, fn )
+// Only use within GPUContext class. Does all the error checking in debug builds.
+#define DXGI_CONTEXT_CALL( fn ) DXGI_CALL( m_pDevice, fn )
+// Only use within GPUDevice class. Does all the error checking in debug builds.
+#define DXGI_DEVICE_CALL( fn ) DXGI_CALL( this, fn )
 
 namespace Bat
 {
@@ -104,7 +115,6 @@ namespace Bat
 		void Reset( ID3D11RenderTargetView* pRenderTargetView, size_t width, size_t height )
 		{
 			m_pRenderTargetView = pRenderTargetView;
-			pRenderTargetView->AddRef();
 
 			m_iWidth = width;
 			m_iHeight = height;
@@ -195,12 +205,12 @@ namespace Bat
 		// Sets current render target. Pass nullptr to bind backbuffer
 		virtual void SetRenderTarget( IRenderTarget* pRT ) override;
 		virtual void SetRenderTargets( const std::vector<IRenderTarget*>& pRTs ) override;
-		// Pushes a render target on to RT stack
+		virtual void PushRenderTarget() override;
 		virtual void PushRenderTarget( IRenderTarget* pRT ) override;
 		virtual void PushRenderTargets( const std::vector<IRenderTarget*>& pRTs ) override;
-		// Pops top render target on RT stack.
 		virtual void PopRenderTarget() override;
 		virtual void UnbindRenderTargets() override;
+		virtual void ClearRenderTargetStack() override;
 
 		virtual void SetRenderTargetAndViewport( IRenderTarget* pRT ) override;
 		virtual void PushRenderTargetAndViewport( IRenderTarget* pRT ) override;
@@ -287,10 +297,8 @@ namespace Bat
 
 		virtual void SwapBuffers() override;
 
-		// Gets the main GPU context.
-		// NOTE: Only use this at the top level, pass around an IGPUContext as a parameter everywhere else.
-		//       In some cases a deferred context is used so it is best not to hardcode the main context to
-		//       be used everywhere.
+		virtual void ResizeBuffers( size_t width, size_t height ) override;
+
 		virtual IGPUContext* GetContext() override { return &m_GPUContext; };
 
 		virtual void* GetImpl() override { return m_pDevice.Get(); }
@@ -474,7 +482,7 @@ namespace Bat
 				break;
 		}
 
-		DXGI_CALL( m_pDeviceContext->IASetPrimitiveTopology( d3dtop ) );
+		DXGI_CONTEXT_CALL( m_pDeviceContext->IASetPrimitiveTopology( d3dtop ) );
 	}
 
 	PrimitiveTopology D3DGPUContext::GetPrimitiveTopology() const
@@ -580,11 +588,11 @@ namespace Bat
 
 		if( enabled )
 		{
-			DXGI_CALL( m_pDeviceContext->OMSetDepthStencilState( m_pDevice->GetDepthStencilEnabledState(), 0 ) );
+			DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetDepthStencilState( m_pDevice->GetDepthStencilEnabledState(), 0 ) );
 		}
 		else
 		{
-			DXGI_CALL( m_pDeviceContext->OMSetDepthStencilState( m_pDevice->GetDepthStencilDisabledState(), 0 ) );
+			DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetDepthStencilState( m_pDevice->GetDepthStencilDisabledState(), 0 ) );
 		}
 	}
 
@@ -610,17 +618,14 @@ namespace Bat
 
 	void D3DGPUContext::SetRenderTarget( IRenderTarget* pRT )
 	{
-		if( !pRT )
-		{
-			pRT = m_pDevice->GetBackbuffer();
-		}
-
 		if( m_RenderTargetStack.empty() )
 		{
 			m_RenderTargetStack.push_back( { pRT } );
 		}
-
-		m_RenderTargetStack.back() = { pRT };
+		else
+		{
+			m_RenderTargetStack.back() = { pRT };
+		}
 
 		BindRenderTarget();
 	}
@@ -629,11 +634,19 @@ namespace Bat
 	{
 		if( m_RenderTargetStack.empty() )
 		{
-			m_RenderTargetStack.push_back( { pRT } );
+			m_RenderTargetStack.push_back( pRT );
+		}
+		else
+		{
+			m_RenderTargetStack.back() = pRT;
 		}
 
-		m_RenderTargetStack.back() = { pRT };
+		BindRenderTarget();
+	}
 
+	void D3DGPUContext::PushRenderTarget()
+	{
+		m_RenderTargetStack.push_back( {} );
 		BindRenderTarget();
 	}
 
@@ -660,6 +673,12 @@ namespace Bat
 		{
 			m_RenderTargetStack.back() = {};
 		}
+		BindRenderTarget();
+	}
+
+	void D3DGPUContext::ClearRenderTargetStack()
+	{
+		m_RenderTargetStack.clear();
 		BindRenderTarget();
 	}
 
@@ -699,7 +718,7 @@ namespace Bat
 	{
 		ID3D11DepthStencilView* pView = static_cast<D3DDepthStencil*>( pDepthStencil )->GetDepthStencilView();
 
-		DXGI_CALL( m_pDeviceContext->ClearDepthStencilView( pView, (UINT)clearflag, (FLOAT)depth, (UINT8)stencil ) );
+		DXGI_CONTEXT_CALL( m_pDeviceContext->ClearDepthStencilView( pView, (UINT)clearflag, (FLOAT)depth, (UINT8)stencil ) );
 	}
 
 	void D3DGPUContext::ClearRenderTarget( IRenderTarget* pRT, float r, float g, float b, float a )
@@ -715,7 +734,7 @@ namespace Bat
 		colour[1] = g;
 		colour[2] = b;
 		colour[3] = a;
-		DXGI_CALL( m_pDeviceContext->ClearRenderTargetView( pView, colour ) );
+		DXGI_CONTEXT_CALL( m_pDeviceContext->ClearRenderTargetView( pView, colour ) );
 	}
 
 	void D3DGPUContext::UpdateTexturePixels( ITexture* pTexture, const void* pPixels, size_t pitch )
@@ -726,25 +745,25 @@ namespace Bat
 	void D3DGPUContext::BindTexture( ITexture* pTexture, size_t slot )
 	{
 		ID3D11ShaderResourceView* srv = static_cast<D3DTexture*>( pTexture )->GetShaderResourceView();
-		DXGI_CALL( m_pDeviceContext->PSSetShaderResources( (UINT)slot, 1, &srv ) );
+		DXGI_CONTEXT_CALL( m_pDeviceContext->PSSetShaderResources( (UINT)slot, 1, &srv ) );
 	}
 
 	void D3DGPUContext::BindTexture( IRenderTarget* pRT, size_t slot )
 	{
 		ID3D11ShaderResourceView* srv = static_cast<D3DRenderTarget*>( pRT )->GetShaderResourceView();
-		DXGI_CALL( m_pDeviceContext->PSSetShaderResources( (UINT)slot, 1, &srv ) );
+		DXGI_CONTEXT_CALL( m_pDeviceContext->PSSetShaderResources( (UINT)slot, 1, &srv ) );
 	}
 
 	void D3DGPUContext::BindTexture( IDepthStencil* pDepthStencil, size_t slot )
 	{
 		ID3D11ShaderResourceView* srv = static_cast<D3DDepthStencil*>( pDepthStencil )->GetShaderResourceView();
-		DXGI_CALL( m_pDeviceContext->PSSetShaderResources( (UINT)slot, 1, &srv ) );
+		DXGI_CONTEXT_CALL( m_pDeviceContext->PSSetShaderResources( (UINT)slot, 1, &srv ) );
 	}
 
 	void D3DGPUContext::UnbindTextureSlot( size_t slot )
 	{
 		ID3D11ShaderResourceView* pNullResource = nullptr;
-		DXGI_CALL( m_pDeviceContext->PSSetShaderResources( (UINT)slot, 1, &pNullResource ) );
+		DXGI_CONTEXT_CALL( m_pDeviceContext->PSSetShaderResources( (UINT)slot, 1, &pNullResource ) );
 	}
 
 	void D3DGPUContext::UpdateBuffer( IVertexBuffer* pBuffer, const void* pData )
@@ -771,7 +790,7 @@ namespace Bat
 	{
 		m_pPixelShader = static_cast<D3DPixelShader*>( pShader );
 		auto pD3DDevice = static_cast<ID3D11Device*>(m_pDevice->GetImpl());
-		DXGI_CALL( m_pDeviceContext->PSSetShader( m_pPixelShader ? m_pPixelShader->GetShader( pD3DDevice ) : nullptr, nullptr, 0 ) );
+		DXGI_CONTEXT_CALL( m_pDeviceContext->PSSetShader( m_pPixelShader ? m_pPixelShader->GetShader( pD3DDevice ) : nullptr, nullptr, 0 ) );
 	}
 
 	IVertexShader* D3DGPUContext::GetVertexShader() const
@@ -783,8 +802,8 @@ namespace Bat
 	{
 		m_pVertexShader = static_cast<D3DVertexShader*>( pShader );
 		auto pD3DDevice = static_cast<ID3D11Device*>(m_pDevice->GetImpl());
-		DXGI_CALL( m_pDeviceContext->VSSetShader( m_pVertexShader ? m_pVertexShader->GetShader( pD3DDevice ) : nullptr, nullptr, 0 ) );
-		DXGI_CALL( m_pDeviceContext->IASetInputLayout( m_pVertexShader ? m_pVertexShader->GetLayout() : nullptr ) );
+		DXGI_CONTEXT_CALL( m_pDeviceContext->VSSetShader( m_pVertexShader ? m_pVertexShader->GetShader( pD3DDevice ) : nullptr, nullptr, 0 ) );
+		DXGI_CONTEXT_CALL( m_pDeviceContext->IASetInputLayout( m_pVertexShader ? m_pVertexShader->GetLayout() : nullptr ) );
 	}
 
 	void D3DGPUContext::SetVertexBuffer( IVertexBuffer* pBuffer, size_t slot )
@@ -795,7 +814,7 @@ namespace Bat
 		UINT stride = (UINT)pD3DBuffer->GetElementSize();
 		UINT offset = 0;
 
-		DXGI_CALL( m_pDeviceContext->IASetVertexBuffers( (UINT)slot, 1, &pVertexBuffer, &stride, &offset ) );
+		DXGI_CONTEXT_CALL( m_pDeviceContext->IASetVertexBuffers( (UINT)slot, 1, &pVertexBuffer, &stride, &offset ) );
 	}
 
 	void D3DGPUContext::SetIndexBuffer( IIndexBuffer* pBuffer )
@@ -826,19 +845,19 @@ namespace Bat
 		switch( shader )
 		{
 			case ShaderType::VERTEX:
-				DXGI_CALL( m_pDeviceContext->VSSetConstantBuffers( (UINT)slot, 1, &pConstantBuffer ) );
+				DXGI_CONTEXT_CALL( m_pDeviceContext->VSSetConstantBuffers( (UINT)slot, 1, &pConstantBuffer ) );
 				break;
 			case ShaderType::PIXEL:
-				DXGI_CALL( m_pDeviceContext->PSSetConstantBuffers( (UINT)slot, 1, &pConstantBuffer ) );
+				DXGI_CONTEXT_CALL( m_pDeviceContext->PSSetConstantBuffers( (UINT)slot, 1, &pConstantBuffer ) );
 				break;
 			case ShaderType::HULL:
-				DXGI_CALL( m_pDeviceContext->HSSetConstantBuffers( (UINT)slot, 1, &pConstantBuffer ) );
+				DXGI_CONTEXT_CALL( m_pDeviceContext->HSSetConstantBuffers( (UINT)slot, 1, &pConstantBuffer ) );
 				break;
 			case ShaderType::GEOMETRY:
-				DXGI_CALL( m_pDeviceContext->GSSetConstantBuffers( (UINT)slot, 1, &pConstantBuffer ) );
+				DXGI_CONTEXT_CALL( m_pDeviceContext->GSSetConstantBuffers( (UINT)slot, 1, &pConstantBuffer ) );
 				break;
 			case ShaderType::COMPUTE:
-				DXGI_CALL( m_pDeviceContext->CSSetConstantBuffers( (UINT)slot, 1, &pConstantBuffer ) );
+				DXGI_CONTEXT_CALL( m_pDeviceContext->CSSetConstantBuffers( (UINT)slot, 1, &pConstantBuffer ) );
 				break;
 			default:
 				ASSERT( false, "Unknown shader type '%i'", (int)shader );
@@ -852,19 +871,19 @@ namespace Bat
 		switch( shader )
 		{
 			case ShaderType::VERTEX:
-				DXGI_CALL( m_pDeviceContext->VSSetSamplers( (UINT)slot, 1, &pSamplerState ) );
+				DXGI_CONTEXT_CALL( m_pDeviceContext->VSSetSamplers( (UINT)slot, 1, &pSamplerState ) );
 				break;
 			case ShaderType::PIXEL:
-				DXGI_CALL( m_pDeviceContext->PSSetSamplers( (UINT)slot, 1, &pSamplerState ) );
+				DXGI_CONTEXT_CALL( m_pDeviceContext->PSSetSamplers( (UINT)slot, 1, &pSamplerState ) );
 				break;
 			case ShaderType::HULL:
-				DXGI_CALL( m_pDeviceContext->HSSetSamplers( (UINT)slot, 1, &pSamplerState ) );
+				DXGI_CONTEXT_CALL( m_pDeviceContext->HSSetSamplers( (UINT)slot, 1, &pSamplerState ) );
 				break;
 			case ShaderType::GEOMETRY:
-				DXGI_CALL( m_pDeviceContext->GSSetSamplers( (UINT)slot, 1, &pSamplerState ) );
+				DXGI_CONTEXT_CALL( m_pDeviceContext->GSSetSamplers( (UINT)slot, 1, &pSamplerState ) );
 				break;
 			case ShaderType::COMPUTE:
-				DXGI_CALL( m_pDeviceContext->CSSetSamplers( (UINT)slot, 1, &pSamplerState ) );
+				DXGI_CONTEXT_CALL( m_pDeviceContext->CSSetSamplers( (UINT)slot, 1, &pSamplerState ) );
 				break;
 			default:
 				ASSERT( false, "Unknown shader type '%i'", (int)shader );
@@ -874,12 +893,12 @@ namespace Bat
 
 	void D3DGPUContext::Draw( size_t vertex_count )
 	{
-		DXGI_CALL( m_pDeviceContext->Draw( (UINT)vertex_count, 0 ) );
+		DXGI_CONTEXT_CALL( m_pDeviceContext->Draw( (UINT)vertex_count, 0 ) );
 	}
 
 	void D3DGPUContext::DrawIndexed( size_t index_count )
 	{
-		DXGI_CALL( m_pDeviceContext->DrawIndexed( (UINT)index_count, 0, 0 ) );
+		DXGI_CONTEXT_CALL( m_pDeviceContext->DrawIndexed( (UINT)index_count, 0, 0 ) );
 	}
 
 	void D3DGPUContext::BindViewports()
@@ -900,7 +919,7 @@ namespace Bat
 			d3d11vps[i].TopLeftY = vp.top_left.y;
 		}
 
-		DXGI_CALL( m_pDeviceContext->RSSetViewports( (UINT)count, d3d11vps.data() ) );
+		DXGI_CONTEXT_CALL( m_pDeviceContext->RSSetViewports( (UINT)count, d3d11vps.data() ) );
 	}
 
 	void D3DGPUContext::BindRenderTarget()
@@ -912,19 +931,26 @@ namespace Bat
 		if( count )
 		{
 			std::vector<ID3D11RenderTargetView*> d3d11rts;
-			d3d11rts.resize( count );
+			d3d11rts.reserve( count );
 
 			for( size_t i = 0; i < count; i++ )
 			{
 				const IRenderTarget* rt = m_RenderTargetStack.back()[i];
-				d3d11rts[i] = static_cast<const D3DRenderTarget*>( rt )->GetRenderTargetView();
+				if( rt )
+				{
+					d3d11rts.push_back( static_cast<const D3DRenderTarget*>(rt)->GetRenderTargetView() );
+				}
+				else
+				{
+					d3d11rts.push_back( nullptr );
+				}
 			}
 
-			DXGI_CALL( m_pDeviceContext->OMSetRenderTargets( (UINT)count, d3d11rts.data(), pDSV ) );
+			DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetRenderTargets( (UINT)count, d3d11rts.data(), pDSV ) );
 		}
 		else
 		{
-			DXGI_CALL( m_pDeviceContext->OMSetRenderTargets( 0, nullptr, pDSV ) );
+			DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetRenderTargets( 0, nullptr, pDSV ) );
 		}
 	}
 
@@ -1277,6 +1303,26 @@ namespace Bat
 		}
 
 		auto msg = FlushMessages();
+	}
+
+	void D3DGPUDevice::ResizeBuffers( size_t width, size_t height )
+	{
+		IGPUContext* pContext = GetContext();
+
+		pContext->ClearRenderTargetStack();
+		pContext->SetDepthStencil( nullptr );
+
+		m_Backbuffer.Reset( nullptr, 0, 0 );
+		m_pRenderTargetView = nullptr;
+
+		DXGI_DEVICE_CALL( m_pSwapChain->ResizeBuffers( 0, 0, 0, DXGI_FORMAT_UNKNOWN, 0 ) );
+
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> pBackBuffer;
+		COM_THROW_IF_FAILED( m_pSwapChain->GetBuffer( 0, IID_PPV_ARGS( &pBackBuffer ) ) );
+
+		COM_THROW_IF_FAILED( m_pDevice->CreateRenderTargetView( pBackBuffer.Get(), NULL, &m_pRenderTargetView ) );
+
+		m_Backbuffer.Reset( m_pRenderTargetView.Get(), width, height );
 	}
 
 	static const char* FeatureLevel2String( D3D_FEATURE_LEVEL level )

@@ -25,11 +25,11 @@ namespace Bat
 		{
 			return m_bFullscreen;
 		}
-		int GetWidth() const
+		size_t GetWidth() const
 		{
 			return m_iWidth;
 		}
-		int GetHeight() const
+		size_t GetHeight() const
 		{
 			return m_iHeight;
 		}
@@ -53,8 +53,8 @@ namespace Bat
 		static LRESULT CALLBACK HandleMsgSetup( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 		static LRESULT CALLBACK HandleMsgThunk( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 	private:
-		int m_iWidth;
-		int m_iHeight;
+		size_t m_iWidth;
+		size_t m_iHeight;
 		Vei2 m_Pos;
 		DWORD m_dwStyle;
 

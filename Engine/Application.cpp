@@ -17,6 +17,7 @@
 #include "IRenderPass.h"
 #include "ShaderManager.h"
 #include "RenderData.h"
+#include "RenderTarget.h"
 #include "Passes/ClearRenderTargetPass.h"
 #include "Passes/SkyboxPass.h"
 #include "Passes/BloomPass.h"
@@ -32,6 +33,8 @@ namespace Bat
 		wnd( wnd ),
 		camera( wnd.input, 2.0f, 100.0f )
 	{
+		camera.SetAspectRatio( (float)wnd.GetWidth() / wnd.GetHeight() );
+
 		scene.Set( world.CreateEntity() ); // Root entity;
 		size_t sponza = scene.AddChild( SceneLoader::LoadScene( "Assets/Ignore/Sponza/Sponza.gltf" ) );
 
@@ -111,6 +114,8 @@ namespace Bat
 		{
 			BAT_LOG( "Touch!" );
 		} );
+
+		wnd.AddEventListener<WindowResizeEvent>( *this );
 	}
 
 	Application::~Application()
@@ -219,6 +224,14 @@ namespace Bat
 		}
 	}
 
+	void Application::OnEvent( const WindowResizeEvent& e )
+	{
+		camera.SetAspectRatio( (float)e.width / e.height );
+
+		// Re-build everything from scratch
+		BuildRenderGraph();
+	}
+
 	void Application::OnEvent( const KeyPressedEvent& e )
 	{
 		if( e.key == VK_OEM_3 )
@@ -287,7 +300,6 @@ namespace Bat
 
 	void Application::BuildRenderGraph()
 	{
-		// start fresh
 		rendergraph.Reset();
 
 		int post_process_count = 0;
@@ -310,12 +322,13 @@ namespace Bat
 		}
 		else
 		{
-			rendergraph.AddRenderTargetResource( "target", nullptr );
+			rendergraph.AddRenderTargetResource( "target", gpu->GetBackbuffer() );
 		}
 
 		auto depth = std::unique_ptr<IDepthStencil>( gpu->CreateDepthStencil( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R24G8_TYPELESS ) );
 		gpu->GetContext()->SetDepthStencil( depth.get() );
 		rendergraph.AddDepthStencilResource( "depth", std::move( depth ) );
+
 		rendergraph.AddTextureResource( "skybox", std::unique_ptr<ITexture>( gpu->CreateTexture( "Assets\\skybox.dds" ) ) );
 
 		// add passes

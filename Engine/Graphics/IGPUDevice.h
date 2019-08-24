@@ -50,6 +50,7 @@ namespace Bat
 		virtual IDepthStencil* CreateDepthStencil( size_t width, size_t height, TexFormat format ) = 0;
 
 		virtual IRenderTarget* CreateRenderTarget( size_t width, size_t height, TexFormat format ) = 0;
+
 		// Gets backbuffer as render target
 		virtual IRenderTarget* GetBackbuffer() = 0;
 		virtual const IRenderTarget* GetBackbuffer() const = 0;
@@ -57,6 +58,10 @@ namespace Bat
 		virtual ISampler* CreateSampler( const SamplerDesc& sampler_desc ) = 0;
 
 		virtual void SwapBuffers() = 0;
+
+		// Resizes internal buffers to the specified width/height
+		// NOTE: Render targets and depth stencils are unbound after this method is called
+		virtual void ResizeBuffers( size_t width, size_t height ) = 0;
 
 		// Gets immediate context
 		virtual IGPUContext* GetContext() = 0;
@@ -104,12 +109,15 @@ namespace Bat
 		// Sets current render target. Pass nullptr to bind backbuffer
 		virtual void SetRenderTarget( IRenderTarget* pRT ) = 0;
 		virtual void SetRenderTargets( const std::vector<IRenderTarget*>& pRTs ) = 0;
+		// Pushes a new layer in RT stack, but doesn't add any render targets to it. Use this to push a layer without any render targets bound.
+		virtual void PushRenderTarget() = 0;
 		// Pushes a render target on to RT stack
 		virtual void PushRenderTarget( IRenderTarget* pRT ) = 0;
 		virtual void PushRenderTargets( const std::vector<IRenderTarget*>& pRTs ) = 0;
 		// Pops top render target on RT stack.
 		virtual void PopRenderTarget() = 0;
 		virtual void UnbindRenderTargets() = 0;
+		virtual void ClearRenderTargetStack() = 0;
 
 		// Sets current render target and also sets viewport with same size
 		virtual void SetRenderTargetAndViewport( IRenderTarget* pRT ) = 0;
