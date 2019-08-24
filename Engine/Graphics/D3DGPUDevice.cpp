@@ -137,6 +137,7 @@ namespace Bat
 	{
 	public:
 		D3DPixelShader( ID3D11Device* pDevice, const std::string& filename );
+		~D3DPixelShader();
 
 		virtual std::string GetName() const override { return m_szName; }
 		ID3D11PixelShader* GetShader( ID3D11Device* pDevice );
@@ -149,12 +150,17 @@ namespace Bat
 		std::string m_szName;
 		std::atomic_bool m_bDirty = true;
 		Microsoft::WRL::ComPtr<ID3D11PixelShader> m_pShader;
+
+#ifdef _DEBUG
+		FileWatchHandle_t m_hFileWatch;
+#endif
 	};
 
 	class D3DVertexShader : public IVertexShader
 	{
 	public:
 		D3DVertexShader( ID3D11Device* pDevice, const std::string& filename );
+		~D3DVertexShader();
 
 		virtual std::string GetName() const override { return m_szName; }
 		virtual bool RequiresVertexAttribute( VertexAttribute attribute ) const override { return m_bUsesAttribute[(int)attribute]; }
@@ -173,6 +179,10 @@ namespace Bat
 		bool m_bUsesAttribute[(int)VertexAttribute::TotalAttributes];
 		std::atomic_bool m_bDirty = true;
 		Microsoft::WRL::ComPtr<ID3D11VertexShader> m_pShader;
+
+#ifdef _DEBUG
+		FileWatchHandle_t m_hFileWatch;
+#endif
 	};
 
 	class D3DGPUContext : public IGPUContext
@@ -1383,10 +1393,18 @@ namespace Bat
 		m_szName( filename )
 	{
 		LoadFromFile( pDevice, filename, true );
-		FileWatchdog::AddFileChangeListener( filename, BIND_MEM_FN( D3DPixelShader::OnFileChanged ) );
 
 #ifdef _DEBUG
+		m_hFileWatch = FileWatchdog::AddFileChangeListener( filename, BIND_MEM_FN( D3DPixelShader::OnFileChanged ) );
+
 		D3D_SET_OBJECT_NAME_N_A( m_pShader, (UINT)filename.size(), filename.c_str() );
+#endif
+	}
+
+	D3DPixelShader::~D3DPixelShader()
+	{
+#ifdef _DEBUG
+		FileWatchdog::RemoveFileChangeListener( m_hFileWatch );
 #endif
 	}
 
@@ -1469,10 +1487,18 @@ namespace Bat
 		m_szName( filename )
 	{
 		LoadFromFile( pDevice, filename, true );
-		FileWatchdog::AddFileChangeListener( filename, BIND_MEM_FN( D3DVertexShader::OnFileChanged ) );
 
 #ifdef _DEBUG
+		m_hFileWatch = FileWatchdog::AddFileChangeListener( filename, BIND_MEM_FN( D3DVertexShader::OnFileChanged ) );
+
 		D3D_SET_OBJECT_NAME_N_A( m_pShader, (UINT)filename.size(), filename.c_str() );
+#endif
+	}
+
+	D3DVertexShader::~D3DVertexShader()
+	{
+#ifdef _DEBUG
+		FileWatchdog::RemoveFileChangeListener( m_hFileWatch );
 #endif
 	}
 

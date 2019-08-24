@@ -30,7 +30,9 @@ int WINAPI WinMain(
 		BAT_INIT_SYSTEM( JobSystem );
 		BAT_INIT_SYSTEM( Physics );
 		BAT_INIT_SYSTEM( COMInitialize );
+#ifdef _DEBUG
 		BAT_INIT_PER_FRAME_SYSTEM( FileWatchdog );
+#endif
 
 		Window wnd( { 50, 50 }, Graphics::InitialScreenWidth, Graphics::InitialScreenHeight, "Bat Engine", Graphics::FullScreen );
 		BAT_TRACE( "Initialized window" );
