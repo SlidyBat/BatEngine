@@ -320,10 +320,13 @@ namespace Bat
 		}
 		case WM_SIZE: // called when window is resized
 		{
-			m_iWidth = (size_t)LOWORD( lParam );
-			m_iHeight = (size_t)HIWORD( lParam );
+			if( wParam != SIZE_MINIMIZED )
+			{
+				m_iWidth = (size_t)LOWORD( lParam );
+				m_iHeight = (size_t)HIWORD( lParam );
 
-			DispatchEvent<WindowResizeEvent>( m_iWidth, m_iHeight );
+				DispatchEvent<WindowResizeEvent>( m_iWidth, m_iHeight );
+			}
 
 			break;
 		}
