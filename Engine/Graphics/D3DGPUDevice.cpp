@@ -1252,7 +1252,7 @@ namespace Bat
 
 	ITexture* D3DGPUDevice::CreateTexture( const void* pPixels, size_t pitch, size_t width, size_t height, TexFormat format, GPUResourceUsage usage )
 	{
-		return new D3DTexture( m_pDevice.Get(), pPixels, pitch, width, height, format, usage);
+		return new D3DTexture( m_pDevice.Get(), pPixels, pitch, width, height, format, usage );
 	}
 
 	IDepthStencil* D3DGPUDevice::CreateDepthStencil( size_t width, size_t height, TexFormat format )
@@ -1680,10 +1680,6 @@ namespace Bat
 		m_Format = (TexFormat)desc.Format;
 		m_iWidth = desc.Width;
 		m_iHeight = desc.Height;
-
-#ifdef _DEBUG
-		D3D_SET_OBJECT_NAME_N_A( m_pTexture, (UINT)filename.size(), filename.c_str() );
-#endif
 	}
 
 	D3DTexture::D3DTexture( ID3D11Device* pDevice, const char* pData, size_t size )
