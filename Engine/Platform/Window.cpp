@@ -77,7 +77,7 @@ namespace Bat
 
 			m_hWnd = CreateWindowEx(
 				WS_EX_APPWINDOW,
-				m_szApplicationName.c_str(),
+				wc.lpszClassName,
 				m_szApplicationName.c_str(),
 				m_dwStyle,
 				m_Pos.x,
@@ -133,7 +133,7 @@ namespace Bat
 		MessageBox( m_hWnd, msg.c_str(), title.c_str(), type );
 	}
 
-	bool Window::ProcessMessage()
+	bool Window::ProcessMessages()
 	{
 		if( m_bDestroyed )
 		{
@@ -161,13 +161,27 @@ namespace Bat
 		return true;
 	}
 
-	LRESULT Window::HandleMsg( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+	bool Window::ProcessMessagesForAllWindows()
 	{
-		if( ImGui_ImplWin32_WndProcHandler( hWnd, uMsg, wParam, lParam ) )
+		MSG msg;
+
+		while( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
 		{
-			return true;
+			TranslateMessage( &msg );
+			DispatchMessage( &msg );
+
+			if( msg.message == WM_QUIT )
+			{
+				PostQuitMessage( (int)msg.wParam );
+				return false;
+			}
 		}
 
+		return true;
+	}
+
+	LRESULT Window::HandleMsg( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+	{
 		switch( uMsg )
 		{
 		case WM_DESTROY:
@@ -369,6 +383,11 @@ namespace Bat
 
 	LRESULT CALLBACK Window::HandleMsgThunk( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 	{
+		if( ImGui_ImplWin32_WndProcHandler( hWnd, uMsg, wParam, lParam ) )
+		{
+			return true;
+		}
+
 		Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtr( hWnd, GWLP_USERDATA ));
 		return pWnd->HandleMsg( hWnd, uMsg, wParam, lParam );
 	}

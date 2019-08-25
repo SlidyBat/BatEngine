@@ -42,7 +42,7 @@ int WINAPI WinMain(
 		FrameTimer ft;
 
 		Application app( gfx, wnd );
-		while( wnd.ProcessMessage() )
+		while( Window::ProcessMessagesForAllWindows() && wnd.IsOpen() )
 		{
 			float dt = ft.Mark();
 			g_pGlobals->deltatime = dt;

@@ -1026,8 +1026,8 @@ namespace Bat
 		ZeroMemory( &swapChainDesc, sizeof( swapChainDesc ) );
 
 		swapChainDesc.BufferCount = 1;
-		swapChainDesc.BufferDesc.Width = wnd.GetWidth();
-		swapChainDesc.BufferDesc.Height = wnd.GetHeight();
+		swapChainDesc.BufferDesc.Width = 0;
+		swapChainDesc.BufferDesc.Height = 0;
 		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 		if( m_bVSyncEnabled )
@@ -1053,7 +1053,9 @@ namespace Bat
 		swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 		swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
-		swapChainDesc.Flags = wnd.IsFullscreen() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH : 0;
+		swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
 #ifdef _DEBUG
 		UINT flags = D3D11_CREATE_DEVICE_DEBUG;
@@ -1118,7 +1120,7 @@ namespace Bat
 
 #ifdef _DEBUG
 		// create the info queue
-		typedef HRESULT (WINAPI * LPDXGIGETDEBUGINTERFACE)(REFIID, void ** );
+		typedef HRESULT (WINAPI* LPDXGIGETDEBUGINTERFACE)(REFIID, void**);
 
 		HMODULE dxgidebug = LoadLibraryEx( "dxgidebug.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32 );
 		if( dxgidebug )
@@ -1435,13 +1437,9 @@ namespace Bat
 			Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
 			Microsoft::WRL::ComPtr<ID3DBlob> pixelShaderBuffer;
 
+			UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS;
 #ifdef _DEBUG
-			const UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR |
-				D3DCOMPILE_ENABLE_STRICTNESS |
-				D3DCOMPILE_DEBUG |
-				D3DCOMPILE_SKIP_OPTIMIZATION;
-#else
-			const UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS;
+			flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
 
 			if( FAILED( hr = D3DCompileFromFile( Bat::StringToWide( filename ).c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", flags, 0, &pixelShaderBuffer, &errorMessage ) ) )
@@ -1514,7 +1512,7 @@ namespace Bat
 		return m_pShader.Get();
 	}
 
-	void D3DVertexShader::CreateInputLayoutDescFromVertexShaderSignature( ID3D11Device* pDevice, const void * pCodeBytes, const size_t size )
+	void D3DVertexShader::CreateInputLayoutDescFromVertexShaderSignature( ID3D11Device* pDevice, const void* pCodeBytes, const size_t size )
 	{
 		// Reflect shader info
 		Microsoft::WRL::ComPtr<ID3D11ShaderReflection> pVertexShaderReflection;
@@ -1601,14 +1599,11 @@ namespace Bat
 			Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
 			Microsoft::WRL::ComPtr<ID3DBlob> vertexShaderBuffer;
 
+			UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS;
 #ifdef _DEBUG
-			const UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR |
-				D3DCOMPILE_ENABLE_STRICTNESS |
-				D3DCOMPILE_DEBUG |
-				D3DCOMPILE_SKIP_OPTIMIZATION;
-#else
-			const UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS;
+			flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
+
 			if( FAILED( hr = D3DCompileFromFile( Bat::StringToWide( filename ).c_str(), NULL, NULL, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage ) ) )
 			{
 				if( errorMessage )
@@ -1762,7 +1757,7 @@ namespace Bat
 		// perform the copy line-by-line
 		for( size_t y = 0; y < GetHeight(); y++ )
 		{
-			memcpy( &pDstBytes[ y * mapped_tex.RowPitch ], &pSrcBytes[y * pitch], min_pitch );
+			memcpy( &pDstBytes[y * mapped_tex.RowPitch], &pSrcBytes[y * pitch], min_pitch );
 		}
 
 		pDeviceContext->Unmap( m_pTexture.Get(), 0 );

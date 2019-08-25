@@ -213,14 +213,40 @@ namespace Bat
 
 	void Application::OnRender()
 	{
+		// Dockspace setup
+		{
+			ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration;
+			ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+			ImGui::SetNextWindowPos( viewport->Pos );
+			ImGui::SetNextWindowSize( viewport->Size );
+			ImGui::SetNextWindowViewport( viewport->ID );
+			ImGui::PushStyleVar( ImGuiStyleVar_WindowRounding, 0.0f );
+			ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0.0f );
+			ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0.0f, 0.0f ) );
+
+			ImGui::Begin( "DockSpace", nullptr, window_flags );
+
+			ImGui::PopStyleVar( 3 );
+
+			ImGuiID dockspace_id = ImGui::GetID( "dockspace" );
+			ImGui::DockSpace( dockspace_id, ImVec2( 0.0f, 0.0f ), ImGuiDockNodeFlags_NoDockingInCentralNode | ImGuiDockNodeFlags_PassthruCentralNode );
+
+			ImGui::End();
+		}
+
 		if( imgui_menu_enabled )
 		{
+			ImGui::Begin( "Application" );
+
 			ImGui::Text( "FPS: %s", fps_string.c_str() );
 			ImGui::Text( "Pos: %.2f %.2f %.2f", camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z );
 
 			ImGui::SliderFloat( "Bloom threshold", &bloom_threshold, 0.0f, 100.0f );
 
 			AddNodeTree( scene );
+
+			ImGui::End();
 		}
 	}
 
