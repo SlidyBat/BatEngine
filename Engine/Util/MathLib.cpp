@@ -59,7 +59,20 @@ namespace Bat
 
 	Vec4 Math::EulerToQuaternion( const Vec3& euler )
 	{
-		return DirectX::XMQuaternionRotationRollPitchYaw( euler.x, euler.y, euler.z );
+		float cp = cosf( euler.x * 0.5f );
+		float sp = sinf( euler.x * 0.5f );
+		float cy = cosf( euler.y * 0.5f );
+		float sy = sinf( euler.y * 0.5f );
+		float cr = cosf( euler.z * 0.5f );
+		float sr = sinf( euler.z * 0.5f );
+
+		Vec4 quat;
+		quat.w = cy * cp * cr + sy * sp * sr;
+		quat.x = cy * cp * sr - sy * sp * cr;
+		quat.y = sy * cp * sr + cy * sp * cr;
+		quat.z = sy * cp * cr - cy * sp * sr;
+
+		return quat;
 	}
 
 	__m128 Math::Abs( __m128 m )
@@ -122,7 +135,7 @@ namespace Bat
 		*c = _mm_cvtss_f32( m_cos );
 	}
 
-	void Math::AngleVectors( const DirectX::XMFLOAT3 & angles, DirectX::XMFLOAT3 * forward, DirectX::XMFLOAT3 * right, DirectX::XMFLOAT3 * up )
+	void Math::AngleVectors( const Vec3& angles, Vec3* forward, Vec3* right, Vec3* up )
 	{
 		float sr, sp, sy, cr, cp, cy;
 

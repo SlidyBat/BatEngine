@@ -288,7 +288,7 @@ namespace Bat
 		float Cos( float x );
 		void SinCos( float x, float* s, float* c );
 
-		void AngleVectors( const DirectX::XMFLOAT3 & angles, DirectX::XMFLOAT3 * forward = nullptr, DirectX::XMFLOAT3 * right = nullptr, DirectX::XMFLOAT3 * up = nullptr );
+		void AngleVectors( const Vec3& angles, Vec3* forward = nullptr, Vec3* right = nullptr, Vec3* up = nullptr );
 
 		// Returns a random int in the range [min, max]
 		int GetRandomInt( int min, int max );
