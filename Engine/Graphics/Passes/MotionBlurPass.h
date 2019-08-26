@@ -4,7 +4,7 @@
 #include "IRenderPass.h"
 #include "RenderData.h"
 #include "TexturePipeline.h"
-#include "Scene.h"
+#include "Entity.h"
 #include "Globals.h"
 
 namespace Bat
@@ -21,8 +21,8 @@ namespace Bat
 		MotionBlurPass()
 		{
 			// initialize render nodes
-			AddRenderNode( "src", NodeType::INPUT, NodeDataType::RENDER_TEXTURE );  // the initial texture that bloom should be applied to
-			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TEXTURE ); // the output render texture
+			AddRenderNode( "src", NodeType::INPUT, NodeDataType::RENDER_TARGET );  // the initial texture that bloom should be applied to
+			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TARGET ); // the output render texture
 			AddRenderNode( "depth", NodeType::INPUT, NodeDataType::DEPTH_STENCIL );       // depth buffer
 
 			// initialize shaders
@@ -58,7 +58,7 @@ namespace Bat
 
 		virtual std::string GetDescription() const override { return "Motion blur pass"; }
 
-		virtual void Execute( IGPUContext* pContext, SceneGraph& scene, RenderData& data )
+		virtual void Execute( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data )
 		{
 			pContext->SetDepthStencilEnabled( false );
 
@@ -67,7 +67,6 @@ namespace Bat
 			IRenderTarget* src = data.GetRenderTarget( "src" );
 			IRenderTarget* dst = data.GetRenderTarget( "dst" );
 			IDepthStencil* depth = data.GetDepthStencil( "depth" );
-			Camera* cam = scene.GetActiveCamera();
 
 			size_t width = src->GetWidth();
 			size_t height = src->GetHeight();
@@ -79,7 +78,7 @@ namespace Bat
 			pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, 0 );
 
 			CB_Globals ps_globals;
-			DirectX::XMMATRIX viewproj = cam->GetViewMatrix() * cam->GetProjectionMatrix();
+			DirectX::XMMATRIX viewproj = camera.GetViewMatrix() * camera.GetProjectionMatrix();
 			ps_globals.inv_viewproj = DirectX::XMMatrixInverse( nullptr, viewproj );
 			ps_globals.prev_viewproj = m_matPrevViewProj;
 			m_cbufGlobals.Update( pContext, ps_globals );

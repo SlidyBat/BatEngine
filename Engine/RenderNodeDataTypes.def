@@ -1,0 +1,16 @@
+// Lists all the render node data types and names
+// Usage example:
+//   #define RENDER_NODE_DATATYPE( type, name, capname ) \
+//       type,
+//   #include "RenderNodeDataTypes.def"
+
+#ifndef RENDER_NODE_DATATYPE
+#define RENDER_NODE_DATATYPE
+#endif
+
+RENDER_NODE_DATATYPE( ITexture, Texture, TEXTURE )
+RENDER_NODE_DATATYPE( IRenderTarget, RenderTarget, RENDER_TARGET )
+RENDER_NODE_DATATYPE( IDepthStencil, DepthStencil, DEPTH_STENCIL )
+RENDER_NODE_DATATYPE( Camera, Camera, CAMERA )
+
+#undef RENDER_NODE_DATATYPE

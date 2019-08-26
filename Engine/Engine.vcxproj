@@ -101,11 +101,11 @@
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\DirectXTK\Bin\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform);$(ProjectDir)ThirdParty\irrKlang\lib\$(Platform);$(ProjectDir)ThirdParty\PhysX\lib\$(Configuration)-$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies);Ws2_32.lib;winmm.lib;dxguid.lib;DirectXTK.lib;assimp-vc140-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib;irrKlang.lib;PhysX_$(PlatformArchitecture).lib;PhysXCommon_$(PlatformArchitecture).lib;PhysXFoundation_$(PlatformArchitecture).lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\DirectXTK\Bin\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform);$(ProjectDir)ThirdParty\irrKlang\lib\$(Platform);$(ProjectDir)ThirdParty\PhysX\lib\$(Configuration)-$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);Ws2_32.lib;winmm.lib;dxguid.lib;DirectXTK.lib;assimp-vc140-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib;irrKlang.lib;PhysX_$(PlatformArchitecture).lib;PhysXCommon_$(PlatformArchitecture).lib;PhysXFoundation_$(PlatformArchitecture).lib;PhysXExtensions_static_$(PlatformArchitecture).lib;PhysXPvdSDK_static_$(PlatformArchitecture).lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)ThirdParty\Assimp\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"
+      <Command>xcopy /Y /C /E "$(ProjectDir)ThirdParty\Assimp\bin\$(Configuration)-$(Platform)" "$(OutDir)"
 xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDir)"
 copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDir)"
 xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" "$(OutDir)"</Command>
@@ -131,11 +131,11 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\DirectXTK\Bin\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform);$(ProjectDir)ThirdParty\irrKlang\lib\$(Platform);$(ProjectDir)ThirdParty\PhysX\lib\$(Configuration)-$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies);Ws2_32.lib;winmm.lib;dxguid.lib;DirectXTK.lib;assimp-vc140-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib;irrKlang.lib;PhysX_$(PlatformArchitecture).lib;PhysXCommon_$(PlatformArchitecture).lib;PhysXFoundation_$(PlatformArchitecture).lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\DirectXTK\Bin\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform);$(ProjectDir)ThirdParty\irrKlang\lib\$(Platform);$(ProjectDir)ThirdParty\PhysX\lib\$(Configuration)-$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);Ws2_32.lib;winmm.lib;dxguid.lib;DirectXTK.lib;assimp-vc140-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib;irrKlang.lib;PhysX_$(PlatformArchitecture).lib;PhysXCommon_$(PlatformArchitecture).lib;PhysXFoundation_$(PlatformArchitecture).lib;PhysXExtensions_static_$(PlatformArchitecture).lib;PhysXPvdSDK_static_$(PlatformArchitecture).lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)ThirdParty\Assimp\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"
+      <Command>xcopy /Y /C /E "$(ProjectDir)ThirdParty\Assimp\bin\$(Configuration)-$(Platform)" "$(OutDir)"
 xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDir)"
 copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDir)"
 xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" "$(OutDir)"</Command>
@@ -165,11 +165,12 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\DirectXTK\Bin\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform);$(ProjectDir)ThirdParty\irrKlang\lib\$(Platform);$(ProjectDir)ThirdParty\PhysX\lib\$(Configuration)-$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies);Ws2_32.lib;winmm.lib;dxguid.lib;DirectXTK.lib;assimp-vc140-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib;irrKlang.lib;PhysX_$(PlatformArchitecture).lib;PhysXCommon_$(PlatformArchitecture).lib;PhysXFoundation_$(PlatformArchitecture).lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\DirectXTK\Bin\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform);$(ProjectDir)ThirdParty\irrKlang\lib\$(Platform);$(ProjectDir)ThirdParty\PhysX\lib\$(Configuration)-$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);Ws2_32.lib;winmm.lib;dxguid.lib;DirectXTK.lib;assimp-vc140-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib;irrKlang.lib;PhysX_$(PlatformArchitecture).lib;PhysXCommon_$(PlatformArchitecture).lib;PhysXFoundation_$(PlatformArchitecture).lib;PhysXExtensions_static_$(PlatformArchitecture).lib;PhysXPvdSDK_static_$(PlatformArchitecture).lib</AdditionalDependencies>
+      <ImageHasSafeExceptionHandlers />
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)ThirdParty\Assimp\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"
+      <Command>xcopy /Y /C /E "$(ProjectDir)ThirdParty\Assimp\bin\$(Configuration)-$(Platform)" "$(OutDir)"
 xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDir)"
 copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDir)"
 xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" "$(OutDir)"</Command>
@@ -199,11 +200,11 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\DirectXTK\Bin\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\x64;$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform);$(ProjectDir)ThirdParty\irrKlang\lib\$(Platform);$(ProjectDir)ThirdParty\PhysX\lib\$(Configuration)-$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies);Ws2_32.lib;winmm.lib;dxguid.lib;DirectXTK.lib;assimp-vc140-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib;irrKlang.lib;PhysX_$(PlatformArchitecture).lib;PhysXCommon_$(PlatformArchitecture).lib;PhysXFoundation_$(PlatformArchitecture).lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\DirectXTK\Bin\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform);$(ProjectDir)ThirdParty\irrKlang\lib\$(Platform);$(ProjectDir)ThirdParty\PhysX\lib\$(Configuration)-$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);Ws2_32.lib;winmm.lib;dxguid.lib;DirectXTK.lib;assimp-vc140-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib;irrKlang.lib;PhysX_$(PlatformArchitecture).lib;PhysXCommon_$(PlatformArchitecture).lib;PhysXFoundation_$(PlatformArchitecture).lib;PhysXExtensions_static_$(PlatformArchitecture).lib;PhysXPvdSDK_static_$(PlatformArchitecture).lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)ThirdParty\Assimp\bin\x64\assimp-vc140-mt.dll" "$(OutDir)"
+      <Command>xcopy /Y /C /E "$(ProjectDir)ThirdParty\Assimp\bin\$(Configuration)-$(Platform)" "$(OutDir)"
 xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDir)"
 copy /Y "$(ProjectDir)ThirdParty\irrKlang\bin\$(Platform)\irrKlang.dll" "$(OutDir)"
 xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" "$(OutDir)"</Command>
@@ -218,11 +219,13 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClCompile Include="Audio\Audio.cpp" />
     <ClCompile Include="Core\Console.cpp" />
     <ClCompile Include="Core\Entity.cpp" />
+    <ClCompile Include="Events\Event.cpp" />
+    <ClCompile Include="Util\Frustum.cpp" />
     <ClCompile Include="Graphics\IRenderPass.cpp" />
     <ClCompile Include="Graphics\RenderData.cpp" />
     <ClCompile Include="Graphics\RenderGraph.cpp" />
     <ClCompile Include="Graphics\ShaderManager.cpp" />
-    <ClCompile Include="Graphics\UI\BatUI.cpp" />
+    <ClCompile Include="Graphics\UI\HtmlUI.cpp" />
     <ClCompile Include="Graphics\UI\UltralightAdapters\FileSystemBasic.cpp" />
     <ClCompile Include="Graphics\UI\UltralightAdapters\FontLoaderWin.cpp" />
     <ClCompile Include="Graphics\UI\UltralightAdapters\GPUDriverD3D11.cpp" />
@@ -249,7 +252,6 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClCompile Include="Platform\COMInitialize.cpp" />
     <ClCompile Include="Graphics\Light.cpp" />
     <ClCompile Include="Core\ResourceManager.cpp" />
-    <ClCompile Include="Graphics\Scene.cpp" />
     <ClCompile Include="Util\JobSystem.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -337,6 +339,10 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="Audio\Audio.h" />
+    <ClInclude Include="Core\CoreEntityComponents.h" />
+    <ClInclude Include="Events\PhysicsEvents.h" />
+    <ClInclude Include="Util\Tree.h" />
+    <ClInclude Include="Util\Frustum.h" />
     <ClInclude Include="Graphics\Passes\DrawLightsPass.h" />
     <ClInclude Include="Graphics\Passes\ForwardOpaquePass.h" />
     <ClInclude Include="Graphics\IGPUDevice.h" />
@@ -359,7 +365,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Core\Entity.h" />
     <ClInclude Include="Core\EntityEvents.h" />
     <ClInclude Include="Events\NetworkEvents.h" />
-    <ClInclude Include="Graphics\UI\BatUI.h" />
+    <ClInclude Include="Graphics\UI\HtmlUI.h" />
     <ClInclude Include="Graphics\UI\UltralightAdapters\FileSystemBasic.h" />
     <ClInclude Include="Graphics\UI\UltralightAdapters\FontLoaderWin.h" />
     <ClInclude Include="Graphics\UI\UltralightAdapters\GPUDriverD3D11.h" />
@@ -379,7 +385,6 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Graphics\Light.h" />
     <ClInclude Include="Graphics\Material.h" />
     <ClInclude Include="Core\ResourceManager.h" />
-    <ClInclude Include="Graphics\Scene.h" />
     <ClInclude Include="Util\JobSystem.h" />
     <ClInclude Include="Events\KeyboardEvents.h" />
     <ClInclude Include="Core\Log.h" />
@@ -614,6 +619,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shaders\CommonPS.hlsli" />
+    <None Include="RenderNodeDataTypes.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

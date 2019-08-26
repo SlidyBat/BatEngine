@@ -41,3 +41,4 @@
 #include "MathLib.h"
 #include "StringLib.h"
 #include "Globals.h"
+#include "Entity.h"

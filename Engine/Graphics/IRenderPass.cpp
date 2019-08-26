@@ -1,6 +1,9 @@
 #include "PCH.h"
 #include "IRenderPass.h"
 
+#include "CoreEntityComponents.h"
+#include "Camera.h"
+
 namespace Bat
 {
 	const std::vector<RenderNode>& BaseRenderPass::GetNodes() const
@@ -40,6 +43,49 @@ namespace Bat
 		node.datatype = datatype;
 
 		m_vNodes.emplace_back( node );
+	}
 
+	void BaseRenderPass::Traverse( const SceneNode& scene )
+	{
+		std::stack<const SceneNode*> stack;
+		std::stack<DirectX::XMMATRIX> transforms;
+
+		stack.push( &scene );
+
+		DirectX::XMMATRIX transform = DirectX::XMMatrixIdentity();
+		if( scene.Get().Has<TransformComponent>() )
+		{
+			transform = scene.Get().Get<TransformComponent>().GetTransform();
+		}
+		transforms.push( transform );
+
+		while( !stack.empty() )
+		{
+			const SceneNode* node = stack.top();
+			stack.pop();
+			transform = transforms.top();
+			transforms.pop();
+
+			Visit( transform, *node );
+
+			Entity e = node->Get();
+
+			size_t num_children = node->GetNumChildren();
+			for( size_t i = 0; i < num_children; i++ )
+			{
+				stack.push( &node->GetChild( i ) );
+
+				Entity child = node->GetChild( i ).Get();
+
+				if( child.Has<TransformComponent>() )
+				{
+					transforms.push( child.Get<TransformComponent>().GetTransform() * transform );
+				}
+				else
+				{
+					transforms.push( transform );
+				}
+			}
+		}
 	}
 }

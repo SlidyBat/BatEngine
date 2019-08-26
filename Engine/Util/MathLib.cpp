@@ -32,6 +32,49 @@ namespace Bat
 
 	static Random rng;
 
+	Vec3 Math::QuaternionToEuler( const Vec4& quat )
+	{
+		Vec3 angle;
+
+		float sinr_cosp = +2.0f * (quat.w * quat.x + quat.y * quat.z);
+		float cosr_cosp = +1.0f - 2.0f * (quat.x * quat.x + quat.y * quat.y);
+		angle.z = atan2( sinr_cosp, cosr_cosp );
+
+		float sinp = +2.0f * (quat.w * quat.y - quat.z * quat.x);
+		if( fabs( sinp ) >= 1.0f )
+		{
+			angle.x = copysign( Math::PI / 2, sinp );
+		}
+		else
+		{
+			angle.x = asin( sinp );
+		}
+
+		float siny_cosp = +2.0f * (quat.w * quat.z + quat.x * quat.y);
+		float cosy_cosp = +1.0f - 2.0f * (quat.y * quat.y + quat.z * quat.z);
+		angle.y = atan2( siny_cosp, cosy_cosp );
+
+		return angle;
+	}
+
+	Vec4 Math::EulerToQuaternion( const Vec3& euler )
+	{
+		float cp = cosf( euler.x * 0.5f );
+		float sp = sinf( euler.x * 0.5f );
+		float cy = cosf( euler.y * 0.5f );
+		float sy = sinf( euler.y * 0.5f );
+		float cr = cosf( euler.z * 0.5f );
+		float sr = sinf( euler.z * 0.5f );
+
+		Vec4 quat;
+		quat.w = cy * cp * cr + sy * sp * sr;
+		quat.x = cy * cp * sr - sy * sp * cr;
+		quat.y = sy * cp * sr + cy * sp * cr;
+		quat.z = sy * cp * cr - cy * sp * sr;
+
+		return quat;
+	}
+
 	__m128 Math::Abs( __m128 m )
 	{
 		__m128 sign = _mm_castsi128_ps( _mm_set1_epi32( 0x80000000 ) );
@@ -92,7 +135,7 @@ namespace Bat
 		*c = _mm_cvtss_f32( m_cos );
 	}
 
-	void Math::AngleVectors( const DirectX::XMFLOAT3 & angles, DirectX::XMFLOAT3 * forward, DirectX::XMFLOAT3 * right, DirectX::XMFLOAT3 * up )
+	void Math::AngleVectors( const Vec3& angles, Vec3* forward, Vec3* right, Vec3* up )
 	{
 		float sr, sp, sy, cr, cp, cy;
 

@@ -23,15 +23,16 @@ int WINAPI WinMain(
 	_In_ LPSTR lpCmdLine,
 	_In_ int nShowCmd)
 {
-
 	try
 	{
 		BAT_INIT_SYSTEM( Logger );
 		BAT_INIT_SYSTEM( Networking );
 		BAT_INIT_SYSTEM( JobSystem );
-		BAT_INIT_SYSTEM( FileWatchdog );
 		BAT_INIT_SYSTEM( Physics );
 		BAT_INIT_SYSTEM( COMInitialize );
+#ifdef _DEBUG
+		BAT_INIT_PER_FRAME_SYSTEM( FileWatchdog );
+#endif
 
 		Window wnd( { 50, 50 }, Graphics::InitialScreenWidth, Graphics::InitialScreenHeight, "Bat Engine", Graphics::FullScreen );
 		BAT_TRACE( "Initialized window" );
@@ -41,11 +42,13 @@ int WINAPI WinMain(
 		FrameTimer ft;
 
 		Application app( gfx, wnd );
-		while( wnd.ProcessMessage() )
+		while( Window::ProcessMessagesForAllWindows() && wnd.IsOpen() )
 		{
 			float dt = ft.Mark();
 			g_pGlobals->deltatime = dt;
 			g_pGlobals->elapsed_time += dt;
+
+			BAT_SERVICE_SYSTEMS( dt );
 
 			app.OnUpdate( dt );
 

@@ -28,10 +28,10 @@ namespace Bat
 			m_iBlurPasses = blurpasses;
 
 			// initialize render nodes
-			AddRenderNode( "src", NodeType::INPUT, NodeDataType::RENDER_TEXTURE );     // the initial texture that bloom should be applied to
-			AddRenderNode( "buffer1", NodeType::INPUT, NodeDataType::RENDER_TEXTURE ); // a frame buffer to use for the multiple blur passes
-			AddRenderNode( "buffer2", NodeType::INPUT, NodeDataType::RENDER_TEXTURE ); // a frame buffer to use for the multiple blur passes
-			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TEXTURE );    // the output render texture (can re-use buffer2 if needed)
+			AddRenderNode( "src", NodeType::INPUT, NodeDataType::RENDER_TARGET );     // the initial texture that bloom should be applied to
+			AddRenderNode( "buffer1", NodeType::INPUT, NodeDataType::RENDER_TARGET ); // a frame buffer to use for the multiple blur passes
+			AddRenderNode( "buffer2", NodeType::INPUT, NodeDataType::RENDER_TARGET ); // a frame buffer to use for the multiple blur passes
+			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TARGET );    // the output render texture (can re-use buffer2 if needed)
 
 			// initialize shaders
 			m_pTextureVS = ResourceManager::GetVertexShader( "Graphics/Shaders/TextureVS.hlsl" );
@@ -66,7 +66,7 @@ namespace Bat
 
 		void SetThreshold( float threshold ) { m_flThreshold = threshold; }
 
-		virtual void Execute( IGPUContext* pContext, SceneGraph& scene, RenderData& data )
+		virtual void Execute( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data )
 		{
 			pContext->SetDepthStencilEnabled( false );
 			pContext->SetDepthStencil( nullptr );

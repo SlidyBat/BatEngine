@@ -1,37 +1,11 @@
 #pragma once
 
 #include <DirectXMath.h>
+#include <DirectXCollision.h>
 #include <intrin.h>
 
 namespace Bat
 {
-	namespace Math
-	{
-		constexpr float PI = DirectX::XM_PI;
-
-		constexpr inline float DegToRad( const float deg )
-		{
-			return deg * (PI / 180.0f);
-		}
-		constexpr inline float RadToDeg( const float rad )
-		{
-			return rad * (180.0f / PI);
-		}
-
-		__m128 Abs( __m128 m );
-		__m128 Sin( __m128 m_x );
-		float Sin( float x );
-		float Cos( float x );
-		void SinCos( float x, float* s, float* c );
-
-		void AngleVectors( const DirectX::XMFLOAT3& angles, DirectX::XMFLOAT3* forward = nullptr, DirectX::XMFLOAT3* right = nullptr, DirectX::XMFLOAT3* up = nullptr );
-
-		// Returns a random int in the range [min, max]
-		int GetRandomInt( int min, int max );
-		// Returns a random float in the range [min, max)
-		float GetRandomFloat( float min, float max );
-	}
-
 	template <typename T>
 	class _Vec2
 	{
@@ -119,6 +93,10 @@ namespace Bat
 			y = src.y;
 			z = src.z;
 		}
+		Vec3( const DirectX::XMVECTOR v )
+		{
+			DirectX::XMStoreFloat3( this, v );
+		}
 
 		Vec3& operator=( const DirectX::XMFLOAT3& src )
 		{
@@ -146,6 +124,72 @@ namespace Bat
 
 			return res;
 		}
+		Vec3 operator+( const Vec3& rhs ) const
+		{
+			Vec3 res;
+			res.x = x + rhs.x;
+			res.y = y + rhs.y;
+			res.z = z + rhs.z;
+
+			return res;
+		}
+		Vec3 operator-( const Vec3& rhs ) const
+		{
+			Vec3 res;
+			res.x = x - rhs.x;
+			res.y = y - rhs.y;
+			res.z = z - rhs.z;
+
+			return res;
+		}
+		Vec3& operator+=( const Vec3& rhs )
+		{
+			x += rhs.x;
+			y += rhs.y;
+			z += rhs.z;
+
+			return *this;
+		}
+		Vec3& operator-=( const Vec3& rhs )
+		{
+			x -= rhs.x;
+			y -= rhs.y;
+			z -= rhs.z;
+
+			return *this;
+		}
+
+		float LengthSq() const
+		{
+			return x*x + y*y + z*z;
+		}
+		
+		float Length() const
+		{
+			return sqrt( LengthSq() );
+		}
+
+		Vec3& Normalize()
+		{
+			float length = Length();
+			x /= length;
+			y /= length;
+			z /= length;
+
+			return *this;
+		}
+
+		Vec3 Normalized() const
+		{
+			float length = Length();
+
+			return { x / length, y / length, z / length };
+		}
+
+		operator DirectX::XMVECTOR() const
+		{
+			return DirectX::XMLoadFloat3( this );
+		}
 	};
 
 	class Vec4 : public DirectX::XMFLOAT4
@@ -170,6 +214,10 @@ namespace Bat
 			y = src.y;
 			z = src.z;
 			w = src.w;
+		}
+		Vec4( const DirectX::XMVECTOR v )
+		{
+			DirectX::XMStoreFloat4( this, v );
 		}
 
 		Vec4& operator=( const DirectX::XMFLOAT4& src )
@@ -211,4 +259,40 @@ namespace Bat
 			return res;
 		}
 	};
+
+	struct Plane
+	{
+		Vec3 n; // Plane normal
+		float d; // Distance from origin
+	};
+
+	namespace Math
+	{
+		constexpr float PI = DirectX::XM_PI;
+
+		constexpr inline float DegToRad( const float deg )
+		{
+			return deg * (PI / 180.0f);
+		}
+		constexpr inline float RadToDeg( const float rad )
+		{
+			return rad * (180.0f / PI);
+		}
+
+		Vec3 QuaternionToEuler( const Vec4& quat );
+		Vec4 EulerToQuaternion( const Vec3& euler );
+
+		__m128 Abs( __m128 m );
+		__m128 Sin( __m128 m_x );
+		float Sin( float x );
+		float Cos( float x );
+		void SinCos( float x, float* s, float* c );
+
+		void AngleVectors( const Vec3& angles, Vec3* forward = nullptr, Vec3* right = nullptr, Vec3* up = nullptr );
+
+		// Returns a random int in the range [min, max]
+		int GetRandomInt( int min, int max );
+		// Returns a random float in the range [min, max)
+		float GetRandomFloat( float min, float max );
+	}
 }

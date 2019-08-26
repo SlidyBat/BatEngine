@@ -286,7 +286,7 @@ void MemoryStream::WriteUInt32( uint32_t val )
 	Write( val );
 }
 
-void MemoryStream::WrtieUInt16( uint16_t val )
+void MemoryStream::WriteUInt16( uint16_t val )
 {
 	Write( val );
 }

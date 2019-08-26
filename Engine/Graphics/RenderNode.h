@@ -14,9 +14,9 @@ namespace Bat
 	enum class NodeDataType
 	{
 		INVALID = -1,
-		TEXTURE,
-		RENDER_TEXTURE,
-		DEPTH_STENCIL
+#define RENDER_NODE_DATATYPE( type, name, capname ) \
+		capname,
+#include "RenderNodeDataTypes.def"
 	};
 
 	struct RenderNode

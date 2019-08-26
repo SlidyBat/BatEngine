@@ -5,6 +5,8 @@
 
 namespace Bat
 {
+	EntityManager world;
+
 	size_t BaseComponent::s_iIndexCounter = 0;
 
 	Entity EntityManager::CreateEntity()
@@ -23,7 +25,11 @@ namespace Bat
 		}
 
 		Entity::Id id( idx, version );
-		Entity entity( id );
+		if( idx + 1 > m_EntityComponentMasks.size() )
+		{
+			m_EntityComponentMasks.resize( idx + 1 );
+		}
+		Entity entity( *this, id );
 
 		DispatchEvent<EntityCreatedEvent>( entity );
 

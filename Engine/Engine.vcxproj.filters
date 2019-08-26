@@ -88,6 +88,9 @@
     <Filter Include="Source Files\Physics">
       <UniqueIdentifier>{5921b60e-36ac-4e6c-ad1a-4cd4114258e3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Events">
+      <UniqueIdentifier>{a7dea087-ae73-4a86-a2f0-135255e2c793}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -174,9 +177,6 @@
     <ClCompile Include="Graphics\Model.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\UI\BatUI.cpp">
-      <Filter>Source Files\Graphics\UI</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\UI\UltralightAdapters\GPUDriverD3D11.cpp">
       <Filter>Source Files\Graphics\UI\ULAdapter</Filter>
     </ClCompile>
@@ -203,9 +203,6 @@
     </ClCompile>
     <ClCompile Include="Platform\Input.cpp">
       <Filter>Source Files\Platform</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Scene.cpp">
-      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Core\ResourceManager.cpp">
       <Filter>Source Files\Core</Filter>
@@ -254,6 +251,15 @@
     </ClCompile>
     <ClCompile Include="Graphics\LitGenericPipeline.cpp">
       <Filter>Source Files\Graphics\Pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Frustum.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\UI\HtmlUI.cpp">
+      <Filter>Source Files\Graphics\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Events\Event.cpp">
+      <Filter>Source Files\Events</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -392,9 +398,6 @@
     <ClInclude Include="Util\COMException.h">
       <Filter>Header Files\Platform</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\UI\BatUI.h">
-      <Filter>Header Files\Graphics\UI</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\UI\UltralightAdapters\GPUDriverD3D11.h">
       <Filter>Header Files\Graphics\UI\ULAdapter</Filter>
     </ClInclude>
@@ -433,9 +436,6 @@
     </ClInclude>
     <ClInclude Include="Platform\Input.h">
       <Filter>Header Files\Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Scene.h">
-      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Core\ResourceManager.h">
       <Filter>Header Files\Core</Filter>
@@ -521,7 +521,22 @@
     <ClInclude Include="Graphics\ShaderBuffers.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Util\Frustum.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
     <ClInclude Include="Graphics\Passes\DrawLightsPass.h">
+      <Filter>Header Files\Graphics\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\UI\HtmlUI.h">
+      <Filter>Header Files\Graphics\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Tree.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\CoreEntityComponents.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Events\PhysicsEvents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -582,6 +597,9 @@
   <ItemGroup>
     <None Include="Graphics\Shaders\CommonPS.hlsli">
       <Filter>Shader Files</Filter>
+    </None>
+    <None Include="RenderNodeDataTypes.def">
+      <Filter>Header Files\Graphics</Filter>
     </None>
   </ItemGroup>
 </Project>

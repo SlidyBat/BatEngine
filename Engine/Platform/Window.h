@@ -19,32 +19,17 @@ namespace Bat
 		bool IsActive() const;
 		bool IsMinimized() const;
 		void ShowMessageBox( const std::string& title, const std::string& msg, UINT type ) const;
-		bool ProcessMessage();
+		bool ProcessMessages();
 
-		bool IsFullscreen() const
-		{
-			return m_bFullscreen;
-		}
-		int GetWidth() const
-		{
-			return m_iWidth;
-		}
-		int GetHeight() const
-		{
-			return m_iHeight;
-		}
-		Vei2 GetPosition() const
-		{
-			return m_Pos;
-		}
-		int GetStyle() const
-		{
-			return m_dwStyle;
-		}
-		HWND GetHandle() const
-		{
-			return m_hWnd;
-		}
+		bool IsOpen() const { return !m_bDestroyed; }
+		bool IsFullscreen() const { return m_bFullscreen; }
+		size_t GetWidth() const { return m_iWidth; }
+		size_t GetHeight() const { return m_iHeight; }
+		Vei2 GetPosition() const { return m_Pos; }
+		int GetStyle() const { return m_dwStyle; }
+		HWND GetHandle() const { return m_hWnd; }
+
+		static bool ProcessMessagesForAllWindows();
 	public:
 		Input input;
 	private:
@@ -53,8 +38,8 @@ namespace Bat
 		static LRESULT CALLBACK HandleMsgSetup( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 		static LRESULT CALLBACK HandleMsgThunk( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 	private:
-		int m_iWidth;
-		int m_iHeight;
+		size_t m_iWidth;
+		size_t m_iHeight;
 		Vei2 m_Pos;
 		DWORD m_dwStyle;
 

@@ -5,7 +5,7 @@
 #include "SkyboxPipeline.h"
 #include "MathLib.h"
 #include "Camera.h"
-#include "Scene.h"
+#include "Entity.h"
 #include "ShaderManager.h"
 
 namespace Bat
@@ -16,7 +16,7 @@ namespace Bat
 		SkyboxPass()
 		{
 			AddRenderNode( "skyboxtex", NodeType::INPUT, NodeDataType::TEXTURE );
-			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TEXTURE );
+			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TARGET );
 		}
 
 		virtual std::string GetDescription() const override
@@ -24,20 +24,18 @@ namespace Bat
 			return "Renders skybox. Ideally this should be after all geometry has been rendered so that most of the pixels are occluded";
 		}
 
-		virtual void Execute( IGPUContext* pContext, SceneGraph& scene, RenderData& data ) override
+		virtual void Execute( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data ) override
 		{
 			pContext->SetDepthStencilEnabled( true );
 
 			IRenderTarget* target = data.GetRenderTarget( "dst" );
 			pContext->SetRenderTarget( target );
 
-			ITexture* pSkybox = data.GetTexture( "skyboxtex" );
-			if( pSkybox )
+			if( ITexture* pSkybox = data.GetTexture( "skyboxtex" ) )
 			{
-				Camera* cam = scene.GetActiveCamera();
-				auto pos = cam->GetPosition();
+				auto pos = camera.GetPosition();
 				auto w = DirectX::XMMatrixTranslation( pos.x, pos.y, pos.z );
-				auto t = w * cam->GetViewMatrix() * cam->GetProjectionMatrix();
+				auto t = w * camera.GetViewMatrix() * camera.GetProjectionMatrix();
 
 				SkyboxPipelineParameters params( t, pSkybox );
 				auto pPipeline = ShaderManager::GetPipeline( "skybox" );

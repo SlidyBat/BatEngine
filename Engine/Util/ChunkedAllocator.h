@@ -116,5 +116,11 @@ namespace Bat
 			size_t elements_per_chunk = m_iChunkSize / m_iObjectSize;
 			return (T*)( m_pChunks[index / elements_per_chunk] + ( index % elements_per_chunk ) * m_iObjectSize );
 		}
+
+		const T* Get( size_t index ) const
+		{
+			size_t elements_per_chunk = m_iChunkSize / m_iObjectSize;
+			return (const T*)(m_pChunks[index / elements_per_chunk] + (index % elements_per_chunk) * m_iObjectSize);
+		}
 	};
 }

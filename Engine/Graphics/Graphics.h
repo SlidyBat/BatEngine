@@ -2,7 +2,8 @@
 
 #include "IGPUDevice.h"
 #include "ResourceManager.h"
-#include "UI/BatUI.h"
+#include "Entity.h"
+#include "UI/HtmlUI.h"
 
 namespace DirectX
 {
@@ -28,13 +29,16 @@ namespace Bat
 
 		~Graphics();
 
-		void Resize( int width, int height );
+		void Resize( size_t width, size_t height );
 
-		SceneGraph* GetActiveScene() const { return m_pSceneGraph; }
-		void SetActiveScene( SceneGraph* pSceneGraph ) { m_pSceneGraph = pSceneGraph; }
+		SceneNode* GetActiveScene() const { return m_pSceneGraph; }
+		void SetActiveScene( SceneNode* pSceneGraph ) { m_pSceneGraph = pSceneGraph; }
 
-		BatUI& UI() { return m_UI; }
-		const BatUI& UI() const { return m_UI; }
+		Camera* GetActiveCamera() const { return m_pCamera; }
+		void SetActiveCamera( Camera* pCamera ) { m_pCamera = pCamera; }
+
+		HtmlUI& UI() { return m_UI; }
+		const HtmlUI& UI() const { return m_UI; }
 
 		void SetRenderGraph( RenderGraph* graph );
 
@@ -43,21 +47,24 @@ namespace Bat
 
 		DirectX::XMMATRIX GetOrthoMatrix() const;
 	private:
+		void InitialiseResources( size_t width, size_t height );
+
 		void RenderScene();
 		void RenderUI();
 		void RenderImGui();
 	private:
 		DirectX::XMMATRIX m_matOrtho;
 
-		int m_iScreenWidth = InitialScreenWidth;
-		int m_iScreenHeight = InitialScreenHeight;
+		int m_iScreenWidth = 0;
+		int m_iScreenHeight = 0;
 
-		SceneGraph* m_pSceneGraph = nullptr;
+		SceneNode* m_pSceneGraph;
+		Camera* m_pCamera;
 
 		RenderGraph* m_pRenderGraph = nullptr;
 
 		// UI
-		BatUI m_UI;
+		HtmlUI m_UI;
 	public:
 		static constexpr bool	FullScreen = false;
 		static constexpr int	VSyncEnabled = false;
@@ -67,7 +74,7 @@ namespace Bat
 		static constexpr float  FOVRadians = FOV * (DirectX::XM_PI / 180.0f);
 
 		// only used when not in fullscreen
-		static constexpr int	InitialScreenWidth = 1600;
-		static constexpr int	InitialScreenHeight = 900;
+		static constexpr int	InitialScreenWidth = 1366;
+		static constexpr int	InitialScreenHeight = 768;
 	};
 }

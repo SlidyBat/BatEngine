@@ -24,100 +24,54 @@ namespace Bat
 
 	static uint32_t listener_count;
 	static std::vector<FileWatchCallbacks> watched_files;
-	static HANDLE filechange_handle;
 
-	static Mutex       filewatch_lock;
-	static std::thread watcher_thread;
-
-	static void WatchFiles()
+	// Checks whether file is open by another process
+	static bool FileIsAvailable( const std::filesystem::path& path )
 	{
-		while( true )
+		HANDLE h = CreateFileW( path.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+		if( h != INVALID_HANDLE_VALUE )
 		{
-			filewatch_lock.Lock();
-			if( filechange_handle == INVALID_HANDLE_VALUE )
+			CloseHandle( h );
+			return true;
+		}
+		return false;
+	}
+
+	void FileWatchdog::Service( float deltatime )
+	{
+		for( auto& fwc : watched_files )
+		{
+			const auto& filename = fwc.filename;
+			const std::filesystem::path path( filename );
+
+			if( !FileIsAvailable( path ) )
 			{
-				break;
-			}
-			filewatch_lock.Unlock();
-
-			auto status = WaitForSingleObject( filechange_handle, INFINITE );
-
-			switch( status )
-			{
-				case WAIT_OBJECT_0:
-				{
-					ScopedLock lock( filewatch_lock );
-					for( auto& fwc : watched_files )
-					{
-						const auto& filename = fwc.filename;
-						const std::filesystem::path path( filename );
-
-						// file was written to since we last checked
-						const auto last_write_time = std::filesystem::last_write_time( path );
-						if( last_write_time > fwc.last_check_time )
-						{
-							const auto& listeners = fwc.listeners;
-							for( const auto& listener : listeners )
-							{
-								listener.callback( filename );
-							}
-
-							fwc.last_check_time = std::filesystem::file_time_type::clock::now();
-
-							break;
-						}
-					}
-
-					if( filechange_handle == INVALID_HANDLE_VALUE )
-					{
-						return;
-					}
-
-					BOOL res = FindNextChangeNotification( filechange_handle );
-					ASSERT( res, "Failed to re-watch directory" );
-
-					break;
-				}
-				case WAIT_TIMEOUT:
-				{
-					BAT_WARN( "File watchdog timed out" );
-
-					break;
-				}
-				default:
-				{
-					ASSERT( false, "Unhandled wait status (%i)", status );
-
-					break;
-				}
+				continue;
 			}
 
-			std::this_thread::yield();
+			// file was written to since we last checked
+			const auto last_write_time = std::filesystem::last_write_time( path );
+			if( last_write_time > fwc.last_check_time )
+			{
+				const auto& listeners = fwc.listeners;
+				for( const auto& listener : listeners )
+				{
+					listener.callback( filename );
+				}
+
+				fwc.last_check_time = std::filesystem::file_time_type::clock::now();
+			}
 		}
 	}
 
 	void FileWatchdog::Initialize()
 	{
-		auto currdir = std::filesystem::current_path();
 
-		filechange_handle = FindFirstChangeNotification( currdir.string().c_str(),
-			TRUE,
-			FILE_NOTIFY_CHANGE_LAST_WRITE
-		);
-
-		ASSERT( filechange_handle != INVALID_HANDLE_VALUE, "Failed to create change handle. %s", GetLastWinErrorAsString() );
-
-		watcher_thread = std::thread( WatchFiles );
 	}
 
 	void FileWatchdog::Shutdown()
 	{
-		filewatch_lock.Lock();
-		FindCloseChangeNotification( filechange_handle );
-		filechange_handle = INVALID_HANDLE_VALUE;
-		filewatch_lock.Unlock();
 
-		watcher_thread.join();
 	}
 
 	FileWatchHandle_t FileWatchdog::AddFileChangeListener( const std::string& filename, FileChangedCallback_t callback )
@@ -131,8 +85,6 @@ namespace Bat
 
 		std::filesystem::path abspath = std::filesystem::absolute( path );
 		std::string absfilename = abspath.string();
-
-		ScopedLock lock( filewatch_lock );
 
 		auto it = std::find_if( watched_files.begin(), watched_files.end(), [&absfilename]( const FileWatchCallbacks& fwc )
 		{
@@ -162,8 +114,6 @@ namespace Bat
 	}
 	bool FileWatchdog::RemoveFileChangeListener( FileWatchHandle_t handle )
 	{
-		ScopedLock lock( filewatch_lock );
-
 		if( handle == INVALID_WATCH_HANDLE )
 		{
 			return false;

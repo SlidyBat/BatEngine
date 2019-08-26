@@ -13,7 +13,6 @@
 #include "Camera.h"
 #include "Texture.h"
 #include "Light.h"
-#include "Scene.h"
 #include "RenderGraph.h"
 #include "Window.h"
 #include "SpriteBatch.h"
@@ -35,13 +34,7 @@ namespace Bat
 	{
 		gpu = CreateD3DGPUDevice( wnd, VSyncEnabled, ScreenFar, ScreenNear );
 
-		Viewport vp;
-		vp.width = (float)wnd.GetWidth();
-		vp.height = (float)wnd.GetHeight();
-		vp.min_depth = 0.0f;
-		vp.max_depth = 1.0f;
-		vp.top_left = { 0.0f, 0.0f };
-		gpu->GetContext()->SetViewport( vp );
+		InitialiseResources( wnd.GetWidth(), wnd.GetHeight() );
 
 		ShaderManager::AddPipeline( "texture", std::make_unique<TexturePipeline>( "Graphics/Shaders/TextureVS.hlsl", "Graphics/Shaders/TexturePS.hlsl" ) );
 		ShaderManager::AddPipeline( "colour", std::make_unique <ColourPipeline>( "Graphics/Shaders/ColourVS.hlsl", "Graphics/Shaders/ColourPS.hlsl" ) );
@@ -53,19 +46,33 @@ namespace Bat
 			Resize( e.width, e.height );
 		} );
 
-		m_matOrtho = DirectX::XMMatrixOrthographicLH(
-			(float)wnd.GetWidth(),
-			(float)wnd.GetHeight(),
-			Graphics::ScreenNear,
-			Graphics::ScreenFar
-		);
-
+		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
+		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+		//io.ConfigViewportsNoAutoMerge = true;
+		//io.ConfigViewportsNoTaskBarIcon = true;
+		//io.ConfigViewportsNoDefaultParent = true;
+		//io.ConfigDockingAlwaysTabBar = true;
+		//io.ConfigDockingTransparentPayload = true;
+
+		ImGui::StyleColorsDark();
+
+		// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
+		ImGuiStyle& style = ImGui::GetStyle();
+		if( io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable )
+		{
+			style.WindowRounding = 0.0f;
+			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+		}
+
 		ImGui_ImplWin32_Init( wnd.GetHandle() );
 		ImGui_ImplDX11_Init( (ID3D11Device*)gpu->GetImpl(), (ID3D11DeviceContext*)gpu->GetContext()->GetImpl() );
-		ImGui::StyleColorsDark();
+
 		BAT_TRACE( "ImGui initialized" );
 	}
 
@@ -79,16 +86,11 @@ namespace Bat
 		BAT_TRACE( "ImGui shut down" );
 	}
 
-	void Graphics::Resize( int width, int height )
+	void Graphics::Resize( size_t width, size_t height )
 	{
-		m_iScreenWidth = width;
-		m_iScreenHeight = height;
-		m_matOrtho = DirectX::XMMatrixOrthographicLH(
-			(float)width,
-			(float)height,
-			Graphics::ScreenNear,
-			Graphics::ScreenFar
-		);
+		InitialiseResources( width, height );
+
+		gpu->ResizeBuffers( width, height );
 	}
 
 	void Graphics::SetRenderGraph( RenderGraph* graph )
@@ -98,16 +100,16 @@ namespace Bat
 
 	void Graphics::BeginFrame()
 	{
-		if( m_pSceneGraph && m_pSceneGraph->GetActiveCamera() )
+		if( m_pCamera )
 		{
-			m_pSceneGraph->GetActiveCamera()->Render();
+			m_pCamera->Render();
 		}
 
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
-		ShaderManager::BindShaderGlobals( m_pSceneGraph->GetActiveCamera(), { (float)m_iScreenWidth, (float)m_iScreenHeight }, gpu->GetContext() );
+		ShaderManager::BindShaderGlobals( m_pCamera, { (float)m_iScreenWidth, (float)m_iScreenHeight }, gpu->GetContext() );
 	}
 
 	void Graphics::EndFrame()
@@ -125,12 +127,31 @@ namespace Bat
 		return m_matOrtho;
 	}
 
+	void Graphics::InitialiseResources( size_t width, size_t height )
+	{
+		m_iScreenWidth = width;
+		m_iScreenHeight = height;
+		m_matOrtho = DirectX::XMMatrixOrthographicLH(
+			(float)width,
+			(float)height,
+			Graphics::ScreenNear,
+			Graphics::ScreenFar
+		);
+
+		Viewport vp;
+		vp.width = (float)width;
+		vp.height = (float)height;
+		vp.min_depth = 0.0f;
+		vp.max_depth = 1.0f;
+		vp.top_left = { 0.0f, 0.0f };
+		gpu->GetContext()->SetViewport( vp );
+	}
+
 	void Graphics::RenderScene()
 	{
-		if( m_pSceneGraph && m_pRenderGraph )
+		if( m_pSceneGraph && m_pCamera && m_pRenderGraph )
 		{
-			// nullptr RT is backbuffer
-			m_pRenderGraph->Render( *m_pSceneGraph, nullptr );
+			m_pRenderGraph->Render( *m_pCamera, *m_pSceneGraph, gpu->GetBackbuffer() );
 		}
 	}
 
@@ -144,5 +165,12 @@ namespace Bat
 	{
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );
+
+		ImGuiIO& io = ImGui::GetIO();
+		if( io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable )
+		{
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+		}
 	}
 }

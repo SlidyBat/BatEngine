@@ -1,8 +1,8 @@
 #pragma once
 
-#include "PCH.h"
-
+#include "Frustum.h"
 #include "Graphics.h"
+#include "Entity.h"
 
 namespace Bat
 {
@@ -11,10 +11,6 @@ namespace Bat
 	public:
 		Camera( const Vec3& pos, const Vec3& rot, float fov = 90.0f, float ar = 4.0f / 3.0f, float screen_near = Graphics::ScreenNear, float screen_far = Graphics::ScreenFar );
 		Camera( float fov = 90.0f, float ar = 4.0f / 3.0f, float screen_near = Graphics::ScreenNear, float screen_far = Graphics::ScreenFar );
-		Camera( const Camera& src ) = delete;
-		Camera& operator=( const Camera& src ) = delete;
-		Camera( Camera&& donor ) = delete;
-		Camera& operator=( Camera&& donor ) = delete;
 
 		float GetFOV() const;
 		void SetFOV( float fov );
@@ -41,6 +37,8 @@ namespace Bat
 		Vec3 GetRightVector() const;
 		Vec3 GetLookAtVector() const;
 
+		const Frustum& GetFrustum() const { return m_Frustum; }
+
 		DirectX::XMMATRIX GetViewMatrix() const;
 		DirectX::XMMATRIX GetProjectionMatrix() const;
 
@@ -48,7 +46,10 @@ namespace Bat
 	private:
 		void UpdateProjectionMatrix();
 		void UpdateViewMatrix();
+		void UpdateFrustum();
 	private:
+		Frustum m_Frustum;
+
 		float m_flFOV = 90.0f;
 		float m_flAspectRatio = 1.3333333f;
 		float m_flScreenNear = Graphics::ScreenNear;

@@ -1,6 +1,7 @@
 #include "PCH.h"
 #include "SceneLoader.h"
 
+#include "CoreEntityComponents.h"
 #include "Mesh.h"
 #include "Model.h"
 #include "Colour.h"
@@ -315,9 +316,10 @@ namespace Bat
 		return pBatMesh;
 	}
 
-	static void ProcessNode( aiNode* pAssimpNode, const aiScene* pAssimpScene, ISceneNode& node, const std::string& dir )
+	static void ProcessNode( aiNode* pAssimpNode, const aiScene* pAssimpScene, SceneNode& node, const std::string& dir )
 	{
-		node.SetName( pAssimpNode->mName.C_Str() );
+		Entity e = node.Get();
+		e.Add<NameComponent>( pAssimpNode->mName.C_Str() );
 
 		if( pAssimpNode->mNumMeshes > 0 )
 		{
@@ -328,7 +330,7 @@ namespace Bat
 				aiMesh* pMesh = pAssimpScene->mMeshes[pAssimpNode->mMeshes[i]];
 				meshes.emplace_back( ProcessMesh( pMesh, pAssimpScene, dir ) );
 			}
-			node.AddModel( meshes );
+			e.Add<ModelComponent>( meshes );
 		}
 
 		for( UINT i = 0; i < pAssimpNode->mNumChildren; i++ )
@@ -336,14 +338,16 @@ namespace Bat
 			const auto transform = DirectX::XMMatrixTranspose(
 				DirectX::XMMATRIX( &pAssimpNode->mTransformation.a1 )
 			);
-			auto pNewNode = std::make_unique<BasicSceneNode>( transform, &node );
-			ProcessNode( pAssimpNode->mChildren[i], pAssimpScene, *pNewNode, dir );
 
-			node.AddChildNode( std::move( pNewNode ) );
+			Entity child = world.CreateEntity();
+			child.Add<TransformComponent>( transform );
+			
+			size_t new_node_idx = node.AddChild( child );
+			ProcessNode( pAssimpNode->mChildren[i], pAssimpScene, node.GetChild( new_node_idx ), dir );
 		}
 	}
 
-	std::unique_ptr<ISceneNode> SceneLoader::LoadScene( const std::string& filename )
+	SceneNode SceneLoader::LoadScene( const std::string& filename )
 	{
 		if( !std::ifstream( filename ) )
 		{
@@ -354,28 +358,30 @@ namespace Bat
 		
 		FrameTimer ft;
 
-		std::unique_ptr<ISceneNode> node = std::make_unique<BasicSceneNode>();
+		SceneNode node;
+		Entity e = world.CreateEntity();
+		node.Set( e );
 
 		std::filesystem::path filepath( filename );
 		std::string directory = filepath.parent_path().string();
 
 		Assimp::Importer importer;
-		const aiScene* pAssimpScene = importer.ReadFile( filename, aiProcess_ConvertToLeftHanded | aiProcess_Triangulate | aiProcess_CalcTangentSpace );
+		const aiScene* pAssimpScene = importer.ReadFile( filename, aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_Fast | aiProcess_TransformUVCoords );
 
 		if( pAssimpScene == nullptr )
 		{
-			ASSERT( false, "Failed to load model '%s'", filename );
+			ASSERT( false, "Failed to load model '%s' (%s)", filename, importer.GetErrorString() );
 			BAT_WARN( "Failed to load model '%s'", filename );
 			return {};
 		}
 
-		ProcessNode( pAssimpScene->mRootNode, pAssimpScene, *node, directory );
+		ProcessNode( pAssimpScene->mRootNode, pAssimpScene, node, directory );
 
 		float time = ft.Mark();
 		BAT_LOG( "Loaded model '%s' in %.2fs", filename, time );
 
 		g_LoadedMeshes.clear();
 
-		return std::move( node );
+		return node;
 	}
 }

@@ -6,7 +6,8 @@
 #include "Texture.h"
 #include "Console.h"
 #include "Audio.h"
-#include "Scene.h"
+#include "Entity.h"
+#include "Physics.h"
 #include "RenderGraph.h"
 #include "KeyboardEvents.h"
 
@@ -14,10 +15,8 @@ namespace Bat
 {
 	class Graphics;
 	class Window;
-	class IHost;
-	class IPeer;
-	template <class Application>
-	class Scene;
+	class Light;
+	class RenderTarget;
 
 	class Application : public ILayer
 	{
@@ -28,8 +27,9 @@ namespace Bat
 		virtual void OnUpdate( float deltatime ) override;
 		virtual void OnRender() override;
 
+		void OnEvent( const WindowResizeEvent& e );
 		void OnEvent( const KeyPressedEvent& e );
-
+	private:
 		void BuildRenderGraph();
 	public:
 		bool bloom_enabled = true;
@@ -39,10 +39,15 @@ namespace Bat
 		Window& wnd;
 		ISoundEngine* snd;
 		MoveableCamera camera;
-		SceneGraph scene;
+		SceneNode scene;
 		RenderGraph rendergraph;
-		Light* flashlight;
-		Light* sun;
+		Entity flashlight;
+		Entity sun;
+		IStaticObject* floor;
+		IDynamicObject* player;
+		std::vector<Entity> lights;
+		std::vector<IDynamicObject*> lights_phys;
+
 
 		float bloom_threshold = 1.0f;
 

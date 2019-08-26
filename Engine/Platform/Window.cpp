@@ -72,12 +72,12 @@ namespace Bat
 			m_Pos = pos;
 			m_dwStyle = WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_OVERLAPPEDWINDOW;
 
-			RECT windowRect = { 0, 0, m_iWidth, m_iHeight };
+			RECT windowRect = { 0, 0, (LONG)m_iWidth, (LONG)m_iHeight };
 			AdjustWindowRect( &windowRect, m_dwStyle, false );
 
 			m_hWnd = CreateWindowEx(
 				WS_EX_APPWINDOW,
-				m_szApplicationName.c_str(),
+				wc.lpszClassName,
 				m_szApplicationName.c_str(),
 				m_dwStyle,
 				m_Pos.x,
@@ -133,7 +133,7 @@ namespace Bat
 		MessageBox( m_hWnd, msg.c_str(), title.c_str(), type );
 	}
 
-	bool Window::ProcessMessage()
+	bool Window::ProcessMessages()
 	{
 		if( m_bDestroyed )
 		{
@@ -161,13 +161,27 @@ namespace Bat
 		return true;
 	}
 
-	LRESULT Window::HandleMsg( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+	bool Window::ProcessMessagesForAllWindows()
 	{
-		if( ImGui_ImplWin32_WndProcHandler( hWnd, uMsg, wParam, lParam ) )
+		MSG msg;
+
+		while( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
 		{
-			return true;
+			TranslateMessage( &msg );
+			DispatchMessage( &msg );
+
+			if( msg.message == WM_QUIT )
+			{
+				PostQuitMessage( (int)msg.wParam );
+				return false;
+			}
 		}
 
+		return true;
+	}
+
+	LRESULT Window::HandleMsg( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+	{
 		switch( uMsg )
 		{
 		case WM_DESTROY:
@@ -195,7 +209,7 @@ namespace Bat
 		case WM_MOUSEMOVE:
 		{
 			POINTS pos = MAKEPOINTS( lParam );
-			if( pos.x >= 0 && pos.x < GetWidth() && pos.y >= 0 && pos.y < GetHeight() )
+			if( pos.x >= 0 && pos.x < (SHORT)GetWidth() && pos.y >= 0 && pos.y < (SHORT)GetHeight() )
 			{
 				input.OnMouseMoved( { pos.x, pos.y } );
 				if( !input.IsMouseInWindow() )
@@ -320,10 +334,13 @@ namespace Bat
 		}
 		case WM_SIZE: // called when window is resized
 		{
-			m_iWidth = LOWORD( lParam );
-			m_iHeight = HIWORD( lParam );
+			if( wParam != SIZE_MINIMIZED )
+			{
+				m_iWidth = (size_t)LOWORD( lParam );
+				m_iHeight = (size_t)HIWORD( lParam );
 
-			DispatchEvent<WindowResizeEvent>( m_iWidth, m_iHeight );
+				DispatchEvent<WindowResizeEvent>( m_iWidth, m_iHeight );
+			}
 
 			break;
 		}
@@ -366,6 +383,11 @@ namespace Bat
 
 	LRESULT CALLBACK Window::HandleMsgThunk( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 	{
+		if( ImGui_ImplWin32_WndProcHandler( hWnd, uMsg, wParam, lParam ) )
+		{
+			return true;
+		}
+
 		Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtr( hWnd, GWLP_USERDATA ));
 		return pWnd->HandleMsg( hWnd, uMsg, wParam, lParam );
 	}
