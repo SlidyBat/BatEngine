@@ -70,6 +70,7 @@ namespace Bat
 		{
 			pContext->SetDepthStencilEnabled( false );
 			pContext->SetDepthStencil( nullptr );
+			pContext->SetBlendingEnabled( false );
 
 			IRenderTarget* src = data.GetRenderTarget( "src" );
 			IRenderTarget* rt1 = data.GetRenderTarget( "buffer1" );

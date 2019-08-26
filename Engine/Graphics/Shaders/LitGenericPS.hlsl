@@ -18,12 +18,12 @@ cbuffer LightParams : register(B_SLOT_1)
 
 struct PixelInput
 {
-    float4 position : SV_POSITION;
-    float4 world_pos : POSITION;
-    float3 normal : NORMAL;
-    float3 tangent : TANGENT;
-    float3 bitangent : BITANGENT;
-    float2 tex : TEXCOORD;
+	float4 position : SV_POSITION;
+	float4 world_pos : POSITION;
+	float3 normal : NORMAL;
+	float3 tangent : TANGENT;
+	float3 bitangent : BITANGENT;
+	float2 tex : TEXCOORD;
 };
 
 float3 DoPointLight( Light light, Material material, float3 normal, float3 world_pos )
@@ -176,5 +176,5 @@ float4 main( PixelInput input ) : SV_TARGET
 
 	colour += ambient + emissive;
 
-    return float4( colour, 1.0f );
+	return float4( colour, material.DiffuseColor.a );
 }

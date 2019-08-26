@@ -102,6 +102,9 @@ namespace Bat
 		virtual bool IsDepthStencilEnabled() const = 0;
 		virtual void SetDepthStencilEnabled( bool enabled ) = 0;
 
+		virtual bool IsBlendingEnabled() const = 0;
+		virtual void SetBlendingEnabled( bool enabled ) = 0;
+
 		// Gets how many RTs are currently bound
 		virtual size_t GetRenderTargetCount() const = 0;
 		// Get's currently bound render target, or nullptr if no render target is bound

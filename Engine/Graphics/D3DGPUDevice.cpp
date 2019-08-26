@@ -31,9 +31,9 @@
 
 #ifdef _DEBUG
 #define DXGI_CALL( dev, fn ) do { \
-		dev->FlushMessages(); \
-		fn; \
 		auto msg = dev->FlushMessages(); \
+		fn; \
+		msg = dev->FlushMessages(); \
 		if( !msg.empty() ) \
 		{ \
 			ASSERT( false, msg ); \
@@ -213,6 +213,9 @@ namespace Bat
 		virtual bool IsDepthStencilEnabled() const override;
 		virtual void SetDepthStencilEnabled( bool enabled ) override;
 
+		virtual bool IsBlendingEnabled() const override;
+		virtual void SetBlendingEnabled( bool enabled ) override;
+
 		virtual size_t GetRenderTargetCount() const override;
 		// Get's currently bound render target, or nullptr if no render target is bound
 		virtual IRenderTarget* GetRenderTarget(size_t slot = 0) const override;
@@ -268,7 +271,7 @@ namespace Bat
 	private:
 		D3DGPUDevice* m_pDevice = nullptr;
 
-		Microsoft::WRL::ComPtr<ID3D11DeviceContext>      m_pDeviceContext;
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_pDeviceContext;
 		std::vector<std::vector<IRenderTarget*>> m_RenderTargetStack;
 		std::vector<std::vector<Viewport>> m_ViewportStack;
 		class D3DDepthStencil* m_pDepthStencil = nullptr;
@@ -276,6 +279,7 @@ namespace Bat
 		D3DVertexShader* m_pVertexShader = nullptr;
 
 		bool m_bDepthStencilEnabled = false;
+		bool m_bBlendingEnabled = false;
 	};
 
 	class D3DGPUDevice : public IGPUDevice
@@ -319,6 +323,8 @@ namespace Bat
 	public:
 		ID3D11DepthStencilState* GetDepthStencilEnabledState() { return m_pDepthStencilEnabledState.Get(); }
 		ID3D11DepthStencilState* GetDepthStencilDisabledState() { return m_pDepthStencilDisabledState.Get(); }
+		ID3D11BlendState*        GetBlendEnabledState() { return m_pBlendEnabledState.Get(); }
+		ID3D11BlendState*        GetBlendDisabledState() { return m_pBlendDisabledState.Get(); }
 
 		std::string FlushMessages();
 	private:
@@ -339,6 +345,8 @@ namespace Bat
 
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilState>  m_pDepthStencilEnabledState;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilState>  m_pDepthStencilDisabledState;
+		Microsoft::WRL::ComPtr<ID3D11BlendState>         m_pBlendEnabledState;
+		Microsoft::WRL::ComPtr<ID3D11BlendState>         m_pBlendDisabledState;
 
 		D3DGPUContext m_GPUContext;
 		D3DRenderTarget m_Backbuffer;
@@ -607,6 +615,27 @@ namespace Bat
 		else
 		{
 			DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetDepthStencilState( m_pDevice->GetDepthStencilDisabledState(), 0 ) );
+		}
+	}
+
+	bool D3DGPUContext::IsBlendingEnabled() const
+	{
+		return m_bBlendingEnabled;
+	}
+
+	void D3DGPUContext::SetBlendingEnabled( bool enabled )
+	{
+		m_bBlendingEnabled = enabled;
+
+		const float blend_factor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+		const UINT sample_mask = 0xFFFFFFFF;
+		if( enabled )
+		{
+			DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetBlendState( m_pDevice->GetBlendEnabledState(), blend_factor, sample_mask ) );
+		}
+		else
+		{
+			DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetBlendState( m_pDevice->GetBlendDisabledState(), blend_factor, sample_mask ) );
 		}
 	}
 
@@ -970,28 +999,36 @@ namespace Bat
 
 	D3DGPUDevice::D3DGPUDevice( Window& wnd, bool vsync_enabled, float screen_depth, float screen_near )
 		:
-		m_GPUContext( this )
+		m_GPUContext( this ),
+		m_bVSyncEnabled( vsync_enabled )
 	{
-		m_bVSyncEnabled = vsync_enabled;
-
-		Microsoft::WRL::ComPtr<IDXGIFactory> factory;
-		COM_THROW_IF_FAILED( CreateDXGIFactory( IID_PPV_ARGS( &factory ) ) );
-
+		// Choose best device available based on VRAM
 		Microsoft::WRL::ComPtr<IDXGIAdapter> adapter;
 		{
-			Microsoft::WRL::ComPtr<IDXGIAdapter> a;
-			SIZE_T max_vram = 0;
-			for( int i = 0; SUCCEEDED( factory->EnumAdapters( i, &a ) ); i++ )
-			{
-				DXGI_ADAPTER_DESC adapterDesc;
-				COM_THROW_IF_FAILED( a->GetDesc( &adapterDesc ) );
+			Microsoft::WRL::ComPtr<IDXGIFactory> factory;
+			COM_THROW_IF_FAILED( CreateDXGIFactory( IID_PPV_ARGS( &factory ) ) );
 
-				if( adapterDesc.DedicatedVideoMemory >= max_vram )
+			{
+				Microsoft::WRL::ComPtr<IDXGIAdapter> a;
+				SIZE_T max_vram = 0;
+				for( int i = 0; SUCCEEDED( factory->EnumAdapters( i, &a ) ); i++ )
 				{
-					max_vram = adapterDesc.DedicatedVideoMemory;
-					adapter = a;
+					DXGI_ADAPTER_DESC adapterDesc;
+					COM_THROW_IF_FAILED( a->GetDesc( &adapterDesc ) );
+
+					if( adapterDesc.DedicatedVideoMemory >= max_vram )
+					{
+						max_vram = adapterDesc.DedicatedVideoMemory;
+						adapter = a;
+					}
 				}
 			}
+
+			DXGI_ADAPTER_DESC adapterDesc;
+			COM_THROW_IF_FAILED( adapter->GetDesc( &adapterDesc ) );
+
+			m_DeviceInfo.name = Bat::WideToString( adapterDesc.Description );
+			m_DeviceInfo.memory = (size_t)(adapterDesc.DedicatedVideoMemory / 1024 / 1024); // in mb
 		}
 
 		/*Microsoft::WRL::ComPtr<IDXGIOutput> adapterOutput;
@@ -1016,107 +1053,126 @@ namespace Bat
 
 		delete[] displayModes;*/
 
-		DXGI_ADAPTER_DESC adapterDesc;
-		COM_THROW_IF_FAILED( adapter->GetDesc( &adapterDesc ) );
 
-		m_DeviceInfo.name = Bat::WideToString( adapterDesc.Description );
-		m_DeviceInfo.memory = (size_t)(adapterDesc.DedicatedVideoMemory / 1024 / 1024); // in mb
-
-		DXGI_SWAP_CHAIN_DESC swapChainDesc;
-		ZeroMemory( &swapChainDesc, sizeof( swapChainDesc ) );
-
-		swapChainDesc.BufferCount = 1;
-		swapChainDesc.BufferDesc.Width = 0;
-		swapChainDesc.BufferDesc.Height = 0;
-		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-
-		if( m_bVSyncEnabled )
 		{
-			swapChainDesc.BufferDesc.RefreshRate.Numerator = numerator;
-			swapChainDesc.BufferDesc.RefreshRate.Denominator = denominator;
-		}
-		else
-		{
-			swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
-			swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-		}
+			DXGI_SWAP_CHAIN_DESC swapChainDesc;
+			ZeroMemory( &swapChainDesc, sizeof( swapChainDesc ) );
 
-		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapChainDesc.OutputWindow = wnd.GetHandle();
+			swapChainDesc.BufferCount = 1;
+			swapChainDesc.BufferDesc.Width = 0;
+			swapChainDesc.BufferDesc.Height = 0;
+			swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-		// multisampling
-		swapChainDesc.SampleDesc.Count = 1;
-		swapChainDesc.SampleDesc.Quality = 0;
+			if( m_bVSyncEnabled )
+			{
+				swapChainDesc.BufferDesc.RefreshRate.Numerator = numerator;
+				swapChainDesc.BufferDesc.RefreshRate.Denominator = denominator;
+			}
+			else
+			{
+				swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
+				swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+			}
 
-		swapChainDesc.Windowed = !wnd.IsFullscreen();
+			swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+			swapChainDesc.OutputWindow = wnd.GetHandle();
 
-		swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+			// multisampling
+			swapChainDesc.SampleDesc.Count = 1;
+			swapChainDesc.SampleDesc.Quality = 0;
 
-		swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+			swapChainDesc.Windowed = !wnd.IsFullscreen();
 
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+			swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+			swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
+			swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
+			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+
+			UINT flags = 0;
 #ifdef _DEBUG
-		UINT flags = D3D11_CREATE_DEVICE_DEBUG;
-#else
-		UINT flags = 0;
+			flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-		COM_THROW_IF_FAILED( D3D11CreateDeviceAndSwapChain(
-			adapter.Get(),
-			D3D_DRIVER_TYPE_UNKNOWN,
-			NULL,
-			flags,
-			NULL, 0,
-			D3D11_SDK_VERSION,
-			&swapChainDesc, &m_pSwapChain,
-			&m_pDevice, NULL, &m_GPUContext.m_pDeviceContext ) );
+			COM_THROW_IF_FAILED( D3D11CreateDeviceAndSwapChain(
+				adapter.Get(),
+				D3D_DRIVER_TYPE_UNKNOWN,
+				NULL,
+				flags,
+				NULL, 0,
+				D3D11_SDK_VERSION,
+				&swapChainDesc, &m_pSwapChain,
+				&m_pDevice, NULL, &m_GPUContext.m_pDeviceContext ) );
 
-		BAT_LOG( "Using video card '%s' with %iMB VRAM",
-			m_DeviceInfo.name,
-			m_DeviceInfo.memory );
-		BAT_LOG( "Device feature level: %s", FeatureLevel2String( m_pDevice->GetFeatureLevel() ) );
+			BAT_LOG( "Using video card '%s' with %iMB VRAM",
+				m_DeviceInfo.name,
+				m_DeviceInfo.memory );
+			BAT_LOG( "Device feature level: %s", FeatureLevel2String( m_pDevice->GetFeatureLevel() ) );
 
-		if( m_pDevice->GetFeatureLevel() < D3D_FEATURE_LEVEL_11_0 )
-		{
-			BAT_ERROR( "Your feature level is unsupported, certain features may not work" );
+			if( m_pDevice->GetFeatureLevel() < D3D_FEATURE_LEVEL_11_0 )
+			{
+				BAT_ERROR( "Your feature level is unsupported, certain features may not work" );
+			}
+
+			Microsoft::WRL::ComPtr<ID3D11Texture2D> pBackBuffer;
+			COM_THROW_IF_FAILED( m_pSwapChain->GetBuffer( 0, IID_PPV_ARGS( &pBackBuffer ) ) );
+
+			COM_THROW_IF_FAILED( m_pDevice->CreateRenderTargetView( pBackBuffer.Get(), NULL, &m_pRenderTargetView ) );
+
+			m_Backbuffer.Reset( m_pRenderTargetView.Get(), wnd.GetWidth(), wnd.GetHeight() );
 		}
 
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> pBackBuffer;
-		COM_THROW_IF_FAILED( m_pSwapChain->GetBuffer( 0, IID_PPV_ARGS( &pBackBuffer ) ) );
-
-		COM_THROW_IF_FAILED( m_pDevice->CreateRenderTargetView( pBackBuffer.Get(), NULL, &m_pRenderTargetView ) );
-
-		m_Backbuffer.Reset( m_pRenderTargetView.Get(), wnd.GetWidth(), wnd.GetHeight() );
-
 		// set up raster description
-		D3D11_RASTERIZER_DESC rasterDesc;
-		rasterDesc.AntialiasedLineEnable = false;
-		rasterDesc.CullMode = D3D11_CULL_BACK;
-		rasterDesc.DepthBias = 0;
-		rasterDesc.DepthBiasClamp = 0.0f;
-		rasterDesc.DepthClipEnable = true;
-		rasterDesc.FillMode = D3D11_FILL_SOLID;
-		rasterDesc.FrontCounterClockwise = false;
-		rasterDesc.MultisampleEnable = false;
-		rasterDesc.ScissorEnable = false;
-		rasterDesc.SlopeScaledDepthBias = 0.0f;
+		{
+			D3D11_RASTERIZER_DESC rasterDesc;
+			rasterDesc.AntialiasedLineEnable = false;
+			rasterDesc.CullMode = D3D11_CULL_BACK;
+			rasterDesc.DepthBias = 0;
+			rasterDesc.DepthBiasClamp = 0.0f;
+			rasterDesc.DepthClipEnable = true;
+			rasterDesc.FillMode = D3D11_FILL_SOLID;
+			rasterDesc.FrontCounterClockwise = false;
+			rasterDesc.MultisampleEnable = false;
+			rasterDesc.ScissorEnable = false;
+			rasterDesc.SlopeScaledDepthBias = 0.0f;
 
-		COM_THROW_IF_FAILED( m_pDevice->CreateRasterizerState( &rasterDesc, &m_pRasterState ) );
+			COM_THROW_IF_FAILED( m_pDevice->CreateRasterizerState( &rasterDesc, &m_pRasterState ) );
+		}
 
 		// Create depth stencil state enabled/disabled states
-		D3D11_DEPTH_STENCIL_DESC depthstencildesc{};
+		{
+			D3D11_DEPTH_STENCIL_DESC depthstencildesc{};
 
-		depthstencildesc.DepthEnable = true;
-		depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
-		depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
+			depthstencildesc.DepthEnable = true;
+			depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
+			depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
 
-		COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilEnabledState ) );
+			COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilEnabledState ) );
 
-		depthstencildesc.DepthEnable = false;
+			depthstencildesc.DepthEnable = false;
 
-		COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilDisabledState ) );
+			COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilDisabledState ) );
+		}
+
+		// Create blending enabled/disabled states
+		{
+			D3D11_BLEND_DESC blend_desc;
+			ZeroMemory( &blend_desc, sizeof( blend_desc ) );
+			blend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+			blend_desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+			blend_desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+			blend_desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+			blend_desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+			blend_desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+			blend_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+
+			blend_desc.RenderTarget[0].BlendEnable = true;
+			COM_THROW_IF_FAILED( m_pDevice->CreateBlendState( &blend_desc, &m_pBlendEnabledState ) );
+
+			blend_desc.RenderTarget[0].BlendEnable = false;
+			COM_THROW_IF_FAILED( m_pDevice->CreateBlendState( &blend_desc, &m_pBlendDisabledState ) );
+		}
 
 #ifdef _DEBUG
 		// create the info queue

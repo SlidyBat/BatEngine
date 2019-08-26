@@ -37,6 +37,7 @@ namespace Bat
 
 			m_pContext = pContext;
 			m_pContext->SetDepthStencilEnabled( true );
+			pContext->SetBlendingEnabled( false );
 
 			m_bGettingLights = true;
 			Traverse( scene );

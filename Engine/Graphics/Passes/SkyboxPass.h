@@ -27,6 +27,7 @@ namespace Bat
 		virtual void Execute( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data ) override
 		{
 			pContext->SetDepthStencilEnabled( true );
+			pContext->SetBlendingEnabled( false );
 
 			IRenderTarget* target = data.GetRenderTarget( "dst" );
 			pContext->SetRenderTarget( target );

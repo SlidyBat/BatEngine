@@ -61,6 +61,7 @@ namespace Bat
 		virtual void Execute( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data )
 		{
 			pContext->SetDepthStencilEnabled( false );
+			pContext->SetBlendingEnabled( false );
 
 			pContext->SetPrimitiveTopology( PrimitiveTopology::TRIANGLELIST );
 
