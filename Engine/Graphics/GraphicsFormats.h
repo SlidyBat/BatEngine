@@ -236,6 +236,13 @@ namespace Bat
 		CLEAR_FLAG_STENCIL = 2
 	};
 
+	enum class CullMode
+	{
+		NONE,
+		BACK,
+		FRONT
+	};
+
 	struct SamplerDesc
 	{
 		SampleFilter filter = SampleFilter::MIN_MAG_MIP_POINT;

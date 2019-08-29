@@ -101,6 +101,11 @@ namespace Bat
 		virtual IDepthStencil* GetDepthStencil() const = 0;
 		virtual bool IsDepthStencilEnabled() const = 0;
 		virtual void SetDepthStencilEnabled( bool enabled ) = 0;
+		virtual bool IsDepthWriteEnabled() const = 0;
+		virtual void SetDepthWriteEnabled( bool enabled ) = 0;
+
+		virtual CullMode GetCullMode() const = 0;
+		virtual void SetCullMode( CullMode mode ) = 0;
 
 		virtual bool IsBlendingEnabled() const = 0;
 		virtual void SetBlendingEnabled( bool enabled ) = 0;
