@@ -22,8 +22,8 @@
 #include "FileWatchdog.h"
 #include "MemoryStream.h"
 #include <wrl.h>
-#include <WICTextureLoader.h>
-#include <DDSTextureLoader.h>
+#include "WICTextureLoader.h"
+#include "DDSTextureLoader.h"
 
 #pragma comment( lib, "d3d11.lib" )
 #pragma comment( lib, "dxgi.lib" )
@@ -414,6 +414,7 @@ namespace Bat
 		virtual size_t GetWidth() const override { return m_iWidth; }
 		virtual size_t GetHeight() const override { return m_iHeight; }
 		virtual TexFormat GetFormat() const override { return m_Format; }
+		virtual bool IsTranslucent() const override { return m_bIsTranslucent; }
 
 		void UpdatePixels( ID3D11DeviceContext* pDeviceContext, const void* pPixels, size_t pitch );
 		ID3D11ShaderResourceView* GetShaderResourceView() const { return m_pTextureView.Get(); }
@@ -424,6 +425,7 @@ namespace Bat
 		TexFormat m_Format;
 		size_t m_iWidth = 0;
 		size_t m_iHeight = 0;
+		bool m_bIsTranslucent = false;
 	};
 
 	class D3DDepthStencil : public IDepthStencil
@@ -1706,24 +1708,33 @@ namespace Bat
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext;
 		pDevice->GetImmediateContext( &pContext );
 
+
 		if( !std::ifstream( filename ) )
 		{
 			BAT_WARN( "Could not open texture '%s', defaulting to 'error.png'", filename );
 			COM_THROW_IF_FAILED(
-				DirectX::CreateWICTextureFromFile( pDevice, nullptr, L"Assets/error.png", &m_pTexture, &m_pTextureView )
+				CreateWICTextureFromFile( pDevice, nullptr, L"Assets/error.png", &m_pTexture, &m_pTextureView )
 			);
 		}
 		else if( Bat::GetFileExtension( filename ) != "dds" )
 		{
+			WIC_TEXTURE_FLAGS tex_flags;
+
 			COM_THROW_IF_FAILED(
-				DirectX::CreateWICTextureFromFile( pDevice, pContext.Get(), wfilename.c_str(), &m_pTexture, &m_pTextureView )
+				CreateWICTextureFromFile( pDevice, pContext.Get(), wfilename.c_str(), &m_pTexture, &m_pTextureView, 0, &tex_flags )
 			);
+
+			m_bIsTranslucent = (tex_flags & WIC_TEXTURE_HAS_ALPHA);
 		}
 		else
 		{
+			DDS_ALPHA_MODE alpha_mode;
+
 			COM_THROW_IF_FAILED(
-				DirectX::CreateDDSTextureFromFile( pDevice, pContext.Get(), wfilename.c_str(), &m_pTexture, &m_pTextureView )
+				CreateDDSTextureFromFile( pDevice, pContext.Get(), wfilename.c_str(), &m_pTexture, &m_pTextureView, 0, &alpha_mode )
 			);
+
+			m_bIsTranslucent = (alpha_mode == DDS_ALPHA_MODE_UNKNOWN || alpha_mode == DDS_ALPHA_MODE_STRAIGHT);
 		}
 
 		// get width/height
@@ -1740,13 +1751,17 @@ namespace Bat
 
 	D3DTexture::D3DTexture( ID3D11Device* pDevice, const char* pData, size_t size )
 	{
+		WIC_TEXTURE_FLAGS tex_flags;
+
 		COM_THROW_IF_FAILED(
-			DirectX::CreateWICTextureFromMemory( pDevice,
+			CreateWICTextureFromMemory( pDevice,
 				nullptr,
 				reinterpret_cast<const uint8_t*>( pData ),
 				size,
 				&m_pTexture,
-				&m_pTextureView )
+				&m_pTextureView,
+				0,
+				&tex_flags )
 		);
 
 		// get width/height
@@ -1760,6 +1775,8 @@ namespace Bat
 		m_iWidth = desc.Width;
 		m_iHeight = desc.Height;
 		m_Format = (TexFormat)desc.Format;
+
+		m_bIsTranslucent = (tex_flags & WIC_TEXTURE_HAS_ALPHA);
 	}
 
 	D3DTexture::D3DTexture( ID3D11Device* pDevice, const void* pPixels, size_t pitch, size_t width, size_t height, TexFormat format, GPUResourceUsage usage )
@@ -1795,6 +1812,8 @@ namespace Bat
 		m_iWidth = width;
 		m_iHeight = height;
 		m_Format = format;
+
+		m_bIsTranslucent = (TexFormatInfo( m_Format ).num_alpha_bits > 0);
 	}
 
 	void D3DTexture::UpdatePixels( ID3D11DeviceContext* pDeviceContext, const void* pPixels, size_t pitch )

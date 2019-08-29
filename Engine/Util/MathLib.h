@@ -294,5 +294,7 @@ namespace Bat
 		int GetRandomInt( int min, int max );
 		// Returns a random float in the range [min, max)
 		float GetRandomFloat( float min, float max );
+
+		bool CloseEnough( float a, float b, float epsilon = 0.001f );
 	}
 }

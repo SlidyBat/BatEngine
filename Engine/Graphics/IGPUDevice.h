@@ -219,6 +219,7 @@ namespace Bat
 		virtual size_t GetWidth() const = 0;
 		virtual size_t GetHeight() const = 0;
 		virtual TexFormat GetFormat() const = 0;
+		virtual bool IsTranslucent() const = 0;
 	};
 
 	class IDepthStencil

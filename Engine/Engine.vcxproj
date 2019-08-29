@@ -219,7 +219,14 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClCompile Include="Audio\Audio.cpp" />
     <ClCompile Include="Core\Console.cpp" />
     <ClCompile Include="Core\Entity.cpp" />
+    <ClCompile Include="DDSTextureLoader.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Events\Event.cpp" />
+    <ClCompile Include="Graphics\GraphicsFormats.cpp" />
     <ClCompile Include="Util\Frustum.cpp" />
     <ClCompile Include="Graphics\IRenderPass.cpp" />
     <ClCompile Include="Graphics\RenderData.cpp" />
@@ -335,11 +342,18 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     </ClCompile>
     <ClCompile Include="Util\StringLib.cpp" />
     <ClCompile Include="Platform\Window.cpp" />
+    <ClCompile Include="WICTextureLoader.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="Audio\Audio.h" />
     <ClInclude Include="Core\CoreEntityComponents.h" />
+    <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="Events\PhysicsEvents.h" />
     <ClInclude Include="Util\Tree.h" />
     <ClInclude Include="Util\Frustum.h" />
@@ -429,6 +443,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Util\MemoryStream.h" />
     <ClInclude Include="Platform\Window.h" />
     <ClInclude Include="Events\WindowEvents.h" />
+    <ClInclude Include="WICTextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\mario.png" />

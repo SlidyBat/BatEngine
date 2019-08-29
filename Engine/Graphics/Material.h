@@ -1,10 +1,10 @@
 #pragma once
 
 #include "ResourceManager.h"
+#include "Texture.h"
 
 namespace Bat
 {
-	class Texture;
 	class IPipeline;
 
 	class Material
@@ -34,19 +34,33 @@ namespace Bat
 		Vec3 GetEmissiveColour() const { return m_colEmissive; }
 		void SetEmissiveColour( float r, float g, float b ) { m_colEmissive = { r, g, b }; }
 
-		float GetShininess() const { return m_fShininess; }
-		void SetShininess( const float shininess ) { m_fShininess = shininess; }
+		float GetOpacity() const { return m_flOpacity; }
+		void SetOpacity( float opacity ) { m_flOpacity = opacity; }
+
+		float GetShininess() const { return m_flShininess; }
+		void SetShininess( const float shininess ) { m_flShininess = shininess; }
+
+		bool IsTranslucent() const
+		{
+			if( !Math::CloseEnough( m_flOpacity, 1.0f ) )
+			{
+				return true;
+			}
+
+			return m_pDiffuse->Get()->IsTranslucent();
+		}
 	private:
 		Vec3 m_colAmbient = { 0.0f, 0.0f, 0.0f };
 		Vec3 m_colDiffuse = { 0.0f, 0.0f, 0.0f };
 		Vec3 m_colSpecular = { 0.0f, 0.0f, 0.0f };
 		Vec3 m_colEmissive = { 0.0f, 0.0f, 0.0f };
+		float m_flOpacity = 1.0f;
 
 		Resource<Texture> m_pAmbient = nullptr;
 		Resource<Texture> m_pDiffuse = nullptr;
 		Resource<Texture> m_pSpecular = nullptr;
 		Resource<Texture> m_pEmissive = nullptr;
 		Resource<Texture> m_pNormalMap = nullptr;
-		float m_fShininess = 32.0f;
+		float m_flShininess = 32.0f;
 	};
 }

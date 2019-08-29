@@ -176,5 +176,5 @@ float4 main( PixelInput input ) : SV_TARGET
 
 	colour += ambient + emissive;
 
-	return float4( colour, material.DiffuseColor.a );
+	return float4( colour, material.DiffuseColor.a * material.Opacity );
 }
