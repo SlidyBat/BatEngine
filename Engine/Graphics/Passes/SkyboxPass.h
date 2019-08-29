@@ -28,6 +28,7 @@ namespace Bat
 		{
 			pContext->SetDepthStencilEnabled( true );
 			pContext->SetBlendingEnabled( false );
+			pContext->SetCullMode( CullMode::BACK );
 
 			IRenderTarget* target = data.GetRenderTarget( "dst" );
 			pContext->SetRenderTarget( target );

@@ -124,6 +124,15 @@ float4 main( PixelInput input ) : SV_TARGET
 		normal = normalize( mul( normal, tbn ) );
 	}
 
+	float3 world_pos = input.world_pos.xyz;
+	float3 view_dir = normalize( Globals.CameraPos - world_pos );
+
+	// Flip if facing away from camera (should only happen when backface culling disabled)
+	if( dot( view_dir, normal ) < 0 )
+	{
+		normal = -normal;
+	}
+
 	// get specular colour of material
 	if( material.HasSpecularTexture )
 	{
@@ -165,8 +174,6 @@ float4 main( PixelInput input ) : SV_TARGET
 			emissive = EmissiveTexture.Sample( WrapSampler, input.tex ).rgb;
 		}
 	}
-
-	float3 world_pos = input.world_pos.xyz;
 
 	float3 colour = 0.0f;
 	for( uint i = 0; i < NumLights; i++ )

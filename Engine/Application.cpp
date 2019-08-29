@@ -22,7 +22,8 @@
 #include "Passes/SkyboxPass.h"
 #include "Passes/BloomPass.h"
 #include "Passes/MotionBlurPass.h"
-#include "Passes/ForwardOpaquePass.h"
+#include "Passes/OpaquePass.h"
+#include "Passes/TransparentPass.h"
 #include "Passes/DrawLightsPass.h"
 
 namespace Bat
@@ -295,6 +296,15 @@ namespace Bat
 			lights.push_back( light );
 			lights_phys.push_back( phys );
 		}
+		else if( e.key == 'V' )
+		{
+			Entity light = world.CreateEntity();
+			light.Add<LightComponent>()
+				.SetRange( 2.5f );
+			light.Add<TransformComponent>()
+				.SetPosition( camera.GetPosition() );
+			scene.AddChild( light );
+		}
 		else if( e.key == 'F' )
 		{
 			auto& l = flashlight.Get<LightComponent>();
@@ -362,8 +372,11 @@ namespace Bat
 		rendergraph.BindToResource( "crt.buffer", "target" );
 		rendergraph.BindToResource( "crt.depth", "depth" );
 
-		rendergraph.AddPass( "forward_opaque", std::make_unique<ForwardOpaquePass>() );
-		rendergraph.BindToResource( "forward_opaque.dst", "target" );
+		rendergraph.AddPass( "opaque", std::make_unique<OpaquePass>() );
+		rendergraph.BindToResource( "opaque.dst", "target" );
+
+		rendergraph.AddPass( "transparent", std::make_unique<TransparentPass>() );
+		rendergraph.BindToResource( "transparent.dst", "target" );
 
 		rendergraph.AddPass( "draw_lights", std::make_unique<DrawLightsPass>() );
 		rendergraph.BindToResource( "draw_lights.dst", "target" );
