@@ -35,6 +35,7 @@ namespace Bat
 		material.material.DiffuseColor = params.material.GetDiffuseColour();
 		material.material.SpecularColor = params.material.GetSpecularColour();
 		material.material.EmissiveColor = params.material.GetEmissiveColour();
+		material.material.Opacity = params.material.GetOpacity();
 
 		material.material.HasAmbientTexture  = (params.material.GetAmbientTexture() != nullptr);
 		material.material.HasDiffuseTexture  = (params.material.GetDiffuseTexture() != nullptr);

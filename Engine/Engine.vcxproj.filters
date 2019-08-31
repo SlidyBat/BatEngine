@@ -261,6 +261,15 @@
     <ClCompile Include="Events\Event.cpp">
       <Filter>Source Files\Events</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\GraphicsFormats.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\WICTextureLoader.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\DDSTextureLoader.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -515,9 +524,6 @@
     <ClInclude Include="Graphics\LitGenericPipeline.h">
       <Filter>Header Files\Graphics\Pipelines</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Passes\ForwardOpaquePass.h">
-      <Filter>Header Files\Graphics\Passes</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\ShaderBuffers.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
@@ -538,6 +544,21 @@
     </ClInclude>
     <ClInclude Include="Events\PhysicsEvents.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Passes\OpaquePass.h">
+      <Filter>Header Files\Graphics\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\WICTextureLoader.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Passes\TransparentPass.h">
+      <Filter>Header Files\Graphics\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Passes\SceneRenderPass.h">
+      <Filter>Header Files\Graphics\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\DDSTextureLoader.h">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -598,7 +619,7 @@
     <None Include="Graphics\Shaders\CommonPS.hlsli">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="RenderNodeDataTypes.def">
+    <None Include="Graphics\RenderNodeDataTypes.def">
       <Filter>Header Files\Graphics</Filter>
     </None>
   </ItemGroup>

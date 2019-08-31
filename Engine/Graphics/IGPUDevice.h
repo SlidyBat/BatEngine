@@ -101,6 +101,14 @@ namespace Bat
 		virtual IDepthStencil* GetDepthStencil() const = 0;
 		virtual bool IsDepthStencilEnabled() const = 0;
 		virtual void SetDepthStencilEnabled( bool enabled ) = 0;
+		virtual bool IsDepthWriteEnabled() const = 0;
+		virtual void SetDepthWriteEnabled( bool enabled ) = 0;
+
+		virtual CullMode GetCullMode() const = 0;
+		virtual void SetCullMode( CullMode mode ) = 0;
+
+		virtual bool IsBlendingEnabled() const = 0;
+		virtual void SetBlendingEnabled( bool enabled ) = 0;
 
 		// Gets how many RTs are currently bound
 		virtual size_t GetRenderTargetCount() const = 0;
@@ -216,6 +224,7 @@ namespace Bat
 		virtual size_t GetWidth() const = 0;
 		virtual size_t GetHeight() const = 0;
 		virtual TexFormat GetFormat() const = 0;
+		virtual bool IsTranslucent() const = 0;
 	};
 
 	class IDepthStencil

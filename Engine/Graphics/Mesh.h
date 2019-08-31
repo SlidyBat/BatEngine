@@ -46,6 +46,8 @@ namespace Bat
 		const Vec3& GetMins() const { return m_vecMins; }
 		// Returns maxs of mesh in object space
 		const Vec3& GetMaxs() const { return m_vecMaxs; }
+		// Returns center of mesh in object space
+		Vec3 GetCenter() const { return (m_vecMins + m_vecMaxs) / 2; }
 	private:
 		VertexBuffer<Vec3> m_bufPosition;
 		VertexBuffer<Vec4> m_bufColour;

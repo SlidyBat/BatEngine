@@ -22,8 +22,8 @@
 #include "FileWatchdog.h"
 #include "MemoryStream.h"
 #include <wrl.h>
-#include <WICTextureLoader.h>
-#include <DDSTextureLoader.h>
+#include "WICTextureLoader.h"
+#include "DDSTextureLoader.h"
 
 #pragma comment( lib, "d3d11.lib" )
 #pragma comment( lib, "dxgi.lib" )
@@ -31,9 +31,9 @@
 
 #ifdef _DEBUG
 #define DXGI_CALL( dev, fn ) do { \
-		dev->FlushMessages(); \
-		fn; \
 		auto msg = dev->FlushMessages(); \
+		fn; \
+		msg = dev->FlushMessages(); \
 		if( !msg.empty() ) \
 		{ \
 			ASSERT( false, msg ); \
@@ -212,6 +212,14 @@ namespace Bat
 		virtual IDepthStencil* GetDepthStencil() const override;
 		virtual bool IsDepthStencilEnabled() const override;
 		virtual void SetDepthStencilEnabled( bool enabled ) override;
+		virtual bool IsDepthWriteEnabled() const override;
+		virtual void SetDepthWriteEnabled( bool enabled ) override;
+
+		virtual CullMode GetCullMode() const override;
+		virtual void SetCullMode( CullMode mode ) override;
+
+		virtual bool IsBlendingEnabled() const override;
+		virtual void SetBlendingEnabled( bool enabled ) override;
 
 		virtual size_t GetRenderTargetCount() const override;
 		// Get's currently bound render target, or nullptr if no render target is bound
@@ -265,17 +273,21 @@ namespace Bat
 	private:
 		void BindViewports();
 		void BindRenderTarget();
+		void BindDepthState();
 	private:
 		D3DGPUDevice* m_pDevice = nullptr;
 
-		Microsoft::WRL::ComPtr<ID3D11DeviceContext>      m_pDeviceContext;
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_pDeviceContext;
 		std::vector<std::vector<IRenderTarget*>> m_RenderTargetStack;
 		std::vector<std::vector<Viewport>> m_ViewportStack;
 		class D3DDepthStencil* m_pDepthStencil = nullptr;
 		D3DPixelShader* m_pPixelShader = nullptr;
 		D3DVertexShader* m_pVertexShader = nullptr;
 
+		CullMode m_CullMode;
 		bool m_bDepthStencilEnabled = false;
+		bool m_bDepthWriteEnabled = false;
+		bool m_bBlendingEnabled = false;
 	};
 
 	class D3DGPUDevice : public IGPUDevice
@@ -318,7 +330,13 @@ namespace Bat
 		virtual void* GetImpl() override { return m_pDevice.Get(); }
 	public:
 		ID3D11DepthStencilState* GetDepthStencilEnabledState() { return m_pDepthStencilEnabledState.Get(); }
+		ID3D11DepthStencilState* GetDepthStencilEnabledNoWriteState() { return m_pDepthStencilEnabledNoWriteState.Get(); }
 		ID3D11DepthStencilState* GetDepthStencilDisabledState() { return m_pDepthStencilDisabledState.Get(); }
+		ID3D11RasterizerState*   GetRasterizerCullBackState() { return m_pRasterStateCullBack.Get(); }
+		ID3D11RasterizerState*   GetRasterizerCullFrontState() { return m_pRasterStateCullFront.Get(); }
+		ID3D11RasterizerState*   GetRasterizerCullNoneState() { return m_pRasterStateCullNone.Get(); }
+		ID3D11BlendState*        GetBlendEnabledState() { return m_pBlendEnabledState.Get(); }
+		ID3D11BlendState*        GetBlendDisabledState() { return m_pBlendDisabledState.Get(); }
 
 		std::string FlushMessages();
 	private:
@@ -335,10 +353,15 @@ namespace Bat
 #endif
 
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView>   m_pRenderTargetView;
-		Microsoft::WRL::ComPtr<ID3D11RasterizerState>    m_pRasterState;
+		Microsoft::WRL::ComPtr<ID3D11RasterizerState>    m_pRasterStateCullBack;
+		Microsoft::WRL::ComPtr<ID3D11RasterizerState>    m_pRasterStateCullFront;
+		Microsoft::WRL::ComPtr<ID3D11RasterizerState>    m_pRasterStateCullNone;
 
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilState>  m_pDepthStencilEnabledState;
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilState>  m_pDepthStencilEnabledNoWriteState;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilState>  m_pDepthStencilDisabledState;
+		Microsoft::WRL::ComPtr<ID3D11BlendState>         m_pBlendEnabledState;
+		Microsoft::WRL::ComPtr<ID3D11BlendState>         m_pBlendDisabledState;
 
 		D3DGPUContext m_GPUContext;
 		D3DRenderTarget m_Backbuffer;
@@ -406,6 +429,7 @@ namespace Bat
 		virtual size_t GetWidth() const override { return m_iWidth; }
 		virtual size_t GetHeight() const override { return m_iHeight; }
 		virtual TexFormat GetFormat() const override { return m_Format; }
+		virtual bool IsTranslucent() const override { return m_bIsTranslucent; }
 
 		void UpdatePixels( ID3D11DeviceContext* pDeviceContext, const void* pPixels, size_t pitch );
 		ID3D11ShaderResourceView* GetShaderResourceView() const { return m_pTextureView.Get(); }
@@ -416,6 +440,7 @@ namespace Bat
 		TexFormat m_Format;
 		size_t m_iWidth = 0;
 		size_t m_iHeight = 0;
+		bool m_bIsTranslucent = false;
 	};
 
 	class D3DDepthStencil : public IDepthStencil
@@ -599,14 +624,64 @@ namespace Bat
 	void D3DGPUContext::SetDepthStencilEnabled( bool enabled )
 	{
 		m_bDepthStencilEnabled = enabled;
+		BindDepthState();
+	}
 
+	bool D3DGPUContext::IsDepthWriteEnabled() const
+	{
+		return m_bDepthWriteEnabled;
+	}
+
+	void D3DGPUContext::SetDepthWriteEnabled( bool enabled )
+	{
+		m_bDepthWriteEnabled = enabled;
+		BindDepthState();
+	}
+
+	CullMode D3DGPUContext::GetCullMode() const
+	{
+		return m_CullMode;
+	}
+
+	void D3DGPUContext::SetCullMode( CullMode mode )
+	{
+		m_CullMode = mode;
+
+		switch( mode )
+		{
+		case CullMode::NONE:
+			DXGI_CONTEXT_CALL( m_pDeviceContext->RSSetState( m_pDevice->GetRasterizerCullNoneState() ) );
+			break;
+		case CullMode::BACK:
+			DXGI_CONTEXT_CALL( m_pDeviceContext->RSSetState( m_pDevice->GetRasterizerCullBackState() ) );
+			break;
+		case CullMode::FRONT:
+			DXGI_CONTEXT_CALL( m_pDeviceContext->RSSetState( m_pDevice->GetRasterizerCullFrontState() ) );
+			break;
+		default:
+			ASSERT( false, "Unhandled cull mode" );
+			break;
+		}
+	}
+
+	bool D3DGPUContext::IsBlendingEnabled() const
+	{
+		return m_bBlendingEnabled;
+	}
+
+	void D3DGPUContext::SetBlendingEnabled( bool enabled )
+	{
+		m_bBlendingEnabled = enabled;
+
+		const float blend_factor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+		const UINT sample_mask = 0xFFFFFFFF;
 		if( enabled )
 		{
-			DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetDepthStencilState( m_pDevice->GetDepthStencilEnabledState(), 0 ) );
+			DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetBlendState( m_pDevice->GetBlendEnabledState(), blend_factor, sample_mask ) );
 		}
 		else
 		{
-			DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetDepthStencilState( m_pDevice->GetDepthStencilDisabledState(), 0 ) );
+			DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetBlendState( m_pDevice->GetBlendDisabledState(), blend_factor, sample_mask ) );
 		}
 	}
 
@@ -968,30 +1043,57 @@ namespace Bat
 		}
 	}
 
+	void D3DGPUContext::BindDepthState()
+	{
+		if( m_bDepthStencilEnabled )
+		{
+			if( m_bDepthWriteEnabled )
+			{
+				DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetDepthStencilState( m_pDevice->GetDepthStencilEnabledState(), 0 ) );
+			}
+			else
+			{
+				DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetDepthStencilState( m_pDevice->GetDepthStencilEnabledNoWriteState(), 0 ) );
+			}
+		}
+		else
+		{
+			DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetDepthStencilState( m_pDevice->GetDepthStencilDisabledState(), 0 ) );
+		}
+	}
+
 	D3DGPUDevice::D3DGPUDevice( Window& wnd, bool vsync_enabled, float screen_depth, float screen_near )
 		:
-		m_GPUContext( this )
+		m_GPUContext( this ),
+		m_bVSyncEnabled( vsync_enabled )
 	{
-		m_bVSyncEnabled = vsync_enabled;
-
-		Microsoft::WRL::ComPtr<IDXGIFactory> factory;
-		COM_THROW_IF_FAILED( CreateDXGIFactory( IID_PPV_ARGS( &factory ) ) );
-
+		// Choose best device available based on VRAM
 		Microsoft::WRL::ComPtr<IDXGIAdapter> adapter;
 		{
-			Microsoft::WRL::ComPtr<IDXGIAdapter> a;
-			SIZE_T max_vram = 0;
-			for( int i = 0; SUCCEEDED( factory->EnumAdapters( i, &a ) ); i++ )
-			{
-				DXGI_ADAPTER_DESC adapterDesc;
-				COM_THROW_IF_FAILED( a->GetDesc( &adapterDesc ) );
+			Microsoft::WRL::ComPtr<IDXGIFactory> factory;
+			COM_THROW_IF_FAILED( CreateDXGIFactory( IID_PPV_ARGS( &factory ) ) );
 
-				if( adapterDesc.DedicatedVideoMemory >= max_vram )
+			{
+				Microsoft::WRL::ComPtr<IDXGIAdapter> a;
+				SIZE_T max_vram = 0;
+				for( int i = 0; SUCCEEDED( factory->EnumAdapters( i, &a ) ); i++ )
 				{
-					max_vram = adapterDesc.DedicatedVideoMemory;
-					adapter = a;
+					DXGI_ADAPTER_DESC adapterDesc;
+					COM_THROW_IF_FAILED( a->GetDesc( &adapterDesc ) );
+
+					if( adapterDesc.DedicatedVideoMemory >= max_vram )
+					{
+						max_vram = adapterDesc.DedicatedVideoMemory;
+						adapter = a;
+					}
 				}
 			}
+
+			DXGI_ADAPTER_DESC adapterDesc;
+			COM_THROW_IF_FAILED( adapter->GetDesc( &adapterDesc ) );
+
+			m_DeviceInfo.name = Bat::WideToString( adapterDesc.Description );
+			m_DeviceInfo.memory = (size_t)(adapterDesc.DedicatedVideoMemory / 1024 / 1024); // in mb
 		}
 
 		/*Microsoft::WRL::ComPtr<IDXGIOutput> adapterOutput;
@@ -1016,107 +1118,138 @@ namespace Bat
 
 		delete[] displayModes;*/
 
-		DXGI_ADAPTER_DESC adapterDesc;
-		COM_THROW_IF_FAILED( adapter->GetDesc( &adapterDesc ) );
 
-		m_DeviceInfo.name = Bat::WideToString( adapterDesc.Description );
-		m_DeviceInfo.memory = (size_t)(adapterDesc.DedicatedVideoMemory / 1024 / 1024); // in mb
-
-		DXGI_SWAP_CHAIN_DESC swapChainDesc;
-		ZeroMemory( &swapChainDesc, sizeof( swapChainDesc ) );
-
-		swapChainDesc.BufferCount = 1;
-		swapChainDesc.BufferDesc.Width = 0;
-		swapChainDesc.BufferDesc.Height = 0;
-		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-
-		if( m_bVSyncEnabled )
 		{
-			swapChainDesc.BufferDesc.RefreshRate.Numerator = numerator;
-			swapChainDesc.BufferDesc.RefreshRate.Denominator = denominator;
-		}
-		else
-		{
-			swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
-			swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-		}
+			DXGI_SWAP_CHAIN_DESC swapChainDesc;
+			ZeroMemory( &swapChainDesc, sizeof( swapChainDesc ) );
 
-		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapChainDesc.OutputWindow = wnd.GetHandle();
+			swapChainDesc.BufferCount = 1;
+			swapChainDesc.BufferDesc.Width = 0;
+			swapChainDesc.BufferDesc.Height = 0;
+			swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-		// multisampling
-		swapChainDesc.SampleDesc.Count = 1;
-		swapChainDesc.SampleDesc.Quality = 0;
+			if( m_bVSyncEnabled )
+			{
+				swapChainDesc.BufferDesc.RefreshRate.Numerator = numerator;
+				swapChainDesc.BufferDesc.RefreshRate.Denominator = denominator;
+			}
+			else
+			{
+				swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
+				swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+			}
 
-		swapChainDesc.Windowed = !wnd.IsFullscreen();
+			swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+			swapChainDesc.OutputWindow = wnd.GetHandle();
 
-		swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+			// multisampling
+			swapChainDesc.SampleDesc.Count = 1;
+			swapChainDesc.SampleDesc.Quality = 0;
 
-		swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+			swapChainDesc.Windowed = !wnd.IsFullscreen();
 
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+			swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+			swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
+			swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
+			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+
+			UINT flags = 0;
 #ifdef _DEBUG
-		UINT flags = D3D11_CREATE_DEVICE_DEBUG;
-#else
-		UINT flags = 0;
+			flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-		COM_THROW_IF_FAILED( D3D11CreateDeviceAndSwapChain(
-			adapter.Get(),
-			D3D_DRIVER_TYPE_UNKNOWN,
-			NULL,
-			flags,
-			NULL, 0,
-			D3D11_SDK_VERSION,
-			&swapChainDesc, &m_pSwapChain,
-			&m_pDevice, NULL, &m_GPUContext.m_pDeviceContext ) );
+			COM_THROW_IF_FAILED( D3D11CreateDeviceAndSwapChain(
+				adapter.Get(),
+				D3D_DRIVER_TYPE_UNKNOWN,
+				NULL,
+				flags,
+				NULL, 0,
+				D3D11_SDK_VERSION,
+				&swapChainDesc, &m_pSwapChain,
+				&m_pDevice, NULL, &m_GPUContext.m_pDeviceContext ) );
 
-		BAT_LOG( "Using video card '%s' with %iMB VRAM",
-			m_DeviceInfo.name,
-			m_DeviceInfo.memory );
-		BAT_LOG( "Device feature level: %s", FeatureLevel2String( m_pDevice->GetFeatureLevel() ) );
+			BAT_LOG( "Using video card '%s' with %iMB VRAM",
+				m_DeviceInfo.name,
+				m_DeviceInfo.memory );
+			BAT_LOG( "Device feature level: %s", FeatureLevel2String( m_pDevice->GetFeatureLevel() ) );
 
-		if( m_pDevice->GetFeatureLevel() < D3D_FEATURE_LEVEL_11_0 )
-		{
-			BAT_ERROR( "Your feature level is unsupported, certain features may not work" );
+			if( m_pDevice->GetFeatureLevel() < D3D_FEATURE_LEVEL_11_0 )
+			{
+				BAT_ERROR( "Your feature level is unsupported, certain features may not work" );
+			}
+
+			Microsoft::WRL::ComPtr<ID3D11Texture2D> pBackBuffer;
+			COM_THROW_IF_FAILED( m_pSwapChain->GetBuffer( 0, IID_PPV_ARGS( &pBackBuffer ) ) );
+
+			COM_THROW_IF_FAILED( m_pDevice->CreateRenderTargetView( pBackBuffer.Get(), NULL, &m_pRenderTargetView ) );
+
+			m_Backbuffer.Reset( m_pRenderTargetView.Get(), wnd.GetWidth(), wnd.GetHeight() );
 		}
 
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> pBackBuffer;
-		COM_THROW_IF_FAILED( m_pSwapChain->GetBuffer( 0, IID_PPV_ARGS( &pBackBuffer ) ) );
-
-		COM_THROW_IF_FAILED( m_pDevice->CreateRenderTargetView( pBackBuffer.Get(), NULL, &m_pRenderTargetView ) );
-
-		m_Backbuffer.Reset( m_pRenderTargetView.Get(), wnd.GetWidth(), wnd.GetHeight() );
-
 		// set up raster description
-		D3D11_RASTERIZER_DESC rasterDesc;
-		rasterDesc.AntialiasedLineEnable = false;
-		rasterDesc.CullMode = D3D11_CULL_BACK;
-		rasterDesc.DepthBias = 0;
-		rasterDesc.DepthBiasClamp = 0.0f;
-		rasterDesc.DepthClipEnable = true;
-		rasterDesc.FillMode = D3D11_FILL_SOLID;
-		rasterDesc.FrontCounterClockwise = false;
-		rasterDesc.MultisampleEnable = false;
-		rasterDesc.ScissorEnable = false;
-		rasterDesc.SlopeScaledDepthBias = 0.0f;
+		{
+			D3D11_RASTERIZER_DESC rasterDesc;
+			rasterDesc.AntialiasedLineEnable = false;
+			rasterDesc.CullMode = D3D11_CULL_BACK;
+			rasterDesc.DepthBias = 0;
+			rasterDesc.DepthBiasClamp = 0.0f;
+			rasterDesc.DepthClipEnable = true;
+			rasterDesc.FillMode = D3D11_FILL_SOLID;
+			rasterDesc.FrontCounterClockwise = false;
+			rasterDesc.MultisampleEnable = false;
+			rasterDesc.ScissorEnable = false;
+			rasterDesc.SlopeScaledDepthBias = 0.0f;
 
-		COM_THROW_IF_FAILED( m_pDevice->CreateRasterizerState( &rasterDesc, &m_pRasterState ) );
+			COM_THROW_IF_FAILED( m_pDevice->CreateRasterizerState( &rasterDesc, &m_pRasterStateCullBack ) );
+
+			rasterDesc.CullMode = D3D11_CULL_FRONT;
+
+			COM_THROW_IF_FAILED( m_pDevice->CreateRasterizerState( &rasterDesc, &m_pRasterStateCullFront ) );
+
+			rasterDesc.CullMode = D3D11_CULL_NONE;
+
+			COM_THROW_IF_FAILED( m_pDevice->CreateRasterizerState( &rasterDesc, &m_pRasterStateCullNone ) );
+		}
 
 		// Create depth stencil state enabled/disabled states
-		D3D11_DEPTH_STENCIL_DESC depthstencildesc{};
+		{
+			D3D11_DEPTH_STENCIL_DESC depthstencildesc{};
 
-		depthstencildesc.DepthEnable = true;
-		depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
-		depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
+			depthstencildesc.DepthEnable = true;
+			depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
+			depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
 
-		COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilEnabledState ) );
+			COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilEnabledState ) );
 
-		depthstencildesc.DepthEnable = false;
+			depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ZERO;
 
-		COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilDisabledState ) );
+			COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilEnabledNoWriteState ) );
+
+			depthstencildesc.DepthEnable = false;
+
+			COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilDisabledState ) );
+		}
+
+		// Create blending enabled/disabled states
+		{
+			D3D11_BLEND_DESC blend_desc;
+			ZeroMemory( &blend_desc, sizeof( blend_desc ) );
+			blend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+			blend_desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+			blend_desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+			blend_desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+			blend_desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+			blend_desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+			blend_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+
+			blend_desc.RenderTarget[0].BlendEnable = true;
+			COM_THROW_IF_FAILED( m_pDevice->CreateBlendState( &blend_desc, &m_pBlendEnabledState ) );
+
+			blend_desc.RenderTarget[0].BlendEnable = false;
+			COM_THROW_IF_FAILED( m_pDevice->CreateBlendState( &blend_desc, &m_pBlendDisabledState ) );
+		}
 
 #ifdef _DEBUG
 		// create the info queue
@@ -1650,24 +1783,33 @@ namespace Bat
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext;
 		pDevice->GetImmediateContext( &pContext );
 
+
 		if( !std::ifstream( filename ) )
 		{
 			BAT_WARN( "Could not open texture '%s', defaulting to 'error.png'", filename );
 			COM_THROW_IF_FAILED(
-				DirectX::CreateWICTextureFromFile( pDevice, nullptr, L"Assets/error.png", &m_pTexture, &m_pTextureView )
+				CreateWICTextureFromFile( pDevice, nullptr, L"Assets/error.png", &m_pTexture, &m_pTextureView )
 			);
 		}
 		else if( Bat::GetFileExtension( filename ) != "dds" )
 		{
+			WIC_TEXTURE_FLAGS tex_flags;
+
 			COM_THROW_IF_FAILED(
-				DirectX::CreateWICTextureFromFile( pDevice, pContext.Get(), wfilename.c_str(), &m_pTexture, &m_pTextureView )
+				CreateWICTextureFromFileEx( pDevice, pContext.Get(), wfilename.c_str(), 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0, WIC_LOADER_IGNORE_SRGB, &m_pTexture, &m_pTextureView, &tex_flags )
 			);
+
+			m_bIsTranslucent = (tex_flags & WIC_TEXTURE_HAS_ALPHA);
 		}
 		else
 		{
+			DDS_ALPHA_MODE alpha_mode;
+
 			COM_THROW_IF_FAILED(
-				DirectX::CreateDDSTextureFromFile( pDevice, pContext.Get(), wfilename.c_str(), &m_pTexture, &m_pTextureView )
+				CreateDDSTextureFromFile( pDevice, pContext.Get(), wfilename.c_str(), &m_pTexture, &m_pTextureView, 0, &alpha_mode )
 			);
+
+			m_bIsTranslucent = (alpha_mode == DDS_ALPHA_MODE_UNKNOWN || alpha_mode == DDS_ALPHA_MODE_STRAIGHT);
 		}
 
 		// get width/height
@@ -1684,13 +1826,17 @@ namespace Bat
 
 	D3DTexture::D3DTexture( ID3D11Device* pDevice, const char* pData, size_t size )
 	{
+		WIC_TEXTURE_FLAGS tex_flags;
+
 		COM_THROW_IF_FAILED(
-			DirectX::CreateWICTextureFromMemory( pDevice,
+			CreateWICTextureFromMemory( pDevice,
 				nullptr,
 				reinterpret_cast<const uint8_t*>( pData ),
 				size,
 				&m_pTexture,
-				&m_pTextureView )
+				&m_pTextureView,
+				0,
+				&tex_flags )
 		);
 
 		// get width/height
@@ -1704,6 +1850,8 @@ namespace Bat
 		m_iWidth = desc.Width;
 		m_iHeight = desc.Height;
 		m_Format = (TexFormat)desc.Format;
+
+		m_bIsTranslucent = (tex_flags & WIC_TEXTURE_HAS_ALPHA);
 	}
 
 	D3DTexture::D3DTexture( ID3D11Device* pDevice, const void* pPixels, size_t pitch, size_t width, size_t height, TexFormat format, GPUResourceUsage usage )
@@ -1739,6 +1887,8 @@ namespace Bat
 		m_iWidth = width;
 		m_iHeight = height;
 		m_Format = format;
+
+		m_bIsTranslucent = (TexFormatInfo( m_Format ).num_alpha_bits > 0);
 	}
 
 	void D3DTexture::UpdatePixels( ID3D11DeviceContext* pDeviceContext, const void* pPixels, size_t pitch )

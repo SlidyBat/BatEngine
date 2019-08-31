@@ -128,6 +128,19 @@ namespace Bat
 		TEX_FORMAT_V408                        = 132
 	};
 
+	struct TexFormatInfo_t
+	{
+		const char* name;
+		int num_bytes;
+		int num_red_bits;
+		int num_green_bits;
+		int num_blue_bits;
+		int num_alpha_bits;
+		bool compressed;
+	};
+
+	const TexFormatInfo_t& TexFormatInfo( TexFormat format );
+
 	enum class TextureAddressMode
 	{
 		WRAP	= 1,
@@ -221,6 +234,13 @@ namespace Bat
 	{
 		CLEAR_FLAG_DEPTH = 1,
 		CLEAR_FLAG_STENCIL = 2
+	};
+
+	enum class CullMode
+	{
+		NONE,
+		BACK,
+		FRONT
 	};
 
 	struct SamplerDesc
