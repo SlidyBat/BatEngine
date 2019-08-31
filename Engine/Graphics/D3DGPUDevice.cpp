@@ -1796,7 +1796,7 @@ namespace Bat
 			WIC_TEXTURE_FLAGS tex_flags;
 
 			COM_THROW_IF_FAILED(
-				CreateWICTextureFromFile( pDevice, pContext.Get(), wfilename.c_str(), &m_pTexture, &m_pTextureView, 0, &tex_flags )
+				CreateWICTextureFromFileEx( pDevice, pContext.Get(), wfilename.c_str(), 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0, WIC_LOADER_IGNORE_SRGB, &m_pTexture, &m_pTextureView, &tex_flags )
 			);
 
 			m_bIsTranslucent = (tex_flags & WIC_TEXTURE_HAS_ALPHA);

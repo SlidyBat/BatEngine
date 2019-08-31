@@ -32,9 +32,9 @@ struct Material
 	float2  Padding;
 };
 
-#define POINT_LIGHT       0
-#define DIRECTIONAL_LIGHT 1
-#define SPOT_LIGHT        2
+#define LIGHT_POINT       0
+#define LIGHT_DIRECTIONAL 1
+#define LIGHT_SPOT        2
 
 #define MAX_LIGHTS 16
 struct Light
