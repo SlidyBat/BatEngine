@@ -39,7 +39,9 @@ namespace Bat
 
 		Material& GetMaterial();
 
+		const Vec3* GetVertexData() const;
 		size_t GetVertexCount() const;
+		const unsigned int* GetIndexData() const;
 		size_t GetIndexCount() const;
 
 		// Returns mins of mesh in object space
@@ -59,6 +61,9 @@ namespace Bat
 		Material m_Material;
 		Vec3 m_vecMins;
 		Vec3 m_vecMaxs;
+
+		std::vector<Vec3> m_vecPositions;
+		std::vector<unsigned int> m_iIndices;
 
 		std::string m_szName;
 	};

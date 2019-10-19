@@ -37,7 +37,7 @@ namespace Bat
 		camera.SetAspectRatio( (float)wnd.GetWidth() / wnd.GetHeight() );
 
 		scene.Set( world.CreateEntity() ); // Root entity;
-		size_t sponza = scene.AddChild( SceneLoader::LoadScene( "Assets/Ignore/Sponza/Sponza.gltf" ) );
+		size_t scene_index = scene.AddChild( SceneLoader::LoadScene( "Assets/Ignore/Sponza/Sponza.gltf" ) );
 
 		flashlight = world.CreateEntity();
 		flashlight.Add<LightComponent>()
@@ -52,8 +52,6 @@ namespace Bat
 			.SetEnabled( false );
 		scene.AddChild( sun );
 
-		scene.GetChild( sponza ).Get().Add<TransformComponent>().SetScale( 0.01f );
-
 		gfx.SetActiveScene( &scene );
 		gfx.SetActiveCamera( &camera );
 
@@ -65,14 +63,23 @@ namespace Bat
 		snd->SetListenerPosition( { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f } );
 
 		// Initialize physics objects
-		Physics::EnableFixedTimestep( 1.0f / 60.0f );
-		floor = Physics::CreateStaticObject( { 0.0f, 0.0f, 0.0f }, { 0.0f, Math::PI / 2.0f, 0.0f } );
-		floor->AddPlaneShape();
-		auto trigger = Physics::CreateStaticObject( { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } );
-		trigger->AddBoxTrigger( 5.0f, 5.0f, 5.0f );
-		player = Physics::CreateDynamicObject( camera.GetPosition(), camera.GetRotation() );
-		player->AddSphereShape( 0.1f );
-		player->SetKinematic( true );
+		{
+			Physics::EnableFixedTimestep( 1.0f / 60.0f );
+			auto trigger = Physics::CreateStaticObject( { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } );
+			trigger->AddBoxTrigger( 5.0f, 5.0f, 5.0f );
+			player = Physics::CreateDynamicObject( camera.GetPosition(), camera.GetRotation() );
+			player->AddSphereShape( 0.1f );
+			player->SetKinematic( true );
+
+			Entity scene_ent = scene.GetChild( scene_index ).Get();
+			TransformComponent& scene_transform = scene_ent.Add<TransformComponent>().SetScale( 0.01f );
+			ModelComponent& scene_model = scene_ent.Get<ModelComponent>();
+			IStaticObject* scene_phys = Physics::CreateStaticObject( scene_transform.GetPosition(), scene_transform.GetRotation() );
+			for( const auto& mesh : scene_model.GetMeshes() )
+			{
+				scene_phys->AddMeshShape( mesh->GetVertexData(), mesh->GetVertexCount(), mesh->GetIndexData(), mesh->GetIndexCount(), scene_transform.GetScale() );
+			}
+		}
 
 		wnd.input.AddEventListener<KeyPressedEvent>( *this );
 

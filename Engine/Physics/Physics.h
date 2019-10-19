@@ -36,6 +36,12 @@ namespace Bat
 		HIT_DYNAMICS = (1 << 1),
 	};
 
+	enum class PhysicsObjectType
+	{
+		STATIC,
+		DYNAMIC
+	};
+
 	class Physics
 	{
 	public:
@@ -74,10 +80,13 @@ namespace Bat
 		virtual void AddSphereShape( float radius, const PhysicsMaterial& material = Physics::DEFAULT_MATERIAL ) = 0;
 		virtual void AddCapsuleShape( float radius, float half_height, const PhysicsMaterial& material = Physics::DEFAULT_MATERIAL ) = 0;
 		virtual void AddBoxShape( float length_x, float length_y, float length_z, const PhysicsMaterial& material = Physics::DEFAULT_MATERIAL ) = 0;
+		virtual void AddConvexShape( const Vec3* convex_verts, size_t convex_verts_count, const PhysicsMaterial& material = Physics::DEFAULT_MATERIAL ) = 0;
+		virtual void AddMeshShape( const Vec3* mesh_verts, size_t mesh_verts_count, const unsigned int* mesh_indices, size_t mesh_indices_count, float scale, const PhysicsMaterial& material = Physics::DEFAULT_MATERIAL ) = 0;
 		virtual void AddSphereTrigger( float radius ) = 0;
 		virtual void AddCapsuleTrigger( float radius, float half_height ) = 0;
 		virtual void AddBoxTrigger( float length_x, float length_y, float length_z ) = 0;
-		// TODO: Convex shapes (PX cooking library)
+		virtual void AddConvexTrigger( const Vec3* convex_verts, size_t convex_verts_count ) = 0;
+		virtual void AddMeshTrigger( const Vec3* mesh_verts, size_t mesh_verts_count, const unsigned int* mesh_indices, size_t mesh_indices_count, float scale ) = 0;
 		
 		virtual size_t GetNumShapes() const = 0;
 		virtual void RemoveShape( size_t index ) = 0;
@@ -93,6 +102,8 @@ namespace Bat
 		virtual Vec3 GetRotation() const = 0;
 		// Set world space rotation (euler angle. x=pitch, y=yaw, z=roll)
 		virtual void SetRotation( const Vec3& ang ) = 0;
+
+		virtual PhysicsObjectType GetType() const = 0;
 	};
 
 	// Body with implicit infinite mass/inertia
@@ -101,6 +112,8 @@ namespace Bat
 	public:
 		virtual void AddPlaneShape( const PhysicsMaterial& material = Physics::DEFAULT_MATERIAL ) = 0;
 		virtual void AddPlaneTrigger() = 0;
+
+		virtual PhysicsObjectType GetType() const override { return PhysicsObjectType::STATIC; }
 		// Uh, nothing else really (these objects just sit there and do nothing)
 	};
 
@@ -161,5 +174,7 @@ namespace Bat
 		virtual void AddTorque( const Vec3& torque ) = 0;
 		// Applies angular impulse to object
 		virtual void AddAngularImpulse( const Vec3& ang_impulse ) = 0;
+
+		virtual PhysicsObjectType GetType() const override { return PhysicsObjectType::DYNAMIC; }
 	};
 }
