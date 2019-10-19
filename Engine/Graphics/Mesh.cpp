@@ -7,9 +7,9 @@ namespace Bat
 {
 	Mesh::Mesh( const MeshParameters& params, const std::vector<unsigned int>& indices, const Material& material )
 		:
-		m_bufIndices( indices ),
 		m_Material( material )
 	{
+		SetIndices( indices );
 		SetData( params );
 	}
 
@@ -56,6 +56,8 @@ namespace Bat
 
 	void Mesh::SetData( const MeshParameters& params )
 	{
+		m_vecPositions = params.position;
+
 		if( !params.position.empty() )
 		{
 			m_vecMins = { FLT_MAX, FLT_MAX, FLT_MAX };
@@ -99,6 +101,7 @@ namespace Bat
 	void Mesh::SetIndices( const std::vector<unsigned int>& indices )
 	{
 		m_bufIndices.Reset( indices );
+		m_iIndices = indices;
 	}
 
 	Material& Mesh::GetMaterial()
@@ -106,13 +109,23 @@ namespace Bat
 		return m_Material;
 	}
 
+	const Vec3* Mesh::GetVertexData() const
+	{
+		return m_vecPositions.data();
+	}
+
 	size_t Mesh::GetVertexCount() const
 	{
-		return m_bufPosition->GetVertexCount();
+		return m_vecPositions.size();
+	}
+
+	const unsigned int* Mesh::GetIndexData() const
+	{
+		return m_iIndices.data();
 	}
 
 	size_t Mesh::GetIndexCount() const
 	{
-		return m_bufIndices->GetIndexCount();
+		return m_iIndices.size();
 	}
 }

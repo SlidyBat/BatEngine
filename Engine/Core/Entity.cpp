@@ -1,13 +1,13 @@
 #include "PCH.h"
 #include "Entity.h"
 
-#include "EntityEvents.h"
-
 namespace Bat
 {
 	EntityManager world;
 
 	size_t BaseComponent::s_iIndexCounter = 0;
+
+	Entity Entity::INVALID = Entity();
 
 	Entity EntityManager::CreateEntity()
 	{
@@ -73,5 +73,9 @@ namespace Bat
 		{
 			allocator->EnsureCapacity( capacity );
 		}
+	}
+	void EntityManager::SortFreeList()
+	{
+		std::sort( m_FreeList.begin(), m_FreeList.end() );
 	}
 }

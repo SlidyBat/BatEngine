@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include "Event.h"
+#include "EntityEvents.h"
 #include "ChunkedAllocator.h"
 #include "Tree.h"
 #include <bitset>
@@ -38,7 +39,8 @@ namespace Bat
 			uint64_t id = 0;
 		};
 
-		static const Id INVALID;
+		static Entity INVALID;
+
 
 		Entity() = default;
 		Entity( EntityManager& manager, const Id id )
@@ -126,11 +128,67 @@ namespace Bat
 		const C& GetComponent( Entity entity ) const;
 		template <typename C>
 		bool HasComponent( Entity entity );
+
+		class Iterator
+		{
+		public:
+			Iterator( EntityManager* manager, uint32_t index )
+				:
+				m_pManager( manager ),
+				m_iIndex( index )
+			{
+				manager->SortFreeList();
+			}
+
+			Iterator& operator++()
+			{
+				m_iIndex++;
+				while( m_iIndex < m_pManager->m_iEntityHead && !IsValid() )
+				{
+					m_iIndex++;
+				}
+				return *this;
+			}
+			bool operator==( const Iterator& rhs ) const
+			{
+				return m_pManager == rhs.m_pManager && m_iIndex == rhs.m_iIndex;
+			}
+			bool operator!=( const Iterator& rhs ) const
+			{
+				return !(*this == rhs);
+			}
+			Entity operator*()
+			{
+				return Entity( *m_pManager, Entity::Id( m_iIndex, m_pManager->m_EntityVersions[m_iIndex] ) );
+			}
+		private:
+			bool IsValid()
+			{
+				const std::vector<uint32_t>& free_list = m_pManager->m_FreeList;
+				if( m_iFreeIndex < free_list.size() && m_iIndex == free_list[m_iFreeIndex] )
+				{
+					m_iFreeIndex++;
+					return false;
+				}
+				return true;
+			}
+		private:
+			friend class EntityManager;
+
+			EntityManager* m_pManager = nullptr;
+			uint32_t m_iIndex = 0;
+			size_t m_iFreeIndex = 0;
+		};
+
+		Iterator begin() { return Iterator( this, 0 ); }
+		Iterator end() { return Iterator( this, m_iEntityHead ); }
 	private:
 		template <typename C>
 		ObjectChunkedAllocator<C>& GetComponentAllocator();
 
 		void EnsureEntityCapacity( uint32_t index );
+
+		void SortFreeList();
 	private:
 		static constexpr size_t MAX_COMPONENTS = 100;
 		static constexpr size_t INITIAL_ENTITIES = 1000;
@@ -158,6 +216,8 @@ namespace Bat
 
 		m_EntityComponentMasks[entity_idx].set( component_idx );
 
+		DispatchEvent<ComponentAddedEvent<C>>( entity, *pComponent );
+
 		return *pComponent;
 	}
 
@@ -170,6 +230,7 @@ namespace Bat
 		ObjectChunkedAllocator<C>& allocator = GetComponentAllocator<C>();
 
 		C* pComponent = (C*)allocator.Get( entity_idx );
+		DispatchEvent<ComponentRemovedEvent<C>>( entity, *pComponent );
 		pComponent->~C();
 
 		m_EntityComponentMasks[entity_idx].reset( component_idx ); // clear component mask

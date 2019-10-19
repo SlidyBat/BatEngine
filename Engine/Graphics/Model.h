@@ -21,9 +21,6 @@ namespace Bat
 		std::vector<Resource<Mesh>>& GetMeshes();
 		const std::vector<Resource<Mesh>>& GetMeshes() const;
 
-		float GetScale() const;
-		void SetScale( const float scale );
-
 		// Returns mins of model in object space
 		const Vec3& GetMins() const;
 		// Returns maxs of model in object space

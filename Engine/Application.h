@@ -7,9 +7,10 @@
 #include "Console.h"
 #include "Audio.h"
 #include "Entity.h"
-#include "Physics.h"
 #include "RenderGraph.h"
 #include "KeyboardEvents.h"
+#include "MouseEvents.h"
+#include "PhysicsSystem.h"
 
 namespace Bat
 {
@@ -29,6 +30,7 @@ namespace Bat
 
 		void OnEvent( const WindowResizeEvent& e );
 		void OnEvent( const KeyPressedEvent& e );
+		void OnEvent( const MouseButtonPressedEvent& e );
 	private:
 		void BuildRenderGraph();
 	public:
@@ -43,11 +45,9 @@ namespace Bat
 		RenderGraph rendergraph;
 		Entity flashlight;
 		Entity sun;
-		IStaticObject* floor;
-		IDynamicObject* player;
-		std::vector<Entity> lights;
-		std::vector<IDynamicObject*> lights_phys;
+		Entity player;
 
+		PhysicsSystem physics_system;
 
 		float bloom_threshold = 1.0f;
 

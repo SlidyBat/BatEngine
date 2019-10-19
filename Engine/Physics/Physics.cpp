@@ -148,6 +148,40 @@ namespace Bat
 		return g_pPxPhysics->createMaterial( material.static_friction, material.dynamic_friction, material.restitution );
 	}
 
+	static PxConvexMesh* GetPxConvexMesh( const Vec3* convex_verts, size_t convex_verts_count )
+	{
+		PxConvexMeshDesc convex_desc;
+		convex_desc.points.count  = (PxU32)convex_verts_count;
+		convex_desc.points.stride = sizeof( Vec3 );
+		convex_desc.points.data   = convex_verts;
+		convex_desc.flags         = PxConvexFlag::eCOMPUTE_CONVEX | PxConvexFlag::eDISABLE_MESH_VALIDATION | PxConvexFlag::eFAST_INERTIA_COMPUTATION;
+
+#ifdef _DEBUG
+		bool valid = g_pPxCooking->validateConvexMesh( convex_desc );
+		ASSERT( valid, "Invalid convex mesh" );
+#endif
+
+		return g_pPxCooking->createConvexMesh( convex_desc, g_pPxPhysics->getPhysicsInsertionCallback() );
+	}
+
+	static PxTriangleMesh* GetPxTriangleMesh( const Vec3* mesh_verts, size_t mesh_verts_count, const unsigned int* mesh_indices, size_t mesh_indices_count )
+	{
+		PxTriangleMeshDesc mesh_desc;
+		mesh_desc.points.count     = (PxU32)mesh_verts_count;
+		mesh_desc.points.stride    = sizeof( Vec3 );
+		mesh_desc.points.data      = mesh_verts;
+
+		mesh_desc.triangles.count  = (PxU32)(mesh_indices_count / 3);
+		mesh_desc.triangles.stride = 3 * sizeof( unsigned int );
+		mesh_desc.triangles.data   = mesh_indices;
+
+#ifdef _DEBUG
+		bool valid = g_pPxCooking->validateTriangleMesh( mesh_desc );
+#endif
+
+		return g_pPxCooking->createTriangleMesh( mesh_desc, g_pPxPhysics->getPhysicsInsertionCallback() );
+	}
+
 	class PxStaticObject : public IStaticObject
 	{
 	public:
@@ -182,6 +216,20 @@ namespace Bat
 			PxRigidActorExt::createExclusiveShape( *m_pStaticActor, PxBoxGeometry( length_x / 2, length_y / 2, length_z / 2 ), *px_material );
 			px_material->release();
 		}
+		virtual void AddConvexShape( const Vec3* convex_verts, size_t convex_verts_count, const PhysicsMaterial& material = Physics::DEFAULT_MATERIAL ) override
+		{
+			PxMaterial* px_material = GetPxMaterial( material );
+			PxConvexMesh* px_convex_mesh = GetPxConvexMesh( convex_verts, convex_verts_count );
+			PxRigidActorExt::createExclusiveShape( *m_pStaticActor, PxConvexMeshGeometry( px_convex_mesh ), *px_material );
+			px_material->release();
+		}
+		virtual void AddMeshShape( const Vec3* mesh_verts, size_t mesh_verts_count, const unsigned int* mesh_indices, size_t mesh_indices_count, float scale, const PhysicsMaterial& material = Physics::DEFAULT_MATERIAL ) override
+		{
+			PxMaterial* px_material = GetPxMaterial( material );
+			PxTriangleMesh* px_triangle_mesh = GetPxTriangleMesh( mesh_verts, mesh_verts_count, mesh_indices, mesh_indices_count );
+			PxRigidActorExt::createExclusiveShape( *m_pStaticActor, PxTriangleMeshGeometry( px_triangle_mesh, PxMeshScale( scale ) ), *px_material );
+			px_material->release();
+		}
 		virtual void AddSphereTrigger( float radius ) override
 		{
 			PxMaterial* px_material = GetPxMaterial( Physics::DEFAULT_MATERIAL );
@@ -198,6 +246,20 @@ namespace Bat
 		{
 			PxMaterial* px_material = GetPxMaterial( Physics::DEFAULT_MATERIAL );
 			PxRigidActorExt::createExclusiveShape( *m_pStaticActor, PxBoxGeometry( length_x / 2, length_y / 2, length_z / 2 ), *px_material, PxShapeFlag::eTRIGGER_SHAPE | PxShapeFlag::eSCENE_QUERY_SHAPE );
+			px_material->release();
+		}
+		virtual void AddConvexTrigger( const Vec3* convex_verts, size_t convex_verts_count ) override
+		{
+			PxMaterial* px_material = GetPxMaterial( Physics::DEFAULT_MATERIAL );
+			PxConvexMesh* px_convex_mesh = GetPxConvexMesh( convex_verts, convex_verts_count );
+			PxRigidActorExt::createExclusiveShape( *m_pStaticActor, PxConvexMeshGeometry( px_convex_mesh ), *px_material, PxShapeFlag::eTRIGGER_SHAPE | PxShapeFlag::eSCENE_QUERY_SHAPE );
+			px_material->release();
+		}
+		virtual void AddMeshTrigger( const Vec3* mesh_verts, size_t mesh_verts_count, const unsigned int* mesh_indices, size_t mesh_indices_count, float scale ) override
+		{
+			PxMaterial* px_material = GetPxMaterial( Physics::DEFAULT_MATERIAL );
+			PxTriangleMesh* px_triangle_mesh = GetPxTriangleMesh( mesh_verts, mesh_verts_count, mesh_indices, mesh_indices_count );
+			PxRigidActorExt::createExclusiveShape( *m_pStaticActor, PxTriangleMeshGeometry( px_triangle_mesh, PxMeshScale( scale ) ), *px_material, PxShapeFlag::eTRIGGER_SHAPE | PxShapeFlag::eSCENE_QUERY_SHAPE );
 			px_material->release();
 		}
 		virtual void AddPlaneShape( const PhysicsMaterial& material ) override
@@ -252,6 +314,8 @@ namespace Bat
 			transform.q = Bat2PxAng( ang );
 			m_pStaticActor->setGlobalPose( transform );
 		}
+
+		virtual void* GetUserData() override { return m_pUserData; }
 	private:
 		PxRigidStatic* m_pStaticActor;
 		void* m_pUserData;
@@ -291,6 +355,20 @@ namespace Bat
 			PxRigidActorExt::createExclusiveShape( *m_pDynamicActor, PxBoxGeometry( length_x / 2, length_y / 2, length_z / 2 ), *px_material );
 			px_material->release();
 		}
+		virtual void AddConvexShape( const Vec3* convex_verts, size_t convex_verts_count, const PhysicsMaterial& material = Physics::DEFAULT_MATERIAL ) override
+		{
+			PxMaterial* px_material = GetPxMaterial( material );
+			PxConvexMesh* px_convex_mesh = GetPxConvexMesh( convex_verts, convex_verts_count );
+			PxRigidActorExt::createExclusiveShape( *m_pDynamicActor, PxConvexMeshGeometry( px_convex_mesh ), *px_material );
+			px_material->release();
+		}
+		virtual void AddMeshShape( const Vec3* mesh_verts, size_t mesh_verts_count, const unsigned int* mesh_indices, size_t mesh_indices_count, float scale, const PhysicsMaterial& material = Physics::DEFAULT_MATERIAL ) override
+		{
+			PxMaterial* px_material = GetPxMaterial( material );
+			PxTriangleMesh* px_triangle_mesh = GetPxTriangleMesh( mesh_verts, mesh_verts_count, mesh_indices, mesh_indices_count );
+			PxRigidActorExt::createExclusiveShape( *m_pDynamicActor, PxTriangleMeshGeometry( px_triangle_mesh, PxMeshScale( scale ) ), *px_material );
+			px_material->release();
+		}
 		virtual void AddSphereTrigger( float radius ) override
 		{
 			PxMaterial* px_material = GetPxMaterial( Physics::DEFAULT_MATERIAL );
@@ -307,6 +385,20 @@ namespace Bat
 		{
 			PxMaterial* px_material = GetPxMaterial( Physics::DEFAULT_MATERIAL );
 			PxRigidActorExt::createExclusiveShape( *m_pDynamicActor, PxBoxGeometry( length_x / 2, length_y / 2, length_z / 2 ), *px_material, PxShapeFlag::eTRIGGER_SHAPE | PxShapeFlag::eSCENE_QUERY_SHAPE );
+			px_material->release();
+		}
+		virtual void AddConvexTrigger( const Vec3* convex_verts, size_t convex_verts_count ) override
+		{
+			PxMaterial* px_material = GetPxMaterial( Physics::DEFAULT_MATERIAL );
+			PxConvexMesh* px_convex_mesh = GetPxConvexMesh( convex_verts, convex_verts_count );
+			PxRigidActorExt::createExclusiveShape( *m_pDynamicActor, PxConvexMeshGeometry( px_convex_mesh ), *px_material, PxShapeFlag::eTRIGGER_SHAPE | PxShapeFlag::eSCENE_QUERY_SHAPE );
+			px_material->release();
+		}
+		virtual void AddMeshTrigger( const Vec3* mesh_verts, size_t mesh_verts_count, const unsigned int* mesh_indices, size_t mesh_indices_count, float scale ) override
+		{
+			PxMaterial* px_material = GetPxMaterial( Physics::DEFAULT_MATERIAL );
+			PxTriangleMesh* px_triangle_mesh = GetPxTriangleMesh( mesh_verts, mesh_verts_count, mesh_indices, mesh_indices_count );
+			PxRigidActorExt::createExclusiveShape( *m_pDynamicActor, PxTriangleMeshGeometry( px_triangle_mesh, PxMeshScale( scale ) ), *px_material, PxShapeFlag::eTRIGGER_SHAPE | PxShapeFlag::eSCENE_QUERY_SHAPE );
 			px_material->release();
 		}
 
@@ -405,6 +497,8 @@ namespace Bat
 		{
 			m_pDynamicActor->addTorque( Bat2PxVec( ang_impulse ), PxForceMode::eIMPULSE );
 		}
+
+		virtual void* GetUserData() override { return m_pUserData; }
 	private:
 		PxRigidDynamic* m_pDynamicActor;
 		void* m_pUserData;
@@ -417,32 +511,53 @@ namespace Bat
 
 		PxTolerancesScale tolerances_scale;
 
-		g_pPxFoundation = PxCreateFoundation( PX_PHYSICS_VERSION, px_allocator_callback, px_error_callback );
-		if( !g_pPxFoundation )
 		{
-			BAT_ABORT( "Failed to initialize PhysX foundation!" );
+			g_pPxFoundation = PxCreateFoundation( PX_PHYSICS_VERSION, px_allocator_callback, px_error_callback );
+			if( !g_pPxFoundation )
+			{
+				BAT_ABORT( "Failed to initialize PhysX foundation!" );
+			}
 		}
 
-		const bool record_mem_allocs = false;
-		g_pPxPhysics = PxCreatePhysics( PX_PHYSICS_VERSION, *g_pPxFoundation, tolerances_scale, record_mem_allocs );
-		if( !g_pPxPhysics )
 		{
-			BAT_ABORT( "Failed to initialize PhysX physics object!" );
+			const bool record_mem_allocs = false;
+			g_pPxPhysics = PxCreatePhysics( PX_PHYSICS_VERSION, *g_pPxFoundation, tolerances_scale, record_mem_allocs );
+			if( !g_pPxPhysics )
+			{
+				BAT_ABORT( "Failed to initialize PhysX physics object!" );
+			}
 		}
 
-		PxInitExtensions( *g_pPxPhysics, nullptr );
+		{
+			g_pPxCooking = PxCreateCooking( PX_PHYSICS_VERSION, *g_pPxFoundation, PxCookingParams( tolerances_scale ) );
+			if( !g_pPxCooking )
+			{
+				BAT_ABORT( "Failed to initialize PhysX cooking object" );
+			}
 
-		PxSceneDesc scene_desc( tolerances_scale );
-		scene_desc.gravity = { 0.0f, -9.8f, 0.0f };
-		scene_desc.cpuDispatcher = PxDefaultCpuDispatcherCreate( 4 );
-		scene_desc.filterShader = PxDefaultSimulationFilterShader;
+			PxCookingParams params( tolerances_scale );
+			params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
+			params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
+			g_pPxCooking->setParams( params );
+		}
 
-		g_pPxScene = g_pPxPhysics->createScene( scene_desc );
+		{
+			PxInitExtensions( *g_pPxPhysics, nullptr );
+		}
 
-		g_pPxScene->setSimulationEventCallback( &g_PxSimulationCallback );
+		{
+			PxSceneDesc scene_desc( tolerances_scale );
+			scene_desc.gravity = { 0.0f, -9.8f, 0.0f };
+			scene_desc.cpuDispatcher = PxDefaultCpuDispatcherCreate( 4 );
+			scene_desc.filterShader = PxDefaultSimulationFilterShader;
 
-		auto& m = DEFAULT_MATERIAL;
-		g_pPxDefaultMaterial = g_pPxPhysics->createMaterial( m.static_friction, m.dynamic_friction, m.restitution );
+			g_pPxScene = g_pPxPhysics->createScene( scene_desc );
+
+			g_pPxScene->setSimulationEventCallback( &g_PxSimulationCallback );
+
+			auto& m = DEFAULT_MATERIAL;
+			g_pPxDefaultMaterial = g_pPxPhysics->createMaterial( m.static_friction, m.dynamic_friction, m.restitution );
+		}
 	}
 
 	void Physics::Shutdown()
@@ -450,6 +565,7 @@ namespace Bat
 		g_pPxDefaultMaterial->release();
 		g_pPxScene->release();
 		PxCloseExtensions();
+		g_pPxCooking->release();
 		g_pPxPhysics->release();
 		g_pPxFoundation->release();
 	}
@@ -507,7 +623,7 @@ namespace Bat
 		return new PxDynamicObject( dynamic_actor, userdata );
 	}
 
-	RayCastResult Physics::RayCast( const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter )
+	PhysicsRayCastResult Physics::RayCast( const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter )
 	{
 		PxQueryFilterData filter_data((PxQueryFlag::Enum)0);
 		if( filter & HIT_STATICS )
@@ -522,7 +638,7 @@ namespace Bat
 		PxRaycastBuffer hit;
 		bool success = g_pPxScene->raycast( Bat2PxVec( origin ), Bat2PxVec( unit_direction ), max_distance, hit, PxHitFlag::ePOSITION | PxHitFlag::eNORMAL, filter_data );
 
-		RayCastResult result;
+		PhysicsRayCastResult result;
 		if( !success )
 		{
 			result.hit = false;
@@ -541,7 +657,7 @@ namespace Bat
 		return result;
 	}
 
-	static SweepResult SweepGeneric( const PxGeometry& geometry, const Vec3& origin, const Vec3& rotation, const Vec3& unit_direction, float max_distance, int filter )
+	static PhysicsSweepResult SweepGeneric( const PxGeometry& geometry, const Vec3& origin, const Vec3& rotation, const Vec3& unit_direction, float max_distance, int filter )
 	{
 		PxQueryFilterData filter_data( (PxQueryFlag::Enum)0 );
 		if( filter & HIT_STATICS )
@@ -557,7 +673,7 @@ namespace Bat
 		PxTransform transform( Bat2PxVec( origin ), Bat2PxAng( rotation ) );
 		bool success = g_pPxScene->sweep( geometry, transform, Bat2PxVec( unit_direction ), max_distance, hit, PxHitFlag::ePOSITION | PxHitFlag::eNORMAL, filter_data );
 
-		SweepResult result;
+		PhysicsSweepResult result;
 		if( !success )
 		{
 			result.hit = false;
@@ -576,19 +692,19 @@ namespace Bat
 		return result;
 	}
 
-	SweepResult Physics::SweepSphere( float radius, const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter )
+	PhysicsSweepResult Physics::SweepSphere( float radius, const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter )
 	{
 		PxSphereGeometry sphere( radius );
 		return SweepGeneric( sphere, origin, unit_direction, { 0.0f, 0.0f, 0.0f }, max_distance, filter );
 	}
 
-	SweepResult Physics::SweepCapsule( float radius, float half_height, const Vec3& rotation, const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter )
+	PhysicsSweepResult Physics::SweepCapsule( float radius, float half_height, const Vec3& rotation, const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter )
 	{
 		PxCapsuleGeometry capsule( radius, half_height );
 		return SweepGeneric( capsule, origin, rotation, unit_direction, max_distance, filter );
 	}
 
-	SweepResult Physics::SweepBox( float length_x, float length_y, float length_z, const Vec3& rotation, const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter )
+	PhysicsSweepResult Physics::SweepBox( float length_x, float length_y, float length_z, const Vec3& rotation, const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter )
 	{
 		PxBoxGeometry box( length_x / 2, length_y / 2, length_z / 2 );
 		return SweepGeneric( box, origin, rotation, unit_direction, max_distance, filter );

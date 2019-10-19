@@ -18,6 +18,7 @@
 #include "ShaderManager.h"
 #include "RenderData.h"
 #include "RenderTarget.h"
+#include "EntityTrace.h"
 #include "Passes/ClearRenderTargetPass.h"
 #include "Passes/SkyboxPass.h"
 #include "Passes/BloomPass.h"
@@ -32,12 +33,13 @@ namespace Bat
 		:
 		gfx( gfx ),
 		wnd( wnd ),
-		camera( wnd.input, 2.0f, 100.0f )
+		camera( wnd.input, 2.0f, 100.0f ),
+		physics_system( world )
 	{
 		camera.SetAspectRatio( (float)wnd.GetWidth() / wnd.GetHeight() );
 
 		scene.Set( world.CreateEntity() ); // Root entity;
-		size_t sponza = scene.AddChild( SceneLoader::LoadScene( "Assets/Ignore/Sponza/Sponza.gltf" ) );
+		size_t scene_index = scene.AddChild( SceneLoader::LoadScene( "Assets/Ignore/Sponza/Sponza.gltf" ) );
 
 		flashlight = world.CreateEntity();
 		flashlight.Add<LightComponent>()
@@ -52,8 +54,6 @@ namespace Bat
 			.SetEnabled( false );
 		scene.AddChild( sun );
 
-		scene.GetChild( sponza ).Get().Add<TransformComponent>().SetScale( 0.01f );
-
 		gfx.SetActiveScene( &scene );
 		gfx.SetActiveCamera( &camera );
 
@@ -65,14 +65,23 @@ namespace Bat
 		snd->SetListenerPosition( { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f } );
 
 		// Initialize physics objects
-		Physics::EnableFixedTimestep( 1.0f / 60.0f );
-		floor = Physics::CreateStaticObject( { 0.0f, 0.0f, 0.0f }, { 0.0f, Math::PI / 2.0f, 0.0f } );
-		floor->AddPlaneShape();
-		auto trigger = Physics::CreateStaticObject( { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } );
-		trigger->AddBoxTrigger( 5.0f, 5.0f, 5.0f );
-		player = Physics::CreateDynamicObject( camera.GetPosition(), camera.GetRotation() );
-		player->AddSphereShape( 0.1f );
-		player->SetKinematic( true );
+		{
+			Physics::EnableFixedTimestep( 1.0f / 60.0f );
+
+			player = world.CreateEntity();
+			player.Add<TransformComponent>()
+				.SetPosition( camera.GetPosition() )
+				.SetRotation( camera.GetRotation() );
+			player.Add<PhysicsComponent>( PhysicsObjectType::DYNAMIC )
+				.SetKinematic( true )
+				.AddSphereShape( 0.05f );
+
+			Entity scene_ent = scene.GetChild( scene_index ).Get();
+			scene_ent.Add<TransformComponent>()
+				.SetScale( 0.01f );
+			scene_ent.Add<PhysicsComponent>( PhysicsObjectType::STATIC )
+				.AddMeshShape();
+		}
 
 		wnd.input.AddEventListener<KeyPressedEvent>( *this );
 
@@ -117,6 +126,7 @@ namespace Bat
 		} );
 
 		wnd.AddEventListener<WindowResizeEvent>( *this );
+		wnd.input.AddEventListener<MouseButtonPressedEvent>( *this );
 	}
 
 	Application::~Application()
@@ -140,16 +150,11 @@ namespace Bat
 		flashlight.Get<LightComponent>().SetDirection( camera.GetLookAtVector() );
 		snd->SetListenerPosition( camera.GetPosition(), camera.GetLookAtVector() );
 
-		player->MoveTo( camera.GetPosition(), camera.GetRotation() );
+		player.Get<TransformComponent>()
+			.SetPosition( camera.GetPosition() )
+			.SetRotation( camera.GetRotation() );
 
-		// Sync light entity transform with physics object transform
-		// Only manually for now
-		for( size_t i = 0; i < lights.size(); i++ )
-		{
-			auto& transform = lights[i].Get<TransformComponent>();
-			transform.SetPosition( lights_phys[i]->GetPosition() );
-			transform.SetRotation( lights_phys[i]->GetRotation() );
-		}
+		physics_system.Update( world, deltatime );
 
 		if( bloom_enabled )
 		{
@@ -287,14 +292,9 @@ namespace Bat
 				.SetRange( 2.5f );
 			light.Add<TransformComponent>()
 				.SetPosition( camera.GetPosition() );
+			light.Add<PhysicsComponent>( PhysicsObjectType::DYNAMIC )
+				.AddSphereShape( 0.05f );
 			scene.AddChild( light );
-
-			auto transform = light.Get<TransformComponent>();
-			IDynamicObject* phys = Physics::CreateDynamicObject( camera.GetPosition(), { 0.0f, 0.0f, 0.0f } );
-			phys->AddSphereShape( 0.05f );
-
-			lights.push_back( light );
-			lights_phys.push_back( phys );
 		}
 		else if( e.key == 'V' )
 		{
@@ -313,9 +313,12 @@ namespace Bat
 		}
 		else if( e.key == 'P' )
 		{
-			for( size_t i = 0; i < lights.size(); i++ )
+			for( Entity ent : world )
 			{
-				lights_phys[i]->AddLinearImpulse( { 0.0f, 10.0f, 0.0f } );
+				if( ent.Has<LightComponent>() && ent.Has<PhysicsComponent>() )
+				{
+					ent.Get<PhysicsComponent>().AddLinearImpulse( { 0.0f, 10.0f, 0.0f } );
+				}
 			}
 		}
 		else if( e.key == 'I' )
@@ -324,12 +327,42 @@ namespace Bat
 		}
 		else if( e.key == 'R' )
 		{
-			auto result = Physics::RayCast( camera.GetPosition() + camera.GetLookAtVector() * 0.5f, camera.GetLookAtVector(), 500.0f, HIT_DYNAMICS );
+			auto result = EntityTrace::RayCast( camera.GetPosition() + camera.GetLookAtVector() * 0.5f, camera.GetLookAtVector(), 500.0f, HIT_DYNAMICS );
 			if( result.hit )
 			{
-				BAT_LOG( "HIT!" );
-				IDynamicObject* dynamic_object = reinterpret_cast<IDynamicObject*>(result.object);
-				dynamic_object->AddLinearImpulse( (dynamic_object->GetPosition() - camera.GetPosition()).Normalize() * 10.0f );
+				Entity hit_ent = result.entity;
+				BAT_LOG( "HIT! Entity: %i", hit_ent.GetId().GetIndex() );
+				const auto& t = hit_ent.Get<TransformComponent>();
+				auto& phys = hit_ent.Get<PhysicsComponent>();
+				phys.AddLinearImpulse( (t.GetPosition() - camera.GetPosition()).Normalize() * 10.0f );
+			}
+		}
+	}
+
+	void Application::OnEvent( const MouseButtonPressedEvent& e )
+	{
+		if( e.button == Input::MouseButton::Left )
+		{
+			DirectX::XMMATRIX inv_proj = DirectX::XMMatrixInverse( nullptr, camera.GetProjectionMatrix() );
+			DirectX::XMMATRIX inv_view = DirectX::XMMatrixInverse( nullptr, camera.GetViewMatrix() );
+
+			float x = (2.0f * e.pos.x) / wnd.GetWidth() - 1.0f;
+			float y = 1.0f - (2.0f * e.pos.y) / wnd.GetHeight();
+			Vec4 clip = { x, y, 1.0f, -1.0f };
+			Vec4 eye = DirectX::XMVector4Transform( clip, inv_proj );
+			eye.z = 1.0f;
+			eye.w = 0.0f;
+			Vec4 world = DirectX::XMVector4Transform( eye, inv_view );
+			Vec3 ray = Vec3( world.x, world.y, world.z ).Normalized();
+
+			auto result = EntityTrace::RayCast( camera.GetPosition() + ray * 0.5f, ray, 500.0f, HIT_DYNAMICS );
+			if( result.hit )
+			{
+				Entity hit_ent = result.entity;
+				BAT_LOG( "HIT! Entity: %i", hit_ent.GetId().GetIndex() );
+				const auto& t = hit_ent.Get<TransformComponent>();
+				auto& phys = hit_ent.Get<PhysicsComponent>();
+				phys.AddLinearImpulse( (t.GetPosition() - camera.GetPosition()).Normalize() * 10.0f );
 			}
 		}
 	}

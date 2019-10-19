@@ -270,6 +270,12 @@
     <ClCompile Include="Graphics\DDSTextureLoader.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Physics\PhysicsComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\EntityTrace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -385,9 +391,6 @@
     </ClInclude>
     <ClInclude Include="Util\Mutex.h">
       <Filter>Header Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\EntityEvents.h">
-      <Filter>Header Files\Events</Filter>
     </ClInclude>
     <ClInclude Include="Core\Entity.h">
       <Filter>Header Files\Core</Filter>
@@ -559,6 +562,18 @@
     </ClInclude>
     <ClInclude Include="Graphics\DDSTextureLoader.h">
       <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\PhysicsComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Events\EntityEvents.h">
+      <Filter>Header Files\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\PhysicsSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\EntityTrace.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

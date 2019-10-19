@@ -258,6 +258,11 @@ namespace Bat
 
 			return res;
 		}
+
+		operator DirectX::XMVECTOR() const
+		{
+			return DirectX::XMLoadFloat4( this );
+		}
 	};
 
 	struct Plane
