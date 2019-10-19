@@ -273,6 +273,9 @@
     <ClCompile Include="Physics\PhysicsComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Physics\EntityTrace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -567,6 +570,9 @@
       <Filter>Header Files\Events</Filter>
     </ClInclude>
     <ClInclude Include="Physics\PhysicsSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\EntityTrace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

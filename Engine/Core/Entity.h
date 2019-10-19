@@ -39,7 +39,8 @@ namespace Bat
 			uint64_t id = 0;
 		};
 
-		static const Id INVALID;
+		static Entity INVALID;
+
 
 		Entity() = default;
 		Entity( EntityManager& manager, const Id id )

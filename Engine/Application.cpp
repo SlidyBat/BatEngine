@@ -18,6 +18,7 @@
 #include "ShaderManager.h"
 #include "RenderData.h"
 #include "RenderTarget.h"
+#include "EntityTrace.h"
 #include "Passes/ClearRenderTargetPass.h"
 #include "Passes/SkyboxPass.h"
 #include "Passes/BloomPass.h"
@@ -325,12 +326,14 @@ namespace Bat
 		}
 		else if( e.key == 'R' )
 		{
-			auto result = Physics::RayCast( camera.GetPosition() + camera.GetLookAtVector() * 0.5f, camera.GetLookAtVector(), 500.0f, HIT_DYNAMICS );
+			auto result = EntityTrace::RayCast( camera.GetPosition() + camera.GetLookAtVector() * 0.5f, camera.GetLookAtVector(), 500.0f, HIT_DYNAMICS );
 			if( result.hit )
 			{
-				BAT_LOG( "HIT!" );
-				IDynamicObject* dynamic_object = reinterpret_cast<IDynamicObject*>(result.object);
-				dynamic_object->AddLinearImpulse( (dynamic_object->GetPosition() - camera.GetPosition()).Normalize() * 10.0f );
+				Entity hit_ent = result.entity;
+				BAT_LOG( "HIT! Entity: %i", hit_ent.GetId().GetIndex() );
+				const auto& t = hit_ent.Get<TransformComponent>();
+				auto& phys = hit_ent.Get<PhysicsComponent>();
+				phys.AddLinearImpulse( (t.GetPosition() - camera.GetPosition()).Normalize() * 10.0f );
 			}
 		}
 	}

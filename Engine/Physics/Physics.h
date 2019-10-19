@@ -13,7 +13,7 @@ namespace Bat
 		float restitution;
 	};
 
-	struct RayCastResult
+	struct PhysicsRayCastResult
 	{
 		bool hit; // Whether or not there was a hit. If false, other data in the result is invalid.
 		Vec3 position;
@@ -22,7 +22,7 @@ namespace Bat
 		IPhysicsObject* object;
 	};
 
-	struct SweepResult
+	struct PhysicsSweepResult
 	{
 		bool hit; // Whether or not there was a hit. If false, other data in the result is invalid.
 		Vec3 position;
@@ -30,7 +30,7 @@ namespace Bat
 		IPhysicsObject* object;
 	};
 
-	enum RayCastFilterFlags
+	enum TraceFilterFlags
 	{
 		HIT_STATICS = (1 << 0),
 		HIT_DYNAMICS = (1 << 1),
@@ -65,11 +65,11 @@ namespace Bat
 		// NOTE: must be freed using `delete`
 		static IDynamicObject* CreateDynamicObject( const Vec3& pos, const Vec3& ang, void* userdata = nullptr );
 
-		// See RayCastFilterFlags for possible filter flags
-		static RayCastResult RayCast( const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter = (HIT_STATICS|HIT_DYNAMICS) );
-		static SweepResult SweepSphere( float radius, const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter = (HIT_STATICS | HIT_DYNAMICS) );
-		static SweepResult SweepCapsule( float radius, float half_height, const Vec3& rotation, const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter = (HIT_STATICS | HIT_DYNAMICS) );
-		static SweepResult SweepBox( float length_x, float length_y, float length_z, const Vec3& rotation, const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter = (HIT_STATICS | HIT_DYNAMICS) );
+		// See TraceFilterFlags for possible filter flags
+		static PhysicsRayCastResult RayCast( const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter = (HIT_STATICS|HIT_DYNAMICS) );
+		static PhysicsSweepResult SweepSphere( float radius, const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter = (HIT_STATICS | HIT_DYNAMICS) );
+		static PhysicsSweepResult SweepCapsule( float radius, float half_height, const Vec3& rotation, const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter = (HIT_STATICS | HIT_DYNAMICS) );
+		static PhysicsSweepResult SweepBox( float length_x, float length_y, float length_z, const Vec3& rotation, const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter = (HIT_STATICS | HIT_DYNAMICS) );
 	public:
 		static constexpr PhysicsMaterial DEFAULT_MATERIAL = { 0.5f, 0.5f, 0.5f };
 	};

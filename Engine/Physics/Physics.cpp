@@ -623,7 +623,7 @@ namespace Bat
 		return new PxDynamicObject( dynamic_actor, userdata );
 	}
 
-	RayCastResult Physics::RayCast( const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter )
+	PhysicsRayCastResult Physics::RayCast( const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter )
 	{
 		PxQueryFilterData filter_data((PxQueryFlag::Enum)0);
 		if( filter & HIT_STATICS )
@@ -638,7 +638,7 @@ namespace Bat
 		PxRaycastBuffer hit;
 		bool success = g_pPxScene->raycast( Bat2PxVec( origin ), Bat2PxVec( unit_direction ), max_distance, hit, PxHitFlag::ePOSITION | PxHitFlag::eNORMAL, filter_data );
 
-		RayCastResult result;
+		PhysicsRayCastResult result;
 		if( !success )
 		{
 			result.hit = false;
@@ -657,7 +657,7 @@ namespace Bat
 		return result;
 	}
 
-	static SweepResult SweepGeneric( const PxGeometry& geometry, const Vec3& origin, const Vec3& rotation, const Vec3& unit_direction, float max_distance, int filter )
+	static PhysicsSweepResult SweepGeneric( const PxGeometry& geometry, const Vec3& origin, const Vec3& rotation, const Vec3& unit_direction, float max_distance, int filter )
 	{
 		PxQueryFilterData filter_data( (PxQueryFlag::Enum)0 );
 		if( filter & HIT_STATICS )
@@ -673,7 +673,7 @@ namespace Bat
 		PxTransform transform( Bat2PxVec( origin ), Bat2PxAng( rotation ) );
 		bool success = g_pPxScene->sweep( geometry, transform, Bat2PxVec( unit_direction ), max_distance, hit, PxHitFlag::ePOSITION | PxHitFlag::eNORMAL, filter_data );
 
-		SweepResult result;
+		PhysicsSweepResult result;
 		if( !success )
 		{
 			result.hit = false;
@@ -692,19 +692,19 @@ namespace Bat
 		return result;
 	}
 
-	SweepResult Physics::SweepSphere( float radius, const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter )
+	PhysicsSweepResult Physics::SweepSphere( float radius, const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter )
 	{
 		PxSphereGeometry sphere( radius );
 		return SweepGeneric( sphere, origin, unit_direction, { 0.0f, 0.0f, 0.0f }, max_distance, filter );
 	}
 
-	SweepResult Physics::SweepCapsule( float radius, float half_height, const Vec3& rotation, const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter )
+	PhysicsSweepResult Physics::SweepCapsule( float radius, float half_height, const Vec3& rotation, const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter )
 	{
 		PxCapsuleGeometry capsule( radius, half_height );
 		return SweepGeneric( capsule, origin, rotation, unit_direction, max_distance, filter );
 	}
 
-	SweepResult Physics::SweepBox( float length_x, float length_y, float length_z, const Vec3& rotation, const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter )
+	PhysicsSweepResult Physics::SweepBox( float length_x, float length_y, float length_z, const Vec3& rotation, const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter )
 	{
 		PxBoxGeometry box( length_x / 2, length_y / 2, length_z / 2 );
 		return SweepGeneric( box, origin, rotation, unit_direction, max_distance, filter );
