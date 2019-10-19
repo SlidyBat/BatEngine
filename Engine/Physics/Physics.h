@@ -104,6 +104,8 @@ namespace Bat
 		virtual void SetRotation( const Vec3& ang ) = 0;
 
 		virtual PhysicsObjectType GetType() const = 0;
+
+		virtual void* GetUserData() = 0;
 	};
 
 	// Body with implicit infinite mass/inertia

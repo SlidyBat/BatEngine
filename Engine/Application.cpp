@@ -32,7 +32,8 @@ namespace Bat
 		:
 		gfx( gfx ),
 		wnd( wnd ),
-		camera( wnd.input, 2.0f, 100.0f )
+		camera( wnd.input, 2.0f, 100.0f ),
+		physics_system( world )
 	{
 		camera.SetAspectRatio( (float)wnd.GetWidth() / wnd.GetHeight() );
 
@@ -65,20 +66,20 @@ namespace Bat
 		// Initialize physics objects
 		{
 			Physics::EnableFixedTimestep( 1.0f / 60.0f );
-			auto trigger = Physics::CreateStaticObject( { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } );
-			trigger->AddBoxTrigger( 5.0f, 5.0f, 5.0f );
-			player = Physics::CreateDynamicObject( camera.GetPosition(), camera.GetRotation() );
-			player->AddSphereShape( 0.1f );
-			player->SetKinematic( true );
+
+			player = world.CreateEntity();
+			player.Add<TransformComponent>()
+				.SetPosition( camera.GetPosition() )
+				.SetRotation( camera.GetRotation() );
+			player.Add<PhysicsComponent>( PhysicsObjectType::DYNAMIC )
+				.SetKinematic( true )
+				.AddSphereShape( 0.05f );
 
 			Entity scene_ent = scene.GetChild( scene_index ).Get();
-			TransformComponent& scene_transform = scene_ent.Add<TransformComponent>().SetScale( 0.01f );
-			ModelComponent& scene_model = scene_ent.Get<ModelComponent>();
-			IStaticObject* scene_phys = Physics::CreateStaticObject( scene_transform.GetPosition(), scene_transform.GetRotation() );
-			for( const auto& mesh : scene_model.GetMeshes() )
-			{
-				scene_phys->AddMeshShape( mesh->GetVertexData(), mesh->GetVertexCount(), mesh->GetIndexData(), mesh->GetIndexCount(), scene_transform.GetScale() );
-			}
+			scene_ent.Add<TransformComponent>()
+				.SetScale( 0.01f );
+			scene_ent.Add<PhysicsComponent>( PhysicsObjectType::STATIC )
+				.AddMeshShape();
 		}
 
 		wnd.input.AddEventListener<KeyPressedEvent>( *this );
@@ -147,16 +148,11 @@ namespace Bat
 		flashlight.Get<LightComponent>().SetDirection( camera.GetLookAtVector() );
 		snd->SetListenerPosition( camera.GetPosition(), camera.GetLookAtVector() );
 
-		player->MoveTo( camera.GetPosition(), camera.GetRotation() );
+		player.Get<TransformComponent>()
+			.SetPosition( camera.GetPosition() )
+			.SetRotation( camera.GetRotation() );
 
-		// Sync light entity transform with physics object transform
-		// Only manually for now
-		for( size_t i = 0; i < lights.size(); i++ )
-		{
-			auto& transform = lights[i].Get<TransformComponent>();
-			transform.SetPosition( lights_phys[i]->GetPosition() );
-			transform.SetRotation( lights_phys[i]->GetRotation() );
-		}
+		physics_system.Update( world, deltatime );
 
 		if( bloom_enabled )
 		{
@@ -294,14 +290,9 @@ namespace Bat
 				.SetRange( 2.5f );
 			light.Add<TransformComponent>()
 				.SetPosition( camera.GetPosition() );
+			light.Add<PhysicsComponent>( PhysicsObjectType::DYNAMIC )
+				.AddSphereShape( 0.05f );
 			scene.AddChild( light );
-
-			auto transform = light.Get<TransformComponent>();
-			IDynamicObject* phys = Physics::CreateDynamicObject( camera.GetPosition(), { 0.0f, 0.0f, 0.0f } );
-			phys->AddSphereShape( 0.05f );
-
-			lights.push_back( light );
-			lights_phys.push_back( phys );
 		}
 		else if( e.key == 'V' )
 		{
@@ -320,9 +311,12 @@ namespace Bat
 		}
 		else if( e.key == 'P' )
 		{
-			for( size_t i = 0; i < lights.size(); i++ )
+			for( Entity ent : world )
 			{
-				lights_phys[i]->AddLinearImpulse( { 0.0f, 10.0f, 0.0f } );
+				if( ent.Has<LightComponent>() && ent.Has<PhysicsComponent>() )
+				{
+					ent.Get<PhysicsComponent>().AddLinearImpulse( { 0.0f, 10.0f, 0.0f } );
+				}
 			}
 		}
 		else if( e.key == 'I' )

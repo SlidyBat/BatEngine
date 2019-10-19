@@ -314,6 +314,8 @@ namespace Bat
 			transform.q = Bat2PxAng( ang );
 			m_pStaticActor->setGlobalPose( transform );
 		}
+
+		virtual void* GetUserData() override { return m_pUserData; }
 	private:
 		PxRigidStatic* m_pStaticActor;
 		void* m_pUserData;
@@ -495,6 +497,8 @@ namespace Bat
 		{
 			m_pDynamicActor->addTorque( Bat2PxVec( ang_impulse ), PxForceMode::eIMPULSE );
 		}
+
+		virtual void* GetUserData() override { return m_pUserData; }
 	private:
 		PxRigidDynamic* m_pDynamicActor;
 		void* m_pUserData;

@@ -10,6 +10,7 @@
 #include "Physics.h"
 #include "RenderGraph.h"
 #include "KeyboardEvents.h"
+#include "PhysicsSystem.h"
 
 namespace Bat
 {
@@ -43,11 +44,9 @@ namespace Bat
 		RenderGraph rendergraph;
 		Entity flashlight;
 		Entity sun;
-		IStaticObject* floor;
-		IDynamicObject* player;
-		std::vector<Entity> lights;
-		std::vector<IDynamicObject*> lights_phys;
+		Entity player;
 
+		PhysicsSystem physics_system;
 
 		float bloom_threshold = 1.0f;
 

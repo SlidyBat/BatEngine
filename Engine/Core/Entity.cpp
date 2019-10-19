@@ -1,8 +1,6 @@
 #include "PCH.h"
 #include "Entity.h"
 
-#include "EntityEvents.h"
-
 namespace Bat
 {
 	EntityManager world;
@@ -73,5 +71,9 @@ namespace Bat
 		{
 			allocator->EnsureCapacity( capacity );
 		}
+	}
+	void EntityManager::SortFreeList()
+	{
+		std::sort( m_FreeList.begin(), m_FreeList.end() );
 	}
 }
