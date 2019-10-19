@@ -126,6 +126,7 @@ namespace Bat
 		} );
 
 		wnd.AddEventListener<WindowResizeEvent>( *this );
+		wnd.input.AddEventListener<MouseButtonPressedEvent>( *this );
 	}
 
 	Application::~Application()
@@ -327,6 +328,34 @@ namespace Bat
 		else if( e.key == 'R' )
 		{
 			auto result = EntityTrace::RayCast( camera.GetPosition() + camera.GetLookAtVector() * 0.5f, camera.GetLookAtVector(), 500.0f, HIT_DYNAMICS );
+			if( result.hit )
+			{
+				Entity hit_ent = result.entity;
+				BAT_LOG( "HIT! Entity: %i", hit_ent.GetId().GetIndex() );
+				const auto& t = hit_ent.Get<TransformComponent>();
+				auto& phys = hit_ent.Get<PhysicsComponent>();
+				phys.AddLinearImpulse( (t.GetPosition() - camera.GetPosition()).Normalize() * 10.0f );
+			}
+		}
+	}
+
+	void Application::OnEvent( const MouseButtonPressedEvent& e )
+	{
+		if( e.button == Input::MouseButton::Left )
+		{
+			DirectX::XMMATRIX inv_proj = DirectX::XMMatrixInverse( nullptr, camera.GetProjectionMatrix() );
+			DirectX::XMMATRIX inv_view = DirectX::XMMatrixInverse( nullptr, camera.GetViewMatrix() );
+
+			float x = (2.0f * e.pos.x) / wnd.GetWidth() - 1.0f;
+			float y = 1.0f - (2.0f * e.pos.y) / wnd.GetHeight();
+			Vec4 clip = { x, y, 1.0f, -1.0f };
+			Vec4 eye = DirectX::XMVector4Transform( clip, inv_proj );
+			eye.z = 1.0f;
+			eye.w = 0.0f;
+			Vec4 world = DirectX::XMVector4Transform( eye, inv_view );
+			Vec3 ray = Vec3( world.x, world.y, world.z ).Normalized();
+
+			auto result = EntityTrace::RayCast( camera.GetPosition() + ray * 0.5f, ray, 500.0f, HIT_DYNAMICS );
 			if( result.hit )
 			{
 				Entity hit_ent = result.entity;

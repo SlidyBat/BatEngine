@@ -9,6 +9,7 @@
 #include "Entity.h"
 #include "RenderGraph.h"
 #include "KeyboardEvents.h"
+#include "MouseEvents.h"
 #include "PhysicsSystem.h"
 
 namespace Bat
@@ -29,6 +30,7 @@ namespace Bat
 
 		void OnEvent( const WindowResizeEvent& e );
 		void OnEvent( const KeyPressedEvent& e );
+		void OnEvent( const MouseButtonPressedEvent& e );
 	private:
 		void BuildRenderGraph();
 	public:
