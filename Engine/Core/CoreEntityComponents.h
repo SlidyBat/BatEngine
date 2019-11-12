@@ -60,7 +60,7 @@ namespace Bat
 			DirectX::XMMatrixDecompose( &vscale, &qrot, &tran, transform );
 
 			position = tran;
-			rotation = qrot;
+			rotation = Math::QuaternionToEuler( qrot );
 			DirectX::XMStoreFloat( &scale, vscale );
 
 			dirty = false;

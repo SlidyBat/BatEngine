@@ -10,35 +10,20 @@
 
 namespace Bat
 {
-	struct CB_SkyboxPipelineMatrix
-	{
-		DirectX::XMMATRIX viewproj;
-	};
-
-	class SkyboxPipelineParameters : public IPipelineParameters
-	{
-	public:
-		SkyboxPipelineParameters( const DirectX::XMMATRIX& viewproj, ITexture* pTexture )
-			:
-			texture( pTexture ),
-			transform( viewproj )
-		{}
-	public:
-		DirectX::XMMATRIX transform;
-		ITexture* texture;
-	};
-
 	class SkyboxPipeline : public IPipeline
 	{
 	public:
-		SkyboxPipeline( const std::string& vsFilename, const std::string& psFilename );
+		SkyboxPipeline();
 
-		void BindParameters( IGPUContext* pContext, IPipelineParameters& pParameters ) override;
-		void Render( IGPUContext* pContext, size_t vertexcount ) override;
-		void RenderIndexed( IGPUContext* pContext, size_t indexcount ) override;
+		void Render( IGPUContext* pContext, const Camera& camera, ITexture* pTexture );
 	private:
 		VertexBuffer<Vec4> m_bufPositions;
 		IndexBuffer m_bufIndices;
+
+		struct CB_SkyboxPipelineMatrix
+		{
+			DirectX::XMMATRIX viewproj;
+		};
 		ConstantBuffer<CB_SkyboxPipelineMatrix> m_cbufTransform;
 	};
 }

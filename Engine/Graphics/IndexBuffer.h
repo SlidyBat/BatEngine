@@ -34,6 +34,17 @@ namespace Bat
 			pContext->UpdateBuffer( m_pIndexBuffer.get(), pData );
 		}
 
+		T* Lock( IGPUContext* pContext )
+		{
+			void* pData = pContext->Lock( m_pIndexBuffer.get() );
+			return reinterpret_cast<T*>(pData);
+		}
+
+		void Unlock( IGPUContext* pContext )
+		{
+			pContext->Unlock( m_pIndexBuffer.get() );
+		}
+
 		operator IIndexBuffer*() const
 		{
 			return m_pIndexBuffer.get();

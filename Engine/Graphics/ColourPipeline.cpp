@@ -1,31 +1,29 @@
 #include "PCH.h"
 #include "ColourPipeline.h"
 
+#include "Camera.h"
+#include "ShaderManager.h"
+
 namespace Bat
 {
-	ColourPipeline::ColourPipeline( const std::string& vs_filename, const std::string& ps_filename )
-		:
-		IPipeline( vs_filename, ps_filename )
-	{}
-
-	void ColourPipeline::BindParameters( IGPUContext* pContext, IPipelineParameters& pParameters )
+	void ColourPipeline::Render( IGPUContext* pContext, const Mesh& mesh, const Camera& camera, const DirectX::XMMATRIX& world_transform )
 	{
-		auto params = static_cast<ColourPipelineParameters&>(pParameters);
+		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/ColourVS.hlsl" );
+		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/ColourPS.hlsl" );
 
-		m_cbufTransform.Update( pContext, params.transform );
-		pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, 0 );
+		CB_ColourPipelineMatrix transform;
+		transform.world = world_transform;
+		transform.viewproj = camera.GetViewMatrix() * camera.GetProjectionMatrix();
 
-		pContext->SetVertexShader( m_pVertexShader.get() );
-		pContext->SetPixelShader( m_pPixelShader.get() );
-	}
+		m_cbufTransform.Update( pContext, transform );
 
-	void ColourPipeline::Render( IGPUContext* pContext, size_t vertexcount )
-	{
-		pContext->Draw( vertexcount );
-	}
+		pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, VS_CBUF_TRANSFORMS );
 
-	void ColourPipeline::RenderIndexed( IGPUContext* pContext, size_t indexcount )
-	{
-		pContext->DrawIndexed( indexcount );
+		pContext->SetVertexShader( pVertexShader );
+		pContext->SetPixelShader( pPixelShader );
+
+		mesh.Bind( pContext, pVertexShader );
+
+		pContext->DrawIndexed( mesh.GetIndexCount() );
 	}
 }

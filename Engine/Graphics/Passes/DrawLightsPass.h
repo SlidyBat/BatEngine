@@ -43,7 +43,7 @@ namespace Bat
 
 			if( !light_model )
 			{
-				static SceneNode light_model_node = SceneLoader::LoadScene( "Assets/sphere.gltf" );
+				static SceneNode light_model_node = SceneLoader().Load( "Assets/sphere.gltf" );
 				light_model = &light_model_node.GetChild( 2 ).Get();
 				light_model->Get<TransformComponent>().SetScale( 0.05f );
 			}
@@ -55,22 +55,19 @@ namespace Bat
 				if( light.GetType() == LightType::POINT )
 				{
 					auto emissive = light.GetColour() * 3;
-					light_material.SetEmissiveColour( emissive.x, emissive.y, emissive.z );
-
+					
 					DirectX::XMMATRIX w = light_model->Get<TransformComponent>().GetTransform() * transform;
-					DirectX::XMMATRIX vp = m_pCamera->GetViewMatrix() * m_pCamera->GetProjectionMatrix();
 
 					auto& meshes = light_model->Get<ModelComponent>().GetMeshes();
 					for( auto& pMesh : meshes )
 					{
-						auto pPipeline = static_cast<LitGenericPipeline*>(ShaderManager::GetPipeline( "litgeneric" ));
+						pMesh->GetMaterial().SetEmissiveColour( emissive.x, emissive.y, emissive.z );
+
+						auto pPipeline = ShaderManager::GetPipeline<LitGenericPipeline>();
 
 						std::vector<Entity> empty;
 						std::vector<DirectX::XMMATRIX> empty2;
-						LitGenericPipelineParameters params( w, vp, light_material, empty, empty2 );
-						pMesh->Bind( m_pContext, pPipeline );
-						pPipeline->BindParameters( m_pContext, params );
-						pPipeline->RenderIndexed( m_pContext, pMesh->GetIndexCount() );
+						pPipeline->Render( m_pContext, *pMesh, *m_pCamera, w, empty, empty2 );
 					}
 				}
 			}

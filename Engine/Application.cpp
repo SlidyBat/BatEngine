@@ -36,10 +36,13 @@ namespace Bat
 		camera( wnd.input, 2.0f, 100.0f ),
 		physics_system( world )
 	{
+		SceneLoader loader;
+
 		camera.SetAspectRatio( (float)wnd.GetWidth() / wnd.GetHeight() );
 
 		scene.Set( world.CreateEntity() ); // Root entity;
-		size_t scene_index = scene.AddChild( SceneLoader::LoadScene( "Assets/Ignore/Sponza/Sponza.gltf" ) );
+		animators.emplace_back();
+		size_t scene_index = scene.AddChild( loader.Load( "Assets/Ignore/Sponza/sponza.gltf", &animators.back() ) );
 
 		flashlight = world.CreateEntity();
 		flashlight.Add<LightComponent>()
@@ -79,26 +82,45 @@ namespace Bat
 			Entity scene_ent = scene.GetChild( scene_index ).Get();
 			scene_ent.Add<TransformComponent>()
 				.SetScale( 0.01f );
-			scene_ent.Add<PhysicsComponent>( PhysicsObjectType::STATIC )
-				.AddMeshShape();
+			//scene_ent.Add<PhysicsComponent>( PhysicsObjectType::STATIC )
+			//	.AddMeshShape();
 		}
 
 		wnd.input.AddEventListener<KeyPressedEvent>( *this );
 
-		/*g_Console.AddCommand( "load_scene", [&scene = scene, &cam = camera, &gfx = gfx]( const CommandArgs_t& args )
+		g_Console.AddCommand( "load_scene", [&scene = scene, &cam = camera, &gfx = gfx, &animators = animators]( const CommandArgs_t& args )
 		{
-			scene = SceneLoader::LoadScene( std::string( args[1] ) );
-			scene.SetActiveCamera( &cam );
+			std::string filepath = std::string( args[1] );
+			if( !std::filesystem::exists( filepath ) )
+			{
+				BAT_WARN( "Invalid file path '%s'", filepath );
+			}
+
+			SceneLoader loader;
+			animators.emplace_back();
+			scene = loader.Load( filepath, &animators.back() );
 			gfx.SetActiveScene( &scene );
 		} );
 
-		g_Console.AddCommand( "add_model", [&scene = scene, &cam = camera]( const CommandArgs_t& args )
+		g_Console.AddCommand( "add_model", [&scene = scene, &cam = camera, &animators = animators]( const CommandArgs_t& args )
 		{
-			scene->AddChild( SceneLoader::LoadScene( std::string( args[1] ) ) );
+			std::string filepath = std::string( args[1] );
+			if( !std::filesystem::exists( filepath ) )
+			{
+				BAT_WARN( "Invalid file path '%s'", filepath );
+			}
+
+			SceneLoader loader;
+			animators.emplace_back();
+			SceneNode new_node = loader.Load( filepath, &animators.back() );
 
 			auto pos = cam.GetPosition();
-			scene->GetChildNodes().back()->SetTransform( DirectX::XMMatrixTranslation( pos.x, pos.y, pos.z ) );
-		} );*/
+			Entity new_model = new_node.Get();
+			new_model.Ensure<TransformComponent>()
+				.SetPosition( pos );
+
+			scene.AddChild( new_node );
+		} );
 
 		g_Console.AddCommand( "cam_speed", [&cam = camera]( const CommandArgs_t& args )
 		{
@@ -155,6 +177,21 @@ namespace Bat
 			.SetRotation( camera.GetRotation() );
 
 		physics_system.Update( world, deltatime );
+		for( MeshAnimator& animator : animators )
+		{
+			if( animator.GetNumAnimations() > 0 )
+			{
+				timestamp += deltatime * anim_timescale;
+				if( timestamp >= animator.GetCurrentAnimation().duration )
+				{
+					timestamp = 0;
+				}
+
+				animator.SetCurrentAnimationIndex( selected_anim );
+				animator.SetTimestamp( timestamp );
+			}
+		}
+		anim_system.Update( world );
 
 		if( bloom_enabled )
 		{
@@ -212,6 +249,34 @@ namespace Bat
 			{
 				ImGui::Text( "Light" );
 			}
+			if( e.Has<PhysicsComponent>() )
+			{
+				ImGui::Text( "Physics" );
+			}
+			if( e.Has<AnimationComponent>() )
+			{
+				ImGui::Text( "Animation" );
+			}
+			if( e.Has<TransformComponent>() )
+			{
+				const auto& t = e.Get<TransformComponent>();
+				Vec3 pos = t.GetPosition();
+				Vec3 rot = t.GetRotation();
+				float scale = t.GetScale();
+
+				std::string pos_text = Format( "Local Pos: (%.2f, %.2f, %.2f)", pos.x, pos.y, pos.z );
+				std::string rot_text = Format( "Local Rot: (%.2f, %.2f, %.2f)", rot.x, rot.y, rot.z );
+				std::string scale_text = Format( "Local Scale: %.2f", scale );
+			
+				if( ImGui::TreeNode( "Transform" ) )
+				{
+					ImGui::Text( pos_text.c_str() );
+					ImGui::Text( rot_text.c_str() );
+					ImGui::Text( scale_text.c_str() );
+
+					ImGui::TreePop();
+				}
+			}
 
 			ImGui::TreePop();
 		}
@@ -250,6 +315,21 @@ namespace Bat
 
 			ImGui::SliderFloat( "Bloom threshold", &bloom_threshold, 0.0f, 100.0f );
 
+			for( MeshAnimator& animator : animators )
+			{
+				if( animator.GetNumAnimations() > 0 )
+				{
+					std::vector<const char*> animation_names;
+					for( size_t i = 0; i < animator.GetNumAnimations(); i++ )
+					{
+						animation_names.push_back( animator.GetAnimation( i ).name.c_str() );
+					}
+					ImGui::Combo( "Animation", &selected_anim, animation_names.data(), animator.GetNumAnimations() );
+					ImGui::SliderFloat( "Animation timestamp", &timestamp, 0.0f, animator.GetAnimation( selected_anim ).duration );
+					ImGui::SliderFloat( "Animation timescale", &anim_timescale, 1.0f, 100.0f );
+				}
+			}
+			
 			AddNodeTree( scene );
 
 			ImGui::End();
@@ -292,8 +372,8 @@ namespace Bat
 				.SetRange( 2.5f );
 			light.Add<TransformComponent>()
 				.SetPosition( camera.GetPosition() );
-			light.Add<PhysicsComponent>( PhysicsObjectType::DYNAMIC )
-				.AddSphereShape( 0.05f );
+			//light.Add<PhysicsComponent>( PhysicsObjectType::DYNAMIC )
+			//	.AddSphereShape( 0.05f );
 			scene.AddChild( light );
 		}
 		else if( e.key == 'V' )

@@ -14,6 +14,8 @@ namespace Bat
 		UV,
 		Tangent,
 		Bitangent,
+		BoneId,
+		BoneWeight,
 		TotalAttributes
 	};
 }

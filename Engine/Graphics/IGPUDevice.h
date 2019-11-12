@@ -18,6 +18,20 @@ namespace Bat
 	class IDepthStencil;
 	class ISampler;
 
+	struct ShaderMacro
+	{
+		ShaderMacro( std::string name, std::string value = "" )
+			:
+			name( std::move( name ) ),
+			value( std::move( value ) )
+		{}
+
+		std::string name;
+		std::string value;
+	};
+
+
+
 	class IGPUDevice
 	{
 	public:
@@ -25,8 +39,8 @@ namespace Bat
 
 		virtual const DeviceInfo& GetDeviceInfo() const = 0;
 
-		virtual IPixelShader*    CreatePixelShader( const std::string& filename ) = 0;
-		virtual IVertexShader*   CreateVertexShader( const std::string& filename ) = 0;
+		virtual IPixelShader* CreatePixelShader( const std::string& filename, const std::vector<ShaderMacro>& macros = {} ) = 0;
+		virtual IVertexShader*   CreateVertexShader( const std::string& filename, const std::vector<ShaderMacro>& macros = {} ) = 0;
 
 		// Creates vertex buffer with size `size`, element size `elem_size` bytes and `data` as initial data.
 		// Pass nullptr to leave uninitialized.
@@ -146,8 +160,14 @@ namespace Bat
 		virtual void UnbindTextureSlot( size_t slot ) = 0;
 
 		virtual void UpdateBuffer( IVertexBuffer* pBuffer, const void* pData ) = 0;
+		virtual void* Lock( IVertexBuffer* pBuffer ) = 0;
+		virtual void Unlock( IVertexBuffer* pBuffer ) = 0;
 		virtual void UpdateBuffer( IIndexBuffer* pBuffer, const void* pData ) = 0;
+		virtual void* Lock( IIndexBuffer* pBuffer ) = 0;
+		virtual void Unlock( IIndexBuffer* pBuffer ) = 0;
 		virtual void UpdateBuffer( IConstantBuffer* pBuffer, const void* pData ) = 0;
+		virtual void* Lock( IConstantBuffer* pBuffer ) = 0;
+		virtual void Unlock( IConstantBuffer* pBuffer ) = 0;
 
 		// Gets currently bound pixel shader, or nullptr if none are bound
 		virtual IPixelShader* GetPixelShader() const = 0;

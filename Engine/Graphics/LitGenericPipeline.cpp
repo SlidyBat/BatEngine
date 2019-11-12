@@ -9,54 +9,96 @@
 #include "Globals.h"
 #include "Texture.h"
 #include "Light.h"
+#include "Mesh.h"
 #include "Material.h"
 #include "ShaderManager.h"
 
 namespace Bat
 {
-	LitGenericPipeline::LitGenericPipeline( const std::string& vs_filename, const std::string& ps_filename )
-		:
-		IPipeline( vs_filename, ps_filename )
-	{}
-
-	void LitGenericPipeline::BindParameters( IGPUContext* pContext, IPipelineParameters& pParameters )
+	void LitGenericPipeline::Render( IGPUContext* pContext, const Mesh& mesh, const Camera& camera, const DirectX::XMMATRIX& world_transform, const std::vector<Entity>& light_ents, const std::vector<DirectX::XMMATRIX>& light_transforms )
 	{
-		auto params = static_cast<LitGenericPipelineParameters&>(pParameters);
+		auto macros = BuildMacrosForMesh( mesh );
 
+		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/LitGenericVS.hlsl", macros );
+		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/LitGenericPS.hlsl", macros );
+
+		pContext->SetVertexShader( pVertexShader );
+		pContext->SetPixelShader( pPixelShader );
+
+		BindTransforms( pContext, camera, world_transform );
+
+		mesh.Bind( pContext, pVertexShader );
+		BindMaterial( pContext, mesh.GetMaterial() );
+		BindLights( pContext, light_ents, light_transforms );
+
+		pContext->DrawIndexed( mesh.GetIndexCount() );
+	}
+
+	std::vector<ShaderMacro> LitGenericPipeline::BuildMacrosForMesh( const Mesh& mesh ) const
+	{
+		std::vector<ShaderMacro> macros;
+		if( mesh.HasBones() )
+		{
+			macros.emplace_back( "HAS_BONES" );
+		}
+
+		if( mesh.HasTangentsAndBitangents() )
+		{
+			macros.emplace_back( "HAS_TANGENTS" );
+		}
+
+		return macros;
+	}
+
+	void LitGenericPipeline::BindTransforms( IGPUContext* pContext, const Camera& camera, const DirectX::XMMATRIX& world_transform )
+	{
 		CB_LitGenericPipelineMatrix transform;
-		transform.world = params.world;
-		transform.viewproj = params.viewproj;
+		transform.world = world_transform;
+		transform.viewproj = camera.GetViewMatrix() * camera.GetProjectionMatrix();
 		m_cbufTransform.Update( pContext, transform );
-		pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, 0 );
+		pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, VS_CBUF_TRANSFORMS );
+	}
 
-		CB_LitGenericPipelineMaterial material;
-		material.material.GlobalAmbient = { 1.0f, 1.0f, 1.0f };
-		material.material.AmbientColor = { 0.05f, 0.05f, 0.05f };
-		material.material.DiffuseColor = params.material.GetDiffuseColour();
-		material.material.SpecularColor = params.material.GetSpecularColour();
-		material.material.EmissiveColor = params.material.GetEmissiveColour();
-		material.material.Opacity = params.material.GetOpacity();
+	void LitGenericPipeline::BindMaterial( IGPUContext* pContext, const Material& material )
+	{
+		CB_LitGenericPipelineMaterial material_buf;
+		material_buf.material.GlobalAmbient = { 1.0f, 1.0f, 1.0f };
+		material_buf.material.AmbientColor = { 0.05f, 0.05f, 0.05f };
+		material_buf.material.DiffuseColor = material.GetDiffuseColour();
+		material_buf.material.SpecularColor = material.GetSpecularColour();
+		material_buf.material.EmissiveColor = material.GetEmissiveColour();
+		material_buf.material.Opacity = material.GetOpacity();
 
-		material.material.HasAmbientTexture  = (params.material.GetAmbientTexture() != nullptr);
-		material.material.HasDiffuseTexture  = (params.material.GetDiffuseTexture() != nullptr);
-		material.material.HasSpecularTexture = (params.material.GetSpecularTexture() != nullptr);
-		material.material.HasEmissiveTexture = (params.material.GetEmissiveTexture() != nullptr);
-		material.material.HasNormalTexture   = (params.material.GetNormalTexture() != nullptr);
-		material.material.HasBumpTexture     = false;
-		material.material.SpecularPower      = params.material.GetShininess();
-		m_cbufMaterial.Update( pContext, material );
+		material_buf.material.HasAmbientTexture = (material.GetAmbientTexture() != nullptr);
+		material_buf.material.HasDiffuseTexture = (material.GetDiffuseTexture() != nullptr);
+		material_buf.material.HasSpecularTexture = (material.GetSpecularTexture() != nullptr);
+		material_buf.material.HasEmissiveTexture = (material.GetEmissiveTexture() != nullptr);
+		material_buf.material.HasNormalTexture = (material.GetNormalTexture() != nullptr);
+		material_buf.material.HasBumpTexture = false;
+		material_buf.material.SpecularPower = material.GetShininess();
+		m_cbufMaterial.Update( pContext, material_buf );
 		pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufMaterial, PS_CBUF_SLOT_0 );
 
+
+		if( auto tex = material.GetDiffuseTexture() )  pContext->BindTexture( *tex, PS_TEX_SLOT_0 );
+		if( auto tex = material.GetSpecularTexture() ) pContext->BindTexture( *tex, PS_TEX_SLOT_1 );
+		if( auto tex = material.GetEmissiveTexture() ) pContext->BindTexture( *tex, PS_TEX_SLOT_2 );
+		if( auto tex = material.GetNormalTexture() )   pContext->BindTexture( *tex, PS_TEX_SLOT_3 );
+		if( auto tex = material.GetAmbientTexture() )  pContext->BindTexture( *tex, PS_TEX_SLOT_4 );
+	}
+
+	void LitGenericPipeline::BindLights( IGPUContext* pContext, const std::vector<Entity>& light_ents, const std::vector<DirectX::XMMATRIX>& light_transforms )
+	{
 		CB_LitGenericPipelineLights lights;
 		size_t j = 0;
-		for( size_t i = 0; i < params.lights.size(); i++ )
+		for( size_t i = 0; i < light_ents.size(); i++ )
 		{
 			if( j == MAX_LIGHTS )
 			{
 				break;
 			}
 
-			auto l = params.lights[i].Get<LightComponent>();
+			auto l = light_ents[i].Get<LightComponent>();
 
 			if( !l.IsEnabled() )
 			{
@@ -64,7 +106,7 @@ namespace Bat
 			}
 
 			DirectX::XMVECTOR vs, vr, vp;
-			DirectX::XMMatrixDecompose( &vs, &vr, &vp, params.light_transforms[i] );
+			DirectX::XMMatrixDecompose( &vs, &vr, &vp, light_transforms[i] );
 			lights.lights[j].Position = vp;
 			lights.lights[j].Direction = l.GetDirection(); // TODO: this should be influenced by the rotation of the transform
 			lights.lights[j].SpotlightAngle = l.GetSpotlightAngle();
@@ -78,24 +120,5 @@ namespace Bat
 		lights.num_lights = (uint32_t)j;
 		m_cbufLightParams.Update( pContext, lights );
 		pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufLightParams, PS_CBUF_SLOT_1 );
-
-		pContext->SetVertexShader( m_pVertexShader.get() );
-		pContext->SetPixelShader( m_pPixelShader.get() );
-
-		if( auto tex = params.material.GetDiffuseTexture() )  pContext->BindTexture( *tex, PS_TEX_SLOT_0 );
-		if( auto tex = params.material.GetSpecularTexture() ) pContext->BindTexture( *tex, PS_TEX_SLOT_1 );
-		if( auto tex = params.material.GetEmissiveTexture() ) pContext->BindTexture( *tex, PS_TEX_SLOT_2 );
-		if( auto tex = params.material.GetNormalTexture() )   pContext->BindTexture( *tex, PS_TEX_SLOT_3 );
-		if( auto tex = params.material.GetAmbientTexture() )  pContext->BindTexture( *tex, PS_TEX_SLOT_4 );
-	}
-
-	void LitGenericPipeline::Render( IGPUContext* pContext, size_t vertexcount )
-	{
-		pContext->Draw( vertexcount );
-	}
-
-	void LitGenericPipeline::RenderIndexed( IGPUContext* pContext, size_t indexcount )
-	{
-		pContext->DrawIndexed( indexcount );
 	}
 }

@@ -37,6 +37,90 @@ namespace Bat
 	};
 
 	using Vei2 = _Vec2<int>;
+	using Veu2 = _Vec2<unsigned>;
+
+	template <typename T>
+	class _Vec3
+	{
+	public:
+		_Vec3 operator-( const _Vec3& rhs ) const
+		{
+			return { x - rhs.x, y - rhs.y, z - rhs.z };
+		}
+		_Vec3 operator+( const _Vec3& rhs ) const
+		{
+			return { x + rhs.x, y + rhs.y, z + rhs.z };
+		}
+
+		_Vec3& operator-=( const _Vec3& rhs )
+		{
+			x -= rhs.x;
+			y -= rhs.y;
+			z -= rhs.z;
+			return *this;
+		}
+		_Vec3& operator+=( const _Vec3& rhs )
+		{
+			x += rhs.x;
+			y += rhs.y;
+			z += rhs.z;
+			return *this;
+		}
+	public:
+		T x;
+		T y;
+		T z;
+	};
+
+	using Vei3 = _Vec3<int>;
+	using Veu3 = _Vec3<unsigned>;
+
+	template <typename T>
+	class _Vec4
+	{
+	public:
+		_Vec4( T x, T y, T z, T w )
+			:
+			x( x ),
+			y( y ),
+			z( z ),
+			w( w )
+		{}
+
+		_Vec4 operator-( const _Vec4& rhs ) const
+		{
+			return { x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w };
+		}
+		_Vec4 operator+( const _Vec4& rhs ) const
+		{
+			return { x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w };
+		}
+
+		_Vec4& operator-=( const _Vec4& rhs )
+		{
+			x -= rhs.x;
+			y -= rhs.y;
+			z -= rhs.z;
+			w -= rhs.w;
+			return *this;
+		}
+		_Vec4& operator+=( const _Vec4& rhs )
+		{
+			x += rhs.x;
+			y += rhs.y;
+			z += rhs.z;
+			w += rhs.w;
+			return *this;
+		}
+	public:
+		T x;
+		T y;
+		T z;
+		T w;
+	};
+
+	using Vei4 = _Vec4<int>;
+	using Veu4 = _Vec4<unsigned>;
 
 	// Vec2/Vec3 aren't templated so that they can be used with the XMMath functions
 

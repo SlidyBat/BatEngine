@@ -68,6 +68,8 @@ namespace Bat
 				s_mapConvert["TEXCOORD"] = VertexAttribute::UV;
 				s_mapConvert["TANGENT"] = VertexAttribute::Tangent;
 				s_mapConvert["BITANGENT"] = VertexAttribute::Bitangent;
+				s_mapConvert["BONEID"] = VertexAttribute::BoneId;
+				s_mapConvert["BONEWEIGHT"] = VertexAttribute::BoneWeight;
 			}
 
 			auto it = s_mapConvert.find( semantic );
@@ -92,6 +94,8 @@ namespace Bat
 				s_mapConvert[VertexAttribute::UV] = "TEXCOORD";
 				s_mapConvert[VertexAttribute::Tangent] = "TANGENT";
 				s_mapConvert[VertexAttribute::Bitangent] = "BITANGENT";
+				s_mapConvert[VertexAttribute::BoneId] = "BONEID";
+				s_mapConvert[VertexAttribute::BoneWeight] = "BONEWEIGHT";
 			}
 
 			auto it = s_mapConvert.find( attribute );
@@ -136,7 +140,7 @@ namespace Bat
 	class D3DPixelShader : public IPixelShader
 	{
 	public:
-		D3DPixelShader( ID3D11Device* pDevice, const std::string& filename );
+		D3DPixelShader( ID3D11Device* pDevice, const std::string& filename, const std::vector<ShaderMacro>& macros );
 		~D3DPixelShader();
 
 		virtual std::string GetName() const override { return m_szName; }
@@ -148,6 +152,7 @@ namespace Bat
 		void SetDirty( bool dirty ) { m_bDirty = dirty; }
 	private:
 		std::string m_szName;
+		std::vector<ShaderMacro> m_Macros;
 		std::atomic_bool m_bDirty = true;
 		Microsoft::WRL::ComPtr<ID3D11PixelShader> m_pShader;
 
@@ -159,7 +164,7 @@ namespace Bat
 	class D3DVertexShader : public IVertexShader
 	{
 	public:
-		D3DVertexShader( ID3D11Device* pDevice, const std::string& filename );
+		D3DVertexShader( ID3D11Device* pDevice, const std::string& filename, const std::vector<ShaderMacro>& macros );
 		~D3DVertexShader();
 
 		virtual std::string GetName() const override { return m_szName; }
@@ -177,6 +182,7 @@ namespace Bat
 		std::string m_szName;
 		Microsoft::WRL::ComPtr<ID3D11InputLayout>	m_pInputLayout;
 		bool m_bUsesAttribute[(int)VertexAttribute::TotalAttributes];
+		std::vector<ShaderMacro> m_Macros;
 		std::atomic_bool m_bDirty = true;
 		Microsoft::WRL::ComPtr<ID3D11VertexShader> m_pShader;
 
@@ -248,8 +254,14 @@ namespace Bat
 		virtual void UnbindTextureSlot( size_t slot ) override;
 
 		virtual void UpdateBuffer( IVertexBuffer* pBuffer, const void* pData ) override;
+		virtual void* Lock( IVertexBuffer* pBuffer ) override;
+		virtual void Unlock( IVertexBuffer* pBuffer ) override;
 		virtual void UpdateBuffer( IIndexBuffer* pBuffer, const void* pData ) override;
+		virtual void* Lock( IIndexBuffer* pBuffer ) override;
+		virtual void Unlock( IIndexBuffer* pBuffer ) override;
 		virtual void UpdateBuffer( IConstantBuffer* pBuffer, const void* pData ) override;
+		virtual void* Lock( IConstantBuffer* pBuffer ) override;
+		virtual void Unlock( IConstantBuffer* pBuffer ) override;
 
 		// Gets currently bound pixel shader, or nullptr if none are bound
 		virtual IPixelShader* GetPixelShader() const override;
@@ -297,8 +309,8 @@ namespace Bat
 
 		virtual const DeviceInfo& GetDeviceInfo() const override;
 
-		virtual IPixelShader*    CreatePixelShader( const std::string& filename ) override;
-		virtual IVertexShader*   CreateVertexShader( const std::string& filename ) override;
+		virtual IPixelShader*    CreatePixelShader( const std::string& filename, const std::vector<ShaderMacro>& macros = {} ) override;
+		virtual IVertexShader*   CreateVertexShader( const std::string& filename, const std::vector<ShaderMacro>& macros = {} ) override;
 
 		virtual IVertexBuffer*   CreateVertexBuffer( const void* pData, size_t elem_size, size_t size ) override;
 		virtual IIndexBuffer*    CreateIndexBuffer( const void* pData, size_t elem_size, size_t size ) override;
@@ -377,6 +389,8 @@ namespace Bat
 
 		ID3D11Buffer* GetBuffer() const { return m_pVertexBuffer.Get(); }
 		void UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData );
+		void* Lock( ID3D11DeviceContext* pDeviceContext );
+		void Unlock( ID3D11DeviceContext* pDeviceContext );
 	private:
 		size_t m_iElemSize = 0;
 		size_t m_iSize = 0;
@@ -393,6 +407,8 @@ namespace Bat
 
 		ID3D11Buffer* GetBuffer() const { return m_pIndexBuffer.Get(); }
 		void UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData );
+		void* Lock( ID3D11DeviceContext* pDeviceContext );
+		void Unlock( ID3D11DeviceContext* pDeviceContext );
 	private:
 		size_t m_iElemSize = 0;
 		size_t m_iSize = 0;
@@ -408,6 +424,8 @@ namespace Bat
 
 		ID3D11Buffer* GetBuffer() const { return m_pConstantBuffer.Get(); }
 		void UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData );
+		void* Lock( ID3D11DeviceContext* pDeviceContext );
+		void Unlock( ID3D11DeviceContext* pDeviceContext );
 	private:
 		size_t m_iSize = 0;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> m_pConstantBuffer = nullptr;
@@ -860,14 +878,44 @@ namespace Bat
 		static_cast<D3DVertexBuffer*>( pBuffer )->UpdateBuffer( m_pDeviceContext.Get(), pData );
 	}
 
+	void* D3DGPUContext::Lock( IVertexBuffer* pBuffer )
+	{
+		return static_cast<D3DVertexBuffer*>(pBuffer)->Lock( m_pDeviceContext.Get() );
+	}
+
+	void D3DGPUContext::Unlock( IVertexBuffer* pBuffer )
+	{
+		static_cast<D3DVertexBuffer*>(pBuffer)->Unlock( m_pDeviceContext.Get() );
+	}
+
 	void D3DGPUContext::UpdateBuffer( IIndexBuffer* pBuffer, const void* pData )
 	{
 		static_cast<D3DIndexBuffer*>( pBuffer )->UpdateBuffer( m_pDeviceContext.Get(), pData );
 	}
 
+	void* D3DGPUContext::Lock( IIndexBuffer* pBuffer )
+	{
+		return static_cast<D3DIndexBuffer*>(pBuffer)->Lock( m_pDeviceContext.Get() );
+	}
+
+	void D3DGPUContext::Unlock( IIndexBuffer* pBuffer )
+	{
+		static_cast<D3DIndexBuffer*>(pBuffer)->Unlock( m_pDeviceContext.Get() );
+	}
+
 	void D3DGPUContext::UpdateBuffer( IConstantBuffer* pBuffer, const void* pData )
 	{
 		static_cast<D3DConstantBuffer*>( pBuffer )->UpdateBuffer( m_pDeviceContext.Get(), pData );
+	}
+
+	void* D3DGPUContext::Lock( IConstantBuffer* pBuffer )
+	{
+		return static_cast<D3DConstantBuffer*>(pBuffer)->Lock( m_pDeviceContext.Get() );
+	}
+
+	void D3DGPUContext::Unlock( IConstantBuffer* pBuffer )
+	{
+		static_cast<D3DConstantBuffer*>(pBuffer)->Unlock( m_pDeviceContext.Get() );
 	}
 
 	IPixelShader* D3DGPUContext::GetPixelShader() const
@@ -1348,14 +1396,14 @@ namespace Bat
 		return m_DeviceInfo;
 	}
 
-	IPixelShader* D3DGPUDevice::CreatePixelShader( const std::string& filename )
+	IPixelShader* D3DGPUDevice::CreatePixelShader( const std::string& filename, const std::vector<ShaderMacro>& macros )
 	{
-		return new D3DPixelShader( m_pDevice.Get(), filename );
+		return new D3DPixelShader( m_pDevice.Get(), filename, macros );
 	}
 
-	IVertexShader* D3DGPUDevice::CreateVertexShader( const std::string& filename )
+	IVertexShader* D3DGPUDevice::CreateVertexShader( const std::string& filename, const std::vector<ShaderMacro>& macros )
 	{
-		return new D3DVertexShader( m_pDevice.Get(), filename );
+		return new D3DVertexShader( m_pDevice.Get(), filename, macros );
 	}
 
 	IVertexBuffer* D3DGPUDevice::CreateVertexBuffer( const void* pData, size_t elem_size, size_t size )
@@ -1523,9 +1571,10 @@ namespace Bat
 		return new D3DGPUDevice( wnd, vsync_enabled, screen_depth, screen_near );
 	}
 
-	D3DPixelShader::D3DPixelShader( ID3D11Device* pDevice, const std::string& filename )
+	D3DPixelShader::D3DPixelShader( ID3D11Device* pDevice, const std::string& filename, const std::vector<ShaderMacro>& macros )
 		:
-		m_szName( filename )
+		m_szName( filename ),
+		m_Macros( macros )
 	{
 		LoadFromFile( pDevice, filename, true );
 
@@ -1566,6 +1615,13 @@ namespace Bat
 		// not compiled, lets compile ourselves
 		else
 		{
+			std::vector<D3D_SHADER_MACRO> macros;
+			for( const ShaderMacro& macro : m_Macros )
+			{
+				macros.push_back( { macro.name.c_str(), macro.value.c_str() } );
+			}
+			macros.push_back( { NULL, NULL } ); // Sentinel
+
 			HRESULT hr;
 			Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
 			Microsoft::WRL::ComPtr<ID3DBlob> pixelShaderBuffer;
@@ -1575,7 +1631,7 @@ namespace Bat
 			flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
 
-			if( FAILED( hr = D3DCompileFromFile( Bat::StringToWide( filename ).c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", flags, 0, &pixelShaderBuffer, &errorMessage ) ) )
+			if( FAILED( hr = D3DCompileFromFile( Bat::StringToWide( filename ).c_str(), macros.data(), D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", flags, 0, &pixelShaderBuffer, &errorMessage ) ) )
 			{
 				if( errorMessage )
 				{
@@ -1613,9 +1669,10 @@ namespace Bat
 		SetDirty( true );
 	}
 
-	D3DVertexShader::D3DVertexShader( ID3D11Device* pDevice, const std::string& filename )
+	D3DVertexShader::D3DVertexShader( ID3D11Device* pDevice, const std::string& filename, const std::vector<ShaderMacro>& macros )
 		:
-		m_szName( filename )
+		m_szName( filename ),
+		m_Macros( macros )
 	{
 		LoadFromFile( pDevice, filename, true );
 
@@ -1728,6 +1785,13 @@ namespace Bat
 		// not compiled, lets compile ourselves
 		else
 		{
+			std::vector<D3D_SHADER_MACRO> macros;
+			for( const ShaderMacro& macro : m_Macros )
+			{
+				macros.push_back( { macro.name.c_str(), macro.value.c_str() } );
+			}
+			macros.push_back( { NULL, NULL }  ); // Sentinel
+
 			HRESULT hr;
 			Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
 			Microsoft::WRL::ComPtr<ID3DBlob> vertexShaderBuffer;
@@ -1737,7 +1801,7 @@ namespace Bat
 			flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
 
-			if( FAILED( hr = D3DCompileFromFile( Bat::StringToWide( filename ).c_str(), NULL, NULL, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage ) ) )
+			if( FAILED( hr = D3DCompileFromFile( Bat::StringToWide( filename ).c_str(), macros.data(), D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage ) ) )
 			{
 				if( errorMessage )
 				{
@@ -1972,14 +2036,23 @@ namespace Bat
 	{
 		size_t pitch = m_iElemSize * m_iSize;
 
-		D3D11_MAPPED_SUBRESOURCE mapped;
-		COM_THROW_IF_FAILED( pDeviceContext->Map( m_pVertexBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped ) );
-
 		const char* pSrcBytes = reinterpret_cast<const char*>( pData );
-		char* pDstBytes = reinterpret_cast<char*>( mapped.pData );
+		char* pDstBytes = reinterpret_cast<char*>( Lock( pDeviceContext ) );
 
 		memcpy( pDstBytes, pSrcBytes, pitch );
 
+		Unlock( pDeviceContext );
+	}
+
+	void* D3DVertexBuffer::Lock( ID3D11DeviceContext* pDeviceContext )
+	{
+		D3D11_MAPPED_SUBRESOURCE mapped;
+		COM_THROW_IF_FAILED( pDeviceContext->Map( m_pVertexBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped ) );
+		return mapped.pData;
+	}
+
+	void D3DVertexBuffer::Unlock( ID3D11DeviceContext* pDeviceContext )
+	{
 		pDeviceContext->Unmap( m_pVertexBuffer.Get(), 0 );
 	}
 
@@ -2013,13 +2086,23 @@ namespace Bat
 	{
 		size_t pitch = m_iElemSize * m_iSize;
 
-		D3D11_MAPPED_SUBRESOURCE mapped;
-		COM_THROW_IF_FAILED( pDeviceContext->Map( m_pIndexBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped ) );
-
 		const char* pSrcBytes = reinterpret_cast<const char*>( pData );
-		char* pDstBytes = reinterpret_cast<char*>( mapped.pData );
+		char* pDstBytes = reinterpret_cast<char*>( Lock( pDeviceContext ) );
 
 		memcpy( pDstBytes, pSrcBytes, pitch );
+
+		Unlock( pDeviceContext );
+	}
+
+	void* D3DIndexBuffer::Lock( ID3D11DeviceContext* pDeviceContext )
+	{
+		D3D11_MAPPED_SUBRESOURCE mapped;
+		COM_THROW_IF_FAILED( pDeviceContext->Map( m_pIndexBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped ) );
+		return mapped.pData;
+	}
+
+	void D3DIndexBuffer::Unlock( ID3D11DeviceContext* pDeviceContext )
+	{
 		pDeviceContext->Unmap( m_pIndexBuffer.Get(), 0 );
 	}
 
@@ -2050,14 +2133,23 @@ namespace Bat
 
 	void D3DConstantBuffer::UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData )
 	{
+		const char* pSrcBytes = reinterpret_cast<const char*>( pData );
+		char* pDstBytes = reinterpret_cast<char*>( Lock( pDeviceContext ) );
+
+		memcpy( pDstBytes, pSrcBytes, m_iSize );
+
+		Unlock( pDeviceContext );
+	}
+
+	void* D3DConstantBuffer::Lock( ID3D11DeviceContext* pDeviceContext )
+	{
 		D3D11_MAPPED_SUBRESOURCE mapped;
 		COM_THROW_IF_FAILED( pDeviceContext->Map( m_pConstantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped ) );
+		return mapped.pData;
+	}
 
-		const char* pSrcBytes = reinterpret_cast<const char*>( pData );
-		char* pDstBytes = reinterpret_cast<char*>( mapped.pData );
-
-		memcpy( mapped.pData, pData, m_iSize );
-
+	void D3DConstantBuffer::Unlock( ID3D11DeviceContext* pDeviceContext )
+	{
 		pDeviceContext->Unmap( m_pConstantBuffer.Get(), 0 );
 	}
 

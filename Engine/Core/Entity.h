@@ -59,6 +59,8 @@ namespace Bat
 		const C& Get() const;
 		template <typename C>
 		bool Has() const;
+		template <typename C, typename... Args>
+		C& Ensure( Args&& ... args );
 
 		bool operator==( const Entity rhs ) { return id == rhs.id; }
 		bool operator!= (const Entity rhs ) const { return id != rhs.id; }
@@ -315,6 +317,16 @@ namespace Bat
 	inline bool Entity::Has() const
 	{
 		return manager->HasComponent<C>( *this );
+	}
+
+	template<typename C, typename... Args>
+	inline C& Entity::Ensure( Args&& ... args )
+	{
+		if( Has<C>() )
+		{
+			return Get<C>();
+		}
+		return Add<C>( std::forward<Args>( args )... );
 	}
 
 	using SceneNode = TreeNode<Entity>;

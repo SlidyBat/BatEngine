@@ -33,13 +33,6 @@ namespace Bat
 			AddRenderNode( "buffer2", NodeType::INPUT, NodeDataType::RENDER_TARGET ); // a frame buffer to use for the multiple blur passes
 			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TARGET );    // the output render texture (can re-use buffer2 if needed)
 
-			// initialize shaders
-			m_pTextureVS = ResourceManager::GetVertexShader( "Graphics/Shaders/TextureVS.hlsl" );
-			m_pBrightExtractPS = ResourceManager::GetPixelShader( "Graphics/Shaders/BrightExtractPS.hlsl" );
-			m_pGaussBlurPS = ResourceManager::GetPixelShader( "Graphics/Shaders/GaussBlurPS.hlsl" );
-
-			m_pBloomShader = ResourceManager::GetPixelShader( "Graphics/Shaders/BloomPS.hlsl" );
-
 			// initialize buffers
 			const std::vector<Vec4> positions = {
 				{ -1.0f, -1.0f, 1.0f, 1.0f },
@@ -68,6 +61,11 @@ namespace Bat
 
 		virtual void Execute( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data )
 		{
+			IVertexShader* pTextureVS = ResourceManager::GetVertexShader( "Graphics/Shaders/TextureVS.hlsl" );
+			IPixelShader* pBrightExtractPS = ResourceManager::GetPixelShader( "Graphics/Shaders/BrightExtractPS.hlsl" );
+			IPixelShader* pGaussBlurPS = ResourceManager::GetPixelShader( "Graphics/Shaders/GaussBlurPS.hlsl" );
+			IPixelShader* pBloomShader = ResourceManager::GetPixelShader( "Graphics/Shaders/BloomPS.hlsl" );
+
 			pContext->SetDepthStencilEnabled( false );
 			pContext->SetDepthStencil( nullptr );
 			pContext->SetBlendingEnabled( false );
@@ -94,7 +92,7 @@ namespace Bat
 			transform.viewproj = DirectX::XMMatrixIdentity();
 			transform.world = DirectX::XMMatrixIdentity();
 			m_cbufTransform.Update( pContext, transform );
-			pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, 0 );
+			pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, VS_CBUF_TRANSFORMS );
 
 			CB_ThresholdBuf threshold;
 			threshold.BrightThreshold = m_flThreshold;
@@ -105,15 +103,15 @@ namespace Bat
 			pContext->SetVertexBuffer( m_bufUV, 1 );
 			pContext->SetIndexBuffer( m_bufIndices );
 
-			pContext->SetVertexShader( m_pTextureVS.get() );
+			pContext->SetVertexShader( pTextureVS );
 
 			pContext->SetRenderTarget( rt1 );
-			pContext->SetPixelShader( m_pBrightExtractPS.get() );
+			pContext->SetPixelShader( pBrightExtractPS );
 			pContext->BindTexture( src, 0 );
 			pContext->DrawIndexed( m_bufIndices->GetIndexCount() );
 
 			CB_BlurSettings blur_settings;
-			pContext->SetPixelShader( m_pGaussBlurPS.get() );
+			pContext->SetPixelShader( pGaussBlurPS );
 			pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufBlurSettings, PS_CBUF_SLOT_0 );
 			for( int i = 0; i < m_iBlurPasses * 2; i++ )
 			{
@@ -147,7 +145,7 @@ namespace Bat
 
 			pContext->PopViewport();
 
-			pContext->SetPixelShader( m_pBloomShader.get() );
+			pContext->SetPixelShader( pBloomShader );
 			pContext->BindTexture( src, 0 );
 			pContext->BindTexture( rt1, 1 );
 			pContext->SetRenderTarget( dst );
@@ -160,11 +158,6 @@ namespace Bat
 	private:
 		int m_iBlurPasses = 5;
 		float m_flThreshold = 1.0f;
-
-		Resource<IVertexShader> m_pTextureVS;
-		Resource<IPixelShader> m_pBrightExtractPS;
-		Resource<IPixelShader> m_pGaussBlurPS;
-		Resource<IPixelShader> m_pBloomShader;
 
 		ConstantBuffer<CB_TexturePipelineMatrix> m_cbufTransform;
 		ConstantBuffer<CB_BlurSettings> m_cbufBlurSettings;

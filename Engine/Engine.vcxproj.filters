@@ -276,6 +276,9 @@
     <ClCompile Include="Physics\EntityTrace.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\MeshAnimation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -575,6 +578,9 @@
     <ClInclude Include="Physics\EntityTrace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\MeshAnimation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\mario.png">
@@ -637,5 +643,6 @@
     <None Include="Graphics\RenderNodeDataTypes.def">
       <Filter>Header Files\Graphics</Filter>
     </None>
+    <None Include="Graphics\Shaders\CommonVS.hlsli" />
   </ItemGroup>
 </Project>
