@@ -48,7 +48,7 @@ namespace Bat
 				MeshAnimator* animator = anim.GetAnimator();
 				if( animator != m_pCurrentAnimator )
 				{
-					m_pCurrentAnimator == animator;
+					m_pCurrentAnimator = animator;
 					animator->Bind( pContext );
 				}
 			}
