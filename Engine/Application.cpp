@@ -42,7 +42,7 @@ namespace Bat
 
 		scene.Set( world.CreateEntity() ); // Root entity;
 		animators.emplace_back();
-		size_t scene_index = scene.AddChild( loader.Load( "Assets/Ignore/Sponza/sponza.gltf", &animators.back() ) );
+		size_t scene_index = scene.AddChild( loader.Load( "Assets/Ignore/iclone/scene.gltf", &animators.back() ) );
 
 		flashlight = world.CreateEntity();
 		flashlight.Add<LightComponent>()
@@ -324,7 +324,7 @@ namespace Bat
 					{
 						animation_names.push_back( animator.GetAnimation( i ).name.c_str() );
 					}
-					ImGui::Combo( "Animation", &selected_anim, animation_names.data(), animator.GetNumAnimations() );
+					ImGui::Combo( "Animation", &selected_anim, animation_names.data(), (int)animator.GetNumAnimations() );
 					ImGui::SliderFloat( "Animation timestamp", &timestamp, 0.0f, animator.GetAnimation( selected_anim ).duration );
 					ImGui::SliderFloat( "Animation timescale", &anim_timescale, 1.0f, 100.0f );
 				}

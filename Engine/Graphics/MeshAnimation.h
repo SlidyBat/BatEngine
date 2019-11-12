@@ -61,14 +61,21 @@ namespace Bat
 	using PosKeyFrame = KeyFrame<Vec3>; // Value is position in bone space
 	using RotKeyFrame = KeyFrame<Vec4>; // Value is rotation in bone space as a quaternion
 
-	struct AnimationChannel
+	class AnimationChannel
 	{
+	public:
+		// Returns bone space transform of this bone in the pose at the given timestamp
+		DirectX::XMMATRIX GetSample( float timestamp ) const;
+	public:
 		std::vector<PosKeyFrame> position_keyframes;
 		std::vector<RotKeyFrame> rotation_keyframes;
 		int node_index;
-
-		// Returns bone space transform of this bone in the pose at the given timestamp
-		DirectX::XMMATRIX GetSample( float timestamp ) const;
+	private:
+		void ResetCache() const;
+	private:
+		mutable size_t last_pos_index = 0;
+		mutable size_t last_rot_index = 0;
+		mutable float last_timestamp = 0.0f;
 	};
 
 	struct MeshAnimation

@@ -8,18 +8,18 @@
 namespace Bat
 {
 	template <typename T>
-	static void GetPrevAndNextKeyFrames( const std::vector<KeyFrame<T>>& keyframes, float timestamp, const KeyFrame<T>** ppPrevKeyFrame, const KeyFrame<T>** ppNextKeyFrame )
+	static void GetPrevAndNextKeyFrames( const std::vector<KeyFrame<T>>& keyframes, float timestamp, size_t start_at, size_t* pPrevKeyFrame, size_t* pNextKeyFrame )
 	{
-		*ppPrevKeyFrame = &keyframes[0];
-		for( size_t i = 1; i < keyframes.size(); i++ )
+		*pPrevKeyFrame = start_at;
+		for( size_t i = start_at + 1; i < keyframes.size(); i++ )
 		{
-			*ppNextKeyFrame = &keyframes[i];
-			if( (*ppNextKeyFrame)->timestamp > timestamp )
+			*pNextKeyFrame = i;
+			if( keyframes[*pNextKeyFrame].timestamp > timestamp )
 			{
 				break;
 			}
 
-			*ppPrevKeyFrame = *ppNextKeyFrame;
+			*pPrevKeyFrame = *pNextKeyFrame;
 		}
 	}
 
@@ -30,7 +30,7 @@ namespace Bat
 		return next_key.value * pct + prev_key.value * (1 - pct);
 	}
 
-	static Vec3 GetPosKeyFrameAt( const std::vector<PosKeyFrame>& keyframes, float timestamp )
+	static Vec3 GetPosKeyFrameAt( const std::vector<PosKeyFrame>& keyframes, size_t* last_pos_index, float timestamp )
 	{
 		// No interpolation needed for only 1 keyframe
 		if( keyframes.size() == 1 )
@@ -48,10 +48,11 @@ namespace Bat
 			return keyframes.back().value;
 		}
 
-		const PosKeyFrame* pPrevKeyFrame;
-		const PosKeyFrame* pNextKeyFrame;
-		GetPrevAndNextKeyFrames( keyframes, timestamp, &pPrevKeyFrame, &pNextKeyFrame );
-		return InterpolatePosKeyFrames( *pPrevKeyFrame, *pNextKeyFrame, timestamp );
+		size_t prev_key_frame;
+		size_t next_key_frame;
+		GetPrevAndNextKeyFrames( keyframes, timestamp, *last_pos_index, &prev_key_frame, &next_key_frame );
+		*last_pos_index = prev_key_frame;
+		return InterpolatePosKeyFrames( keyframes[prev_key_frame], keyframes[next_key_frame], timestamp );
 	}
 
 	static Vec4 InterpolateRotKeyFrames( const RotKeyFrame& prev_key, const RotKeyFrame& next_key, float timestamp )
@@ -62,21 +63,28 @@ namespace Bat
 		return DirectX::XMQuaternionSlerp( prev_key.value, next_key.value, pct );
 	}
 
-	static Vec4 GetRotKeyFrameAt( const std::vector<RotKeyFrame>& keyframes, float timestamp )
+	static Vec4 GetRotKeyFrameAt( const std::vector<RotKeyFrame>& keyframes, size_t* last_rot_index, float timestamp )
 	{
 		if( keyframes.size() == 1 )
 		{
 			return keyframes[0].value;
 		}
 
-		const RotKeyFrame* pPrevKeyFrame;
-		const RotKeyFrame* pNextKeyFrame;
-		GetPrevAndNextKeyFrames( keyframes, timestamp, &pPrevKeyFrame, &pNextKeyFrame );
-		return InterpolateRotKeyFrames( *pPrevKeyFrame, *pNextKeyFrame, timestamp );
+		size_t prev_key_frame;
+		size_t next_key_frame;
+		GetPrevAndNextKeyFrames( keyframes, timestamp, *last_rot_index, &prev_key_frame, &next_key_frame );
+		*last_rot_index = prev_key_frame;
+		return InterpolateRotKeyFrames( keyframes[prev_key_frame], keyframes[next_key_frame], timestamp );
 	}
 
 	DirectX::XMMATRIX AnimationChannel::GetSample( float timestamp ) const
 	{
+		if( timestamp < last_timestamp )
+		{
+			ResetCache();
+		}
+		last_timestamp = timestamp;
+
 		// No channels case
 		if( position_keyframes.empty() || rotation_keyframes.empty() )
 		{
@@ -84,11 +92,17 @@ namespace Bat
 			return DirectX::XMMatrixIdentity();
 		}
 
-		Vec3 interp_pos = GetPosKeyFrameAt( position_keyframes, timestamp );
-		Vec4 interp_rot = GetRotKeyFrameAt( rotation_keyframes, timestamp );
+		Vec3 interp_pos = GetPosKeyFrameAt( position_keyframes, &last_pos_index, timestamp );
+		Vec4 interp_rot = GetRotKeyFrameAt( rotation_keyframes, &last_rot_index, timestamp );
 
 		return DirectX::XMMatrixRotationQuaternion( interp_rot ) *
 			DirectX::XMMatrixTranslation( interp_pos.x, interp_pos.y, interp_pos.z );
+	}
+
+	void AnimationChannel::ResetCache() const
+	{
+		last_pos_index = 0;
+		last_rot_index = 0;
 	}
 
 	std::vector<DirectX::XMMATRIX> MeshAnimation::GetSample( float timestamp, const std::vector<BoneNode>& original_skeleton ) const
