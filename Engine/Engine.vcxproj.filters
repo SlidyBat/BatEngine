@@ -1,647 +1,583 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{79abc410-ea40-4389-93d0-9c3d921e7e48}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    <Filter Include="Animation">
+      <UniqueIdentifier>{053bbf28-c81c-497e-9e6f-cec9aef4ed1e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{d152ac45-19a2-46eb-8d7e-03cb20ede7c0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shader Files">
-      <UniqueIdentifier>{38f55334-36c0-488f-82ed-5f1894645294}</UniqueIdentifier>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{8015cbea-14b1-447e-a8d4-e7504d159c1b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Graphics">
-      <UniqueIdentifier>{79afa719-08c5-41f7-ad92-a005230e270f}</UniqueIdentifier>
+    <Filter Include="ThirdParty\ImGui">
+      <UniqueIdentifier>{7a190a0c-324d-46ca-8551-9d4582022b8c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Util">
-      <UniqueIdentifier>{10b6ee96-8eff-46ff-a70a-632d8cf564ba}</UniqueIdentifier>
+    <Filter Include="ThirdParty">
+      <UniqueIdentifier>{855a4042-4e2b-45ef-8670-d64fd4650faa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Graphics">
-      <UniqueIdentifier>{0c704564-5c80-4352-a32b-c52bf76e2a11}</UniqueIdentifier>
+    <Filter Include="Graphics\UI">
+      <UniqueIdentifier>{f0c1d52e-0624-4d8a-a7c4-d0ad6c701209}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Graphics\Pipelines">
-      <UniqueIdentifier>{ddb3803c-2064-4e55-9290-d26a9c6a3fde}</UniqueIdentifier>
+    <Filter Include="Graphics\UI\UltralightAdapters">
+      <UniqueIdentifier>{4685e007-848f-4298-8e3e-2fac2cff7ae4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Graphics\Pipelines">
-      <UniqueIdentifier>{137f1696-2e44-46f0-8684-31bb145873e9}</UniqueIdentifier>
+    <Filter Include="Util">
+      <UniqueIdentifier>{ae0503e6-9d65-4e8f-bbbc-7b730962d26d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Util">
-      <UniqueIdentifier>{99207158-cc00-43a2-b92f-d2b7ca847215}</UniqueIdentifier>
+    <Filter Include="Core">
+      <UniqueIdentifier>{27b18ff1-68e1-4753-a422-90b4628f5fb8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Graphics\ImGui">
-      <UniqueIdentifier>{4efddcbd-3294-40d7-8427-3dc7f65f8556}</UniqueIdentifier>
+    <Filter Include="Networking">
+      <UniqueIdentifier>{b4931de0-63f9-4c9f-8eaa-fbed44741d09}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Graphics\ImGui">
-      <UniqueIdentifier>{a605465d-e279-415c-a58b-9ce1cebe2c9a}</UniqueIdentifier>
+    <Filter Include="Audio">
+      <UniqueIdentifier>{f650bb00-0fbe-43cd-9c66-c6fe53aafe61}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Events">
-      <UniqueIdentifier>{9876a579-3474-4cc2-9ae4-9c4caddde3b0}</UniqueIdentifier>
+    <Filter Include="Events">
+      <UniqueIdentifier>{c809dabc-0de1-4f76-8fe9-fb2e5ae7addd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Core">
-      <UniqueIdentifier>{38380624-98d4-4d15-be0e-c708c5c02b44}</UniqueIdentifier>
+    <Filter Include="Graphics\Passes">
+      <UniqueIdentifier>{f33b87cf-6171-4d35-9dc0-791726c18d93}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Platform">
-      <UniqueIdentifier>{b078a891-09d5-40c8-83ce-2a34c293fa79}</UniqueIdentifier>
+    <Filter Include="Graphics\Shaders">
+      <UniqueIdentifier>{a35fded9-4c1d-4bb6-a3e6-22653ae6abf5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Core">
-      <UniqueIdentifier>{fc22e846-0d64-4738-a996-bc20c980e2b9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Platform">
-      <UniqueIdentifier>{5204364d-15fb-4014-874c-33087edde30d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Graphics\UI">
-      <UniqueIdentifier>{d9c3b4ad-5e1e-48ce-840f-ac3f824019b0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Graphics\UI\ULAdapter">
-      <UniqueIdentifier>{2b35227f-14c3-413b-b52a-0be9ae15eefd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Graphics\UI">
-      <UniqueIdentifier>{ab1a4f6e-d2c5-4f55-abeb-a319be80bcf6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Graphics\UI\ULAdapter">
-      <UniqueIdentifier>{c9093607-7a2f-408f-a865-859422927fe8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Networking">
-      <UniqueIdentifier>{01d5e561-a03c-495a-a7f6-f1cebadcf1b5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Networking">
-      <UniqueIdentifier>{e448631e-5bda-4560-b870-ab223bbaa802}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Audio">
-      <UniqueIdentifier>{25959406-014d-40d9-93dd-ed41dd81338d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Graphics\Passes">
-      <UniqueIdentifier>{9c24934d-5295-4f26-977f-7b7afa62b490}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Audio">
-      <UniqueIdentifier>{242d89d1-68e2-429a-96a3-f57da96f1c9b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Physics">
-      <UniqueIdentifier>{4858747f-fbc6-4a2e-a5dc-1a133cbfffc8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Physics">
-      <UniqueIdentifier>{5921b60e-36ac-4e6c-ad1a-4cd4114258e3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Events">
-      <UniqueIdentifier>{a7dea087-ae73-4a86-a2f0-135255e2c793}</UniqueIdentifier>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{f50da01a-7cce-4b69-a8fd-e9e65a097917}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Camera.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Graphics.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Texture.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\TexturePipeline.cpp">
-      <Filter>Source Files\Graphics\Pipelines</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\ColourPipeline.cpp">
-      <Filter>Source Files\Graphics\Pipelines</Filter>
-    </ClCompile>
-    <ClCompile Include="Util\FrameTimer.cpp">
-      <Filter>Source Files\Util</Filter>
-    </ClCompile>
-    <ClCompile Include="ThirdParty\ImGui\imgui.cpp">
-      <Filter>Source Files\Graphics\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ThirdParty\ImGui\imgui_demo.cpp">
-      <Filter>Source Files\Graphics\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ThirdParty\ImGui\imgui_draw.cpp">
-      <Filter>Source Files\Graphics\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ThirdParty\ImGui\imgui_impl_dx11.cpp">
-      <Filter>Source Files\Graphics\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ThirdParty\ImGui\imgui_impl_win32.cpp">
-      <Filter>Source Files\Graphics\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ThirdParty\ImGui\imgui_widgets.cpp">
-      <Filter>Source Files\Graphics\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Util\MemoryStream.cpp">
-      <Filter>Source Files\Util</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\SkyboxPipeline.cpp">
-      <Filter>Source Files\Graphics\Pipelines</Filter>
-    </ClCompile>
-    <ClCompile Include="Util\StackAllocator.cpp">
-      <Filter>Source Files\Util</Filter>
-    </ClCompile>
-    <ClCompile Include="Util\JobSystem.cpp">
-      <Filter>Source Files\Util</Filter>
-    </ClCompile>
-    <ClCompile Include="PCH.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\SceneLoader.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Application.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Util\FileWatchdog.cpp">
-      <Filter>Source Files\Util</Filter>
-    </ClCompile>
-    <ClCompile Include="Util\Mutex.cpp">
-      <Filter>Source Files\Util</Filter>
-    </ClCompile>
-    <ClCompile Include="Util\StringLib.cpp">
-      <Filter>Source Files\Util</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Light.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Material.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Util\MathLib.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Mesh.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Model.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\UI\UltralightAdapters\GPUDriverD3D11.cpp">
-      <Filter>Source Files\Graphics\UI\ULAdapter</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\UI\UltralightAdapters\FileSystemBasic.cpp">
-      <Filter>Source Files\Graphics\UI\ULAdapter</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\UI\UltralightAdapters\FontLoaderWin.cpp">
-      <Filter>Source Files\Graphics\UI\ULAdapter</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\Entity.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Platform\COMInitialize.cpp">
-      <Filter>Source Files\Platform</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\Log.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Platform\Window.cpp">
-      <Filter>Source Files\Platform</Filter>
-    </ClCompile>
-    <ClCompile Include="Platform\GDIPManager.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Platform\Input.cpp">
-      <Filter>Source Files\Platform</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\ResourceManager.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\Globals.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Networking\Networking.cpp">
-      <Filter>Source Files\Networking</Filter>
-    </ClCompile>
-    <ClCompile Include="Util\TokenStream.cpp">
-      <Filter>Source Files\Util</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\Console.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\MoveableCamera.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\ShaderManager.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\RenderGraph.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\RenderData.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\IRenderPass.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Audio\Audio.cpp">
-      <Filter>Source Files\Audio</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\EngineSystems.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\D3DGPUDevice.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\RenderTarget.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Physics\Physics.cpp">
-      <Filter>Source Files\Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\LitGenericPipeline.cpp">
-      <Filter>Source Files\Graphics\Pipelines</Filter>
-    </ClCompile>
-    <ClCompile Include="Util\Frustum.cpp">
-      <Filter>Source Files\Util</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\UI\HtmlUI.cpp">
-      <Filter>Source Files\Graphics\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="Events\Event.cpp">
-      <Filter>Source Files\Events</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\GraphicsFormats.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\WICTextureLoader.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\DDSTextureLoader.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Physics\PhysicsComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Physics\EntityTrace.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Animation\MeshAnimation.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\EntityTrace.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\PhysicsComponent.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\DDSTextureLoader.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\IRenderPass.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RenderData.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RenderGraph.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ShaderManager.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Material.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Mesh.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Model.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Light.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\MoveableCamera.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RenderTarget.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Camera.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\D3DGPUDevice.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\SceneLoader.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\GDIPManager.cpp">
+      <Filter>Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Graphics.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Texture.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\WICTextureLoader.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\LitGenericPipeline.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\SkyboxPipeline.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ColourPipeline.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\TexturePipeline.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\ImGui\imgui.cpp">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\ImGui\imgui_demo.cpp">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\ImGui\imgui_draw.cpp">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\ImGui\imgui_impl_dx11.cpp">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\ImGui\imgui_impl_win32.cpp">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\ImGui\imgui_widgets.cpp">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\UI\HtmlUI.cpp">
+      <Filter>Graphics\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\UI\UltralightAdapters\FileSystemBasic.cpp">
+      <Filter>Graphics\UI\UltralightAdapters</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\UI\UltralightAdapters\FontLoaderWin.cpp">
+      <Filter>Graphics\UI\UltralightAdapters</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\UI\UltralightAdapters\GPUDriverD3D11.cpp">
+      <Filter>Graphics\UI\UltralightAdapters</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Frustum.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\TokenStream.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\FileWatchdog.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Mutex.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\JobSystem.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\StackAllocator.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\FrameTimer.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\MemoryStream.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\StringLib.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Console.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Entity.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\EngineSystems.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\ResourceManager.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Log.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Globals.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\MathLib.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\COMInitialize.cpp">
+      <Filter>Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\Input.cpp">
+      <Filter>Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\Window.cpp">
+      <Filter>Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Networking\Networking.cpp">
+      <Filter>Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\Audio.cpp">
+      <Filter>Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\Physics.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Events\Event.cpp">
+      <Filter>Events</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Camera.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Colour.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ConstantBuffer.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Graphics.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\IndexBuffer.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Texture.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\VertexBuffer.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\VertexTypes.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\IPipeline.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ColourPipeline.h">
-      <Filter>Header Files\Graphics\Pipelines</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\TexturePipeline.h">
-      <Filter>Header Files\Graphics\Pipelines</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\FrameTimer.h">
-      <Filter>Header Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\ImGui\imconfig.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\ImGui\imgui.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\ImGui\imgui_impl_dx11.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\ImGui\imgui_impl_win32.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\ImGui\imgui_internal.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\ImGui\imstb_rectpack.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\ImGui\imstb_textedit.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\ImGui\imstb_truetype.h">
-      <Filter>Header Files\Graphics\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Material.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Mesh.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Light.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\MemoryStream.h">
-      <Filter>Header Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\SkyboxPipeline.h">
-      <Filter>Header Files\Graphics\Pipelines</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\StackAllocator.h">
-      <Filter>Header Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Events\Event.h">
-      <Filter>Header Files\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="Events\WindowEvents.h">
-      <Filter>Header Files\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\JobSystem.h">
-      <Filter>Header Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="PCH.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\SceneLoader.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Model.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Application.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\PoolAllocator.h">
-      <Filter>Header Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Events\KeyboardEvents.h">
-      <Filter>Header Files\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\FileWatchdog.h">
-      <Filter>Header Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\Mutex.h">
-      <Filter>Header Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Entity.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Events\MouseEvents.h">
-      <Filter>Header Files\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\MathLib.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\StringLib.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\BatAssert.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\COMException.h">
-      <Filter>Header Files\Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\UI\UltralightAdapters\GPUDriverD3D11.h">
-      <Filter>Header Files\Graphics\UI\ULAdapter</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\UI\UltralightAdapters\PlatformD3D11.h">
-      <Filter>Header Files\Graphics\UI\ULAdapter</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\UI\UltralightAdapters\FileSystemBasic.h">
-      <Filter>Header Files\Graphics\UI\ULAdapter</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\UI\UltralightAdapters\FontLoaderWin.h">
-      <Filter>Header Files\Graphics\UI\ULAdapter</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Console.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Platform\BatWinAPI.h">
-      <Filter>Header Files\Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="Platform\COMInitialize.h">
-      <Filter>Header Files\Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Log.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Platform\Window.h">
-      <Filter>Header Files\Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="Platform\GDIPManager.h">
-      <Filter>Header Files\Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\TokenStream.h">
-      <Filter>Header Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\ChunkedAllocator.h">
-      <Filter>Header Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Platform\Input.h">
-      <Filter>Header Files\Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\ResourceManager.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Globals.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Networking\Networking.h">
-      <Filter>Header Files\Networking</Filter>
-    </ClInclude>
-    <ClInclude Include="Events\NetworkEvents.h">
-      <Filter>Header Files\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Common.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\ILayer.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\MoveableCamera.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Audio\Audio.h">
-      <Filter>Header Files\Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Passes\ClearRenderTargetPass.h">
-      <Filter>Header Files\Graphics\Passes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Passes\SkyboxPass.h">
-      <Filter>Header Files\Graphics\Passes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ShaderManager.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\RenderNode.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\RenderGraph.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\RenderData.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Passes\MotionBlurPass.h">
-      <Filter>Header Files\Graphics\Passes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Passes\BloomPass.h">
-      <Filter>Header Files\Graphics\Passes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\IRenderPass.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\StateMachine.h">
-      <Filter>Header Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\ByteSwap.h">
-      <Filter>Header Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics\Physics.h">
-      <Filter>Header Files\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\EngineSystems.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\D3DGPUDevice.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\RenderTarget.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\IGPUDevice.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\GraphicsFormats.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\LitGenericPipeline.h">
-      <Filter>Header Files\Graphics\Pipelines</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ShaderBuffers.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\Frustum.h">
-      <Filter>Header Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Passes\DrawLightsPass.h">
-      <Filter>Header Files\Graphics\Passes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\UI\HtmlUI.h">
-      <Filter>Header Files\Graphics\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\Tree.h">
-      <Filter>Header Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\CoreEntityComponents.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
     <ClInclude Include="Events\PhysicsEvents.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Passes\OpaquePass.h">
-      <Filter>Header Files\Graphics\Passes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\WICTextureLoader.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Passes\TransparentPass.h">
-      <Filter>Header Files\Graphics\Passes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Passes\SceneRenderPass.h">
-      <Filter>Header Files\Graphics\Passes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\DDSTextureLoader.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics\PhysicsComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Events\EntityEvents.h">
-      <Filter>Header Files\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics\PhysicsSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics\EntityTrace.h">
-      <Filter>Header Files</Filter>
+      <Filter>Events</Filter>
     </ClInclude>
     <ClInclude Include="Animation\MeshAnimation.h">
-      <Filter>Header Files</Filter>
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\EntityTrace.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\PhysicsComponent.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\PhysicsSystem.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\DDSTextureLoader.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\IGPUDevice.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\IRenderPass.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RenderData.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RenderGraph.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RenderNode.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ShaderManager.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GraphicsFormats.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ShaderBuffers.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Light.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Material.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\MoveableCamera.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RenderTarget.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Camera.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Colour.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Mesh.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\SceneLoader.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ConstantBuffer.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\D3DGPUDevice.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Graphics.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\IndexBuffer.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\IPipeline.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Model.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Texture.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\VertexTypes.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\VertexBuffer.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\WICTextureLoader.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\LitGenericPipeline.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\SkyboxPipeline.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ColourPipeline.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\TexturePipeline.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\ImGui\imconfig.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\ImGui\imgui.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\ImGui\imgui_impl_dx11.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\ImGui\imgui_impl_win32.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\ImGui\imgui_internal.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\ImGui\imstb_rectpack.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\ImGui\imstb_textedit.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\ImGui\imstb_truetype.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\UI\HtmlUI.h">
+      <Filter>Graphics\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\UI\UltralightAdapters\FileSystemBasic.h">
+      <Filter>Graphics\UI\UltralightAdapters</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\UI\UltralightAdapters\FontLoaderWin.h">
+      <Filter>Graphics\UI\UltralightAdapters</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\UI\UltralightAdapters\GPUDriverD3D11.h">
+      <Filter>Graphics\UI\UltralightAdapters</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\UI\UltralightAdapters\PlatformD3D11.h">
+      <Filter>Graphics\UI\UltralightAdapters</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Passes\SceneRenderPass.h">
+      <Filter>Graphics\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Passes\TransparentPass.h">
+      <Filter>Graphics\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Passes\DrawLightsPass.h">
+      <Filter>Graphics\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Passes\OpaquePass.h">
+      <Filter>Graphics\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Passes\BloomPass.h">
+      <Filter>Graphics\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Passes\ClearRenderTargetPass.h">
+      <Filter>Graphics\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Passes\MotionBlurPass.h">
+      <Filter>Graphics\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Passes\SkyboxPass.h">
+      <Filter>Graphics\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Tree.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Frustum.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\ByteSwap.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\ChunkedAllocator.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\StateMachine.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\TokenStream.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\FileWatchdog.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Mutex.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\JobSystem.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\PoolAllocator.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\StackAllocator.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\FrameTimer.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\MemoryStream.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Events\EntityEvents.h">
+      <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="Events\NetworkEvents.h">
+      <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="Events\MouseEvents.h">
+      <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="Events\Event.h">
+      <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="Events\KeyboardEvents.h">
+      <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="Events\WindowEvents.h">
+      <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\CoreEntityComponents.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\EngineSystems.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Console.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Entity.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\BatAssert.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Common.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\ResourceManager.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Log.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\StringLib.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Globals.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\ILayer.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\MathLib.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\COMInitialize.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\COMException.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\GDIPManager.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\Input.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\BatWinAPI.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\Window.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Networking\Networking.h">
+      <Filter>Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\Audio.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\Physics.h">
+      <Filter>Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Graphics\RenderNodeDataTypes.def">
+      <Filter>Graphics</Filter>
+    </None>
+    <None Include="Graphics\Shaders\CommonPS.hlsli">
+      <Filter>Graphics\Shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
     <Image Include="Assets\mario.png">
-      <Filter>Resource Files</Filter>
+      <Filter>Assets</Filter>
     </Image>
     <Image Include="Assets\slidy.ico">
-      <Filter>Resource Files</Filter>
+      <Filter>Assets</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Engine.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Graphics\Shaders\PostProcessPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Graphics\Shaders\SkyboxPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Graphics\Shaders\SkyboxVS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Graphics\Shaders\BrightExtractPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
     <FxCompile Include="Graphics\Shaders\BloomPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Graphics\Shaders\MotionBlurPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Graphics\Shaders\LitGenericVS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Graphics\Shaders\LitGenericPS.hlsl">
-      <Filter>Shader Files</Filter>
+      <Filter>Graphics\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\ColourPS.hlsl">
-      <Filter>Shader Files</Filter>
+      <Filter>Graphics\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\ColourVS.hlsl">
-      <Filter>Shader Files</Filter>
+      <Filter>Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\BrightExtractPS.hlsl">
+      <Filter>Graphics\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\GaussBlurPS.hlsl">
-      <Filter>Shader Files</Filter>
+      <Filter>Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\LitGenericPS.hlsl">
+      <Filter>Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\LitGenericVS.hlsl">
+      <Filter>Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\MotionBlurPS.hlsl">
+      <Filter>Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\PostProcessPS.hlsl">
+      <Filter>Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\SkyboxPS.hlsl">
+      <Filter>Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\SkyboxVS.hlsl">
+      <Filter>Graphics\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\TexturePS.hlsl">
-      <Filter>Shader Files</Filter>
+      <Filter>Graphics\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\TextureVS.hlsl">
-      <Filter>Shader Files</Filter>
+      <Filter>Graphics\Shaders</Filter>
     </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Graphics\Shaders\CommonPS.hlsli">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Graphics\RenderNodeDataTypes.def">
-      <Filter>Header Files\Graphics</Filter>
-    </None>
   </ItemGroup>
 </Project>
