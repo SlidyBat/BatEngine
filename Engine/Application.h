@@ -36,6 +36,7 @@ namespace Bat
 	public:
 		bool bloom_enabled = true;
 		bool motion_blur_enabled = false;
+		bool tonemapping_enabled = true;
 	private:
 		Graphics& gfx;
 		Window& wnd;

@@ -22,6 +22,7 @@
 #include "Passes/ClearRenderTargetPass.h"
 #include "Passes/SkyboxPass.h"
 #include "Passes/BloomPass.h"
+#include "Passes/ToneMappingPass.h"
 #include "Passes/MotionBlurPass.h"
 #include "Passes/OpaquePass.h"
 #include "Passes/TransparentPass.h"
@@ -42,7 +43,7 @@ namespace Bat
 
 		scene.Set( world.CreateEntity() ); // Root entity;
 		animators.emplace_back();
-		size_t scene_index = scene.AddChild( loader.Load( "Assets/Ignore/iclone/scene.gltf", &animators.back() ) );
+		size_t scene_index = scene.AddChild( loader.Load( "Assets/Ignore/Sponza/sponza.gltf", &animators.back() ) );
 
 		flashlight = world.CreateEntity();
 		flashlight.Add<LightComponent>()
@@ -454,12 +455,15 @@ namespace Bat
 		int post_process_count = 0;
 		if( bloom_enabled ) post_process_count++;
 		if( motion_blur_enabled ) post_process_count++;
+		if( tonemapping_enabled ) post_process_count++;
 
 		// initialize resources
 		// render texture to draw scene to
 		if( post_process_count )
 		{
 			rendergraph.AddRenderTargetResource( "target",
+				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
+			rendergraph.AddRenderTargetResource( "target2",
 				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
 
 			// render texture 1 for bloom
@@ -503,13 +507,14 @@ namespace Bat
 		else
 		{
 			rendergraph.BindToResource( "skybox.dst", "target" );
+			std::string input_rt = "target";
 
 			if( bloom_enabled )
 			{
 				post_process_count--;
 
 				rendergraph.AddPass( "bloom", std::make_unique<BloomPass>() );
-				rendergraph.BindToResource( "bloom.src", "target" );
+				rendergraph.BindToResource( "bloom.src", input_rt );
 				rendergraph.BindToResource( "bloom.buffer1", "rt1" );
 				rendergraph.BindToResource( "bloom.buffer2", "rt2" );
 				if( !post_process_count )
@@ -518,8 +523,10 @@ namespace Bat
 				}
 				else
 				{
-					rendergraph.BindToResource( "bloom.dst", "rt2" );
+					rendergraph.BindToResource( "bloom.dst", "target2" );
 				}
+
+				input_rt = "target2";
 			}
 
 			if( motion_blur_enabled )
@@ -527,7 +534,7 @@ namespace Bat
 				post_process_count--;
 
 				rendergraph.AddPass( "motionblur", std::make_unique<MotionBlurPass>() );
-				rendergraph.BindToResource( "motionblur.src", bloom_enabled ? "rt2" : "target" );
+				rendergraph.BindToResource( "motionblur.src", input_rt );
 				rendergraph.BindToResource( "motionblur.depth", "depth" );
 				if( !post_process_count )
 				{
@@ -537,6 +544,18 @@ namespace Bat
 				{
 					rendergraph.BindToResource( "motionblur.dst", "target" );
 				}
+
+				input_rt = "target";
+			}
+
+			if( tonemapping_enabled )
+			{
+				post_process_count--;
+
+				rendergraph.AddPass( "tonemapping", std::make_unique<ToneMappingPass>() );
+				rendergraph.BindToResource( "tonemapping.src", input_rt );
+
+				rendergraph.MarkOutput( "tonemapping.dst" );
 			}
 		}
 	}

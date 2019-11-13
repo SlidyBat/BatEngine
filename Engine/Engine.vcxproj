@@ -360,6 +360,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Events\PhysicsEvents.h" />
     <ClInclude Include="Animation\MeshAnimation.h" />
     <ClInclude Include="Graphics\Passes\SceneRenderPass.h" />
+    <ClInclude Include="Graphics\Passes\ToneMappingPass.h" />
     <ClInclude Include="Graphics\Passes\TransparentPass.h" />
     <ClInclude Include="Physics\EntityTrace.h" />
     <ClInclude Include="Physics\PhysicsComponent.h" />
@@ -638,6 +639,16 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\ToneMappingPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
   </ItemGroup>
