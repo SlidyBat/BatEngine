@@ -248,7 +248,8 @@ namespace Bat
 			}
 			if( e.Has<LightComponent>() )
 			{
-				ImGui::Text( "Light" );
+				auto& light = e.Get<LightComponent>();
+				light.DoImGuiMenu();
 			}
 			if( e.Has<PhysicsComponent>() )
 			{
