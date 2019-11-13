@@ -228,6 +228,9 @@
     <ClCompile Include="Events\Event.cpp">
       <Filter>Events</Filter>
     </ClCompile>
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="PCH.cpp" />
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Events\PhysicsEvents.h">
@@ -521,6 +524,10 @@
     <ClInclude Include="Physics\Physics.h">
       <Filter>Physics</Filter>
     </ClInclude>
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="PCH.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="Graphics\Passes\ToneMappingPass.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\RenderNodeDataTypes.def">
@@ -530,7 +537,9 @@
       <Filter>Graphics\Shaders</Filter>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ResourceCompile Include="Engine.rc" />
+  </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\mario.png">
       <Filter>Assets</Filter>
@@ -579,5 +588,6 @@
     <FxCompile Include="Graphics\Shaders\TextureVS.hlsl">
       <Filter>Graphics\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Graphics\Shaders\ToneMappingPS.hlsl" />
   </ItemGroup>
 </Project>
