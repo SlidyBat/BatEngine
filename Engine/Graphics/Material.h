@@ -47,6 +47,11 @@ namespace Bat
 				return true;
 			}
 
+			if( !m_pDiffuse )
+			{
+				return false;
+			}
+
 			return m_pDiffuse->Get()->IsTranslucent();
 		}
 	private:

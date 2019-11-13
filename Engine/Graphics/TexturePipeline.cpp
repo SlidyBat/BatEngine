@@ -4,36 +4,26 @@
 #include "VertexTypes.h"
 #include "COMException.h"
 #include "Material.h"
+#include "ShaderManager.h"
+#include "Camera.h"
 
 namespace Bat
 {
-	TexturePipeline::TexturePipeline( const std::string& vs_filename, const std::string& ps_filename )
-		:
-		IPipeline( vs_filename, ps_filename )
-	{}
-
-	void TexturePipeline::BindParameters( IGPUContext* pContext, IPipelineParameters& pParameters )
+	void TexturePipeline::Render( IGPUContext* pContext, const Mesh& mesh, const Camera& camera, ITexture* pTexture, const DirectX::XMMATRIX& world_transform )
 	{
-		auto params = static_cast<TexturePipelineParameters&>(pParameters);
+		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/TextureVS.hlsl" );
+		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/TexturePS.hlsl" );
 
 		CB_TexturePipelineMatrix transform;
-		transform.world = params.transform.world;
-		transform.viewproj = params.transform.viewproj;
-		m_cbufTransform.Update( pContext, transform );
-		pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, 0 );
+		transform.world = world_transform;
+		transform.viewproj = camera.GetViewMatrix() * camera.GetProjectionMatrix();
 
-		pContext->SetVertexShader( m_pVertexShader.get() );
-		pContext->SetPixelShader( m_pPixelShader.get() );
-		pContext->BindTexture( params.texture, 0 );
-	}
+		pContext->SetVertexShader( pVertexShader );
+		pContext->SetPixelShader( pPixelShader );
+		pContext->BindTexture( pTexture, 0 );
 
-	void TexturePipeline::Render( IGPUContext* pContext, size_t vertexcount )
-	{
-		pContext->Draw( vertexcount );
-	}
+		mesh.Bind( pContext, pVertexShader );
 
-	void TexturePipeline::RenderIndexed( IGPUContext* pContext, size_t indexcount )
-	{
-		pContext->DrawIndexed( indexcount );
+		pContext->DrawIndexed( mesh.GetIndexCount() );
 	}
 }

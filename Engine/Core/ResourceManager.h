@@ -9,6 +9,7 @@ namespace Bat
 	class Mesh;
 	class IVertexShader;
 	class IPixelShader;
+	struct ShaderMacro;
 
 	template <typename T>
 	using Resource = std::shared_ptr<T>;
@@ -16,9 +17,9 @@ namespace Bat
 	class ResourceManager
 	{
 	public:
-		static Resource<Texture>        GetTexture( const std::string& filename );
-		static Resource<IVertexShader>   GetVertexShader( const std::string& filename );
-		static Resource<IPixelShader>    GetPixelShader( const std::string& filename );
+		static Resource<Texture> GetTexture( const std::string& filename );
+		static IVertexShader*    GetVertexShader( const std::string& filename, const std::vector<ShaderMacro>& macros = {} );
+		static IPixelShader*     GetPixelShader( const std::string& filename, const std::vector<ShaderMacro>& macros = {} );
 
 		static void CleanUp();
 	};

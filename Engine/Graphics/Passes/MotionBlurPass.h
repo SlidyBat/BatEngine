@@ -25,10 +25,6 @@ namespace Bat
 			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TARGET ); // the output render texture
 			AddRenderNode( "depth", NodeType::INPUT, NodeDataType::DEPTH_STENCIL );       // depth buffer
 
-			// initialize shaders
-			m_pTextureVS = ResourceManager::GetVertexShader( "Graphics/Shaders/TextureVS.hlsl" );
-			m_pMotionBlurPS = ResourceManager::GetPixelShader( "Graphics/Shaders/MotionBlurPS.hlsl" );
-
 			// initialize buffers
 			const float left   = -Graphics::InitialScreenWidth / 2.0f;
 			const float right  =  Graphics::InitialScreenWidth / 2.0f;
@@ -60,6 +56,9 @@ namespace Bat
 
 		virtual void Execute( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data )
 		{
+			IVertexShader* pTextureVS = ResourceManager::GetVertexShader( "Graphics/Shaders/TextureVS.hlsl" );
+			IPixelShader* pMotionBlurPS = ResourceManager::GetPixelShader( "Graphics/Shaders/MotionBlurPS.hlsl" );
+
 			pContext->SetDepthStencilEnabled( false );
 			pContext->SetBlendingEnabled( false );
 
@@ -76,7 +75,7 @@ namespace Bat
 			transform.viewproj = DirectX::XMMatrixOrthographicLH( (float)width, (float)height, Graphics::ScreenNear, Graphics::ScreenFar );
 			transform.world = DirectX::XMMatrixIdentity();
 			m_cbufTransform.Update( pContext, transform );
-			pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, 0 );
+			pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, VS_CBUF_TRANSFORMS );
 
 			CB_Globals ps_globals;
 			DirectX::XMMATRIX viewproj = camera.GetViewMatrix() * camera.GetProjectionMatrix();
@@ -89,8 +88,8 @@ namespace Bat
 			pContext->SetVertexBuffer( m_bufUV, 1 );
 			pContext->SetIndexBuffer( m_bufIndices );
 
-			pContext->SetVertexShader( m_pTextureVS.get() );
-			pContext->SetPixelShader( m_pMotionBlurPS.get() );
+			pContext->SetVertexShader( pTextureVS );
+			pContext->SetPixelShader( pMotionBlurPS );
 
 			pContext->SetRenderTarget( dst );
 			pContext->BindTexture( src, 0 );
@@ -106,9 +105,6 @@ namespace Bat
 		}
 	private:
 		DirectX::XMMATRIX m_matPrevViewProj = DirectX::XMMatrixIdentity();
-
-		Resource<IVertexShader> m_pTextureVS;
-		Resource<IPixelShader> m_pMotionBlurPS;
 
 		VertexBuffer<Vec4> m_bufPosition;
 		VertexBuffer<Vec2> m_bufUV;

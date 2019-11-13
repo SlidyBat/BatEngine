@@ -23,6 +23,8 @@ namespace Bat
 	private:
 		virtual void PreRender( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data ) override
 		{
+			m_pCurrentAnimator = nullptr;
+
 			IRenderTarget* target = data.GetRenderTarget( "dst" );
 			pContext->SetRenderTarget( target );
 
@@ -40,12 +42,22 @@ namespace Bat
 
 			Entity e = node.Get();
 
+			if( e.Has<AnimationComponent>() )
+			{
+				auto& anim = e.Get<AnimationComponent>();
+				MeshAnimator* animator = anim.GetAnimator();
+				if( animator != m_pCurrentAnimator )
+				{
+					m_pCurrentAnimator = animator;
+					animator->Bind( pContext );
+				}
+			}
 			if( e.Has<ModelComponent>() )
 			{
+				auto& name = e.Get<NameComponent>().name;
 				auto& model = e.Get<ModelComponent>();
 
 				DirectX::XMMATRIX w = transform;
-				DirectX::XMMATRIX vp = pCamera->GetViewMatrix() * pCamera->GetProjectionMatrix();
 
 				auto& meshes = model.GetMeshes();
 				for( auto& pMesh : meshes )
@@ -60,14 +72,12 @@ namespace Bat
 						continue;
 					}
 
-					auto pPipeline = static_cast<LitGenericPipeline*>(ShaderManager::GetPipeline( "litgeneric" ));
-
-					LitGenericPipelineParameters params( w, vp, pMesh->GetMaterial(), light_list.entities, light_list.transforms);
-					pMesh->Bind( pContext, pPipeline );
-					pPipeline->BindParameters( pContext, params );
-					pPipeline->RenderIndexed( pContext, pMesh->GetIndexCount() );
+					auto pPipeline = ShaderManager::GetPipeline<LitGenericPipeline>();
+					pPipeline->Render( pContext, *pMesh, *pCamera, w, light_list.entities, light_list.transforms );
 				}
 			}
 		}
+	private:
+		MeshAnimator* m_pCurrentAnimator = nullptr;
 	};
 }

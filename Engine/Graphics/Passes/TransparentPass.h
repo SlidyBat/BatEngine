@@ -87,15 +87,11 @@ namespace Bat
 
 			// Render the sorted meshes
 			LightList light_list = SceneRenderPass::GetLights();
-			DirectX::XMMATRIX vp = camera.GetViewMatrix() * camera.GetProjectionMatrix();
-			auto pPipeline = static_cast<LitGenericPipeline*>(ShaderManager::GetPipeline( "litgeneric" ));
+			auto pPipeline = ShaderManager::GetPipeline<LitGenericPipeline>();
 
 			for( const TranslucentMesh& translucent_mesh : m_TranslucentMeshes )
 			{
-				LitGenericPipelineParameters params( translucent_mesh.world_transform, vp, translucent_mesh.mesh->GetMaterial(), light_list.entities, light_list.transforms );
-				translucent_mesh.mesh->Bind( pContext, pPipeline );
-				pPipeline->BindParameters( pContext, params );
-				pPipeline->RenderIndexed( pContext, translucent_mesh.mesh->GetIndexCount() );
+				pPipeline->Render( pContext, *translucent_mesh.mesh, camera, translucent_mesh.world_transform, light_list.entities, light_list.transforms );
 			}
 		}
 	private:

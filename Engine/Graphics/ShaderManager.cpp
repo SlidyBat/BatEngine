@@ -2,13 +2,12 @@
 #include "ShaderManager.h"
 
 #include "Globals.h"
-#include "Camera.h"
 
 #include "ConstantBuffer.h"
 
 namespace Bat
 {
-	static std::unordered_map<std::string, std::unique_ptr<IPipeline>> g_mapPipelines;
+	std::unordered_map<std::type_index, std::unique_ptr<IPipeline>> ShaderManager::m_mapPipelines;
 
 	struct PSGlobals
 	{
@@ -53,6 +52,12 @@ namespace Bat
 			sampler_desc.address_w = TextureAddressMode::CLAMP;
 			samplers.emplace_back( gpu->CreateSampler( sampler_desc ) );
 
+			// mirror sampler
+			sampler_desc.address_u = TextureAddressMode::MIRROR;
+			sampler_desc.address_v = TextureAddressMode::MIRROR;
+			sampler_desc.address_w = TextureAddressMode::MIRROR;
+			samplers.emplace_back( gpu->CreateSampler( sampler_desc ) );
+
 			initialized = true;
 		}
 
@@ -68,22 +73,6 @@ namespace Bat
 		g.deltatime = g_pGlobals->deltatime;
 		g.camera_pos = pCamera ? pCamera->GetPosition() : Vec3{ 0.0f, 0.0f, 0.0f };
 		cb_globals.Update( pContext, g );
-		pContext->SetConstantBuffer( ShaderType::PIXEL, cb_globals, 0 );
-	}
-
-	IPipeline* ShaderManager::GetPipeline( const std::string& name )
-	{
-		auto it = g_mapPipelines.find( name );
-		if( it == g_mapPipelines.end() )
-		{
-			return nullptr;
-		}
-
-		return it->second.get();
-	}
-
-	void ShaderManager::AddPipeline( const std::string& name, std::unique_ptr<IPipeline> pPipeline )
-	{
-		g_mapPipelines[name] = std::move( pPipeline );
+		pContext->SetConstantBuffer( ShaderType::PIXEL, cb_globals, PS_CBUF_GLOBALS );
 	}
 }

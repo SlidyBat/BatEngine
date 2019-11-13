@@ -13,42 +13,52 @@ namespace Bat
 		SetData( params );
 	}
 
-	void Mesh::Bind( IGPUContext* pContext, IPipeline* pPipeline ) const
+	void Mesh::Bind( IGPUContext* pContext, IVertexShader* pVertexShader ) const
 	{
 		// TODO: support other primitives?
 		pContext->SetPrimitiveTopology( PrimitiveTopology::TRIANGLELIST );
 
 		size_t slot = 0;
 
-		if( pPipeline->RequiresVertexAttribute( VertexAttribute::Position ) )
+		if( pVertexShader->RequiresVertexAttribute( VertexAttribute::Position ) )
 		{
 			ASSERT( m_bufPosition->GetVertexCount() > 0, "Shader requires model to have vertex position data" );
 			pContext->SetVertexBuffer( m_bufPosition, slot++ );
 		}
-		if( pPipeline->RequiresVertexAttribute( VertexAttribute::Colour ) )
+		if( pVertexShader->RequiresVertexAttribute( VertexAttribute::Colour ) )
 		{
 			ASSERT( m_bufColour->GetVertexCount() > 0, "Shader requires model to have vertex colour data" );
 			pContext->SetVertexBuffer( m_bufColour, slot++ );
 		}
-		if( pPipeline->RequiresVertexAttribute( VertexAttribute::Normal ) )
+		if( pVertexShader->RequiresVertexAttribute( VertexAttribute::Normal ) )
 		{
 			ASSERT( m_bufNormal->GetVertexCount() > 0, "Shader requires model to have vertex normal data" );
 			pContext->SetVertexBuffer( m_bufNormal, slot++ );
 		}
-		if( pPipeline->RequiresVertexAttribute( VertexAttribute::UV ) )
+		if( pVertexShader->RequiresVertexAttribute( VertexAttribute::UV ) )
 		{
 			ASSERT( m_bufUV->GetVertexCount() > 0, "Shader requires model to have vertex UV data" );
 			pContext->SetVertexBuffer( m_bufUV, slot++ );
 		}
-		if( pPipeline->RequiresVertexAttribute( VertexAttribute::Tangent ) )
+		if( pVertexShader->RequiresVertexAttribute( VertexAttribute::Tangent ) )
 		{
 			ASSERT( m_bufTangent->GetVertexCount() > 0, "Shader requires model to have vertex tangent data" );
 			pContext->SetVertexBuffer( m_bufTangent, slot++ );
 		}
-		if( pPipeline->RequiresVertexAttribute( VertexAttribute::Bitangent ) )
+		if( pVertexShader->RequiresVertexAttribute( VertexAttribute::Bitangent ) )
 		{
 			ASSERT( m_bufBitangent->GetVertexCount() > 0, "Shader requires model to have vertex bitangent data" );
 			pContext->SetVertexBuffer( m_bufBitangent, slot++ );
+		}
+		if( pVertexShader->RequiresVertexAttribute( VertexAttribute::BoneId ) )
+		{
+			ASSERT( m_bufBoneIds->GetVertexCount() > 0, "Shader requires model to have bone id data" );
+			pContext->SetVertexBuffer( m_bufBoneIds, slot++ );
+		}
+		if( pVertexShader->RequiresVertexAttribute( VertexAttribute::BoneWeight ) )
+		{
+			ASSERT( m_bufBoneWeights->GetVertexCount() > 0, "Shader requires model to have bone weight data" );
+			pContext->SetVertexBuffer( m_bufBoneWeights, slot++ );
 		}
 
 		pContext->SetIndexBuffer( m_bufIndices );
@@ -96,6 +106,14 @@ namespace Bat
 		{
 			m_bufBitangent.Reset( params.bitangent );
 		}
+		if( !params.bone_ids.empty() )
+		{
+			m_bufBoneIds.Reset( params.bone_ids );
+		}
+		if( !params.bone_weights.empty() )
+		{
+			m_bufBoneWeights.Reset( params.bone_weights );
+		}
 	}
 
 	void Mesh::SetIndices( const std::vector<unsigned int>& indices )
@@ -105,6 +123,11 @@ namespace Bat
 	}
 
 	Material& Mesh::GetMaterial()
+	{
+		return m_Material;
+	}
+
+	const Material& Mesh::GetMaterial() const
 	{
 		return m_Material;
 	}

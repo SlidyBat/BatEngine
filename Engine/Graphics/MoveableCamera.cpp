@@ -40,19 +40,19 @@ namespace Bat
 
 		if( m_Input.IsKeyDown( VK_UP ) )
 		{
-			RotateBy( -m_fAngularSpeed * deltatime, 0.0f, 0.0f );
+			RotateBy( -m_fAngularSpeed, 0.0f, 0.0f );
 		}
 		if( m_Input.IsKeyDown( VK_DOWN ) )
 		{
-			RotateBy( m_fAngularSpeed * deltatime, 0.0f, 0.0f );
+			RotateBy( m_fAngularSpeed, 0.0f, 0.0f );
 		}
 		if( m_Input.IsKeyDown( VK_LEFT ) )
 		{
-			RotateBy( 0.0f, -m_fAngularSpeed * deltatime, 0.0f );
+			RotateBy( 0.0f, -m_fAngularSpeed, 0.0f );
 		}
 		if( m_Input.IsKeyDown( VK_RIGHT ) )
 		{
-			RotateBy( 0.0f, m_fAngularSpeed * deltatime, 0.0f );
+			RotateBy( 0.0f, m_fAngularSpeed, 0.0f );
 		}
 
 		if( m_Input.IsKeyDown( VK_SPACE ) )

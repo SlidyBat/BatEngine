@@ -8,37 +8,21 @@
 
 namespace Bat
 {
-	struct LitGenericPipelineParameters : public IPipelineParameters
-	{
-		LitGenericPipelineParameters( DirectX::XMMATRIX world,
-			DirectX::XMMATRIX viewproj,
-			Material& material,
-			const std::vector<Entity>& lights,
-			const std::vector<DirectX::XMMATRIX>& light_transforms )
-			:
-			world( world ),
-			viewproj( viewproj ),
-			material( material ),
-			lights( lights ),
-			light_transforms( light_transforms )
-		{}
-
-		DirectX::XMMATRIX world;
-		DirectX::XMMATRIX viewproj;
-
-		Material& material;
-		const std::vector<Entity>& lights;
-		const std::vector<DirectX::XMMATRIX>& light_transforms;
-	};
-
 	class LitGenericPipeline : public IPipeline
 	{
 	public:
-		LitGenericPipeline( const std::string& vs_filename, const std::string& ps_filename );
+		void Render( IGPUContext* pContext,
+			const Mesh& mesh,
+			const Camera& camera,
+			const DirectX::XMMATRIX& world_transform,
+			const std::vector<Entity>& light_ents,
+			const std::vector<DirectX::XMMATRIX>& light_transforms );
+	private:
+		std::vector<ShaderMacro> BuildMacrosForMesh( const Mesh& mesh ) const;
 
-		virtual void BindParameters( IGPUContext* pContext, IPipelineParameters& pParameters ) override;
-		virtual void Render( IGPUContext* pContext, size_t vertexcount ) override;
-		virtual void RenderIndexed( IGPUContext* pContext, size_t indexcount ) override;
+		void BindTransforms( IGPUContext* pContext, const Camera& camera, const DirectX::XMMATRIX& world_transform );
+		void BindMaterial( IGPUContext* pContext, const Material& material );
+		void BindLights( IGPUContext* pContext, const std::vector<Entity>& light_ents, const std::vector<DirectX::XMMATRIX>& light_transforms );
 	private:
 		struct CB_LitGenericPipelineMatrix
 		{

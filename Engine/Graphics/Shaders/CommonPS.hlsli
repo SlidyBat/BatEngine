@@ -87,17 +87,18 @@ cbuffer GlobalsBuf : register(b0)
 // Global samplers
 SamplerState WrapSampler : register(s0);
 SamplerState ClampSampler : register(s1);
+SamplerState MirrorSampler : register(s1);
 
 // Defines for sampler slots
 // Use these instead of normal slots to ensure that you don't overwrite slots for global samplers
-#define S_SLOT_0 s2
-#define S_SLOT_1 s3
-#define S_SLOT_2 s4
-#define S_SLOT_3 s5
-#define S_SLOT_4 s6
-#define S_SLOT_5 s7
-#define S_SLOT_6 s8
-#define S_SLOT_7 s9
+#define S_SLOT_0 s3
+#define S_SLOT_1 s4
+#define S_SLOT_2 s5
+#define S_SLOT_3 s6
+#define S_SLOT_4 s7
+#define S_SLOT_5 s8
+#define S_SLOT_6 s9
+#define S_SLOT_7 s10
 
 // Defines for texture slots
 // Use these instead of normal slots to ensure that you don't overwrite slots for global textures

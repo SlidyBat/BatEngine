@@ -33,6 +33,17 @@ namespace Bat
 			pContext->UpdateBuffer( m_pVertexBuffer.get(), pData );
 		}
 
+		V* Lock( IGPUContext* pContext )
+		{
+			void* pData = pContext->Lock( m_pVertexBuffer.get() );
+			return reinterpret_cast<V*>(pData);
+		}
+
+		void Unlock( IGPUContext* pContext )
+		{
+			pContext->Unlock( m_pVertexBuffer.get() );
+		}
+
 		operator IVertexBuffer*() const
 		{
 			return m_pVertexBuffer.get();

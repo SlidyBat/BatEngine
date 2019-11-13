@@ -21,8 +21,10 @@ struct PixelInput
 	float4 position : SV_POSITION;
 	float4 world_pos : POSITION;
 	float3 normal : NORMAL;
+#ifdef HAS_TANGENT
 	float3 tangent : TANGENT;
 	float3 bitangent : BITANGENT;
+#endif
 	float2 tex : TEXCOORD;
 };
 
@@ -101,6 +103,7 @@ float4 main( PixelInput input ) : SV_TARGET
 	Material material = Mat;
 
 	float3 normal = input.normal;
+#ifdef HAS_TANGENT
 	if( material.HasNormalTexture )
 	{
 		float3 normal_sample = NormalTexture.Sample( WrapSampler, input.tex ).xyz;
@@ -110,6 +113,7 @@ float4 main( PixelInput input ) : SV_TARGET
 		float3x3 tbn = float3x3(normalize(input.tangent), normalize(input.bitangent), normalize(input.normal));
 		normal = normalize( mul( normal, tbn ) );
 	}
+#endif
 
 	normal = normalize( normal );
 

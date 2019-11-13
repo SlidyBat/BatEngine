@@ -11,10 +11,12 @@ namespace Bat
 {
 	template<typename T>
 	using ResourceMap = std::unordered_map<std::string, Resource<T>>;
+	template<typename T>
+	using UniqueResourceMap = std::unordered_map<std::string, std::unique_ptr<T>>;
 
-	static ResourceMap<Texture>        g_mapTextures;
-	static ResourceMap<IVertexShader>   g_mapVShaders;
-	static ResourceMap<IPixelShader>    g_mapPShaders;
+	static ResourceMap<Texture>             g_mapTextures;
+	static UniqueResourceMap<IVertexShader> g_mapVShaders;
+	static UniqueResourceMap<IPixelShader>  g_mapPShaders;
 
 	Resource<Texture> ResourceManager::GetTexture( const std::string& filename )
 	{
@@ -28,31 +30,44 @@ namespace Bat
 
 		return it->second;
 	}
-	
-	Resource<IVertexShader> ResourceManager::GetVertexShader( const std::string& filename )
+
+	static std::string GetShaderHashName( const std::string& filename, const std::vector<ShaderMacro>& macros )
 	{
-		auto it = g_mapVShaders.find( filename );
+		std::string name = filename;
+		for( const auto& macro : macros )
+		{
+			name += macro.name;
+			name += macro.value;
+		}
+		return name;
+	}
+	
+	IVertexShader* ResourceManager::GetVertexShader( const std::string& filename, const std::vector<ShaderMacro>& macros )
+	{
+		std::string name = GetShaderHashName( filename, macros );
+		auto it = g_mapVShaders.find( name );
 		if( it == g_mapVShaders.end() )
 		{
-			auto pResource = std::shared_ptr<IVertexShader>( gpu->CreateVertexShader( filename ) );
-			g_mapVShaders[filename] = pResource;
+			auto pResource = gpu->CreateVertexShader( filename, macros );
+			g_mapVShaders[name] = std::unique_ptr<IVertexShader>( pResource );
 			return pResource;
 		}
 
-		return it->second;
+		return it->second.get();
 	}
 
-	Resource<IPixelShader> ResourceManager::GetPixelShader( const std::string& filename )
+	IPixelShader* ResourceManager::GetPixelShader( const std::string& filename, const std::vector<ShaderMacro>& macros )
 	{
-		auto it = g_mapPShaders.find( filename );
+		std::string name = GetShaderHashName( filename, macros );
+		auto it = g_mapPShaders.find( name );
 		if( it == g_mapPShaders.end() )
 		{
-			auto pResource = std::shared_ptr<IPixelShader>( gpu->CreatePixelShader( filename ) );
-			g_mapPShaders[filename] = pResource;
+			auto pResource = gpu->CreatePixelShader( filename, macros );
+			g_mapPShaders[name] = std::unique_ptr<IPixelShader>( pResource );
 			return pResource;
 		}
 
-		return it->second;
+		return it->second.get();
 	}
 
 	template <typename T>
@@ -74,7 +89,8 @@ namespace Bat
 	void ResourceManager::CleanUp()
 	{
 		CleanUpResources( g_mapTextures );
-		CleanUpResources( g_mapVShaders );
-		CleanUpResources( g_mapPShaders );
+
+		g_mapVShaders.clear();
+		g_mapPShaders.clear();
 	}
 }

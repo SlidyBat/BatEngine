@@ -35,6 +35,17 @@ namespace Bat
 		{
 			pContext->UpdateBuffer( m_pConstantBuffer.get(), &data );
 		}
+
+		T* Lock( IGPUContext* pContext )
+		{
+			void* pData = pContext->Lock( m_pConstantBuffer.get() );
+			return reinterpret_cast<T*>(pData);
+		}
+
+		void Unlock( IGPUContext* pContext )
+		{
+			pContext->Unlock( m_pConstantBuffer.get() );
+		}
 	private:
 		std::unique_ptr<IConstantBuffer> m_pConstantBuffer = nullptr;
 	};

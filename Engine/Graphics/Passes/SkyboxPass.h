@@ -35,14 +35,8 @@ namespace Bat
 
 			if( ITexture* pSkybox = data.GetTexture( "skyboxtex" ) )
 			{
-				auto pos = camera.GetPosition();
-				auto w = DirectX::XMMatrixTranslation( pos.x, pos.y, pos.z );
-				auto t = w * camera.GetViewMatrix() * camera.GetProjectionMatrix();
-
-				SkyboxPipelineParameters params( t, pSkybox );
-				auto pPipeline = ShaderManager::GetPipeline( "skybox" );
-				pPipeline->BindParameters( pContext, params );
-				pPipeline->RenderIndexed( pContext, 0 ); // skybox uses its own index buffer & index count, doesnt matter what we pass in
+				auto pPipeline = ShaderManager::GetPipeline<SkyboxPipeline>();
+				pPipeline->Render( pContext, camera, pSkybox );
 			}
 		}
 	};

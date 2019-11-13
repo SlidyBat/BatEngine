@@ -36,11 +36,6 @@ namespace Bat
 
 		InitialiseResources( wnd.GetWidth(), wnd.GetHeight() );
 
-		ShaderManager::AddPipeline( "texture", std::make_unique<TexturePipeline>( "Graphics/Shaders/TextureVS.hlsl", "Graphics/Shaders/TexturePS.hlsl" ) );
-		ShaderManager::AddPipeline( "colour", std::make_unique <ColourPipeline>( "Graphics/Shaders/ColourVS.hlsl", "Graphics/Shaders/ColourPS.hlsl" ) );
-		ShaderManager::AddPipeline( "litgeneric", std::make_unique<LitGenericPipeline>( "Graphics/Shaders/LitGenericVS.hlsl", "Graphics/Shaders/LitGenericPS.hlsl" ) );
-		ShaderManager::AddPipeline( "skybox", std::make_unique<SkyboxPipeline>( "Graphics/Shaders/SkyboxVS.hlsl", "Graphics/Shaders/SkyboxPS.hlsl" ) );
-
 		wnd.OnEventDispatched<WindowResizeEvent>( [=]( const WindowResizeEvent& e )
 		{
 			Resize( e.width, e.height );
@@ -129,8 +124,8 @@ namespace Bat
 
 	void Graphics::InitialiseResources( size_t width, size_t height )
 	{
-		m_iScreenWidth = width;
-		m_iScreenHeight = height;
+		m_iScreenWidth = (int)width;
+		m_iScreenHeight = (int)height;
 		m_matOrtho = DirectX::XMMatrixOrthographicLH(
 			(float)width,
 			(float)height,
