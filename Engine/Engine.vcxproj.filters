@@ -276,7 +276,7 @@
     <ClCompile Include="Physics\EntityTrace.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\MeshAnimation.cpp">
+    <ClCompile Include="Animation\MeshAnimation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -578,7 +578,7 @@
     <ClInclude Include="Physics\EntityTrace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\MeshAnimation.h">
+    <ClInclude Include="Animation\MeshAnimation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -643,6 +643,5 @@
     <None Include="Graphics\RenderNodeDataTypes.def">
       <Filter>Header Files\Graphics</Filter>
     </None>
-    <None Include="Graphics\Shaders\CommonVS.hlsli" />
   </ItemGroup>
 </Project>
