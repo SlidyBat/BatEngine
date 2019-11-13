@@ -128,8 +128,10 @@ float4 main( PixelInput input ) : SV_TARGET
 
 	if( material.HasDiffuseTexture )
 	{
-		material.DiffuseColor = DiffuseTexture.Sample( WrapSampler, input.tex );
+		material.DiffuseColor = DiffuseTexture.Sample(WrapSampler, input.tex);
+		material.DiffuseColor = ToLinearSpace(material.DiffuseColor);
 	}
+	
 
 	// ambient
 	float3 ambient = material.AmbientColor.rgb;
@@ -152,6 +154,9 @@ float4 main( PixelInput input ) : SV_TARGET
 	float3 emissive = material.EmissiveColor.rgb;
 	if( material.HasEmissiveTexture )
 	{
+		float3 sample = EmissiveTexture.Sample(WrapSampler, input.tex).rgb;
+		sample = ToLinearSpace(sample);
+		
 		if( any( emissive ) )
 		{
 			emissive *= EmissiveTexture.Sample( WrapSampler, input.tex ).rgb;

@@ -110,3 +110,25 @@ SamplerState MirrorSampler : register(s1);
 #define T_SLOT_5 t5
 #define T_SLOT_6 t6
 #define T_SLOT_7 t7
+
+#define GAMMA 2.2f
+
+float3 ToSRGBSpace(float3 colour)
+{
+	return pow(colour, 1.0 / GAMMA);
+}
+
+float4 ToSRGBSpace(float4 colour)
+{
+	return float4(ToSRGBSpace(colour.rgb), colour.a);
+}
+
+float3 ToLinearSpace(float3 colour)
+{
+	return pow(colour, GAMMA);
+}
+
+float4 ToLinearSpace(float4 colour)
+{
+	return float4(ToLinearSpace(colour.rgb), colour.a);
+}
