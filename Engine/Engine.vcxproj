@@ -226,8 +226,10 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Events\Event.cpp" />
+    <ClCompile Include="Graphics\DebugDraw.cpp" />
     <ClCompile Include="Graphics\GraphicsFormats.cpp" />
     <ClCompile Include="Animation\MeshAnimation.cpp" />
+    <ClCompile Include="Graphics\MeshBuilder.cpp" />
     <ClCompile Include="Physics\EntityTrace.cpp" />
     <ClCompile Include="Physics\PhysicsComponent.cpp" />
     <ClCompile Include="Util\Frustum.cpp" />
@@ -359,6 +361,8 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Graphics\DDSTextureLoader.h" />
     <ClInclude Include="Events\PhysicsEvents.h" />
     <ClInclude Include="Animation\MeshAnimation.h" />
+    <ClInclude Include="Graphics\DebugDraw.h" />
+    <ClInclude Include="Graphics\MeshBuilder.h" />
     <ClInclude Include="Graphics\Passes\SceneRenderPass.h" />
     <ClInclude Include="Graphics\Passes\ToneMappingPass.h" />
     <ClInclude Include="Graphics\Passes\TransparentPass.h" />

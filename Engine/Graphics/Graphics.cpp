@@ -19,6 +19,7 @@
 #include "SpriteFont.h"
 #include "ShaderManager.h"
 #include "WindowEvents.h"
+#include "DebugDraw.h"
 
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
@@ -110,6 +111,7 @@ namespace Bat
 	void Graphics::EndFrame()
 	{
 		RenderScene();
+		DebugDraw::Flush();
 		RenderUI();
 		RenderImGui();
 

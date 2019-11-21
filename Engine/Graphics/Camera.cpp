@@ -23,6 +23,18 @@ namespace Bat
 		Camera( { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, fov, ar, screen_near, screen_far )
 	{}
 
+	Camera Camera::ScreenOrtho()
+	{
+		Camera cam;
+		cam.m_flScreenNear = Graphics::ScreenNear;
+		cam.m_flScreenFar = Graphics::ScreenFar;
+
+		const Viewport& vp = gpu->GetContext()->GetViewport();
+		cam.m_matProjMatrix = DirectX::XMMatrixOrthographicOffCenterLH( 0.0f, vp.width, vp.height, 0.0f, Graphics::ScreenNear, Graphics::ScreenFar );
+
+		return cam;
+	}
+
 	float Camera::GetFOV() const
 	{
 		return m_flFOV;

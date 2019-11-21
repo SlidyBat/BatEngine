@@ -137,6 +137,10 @@ namespace Bat
 			x = src.x;
 			y = src.y;
 		}
+		Vec2( const DirectX::XMVECTOR v )
+		{
+			DirectX::XMStoreFloat2( this, v );
+		}
 
 		Vec2& operator=( const DirectX::XMFLOAT2& src )
 		{
@@ -160,6 +164,27 @@ namespace Bat
 			res.y = -y;
 
 			return res;
+		}
+		Vec2 operator+( const Vec2& rhs ) const
+		{
+			Vec2 res;
+			res.x = x + rhs.x;
+			res.y = y + rhs.y;
+
+			return res;
+		}
+		Vec2 operator-( const Vec2& rhs ) const
+		{
+			Vec2 res;
+			res.x = x - rhs.x;
+			res.y = y - rhs.y;
+
+			return res;
+		}
+
+		operator DirectX::XMVECTOR() const
+		{
+			return DirectX::XMLoadFloat2( this );
 		}
 	};
 
@@ -332,6 +357,16 @@ namespace Bat
 
 			return res;
 		}
+		Vec4 operator/( float scalar ) const
+		{
+			Vec4 res;
+			res.x = x / scalar;
+			res.y = y / scalar;
+			res.z = z / scalar;
+			res.w = w / scalar;
+
+			return res;
+		}
 		Vec4 operator-() const
 		{
 			Vec4 res;
@@ -341,6 +376,25 @@ namespace Bat
 			res.w = -w;
 
 			return res;
+		}
+
+		Vec4& operator*=( float scalar )
+		{
+			x = x * scalar;
+			y = y * scalar;
+			z = z * scalar;
+			w = w * scalar;
+
+			return *this;
+		}
+		Vec4& operator/=( float scalar )
+		{
+			x = x / scalar;
+			y = y / scalar;
+			z = z / scalar;
+			w = w / scalar;
+
+			return *this;
 		}
 
 		operator DirectX::XMVECTOR() const
@@ -353,6 +407,24 @@ namespace Bat
 	{
 		Vec3 n; // Plane normal
 		float d; // Distance from origin
+	};
+
+	// Axis-aligned bounding box
+	class AABB
+	{
+	public:
+		AABB() = default;
+		AABB( const Vec3* points, size_t num_points );
+
+		Vec3 GetCenter() const { return (mins + maxs) / 2; }
+		// Re-aligned transformed mins/maxs
+		// This just gets the AABB of the rotated AABB of the mesh
+		// Will have lots of empty space, but better than recalculating AABB for rotated mesh vertices
+		AABB Transform( DirectX::XMMATRIX transform ) const;
+		void GetPoints( Vec3 out[8] ) const;
+	public:
+		Vec3 mins;
+		Vec3 maxs;
 	};
 
 	namespace Math

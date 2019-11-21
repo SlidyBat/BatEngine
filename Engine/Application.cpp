@@ -27,6 +27,7 @@
 #include "Passes/OpaquePass.h"
 #include "Passes/TransparentPass.h"
 #include "Passes/DrawLightsPass.h"
+#include "DebugDraw.h"
 
 namespace Bat
 {
@@ -43,7 +44,7 @@ namespace Bat
 
 		scene.Set( world.CreateEntity() ); // Root entity;
 		animators.emplace_back();
-		size_t scene_index = scene.AddChild( loader.Load( "Assets/Ignore/Sponza/sponza.gltf", &animators.back() ) );
+		size_t scene_index = scene.AddChild( loader.Load( "Assets/Ignore/brick_wall/brick_wall.obj", &animators.back() ) );
 
 		flashlight = world.CreateEntity();
 		flashlight.Add<LightComponent>()
@@ -81,8 +82,8 @@ namespace Bat
 				.AddSphereShape( 0.05f );
 
 			Entity scene_ent = scene.GetChild( scene_index ).Get();
-			scene_ent.Add<TransformComponent>()
-				.SetScale( 0.01f );
+			scene_ent.Ensure<TransformComponent>();
+			//	.SetScale( 0.01f );
 			//scene_ent.Add<PhysicsComponent>( PhysicsObjectType::STATIC )
 			//	.AddMeshShape();
 		}
@@ -206,20 +207,6 @@ namespace Bat
 		Physics::Simulate( deltatime );
 	}
 
-	static void AddModelTree( const ModelComponent& model )
-	{
-		if( ImGui::TreeNode( "Model" ) )
-		{
-			auto meshes = model.GetMeshes();
-			for( const auto& mesh : meshes )
-			{
-				ImGui::Text( mesh->GetName().c_str() );
-			}
-
-			ImGui::TreePop();
-		}
-	}
-
 	static void AddNodeTree( const SceneNode& node )
 	{
 		Entity e = node.Get();
@@ -244,7 +231,8 @@ namespace Bat
 
 			if( e.Has<ModelComponent>() )
 			{
-				AddModelTree( e.Get<ModelComponent>() );
+				auto& model = e.Get<ModelComponent>();
+				model.DoImGuiMenu();
 			}
 			if( e.Has<LightComponent>() )
 			{
@@ -286,6 +274,10 @@ namespace Bat
 
 	void Application::OnRender()
 	{
+		Vec3 pos = camera.GetPosition();
+		auto posstr = Format( "Pos: %.2f %.2f %.2f", pos.x, pos.y, pos.z );
+		DebugDraw::Text( posstr, { 10, 10 } );
+
 		// Dockspace setup
 		{
 			ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration;
@@ -493,8 +485,8 @@ namespace Bat
 		rendergraph.AddPass( "opaque", std::make_unique<OpaquePass>() );
 		rendergraph.BindToResource( "opaque.dst", "target" );
 
-		rendergraph.AddPass( "transparent", std::make_unique<TransparentPass>() );
-		rendergraph.BindToResource( "transparent.dst", "target" );
+		//rendergraph.AddPass( "transparent", std::make_unique<TransparentPass>() );
+		//rendergraph.BindToResource( "transparent.dst", "target" );
 
 		rendergraph.AddPass( "draw_lights", std::make_unique<DrawLightsPass>() );
 		rendergraph.BindToResource( "draw_lights.dst", "target" );

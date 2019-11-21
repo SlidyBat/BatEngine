@@ -102,30 +102,11 @@ namespace Bat
 		// The transform matrix passed in gets applied to mesh before doing check
 		bool MeshInCameraFrustum( Mesh* pMesh, Camera* pCamera, DirectX::XMMATRIX transform )
 		{
-			// World space mins/maxs
-			Vec3 transformed_mins = DirectX::XMVector3Transform( pMesh->GetMins(), transform );
-			Vec3 transformed_maxs = DirectX::XMVector3Transform( pMesh->GetMaxs(), transform );
-			// Re-Aligned space mins/maxs
-			// This just gets the AABB of the rotated AABB of the mesh
-			// Will have lots of empty space, but better than recalculating AABB for rotated mesh vertices
-			// TODO: Put a lot of this stuff in mathlib
-			Vec3 aligned_mins = { FLT_MAX, FLT_MAX, FLT_MAX };
-			Vec3 aligned_maxs = { FLT_MIN, FLT_MIN, FLT_MIN };
-			if( transformed_mins.x < aligned_mins.x ) aligned_mins.x = transformed_mins.x;
-			if( transformed_mins.y < aligned_mins.y ) aligned_mins.y = transformed_mins.y;
-			if( transformed_mins.z < aligned_mins.z ) aligned_mins.z = transformed_mins.z;
-			if( transformed_maxs.x < aligned_mins.x ) aligned_mins.x = transformed_maxs.x;
-			if( transformed_maxs.y < aligned_mins.y ) aligned_mins.y = transformed_maxs.y;
-			if( transformed_maxs.z < aligned_mins.z ) aligned_mins.z = transformed_maxs.z;
-			if( transformed_mins.x > aligned_maxs.x ) aligned_maxs.x = transformed_mins.x;
-			if( transformed_mins.y > aligned_maxs.y ) aligned_maxs.y = transformed_mins.y;
-			if( transformed_mins.z > aligned_maxs.z ) aligned_maxs.z = transformed_mins.z;
-			if( transformed_maxs.x > aligned_maxs.x ) aligned_maxs.x = transformed_maxs.x;
-			if( transformed_maxs.y > aligned_maxs.y ) aligned_maxs.y = transformed_maxs.y;
-			if( transformed_maxs.z > aligned_maxs.z ) aligned_maxs.z = transformed_maxs.z;
+			const AABB& aabb = pMesh->GetAABB();
+			AABB world_aabb = aabb.Transform( transform );
 
 			// View frustum culling on mesh level
-			if( !pCamera->GetFrustum().IsBoxInside( aligned_mins, aligned_maxs ) )
+			if( !pCamera->GetFrustum().IsBoxInside( world_aabb.mins, world_aabb.maxs ) )
 			{
 				return false;
 			}

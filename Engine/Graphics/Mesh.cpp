@@ -70,19 +70,7 @@ namespace Bat
 
 		if( !params.position.empty() )
 		{
-			m_vecMins = { FLT_MAX, FLT_MAX, FLT_MAX };
-			m_vecMaxs = { FLT_MIN, FLT_MIN, FLT_MIN };
-
-			for( const auto& pos : params.position )
-			{
-				if( pos.x < m_vecMins.x ) m_vecMins.x = pos.x;
-				if( pos.y < m_vecMins.y ) m_vecMins.y = pos.y;
-				if( pos.z < m_vecMins.z ) m_vecMins.z = pos.z;
-
-				if( pos.x > m_vecMaxs.x ) m_vecMaxs.x = pos.x;
-				if( pos.y > m_vecMaxs.y ) m_vecMaxs.y = pos.y;
-				if( pos.z > m_vecMaxs.z ) m_vecMaxs.z = pos.z;
-			}
+			m_Aabb = AABB( m_vecPositions.data(), m_vecPositions.size() );
 
 			m_bufPosition.Reset( params.position );
 		}
