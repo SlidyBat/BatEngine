@@ -53,13 +53,14 @@ namespace Bat
 
 		virtual std::string GetDescription() const override { return "Tone mapping & gamma correction"; }
 
+		void SetExposure( float exposure )
+		{
+			m_Settings.Exposure = exposure;
+		}
+
 		virtual void Execute( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data )
 		{
-			if( !m_bInitialized )
-			{
-				m_bInitialized = true;
-				m_cbufToneMapSettings.Update( pContext, {} );
-			}
+			m_cbufToneMapSettings.Update( pContext, m_Settings );
 
 			IVertexShader* pTextureVS = ResourceManager::GetVertexShader( "Graphics/Shaders/TextureVS.hlsl" );
 			IPixelShader* pToneMapShader = ResourceManager::GetPixelShader( "Graphics/Shaders/ToneMappingPS.hlsl" );
@@ -94,6 +95,7 @@ namespace Bat
 	private:
 		bool m_bInitialized = false;
 		ConstantBuffer<CB_TexturePipelineMatrix> m_cbufTransform;
+		CB_ToneMapSettings m_Settings;
 		ConstantBuffer<CB_ToneMapSettings> m_cbufToneMapSettings;
 
 		VertexBuffer<Vec4> m_bufPosition;
