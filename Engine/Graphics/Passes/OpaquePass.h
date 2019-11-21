@@ -89,15 +89,15 @@ namespace Bat
 		{
 			const Viewport& vp = pContext->GetViewport();
 
-
 			DirectX::XMMATRIX wvp = cam.GetViewMatrix() * cam.GetProjectionMatrix();
 			DirectX::XMMATRIX ndc_to_screen = DirectX::XMMatrixInverse( nullptr,
 					DirectX::XMMatrixOrthographicOffCenterLH( 0.0f, vp.width, vp.height, 0.0f, cam.GetNear(), cam.GetFar() )
 				);
 			DirectX::XMMATRIX world_to_screen = wvp * ndc_to_screen;
 
+			AABB transformed_aabb = aabb.Transform( world_transform );
 			Vec3 v[8];
-			aabb.GetPoints( v );
+			transformed_aabb.GetPoints( v );
 
 			int left = INT_MAX;
 			int right = INT_MIN;
