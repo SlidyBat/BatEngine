@@ -532,6 +532,7 @@
     <ClInclude Include="Graphics\Passes\ToneMappingPass.h" />
     <ClInclude Include="Graphics\DebugDraw.h" />
     <ClInclude Include="Graphics\MeshBuilder.h" />
+    <ClInclude Include="Graphics\RenderFlags.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\RenderNodeDataTypes.def">

@@ -182,6 +182,11 @@ namespace Bat
 			return abs( a - b ) < epsilon;
 		}
 	}
+	AABB::AABB( const Vec3& mins, const Vec3& maxs )
+		:
+		mins( mins ),
+		maxs( maxs )
+	{}
 	AABB::AABB( const Vec3* points, size_t num_points )
 	{
 		mins = { FLT_MAX, FLT_MAX, FLT_MAX };

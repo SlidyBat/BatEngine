@@ -9,6 +9,7 @@
 #include "IPipeline.h"
 #include "Material.h"
 #include "MeshAnimation.h"
+#include "RenderFlags.h"
 
 namespace Bat
 {
@@ -53,6 +54,15 @@ namespace Bat
 		bool HasBones() const { return m_bufBoneIds && m_bufBoneIds->GetVertexCount() > 0; }
 
 		const AABB& GetAABB() const { return m_Aabb; }
+	
+		PrimitiveTopology GetTopology() const { return m_Topology; }
+		void SetTopology( PrimitiveTopology topology ) { m_Topology = topology; }
+
+		bool HasRenderFlag( RenderFlags flag ) { return (m_RenderFlags & flag) == flag; }
+		void AddRenderFlag( RenderFlags flag ) { m_RenderFlags |= flag; }
+		void RemoveRenderFlag( RenderFlags flag ) { m_RenderFlags &= ~flag; }
+
+		void DoImGuiMenu();
 	private:
 		VertexBuffer<Vec3> m_bufPosition;
 		VertexBuffer<Vec4> m_bufColour;
@@ -65,6 +75,9 @@ namespace Bat
 		IndexBuffer m_bufIndices;
 		Material m_Material;
 		AABB m_Aabb;
+		PrimitiveTopology m_Topology = PrimitiveTopology::TRIANGLELIST;
+
+		RenderFlags m_RenderFlags = RenderFlags::NONE;
 
 		std::vector<Vec3> m_vecPositions;
 		std::vector<unsigned int> m_iIndices;

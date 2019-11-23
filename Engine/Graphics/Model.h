@@ -8,17 +8,11 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "ResourceManager.h"
+#include "RenderFlags.h"
 
 namespace Bat
 {
 	class IPipeline;
-
-	enum class RenderFlags
-	{
-		NONE = 0,
-		DRAW_BBOX // Draws a bounding box around the entity's model
-	};
-	BAT_ENUM_OPERATORS( RenderFlags );
 
 	class ModelComponent : public Component<ModelComponent>
 	{

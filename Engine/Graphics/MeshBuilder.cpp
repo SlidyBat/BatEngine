@@ -3,17 +3,34 @@
 
 namespace Bat
 {
-	MeshBuilder::MeshBuilder( size_t triangle_estimate )
+	MeshBuilder::MeshBuilder( size_t triangle_estimate, PrimitiveTopology topology )
+		:
+		MeshBuilder( triangle_estimate * 3, triangle_estimate * 3, topology )
+	{}
+	MeshBuilder::MeshBuilder( size_t vertices_estimate, size_t indices_estimate, PrimitiveTopology topology )
+		:
+		topology( topology )
 	{
-		if( triangle_estimate )
+		if( vertices_estimate )
 		{
-			mesh_params.position.reserve( triangle_estimate );
-			indices.reserve( triangle_estimate * 3 );
+			mesh_params.position.reserve( vertices_estimate );
+		}
+		if( indices_estimate )
+		{
+			indices.reserve( indices_estimate );
 		}
 	}
 	void MeshBuilder::Position( float x, float y, float z )
 	{
 		mesh_params.position.emplace_back( x, y, z );
+	}
+	void MeshBuilder::Position( const Vec3& pos )
+	{
+		mesh_params.position.emplace_back( pos );
+	}
+	void MeshBuilder::Position( const Vec2& pos )
+	{
+		Position( pos.x, pos.y );
 	}
 	void MeshBuilder::Colour( float r, float g, float b, float a )
 	{
@@ -33,8 +50,16 @@ namespace Bat
 		Index( index2 );
 		Index( index3 );
 	}
+	void MeshBuilder::Line( unsigned int index1, unsigned int index2 )
+	{
+		Index( index1 );
+		Index( index2 );
+	}
 	Mesh MeshBuilder::Build()
 	{
-		return Mesh( mesh_params, indices );
+		Mesh mesh( mesh_params, indices );
+		mesh.SetTopology( topology );
+
+		return mesh;
 	}
 }

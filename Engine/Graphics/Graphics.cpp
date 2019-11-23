@@ -111,7 +111,10 @@ namespace Bat
 	void Graphics::EndFrame()
 	{
 		RenderScene();
-		DebugDraw::Flush();
+		if( m_pCamera )
+		{
+			DebugDraw::Flush( *m_pCamera );
+		}
 		RenderUI();
 		RenderImGui();
 

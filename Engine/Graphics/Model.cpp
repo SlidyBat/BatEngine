@@ -38,7 +38,7 @@ namespace Bat
 			const auto& meshes = GetMeshes();
 			for( const auto& mesh : meshes )
 			{
-				ImGui::Text( mesh->GetName().c_str() );
+				mesh->DoImGuiMenu();
 			}
 
 			ImGui::CheckboxFlags( "Draw BBox", (unsigned int*)&m_RenderFlags, (unsigned int)RenderFlags::DRAW_BBOX );

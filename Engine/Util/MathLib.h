@@ -414,6 +414,7 @@ namespace Bat
 	{
 	public:
 		AABB() = default;
+		AABB( const Vec3& mins, const Vec3& maxs );
 		AABB( const Vec3* points, size_t num_points );
 
 		Vec3 GetCenter() const { return (mins + maxs) / 2; }

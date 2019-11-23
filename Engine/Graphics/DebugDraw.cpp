@@ -26,6 +26,14 @@ namespace Bat
 	};
 	static std::vector<DebugText> g_DebugTexts;
 
+	struct DebugBox
+	{
+		Vec3 a;
+		Vec3 b;
+		Colour col;
+	};
+	static std::vector<DebugBox> g_DebugBoxes;
+
 	static void InitDebugDrawState( IGPUContext* pContext )
 	{
 		pContext->SetDepthStencilEnabled( false );
@@ -36,8 +44,6 @@ namespace Bat
 	static void DrawRectangle( const DebugRect& rect )
 	{
 		IGPUContext* pContext = gpu->GetContext();
-
-		InitDebugDrawState( pContext );
 
 		const auto left = (float)std::min( rect.a.x, rect.b.x );
 		const auto right = (float)std::max( rect.a.x, rect.b.x );
@@ -72,6 +78,39 @@ namespace Bat
 		auto pPipeline = ShaderManager::GetPipeline<ColourPipeline>();
 		pPipeline->Render( pContext, builder.Build(), Camera::ScreenOrtho(), DirectX::XMMatrixIdentity() );
 	}
+	static void DrawBox( const Camera& camera, const DebugBox& box )
+	{
+		AABB aabb( box.a, box.b );
+		Vec3 box_points[8];
+		aabb.GetPoints( box_points );
+		Vec4 colour = box.col.AsVector();
+
+		const size_t vertex_count = 8;
+		const size_t index_count = 8 * 3;
+		MeshBuilder builder( vertex_count, index_count, PrimitiveTopology::LINELIST );
+		for( int i = 0; i < 8; i++ )
+		{
+			builder.Position( box_points[i] );
+			builder.Colour( colour );
+		}
+
+		builder.Line( 0, 1 );
+		builder.Line( 1, 2 );
+		builder.Line( 2, 3 );
+		builder.Line( 3, 0 );
+		builder.Line( 4, 5 );
+		builder.Line( 5, 6 );
+		builder.Line( 6, 7 );
+		builder.Line( 7, 4 );
+		builder.Line( 4, 2 );
+		builder.Line( 5, 1 );
+		builder.Line( 6, 0 );
+		builder.Line( 7, 3 );
+
+		IGPUContext* pContext = gpu->GetContext();
+		auto pPipeline = ShaderManager::GetPipeline<ColourPipeline>();
+		pPipeline->Render( pContext, builder.Build(), camera, DirectX::XMMatrixIdentity() );
+	}
 
 	void DebugDraw::Rectangle( const Vei2& a, const Vei2& b, const Colour& col, float thickness )
 	{
@@ -82,6 +121,14 @@ namespace Bat
 		rect.thickness = thickness;
 		g_DebugRects.push_back( rect );
 	}
+	void DebugDraw::Box( const Vec3& a, const Vec3& b, const Colour& col )
+	{
+		DebugBox box;
+		box.a = a;
+		box.b = b;
+		box.col = col;
+		g_DebugBoxes.push_back( box );
+	}
 	void DebugDraw::Text( const std::string& str, const Vei2& pos, const Colour& col )
 	{
 		DebugText text;
@@ -90,13 +137,22 @@ namespace Bat
 		text.col = col;
 		g_DebugTexts.push_back( std::move( text ) );
 	}
-	void DebugDraw::Flush()
+	void DebugDraw::Flush( const Camera& camera )
 	{
+		IGPUContext* pContext = gpu->GetContext();
+		InitDebugDrawState( pContext );
+
 		for( const DebugRect& rect : g_DebugRects )
 		{
 			DrawRectangle( rect );
 		}
 		g_DebugRects.clear();
+
+		for( const DebugBox& box : g_DebugBoxes )
+		{
+			DrawBox( camera, box );
+		}
+		g_DebugBoxes.clear();
 
 		static DirectX::SpriteFont font( (ID3D11Device*)gpu->GetImpl(), L"Assets/Fonts/consolas.spritefont" );
 		if( !g_DebugTexts.empty() )

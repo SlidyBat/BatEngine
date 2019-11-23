@@ -2,6 +2,7 @@
 #include "Mesh.h"
 
 #include "Camera.h"
+#include "imgui.h"
 
 namespace Bat
 {
@@ -15,8 +16,7 @@ namespace Bat
 
 	void Mesh::Bind( IGPUContext* pContext, IVertexShader* pVertexShader ) const
 	{
-		// TODO: support other primitives?
-		pContext->SetPrimitiveTopology( PrimitiveTopology::TRIANGLELIST );
+		pContext->SetPrimitiveTopology( m_Topology );
 
 		size_t slot = 0;
 
@@ -61,7 +61,10 @@ namespace Bat
 			pContext->SetVertexBuffer( m_bufBoneWeights, slot++ );
 		}
 
-		pContext->SetIndexBuffer( m_bufIndices );
+		if( m_bufIndices )
+		{
+			pContext->SetIndexBuffer( m_bufIndices );
+		}
 	}
 
 	void Mesh::SetData( const MeshParameters& params )
@@ -138,5 +141,9 @@ namespace Bat
 	size_t Mesh::GetIndexCount() const
 	{
 		return m_iIndices.size();
+	}
+	void Mesh::DoImGuiMenu()
+	{
+		ImGui::CheckboxFlags( GetName().c_str(), (unsigned int*)&m_RenderFlags, (unsigned int)RenderFlags::DRAW_BBOX );
 	}
 }
