@@ -17,7 +17,6 @@
 #include "IRenderPass.h"
 #include "ShaderManager.h"
 #include "RenderData.h"
-#include "RenderTarget.h"
 #include "EntityTrace.h"
 #include "Passes/ClearRenderTargetPass.h"
 #include "Passes/SkyboxPass.h"
@@ -28,6 +27,7 @@
 #include "Passes/TransparentPass.h"
 #include "Passes/DrawLightsPass.h"
 #include "DebugDraw.h"
+#include "ScratchRenderTarget.h"
 
 namespace Bat
 {
@@ -463,6 +463,8 @@ namespace Bat
 
 	void Application::BuildRenderGraph()
 	{
+		ScratchRenderTarget::Clear();
+
 		rendergraph.Reset();
 
 		int post_process_count = 0;
@@ -478,13 +480,6 @@ namespace Bat
 				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
 			rendergraph.AddRenderTargetResource( "target2",
 				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
-
-			// render texture 1 for bloom
-			rendergraph.AddRenderTargetResource( "rt1",
-				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth() / 2, wnd.GetHeight() / 2, TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
-			// render texture 2 for bloom & motion blur
-			rendergraph.AddRenderTargetResource( "rt2",
-				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth() / 2, wnd.GetHeight() / 2, TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
 		}
 		else
 		{
@@ -537,8 +532,6 @@ namespace Bat
 
 				rendergraph.AddPass( "bloom", std::move( bloom ) );
 				rendergraph.BindToResource( "bloom.src", input_rt );
-				rendergraph.BindToResource( "bloom.buffer1", "rt1" );
-				rendergraph.BindToResource( "bloom.buffer2", "rt2" );
 				if( !post_process_count )
 				{
 					rendergraph.MarkOutput( "bloom.dst" );

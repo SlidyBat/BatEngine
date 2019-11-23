@@ -230,6 +230,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClCompile Include="Graphics\GraphicsFormats.cpp" />
     <ClCompile Include="Animation\MeshAnimation.cpp" />
     <ClCompile Include="Graphics\MeshBuilder.cpp" />
+    <ClCompile Include="Graphics\ScratchRenderTarget.cpp" />
     <ClCompile Include="Physics\EntityTrace.cpp" />
     <ClCompile Include="Physics\PhysicsComponent.cpp" />
     <ClCompile Include="Util\Frustum.cpp" />
@@ -272,7 +273,6 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     </ClCompile>
     <ClCompile Include="Core\Log.cpp" />
     <ClCompile Include="Graphics\MoveableCamera.cpp" />
-    <ClCompile Include="Graphics\RenderTarget.cpp" />
     <ClCompile Include="Graphics\SkyboxPipeline.cpp" />
     <ClCompile Include="Util\StackAllocator.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
@@ -367,6 +367,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Graphics\Passes\ToneMappingPass.h" />
     <ClInclude Include="Graphics\Passes\TransparentPass.h" />
     <ClInclude Include="Graphics\RenderFlags.h" />
+    <ClInclude Include="Graphics\ScratchRenderTarget.h" />
     <ClInclude Include="Physics\EntityTrace.h" />
     <ClInclude Include="Physics\PhysicsComponent.h" />
     <ClInclude Include="Physics\PhysicsSystem.h" />
@@ -418,7 +419,6 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Events\KeyboardEvents.h" />
     <ClInclude Include="Core\Log.h" />
     <ClInclude Include="Graphics\MoveableCamera.h" />
-    <ClInclude Include="Graphics\RenderTarget.h" />
     <ClInclude Include="Graphics\SkyboxPipeline.h" />
     <ClInclude Include="Util\PoolAllocator.h" />
     <ClInclude Include="Util\StackAllocator.h" />

@@ -17,7 +17,6 @@ namespace Bat
 	class Graphics;
 	class Window;
 	class Light;
-	class RenderTarget;
 
 	class Application : public ILayer
 	{

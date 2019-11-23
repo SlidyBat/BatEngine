@@ -7,9 +7,6 @@
 
 namespace Bat
 {
-	class Texture;
-	class RenderTarget;
-
 	class RenderData
 	{
 		friend class RenderGraph;

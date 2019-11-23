@@ -93,9 +93,6 @@
     <ClCompile Include="Graphics\MoveableCamera.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\RenderTarget.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\Camera.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
@@ -233,6 +230,7 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Graphics\DebugDraw.cpp" />
     <ClCompile Include="Graphics\MeshBuilder.cpp" />
+    <ClCompile Include="Graphics\ScratchRenderTarget.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Events\PhysicsEvents.h">
@@ -284,9 +282,6 @@
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\MoveableCamera.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\RenderTarget.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Camera.h">
@@ -533,6 +528,7 @@
     <ClInclude Include="Graphics\DebugDraw.h" />
     <ClInclude Include="Graphics\MeshBuilder.h" />
     <ClInclude Include="Graphics\RenderFlags.h" />
+    <ClInclude Include="Graphics\ScratchRenderTarget.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\RenderNodeDataTypes.def">
