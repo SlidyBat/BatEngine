@@ -17,7 +17,6 @@
 #include "IRenderPass.h"
 #include "ShaderManager.h"
 #include "RenderData.h"
-#include "RenderTarget.h"
 #include "EntityTrace.h"
 #include "Passes/ClearRenderTargetPass.h"
 #include "Passes/SkyboxPass.h"
@@ -27,6 +26,8 @@
 #include "Passes/OpaquePass.h"
 #include "Passes/TransparentPass.h"
 #include "Passes/DrawLightsPass.h"
+#include "DebugDraw.h"
+#include "ScratchRenderTarget.h"
 
 namespace Bat
 {
@@ -81,7 +82,7 @@ namespace Bat
 				.AddSphereShape( 0.05f );
 
 			Entity scene_ent = scene.GetChild( scene_index ).Get();
-			scene_ent.Add<TransformComponent>()
+			scene_ent.Ensure<TransformComponent>()
 				.SetScale( 0.01f );
 			//scene_ent.Add<PhysicsComponent>( PhysicsObjectType::STATIC )
 			//	.AddMeshShape();
@@ -194,30 +195,7 @@ namespace Bat
 		}
 		anim_system.Update( world );
 
-		if( bloom_enabled )
-		{
-			auto bloom = static_cast<BloomPass*>( rendergraph.GetPassByName( "bloom" ) );
-			if( bloom )
-			{
-				bloom->SetThreshold( bloom_threshold );
-			}
-		}
-
 		Physics::Simulate( deltatime );
-	}
-
-	static void AddModelTree( const ModelComponent& model )
-	{
-		if( ImGui::TreeNode( "Model" ) )
-		{
-			auto meshes = model.GetMeshes();
-			for( const auto& mesh : meshes )
-			{
-				ImGui::Text( mesh->GetName().c_str() );
-			}
-
-			ImGui::TreePop();
-		}
 	}
 
 	static void AddNodeTree( const SceneNode& node )
@@ -244,11 +222,13 @@ namespace Bat
 
 			if( e.Has<ModelComponent>() )
 			{
-				AddModelTree( e.Get<ModelComponent>() );
+				auto& model = e.Get<ModelComponent>();
+				model.DoImGuiMenu();
 			}
 			if( e.Has<LightComponent>() )
 			{
-				ImGui::Text( "Light" );
+				auto& light = e.Get<LightComponent>();
+				light.DoImGuiMenu();
 			}
 			if( e.Has<PhysicsComponent>() )
 			{
@@ -285,6 +265,10 @@ namespace Bat
 
 	void Application::OnRender()
 	{
+		Vec3 pos = camera.GetPosition();
+		auto posstr = Format( "Pos: %.2f %.2f %.2f", pos.x, pos.y, pos.z );
+		DebugDraw::Text( posstr, { 10, 10 } );
+
 		// Dockspace setup
 		{
 			ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration;
@@ -313,8 +297,37 @@ namespace Bat
 
 			ImGui::Text( "FPS: %s", fps_string.c_str() );
 			ImGui::Text( "Pos: %.2f %.2f %.2f", camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z );
+			
+			bool changed = false;
+			
+			changed |= ImGui::Checkbox( "Opaque pass", &opaque_pass );
+			changed |= ImGui::Checkbox( "Transparent pass", &transparent_pass );
+			
+			changed |= ImGui::Checkbox( "Bloom", &bloom_enabled );
+			if( bloom_enabled )
+			{
+				if( ImGui::SliderFloat( "Bloom threshold", &bloom_threshold, 0.0f, 100.0f ) )
+				{
+					auto bloom = static_cast<BloomPass*>(rendergraph.GetPassByName( "bloom" ));
+					bloom->SetThreshold( bloom_threshold );
+				}
+			}
 
-			ImGui::SliderFloat( "Bloom threshold", &bloom_threshold, 0.0f, 100.0f );
+			changed |= ImGui::Checkbox( "Motion blur", &motion_blur_enabled );
+			changed |= ImGui::Checkbox( "Tonemapping", &tonemapping_enabled );
+			if( tonemapping_enabled )
+			{
+				if( ImGui::SliderFloat( "Exposure", &exposure, 0.0f, 32.0f ) )
+				{
+					auto tm = static_cast<ToneMappingPass*>(rendergraph.GetPassByName( "tonemapping" ));
+					tm->SetExposure( exposure );
+				}
+			}
+			
+			if( changed )
+			{
+				BuildRenderGraph();
+			}
 
 			for( MeshAnimator& animator : animators )
 			{
@@ -450,6 +463,8 @@ namespace Bat
 
 	void Application::BuildRenderGraph()
 	{
+		ScratchRenderTarget::Clear();
+
 		rendergraph.Reset();
 
 		int post_process_count = 0;
@@ -465,13 +480,6 @@ namespace Bat
 				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
 			rendergraph.AddRenderTargetResource( "target2",
 				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
-
-			// render texture 1 for bloom
-			rendergraph.AddRenderTargetResource( "rt1",
-				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth() / 2, wnd.GetHeight() / 2, TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
-			// render texture 2 for bloom & motion blur
-			rendergraph.AddRenderTargetResource( "rt2",
-				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth() / 2, wnd.GetHeight() / 2, TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
 		}
 		else
 		{
@@ -489,11 +497,17 @@ namespace Bat
 		rendergraph.BindToResource( "crt.buffer", "target" );
 		rendergraph.BindToResource( "crt.depth", "depth" );
 
-		rendergraph.AddPass( "opaque", std::make_unique<OpaquePass>() );
-		rendergraph.BindToResource( "opaque.dst", "target" );
+		if( opaque_pass )
+		{
+			rendergraph.AddPass( "opaque", std::make_unique<OpaquePass>() );
+			rendergraph.BindToResource( "opaque.dst", "target" );
+		}
 
-		rendergraph.AddPass( "transparent", std::make_unique<TransparentPass>() );
-		rendergraph.BindToResource( "transparent.dst", "target" );
+		if( transparent_pass )
+		{
+			rendergraph.AddPass( "transparent", std::make_unique<TransparentPass>() );
+			rendergraph.BindToResource( "transparent.dst", "target" );
+		}
 
 		rendergraph.AddPass( "draw_lights", std::make_unique<DrawLightsPass>() );
 		rendergraph.BindToResource( "draw_lights.dst", "target" );
@@ -513,10 +527,11 @@ namespace Bat
 			{
 				post_process_count--;
 
-				rendergraph.AddPass( "bloom", std::make_unique<BloomPass>() );
+				auto bloom = std::make_unique<BloomPass>();
+				bloom->SetThreshold( bloom_threshold );
+
+				rendergraph.AddPass( "bloom", std::move( bloom ) );
 				rendergraph.BindToResource( "bloom.src", input_rt );
-				rendergraph.BindToResource( "bloom.buffer1", "rt1" );
-				rendergraph.BindToResource( "bloom.buffer2", "rt2" );
 				if( !post_process_count )
 				{
 					rendergraph.MarkOutput( "bloom.dst" );
@@ -552,7 +567,10 @@ namespace Bat
 			{
 				post_process_count--;
 
-				rendergraph.AddPass( "tonemapping", std::make_unique<ToneMappingPass>() );
+				auto tm = std::make_unique<ToneMappingPass>();
+				tm->SetExposure( exposure );
+
+				rendergraph.AddPass( "tonemapping", std::move( tm ) );
 				rendergraph.BindToResource( "tonemapping.src", input_rt );
 
 				rendergraph.MarkOutput( "tonemapping.dst" );

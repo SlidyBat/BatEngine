@@ -9,6 +9,7 @@
 #include "IPipeline.h"
 #include "Material.h"
 #include "MeshAnimation.h"
+#include "RenderFlags.h"
 
 namespace Bat
 {
@@ -52,12 +53,16 @@ namespace Bat
 		bool HasTangentsAndBitangents() const { return m_bufTangent && m_bufTangent->GetVertexCount() > 0; }
 		bool HasBones() const { return m_bufBoneIds && m_bufBoneIds->GetVertexCount() > 0; }
 
-		// Returns mins of mesh in object space
-		const Vec3& GetMins() const { return m_vecMins; }
-		// Returns maxs of mesh in object space
-		const Vec3& GetMaxs() const { return m_vecMaxs; }
-		// Returns center of mesh in object space
-		Vec3 GetCenter() const { return (m_vecMins + m_vecMaxs) / 2; }
+		const AABB& GetAABB() const { return m_Aabb; }
+	
+		PrimitiveTopology GetTopology() const { return m_Topology; }
+		void SetTopology( PrimitiveTopology topology ) { m_Topology = topology; }
+
+		bool HasRenderFlag( RenderFlags flag ) { return (m_RenderFlags & flag) == flag; }
+		void AddRenderFlag( RenderFlags flag ) { m_RenderFlags |= flag; }
+		void RemoveRenderFlag( RenderFlags flag ) { m_RenderFlags &= ~flag; }
+
+		void DoImGuiMenu();
 	private:
 		VertexBuffer<Vec3> m_bufPosition;
 		VertexBuffer<Vec4> m_bufColour;
@@ -69,8 +74,10 @@ namespace Bat
 		VertexBuffer<Vec4> m_bufBoneWeights;
 		IndexBuffer m_bufIndices;
 		Material m_Material;
-		Vec3 m_vecMins;
-		Vec3 m_vecMaxs;
+		AABB m_Aabb;
+		PrimitiveTopology m_Topology = PrimitiveTopology::TRIANGLELIST;
+
+		RenderFlags m_RenderFlags = RenderFlags::NONE;
 
 		std::vector<Vec3> m_vecPositions;
 		std::vector<unsigned int> m_iIndices;

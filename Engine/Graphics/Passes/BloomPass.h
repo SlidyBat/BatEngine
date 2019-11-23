@@ -5,6 +5,7 @@
 #include "RenderData.h"
 #include "TexturePipeline.h"
 #include "ConstantBuffer.h"
+#include "ScratchRenderTarget.h"
 
 namespace Bat
 {
@@ -29,8 +30,6 @@ namespace Bat
 
 			// initialize render nodes
 			AddRenderNode( "src", NodeType::INPUT, NodeDataType::RENDER_TARGET );     // the initial texture that bloom should be applied to
-			AddRenderNode( "buffer1", NodeType::INPUT, NodeDataType::RENDER_TARGET ); // a frame buffer to use for the multiple blur passes
-			AddRenderNode( "buffer2", NodeType::INPUT, NodeDataType::RENDER_TARGET ); // a frame buffer to use for the multiple blur passes
 			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TARGET );    // the output render texture (can re-use buffer2 if needed)
 
 			// initialize buffers
@@ -71,9 +70,9 @@ namespace Bat
 			pContext->SetBlendingEnabled( false );
 
 			IRenderTarget* src = data.GetRenderTarget( "src" );
-			IRenderTarget* rt1 = data.GetRenderTarget( "buffer1" );
-			IRenderTarget* rt2 = data.GetRenderTarget( "buffer2" );
 			IRenderTarget* dst = data.GetRenderTarget( "dst" );
+			auto rt1 = ScratchRenderTarget::Create( src->GetWidth() / 2, src->GetHeight() / 2, src->GetFormat() );
+			auto rt2 = ScratchRenderTarget::Create( src->GetWidth() / 2, src->GetHeight() / 2, src->GetFormat() );
 
 			size_t width = src->GetWidth();
 			size_t height = src->GetHeight();

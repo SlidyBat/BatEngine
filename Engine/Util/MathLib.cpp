@@ -182,4 +182,61 @@ namespace Bat
 			return abs( a - b ) < epsilon;
 		}
 	}
+	AABB::AABB( const Vec3& mins, const Vec3& maxs )
+		:
+		mins( mins ),
+		maxs( maxs )
+	{}
+	AABB::AABB( const Vec3* points, size_t num_points )
+	{
+		mins = { FLT_MAX, FLT_MAX, FLT_MAX };
+		maxs = { FLT_MIN, FLT_MIN, FLT_MIN };
+
+		for( size_t i = 0; i < num_points; i++ )
+		{
+			const Vec3& point = points[i];
+
+			if( point.x < mins.x ) mins.x = point.x;
+			if( point.y < mins.y ) mins.y = point.y;
+			if( point.z < mins.z ) mins.z = point.z;
+
+			if( point.x > maxs.x ) maxs.x = point.x;
+			if( point.y > maxs.y ) maxs.y = point.y;
+			if( point.z > maxs.z ) maxs.z = point.z;
+		}
+	}
+	AABB AABB::Transform( DirectX::XMMATRIX transform ) const
+	{
+		Vec3 transformed_mins = DirectX::XMVector3Transform( mins, transform );
+		Vec3 transformed_maxs = DirectX::XMVector3Transform( maxs, transform );
+
+		AABB aabb;
+		aabb.mins = { FLT_MAX, FLT_MAX, FLT_MAX };
+		aabb.maxs = { FLT_MIN, FLT_MIN, FLT_MIN };
+		if( transformed_mins.x < aabb.mins.x ) aabb.mins.x = transformed_mins.x;
+		if( transformed_mins.y < aabb.mins.y ) aabb.mins.y = transformed_mins.y;
+		if( transformed_mins.z < aabb.mins.z ) aabb.mins.z = transformed_mins.z;
+		if( transformed_maxs.x < aabb.mins.x ) aabb.mins.x = transformed_maxs.x;
+		if( transformed_maxs.y < aabb.mins.y ) aabb.mins.y = transformed_maxs.y;
+		if( transformed_maxs.z < aabb.mins.z ) aabb.mins.z = transformed_maxs.z;
+		if( transformed_mins.x > aabb.maxs.x ) aabb.maxs.x = transformed_mins.x;
+		if( transformed_mins.y > aabb.maxs.y ) aabb.maxs.y = transformed_mins.y;
+		if( transformed_mins.z > aabb.maxs.z ) aabb.maxs.z = transformed_mins.z;
+		if( transformed_maxs.x > aabb.maxs.x ) aabb.maxs.x = transformed_maxs.x;
+		if( transformed_maxs.y > aabb.maxs.y ) aabb.maxs.y = transformed_maxs.y;
+		if( transformed_maxs.z > aabb.maxs.z ) aabb.maxs.z = transformed_maxs.z;
+
+		return aabb;
+	}
+	void AABB::GetPoints( Vec3 out[8] ) const
+	{
+		out[0] = { mins.x, mins.y, mins.z };
+		out[1] = { mins.x, mins.y, maxs.z };
+		out[2] = { maxs.x, mins.y, maxs.z };
+		out[3] = { maxs.x, mins.y, mins.z };
+		out[4] = { maxs.x, maxs.y, maxs.z };
+		out[5] = { mins.x, maxs.y, maxs.z };
+		out[6] = { mins.x, maxs.y, mins.z };
+		out[7] = { maxs.x, maxs.y, mins.z };
+	}
 }

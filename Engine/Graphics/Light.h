@@ -35,6 +35,8 @@ namespace Bat
 
 		float GetIntensity() const { return m_flIntensity; }
 		LightComponent& SetIntensity( float intensity ) { m_flIntensity = intensity; return *this; }
+
+		void DoImGuiMenu();
 	private:
 		bool m_bEnabled = true;
 		Vec3 m_vecDirection = { 0.0f, 0.0f, 0.0f };

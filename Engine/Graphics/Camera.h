@@ -12,6 +12,8 @@ namespace Bat
 		Camera( const Vec3& pos, const Vec3& rot, float fov = 90.0f, float ar = 4.0f / 3.0f, float screen_near = Graphics::ScreenNear, float screen_far = Graphics::ScreenFar );
 		Camera( float fov = 90.0f, float ar = 4.0f / 3.0f, float screen_near = Graphics::ScreenNear, float screen_far = Graphics::ScreenFar );
 
+		static Camera ScreenOrtho();
+
 		float GetFOV() const;
 		void SetFOV( float fov );
 		float GetAspectRatio() const;
@@ -61,7 +63,7 @@ namespace Bat
 		Vec3 m_vecForward;
 		Vec3 m_vecRight;
 
-		DirectX::XMMATRIX m_matProjMatrix;
-		DirectX::XMMATRIX m_matViewMatrix;
+		DirectX::XMMATRIX m_matProjMatrix = DirectX::XMMatrixIdentity();
+		DirectX::XMMATRIX m_matViewMatrix = DirectX::XMMatrixIdentity();
 	};
 }

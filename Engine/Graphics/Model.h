@@ -8,6 +8,7 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "ResourceManager.h"
+#include "RenderFlags.h"
 
 namespace Bat
 {
@@ -21,14 +22,19 @@ namespace Bat
 		std::vector<Resource<Mesh>>& GetMeshes();
 		const std::vector<Resource<Mesh>>& GetMeshes() const;
 
-		// Returns mins of model in object space
-		const Vec3& GetMins() const;
-		// Returns maxs of model in object space
-		const Vec3& GetMaxs() const;
+		// Gets AABB in model space
+		const AABB& GetAABB() const { return m_Aabb; }
+
+		bool HasRenderFlag( RenderFlags flag ) { return (m_RenderFlags & flag) == flag; }
+		void AddRenderFlag( RenderFlags flag ) { m_RenderFlags |= flag; }
+		void RemoveRenderFlag( RenderFlags flag ) { m_RenderFlags &= ~flag; }
+
+		void DoImGuiMenu();
 	protected:
-		Vec3 m_vecMins;
-		Vec3 m_vecMaxs;
+		AABB m_Aabb;
 
 		std::vector<Resource<Mesh>> m_pMeshes;
+
+		RenderFlags m_RenderFlags = RenderFlags::NONE;
 	};
 }

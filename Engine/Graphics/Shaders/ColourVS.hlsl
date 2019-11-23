@@ -1,4 +1,6 @@
-cbuffer Matrices : register(b0)
+#include "CommonVS.hlsli"
+
+cbuffer Matrices : register(B_SLOT_TRANSFORM)
 {
     float4x4 world;
     float4x4 viewproj;

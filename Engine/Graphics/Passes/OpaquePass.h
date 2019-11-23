@@ -10,6 +10,7 @@
 #include "Material.h"
 #include "ShaderManager.h"
 #include "LitGenericPipeline.h"
+#include "DebugDraw.h"
 
 namespace Bat
 {
@@ -59,6 +60,11 @@ namespace Bat
 
 				DirectX::XMMATRIX w = transform;
 
+				if( model.HasRenderFlag( RenderFlags::DRAW_BBOX ) )
+				{
+					DrawOutlineBox( pContext, *pCamera, model.GetAABB(), w );
+				}
+
 				auto& meshes = model.GetMeshes();
 				for( auto& pMesh : meshes )
 				{
@@ -72,10 +78,21 @@ namespace Bat
 						continue;
 					}
 
+					if( pMesh->HasRenderFlag( RenderFlags::DRAW_BBOX ) )
+					{
+						DrawOutlineBox( pContext, *pCamera, pMesh->GetAABB(), w );
+					}
+
 					auto pPipeline = ShaderManager::GetPipeline<LitGenericPipeline>();
 					pPipeline->Render( pContext, *pMesh, *pCamera, w, light_list.entities, light_list.transforms );
 				}
 			}
+		}
+
+		void DrawOutlineBox( IGPUContext* pContext, const Camera& cam, const AABB& aabb, DirectX::XMMATRIX world_transform )
+		{
+			AABB transformed_aabb = aabb.Transform( world_transform );
+			DebugDraw::Box( transformed_aabb.mins, transformed_aabb.maxs );
 		}
 	private:
 		MeshAnimator* m_pCurrentAnimator = nullptr;

@@ -76,8 +76,8 @@ namespace Bat
 			std::sort( m_TranslucentMeshes.begin(), m_TranslucentMeshes.end(), [camera]( const TranslucentMesh& a, const TranslucentMesh& b )
 			{
 				const Vec3& cam_pos = camera.GetPosition();
-				const Vec3 a_pos = DirectX::XMVector3Transform( a.mesh->GetCenter(), a.world_transform );
-				const Vec3 b_pos = DirectX::XMVector3Transform( b.mesh->GetCenter(), b.world_transform );
+				const Vec3 a_pos = DirectX::XMVector3Transform( a.mesh->GetAABB().GetCenter(), a.world_transform );
+				const Vec3 b_pos = DirectX::XMVector3Transform( b.mesh->GetAABB().GetCenter(), b.world_transform );
 
 				const float a_distance_sq = (a_pos - cam_pos).LengthSq();
 				const float b_distance_sq = (b_pos - cam_pos).LengthSq();

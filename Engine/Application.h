@@ -17,7 +17,6 @@ namespace Bat
 	class Graphics;
 	class Window;
 	class Light;
-	class RenderTarget;
 
 	class Application : public ILayer
 	{
@@ -34,6 +33,9 @@ namespace Bat
 	private:
 		void BuildRenderGraph();
 	public:
+		bool opaque_pass = true;
+		bool transparent_pass = true;
+
 		bool bloom_enabled = true;
 		bool motion_blur_enabled = false;
 		bool tonemapping_enabled = true;
@@ -57,6 +59,7 @@ namespace Bat
 		AnimationSystem anim_system;
 
 		float bloom_threshold = 1.0f;
+		float exposure = 2.0f;
 
 		bool imgui_menu_enabled = false;
 

@@ -44,7 +44,7 @@ namespace Bat
 
 		if( mesh.HasTangentsAndBitangents() )
 		{
-			macros.emplace_back( "HAS_TANGENTS" );
+			macros.emplace_back( "HAS_TANGENT" );
 		}
 
 		return macros;

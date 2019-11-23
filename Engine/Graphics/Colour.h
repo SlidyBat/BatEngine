@@ -13,11 +13,7 @@ namespace Bat
 			:
 			value( val )
 		{}
-		constexpr Colour( int r, int g, int b )
-			:
-			Colour( (r << 16u) | (g << 8u) | b )
-		{}
-		constexpr Colour( int r, int g, int b, int a )
+		constexpr Colour( int r, int g, int b, int a = 255 )
 			:
 			Colour( (a << 24u) | (r << 16u) | (g << 8u) | b )
 		{}
@@ -83,12 +79,21 @@ namespace Bat
 		{
 			value = newval;
 		}
+
+		Vec4 AsVector() const
+		{
+			return Vec4( GetR() / 255.0f, GetG() / 255.0f, GetB() / 255.0f, GetA() / 255.0f );
+		}
 	private:
 		unsigned int value;
 	};
 
 	namespace Colours
 	{
+		static constexpr Colour Black = Colour( 0, 0, 0 );
 		static constexpr Colour White = Colour( 255, 255, 255 );
+		static constexpr Colour Red = Colour( 255, 0, 0 );
+		static constexpr Colour Green = Colour( 0, 255, 0 );
+		static constexpr Colour Blue = Colour( 0, 0, 255 );
 	}
 }

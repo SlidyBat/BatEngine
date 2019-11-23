@@ -2,6 +2,7 @@
 #include "Mesh.h"
 
 #include "Camera.h"
+#include "imgui.h"
 
 namespace Bat
 {
@@ -15,8 +16,7 @@ namespace Bat
 
 	void Mesh::Bind( IGPUContext* pContext, IVertexShader* pVertexShader ) const
 	{
-		// TODO: support other primitives?
-		pContext->SetPrimitiveTopology( PrimitiveTopology::TRIANGLELIST );
+		pContext->SetPrimitiveTopology( m_Topology );
 
 		size_t slot = 0;
 
@@ -61,7 +61,10 @@ namespace Bat
 			pContext->SetVertexBuffer( m_bufBoneWeights, slot++ );
 		}
 
-		pContext->SetIndexBuffer( m_bufIndices );
+		if( m_bufIndices )
+		{
+			pContext->SetIndexBuffer( m_bufIndices );
+		}
 	}
 
 	void Mesh::SetData( const MeshParameters& params )
@@ -70,19 +73,7 @@ namespace Bat
 
 		if( !params.position.empty() )
 		{
-			m_vecMins = { FLT_MAX, FLT_MAX, FLT_MAX };
-			m_vecMaxs = { FLT_MIN, FLT_MIN, FLT_MIN };
-
-			for( const auto& pos : params.position )
-			{
-				if( pos.x < m_vecMins.x ) m_vecMins.x = pos.x;
-				if( pos.y < m_vecMins.y ) m_vecMins.y = pos.y;
-				if( pos.z < m_vecMins.z ) m_vecMins.z = pos.z;
-
-				if( pos.x > m_vecMaxs.x ) m_vecMaxs.x = pos.x;
-				if( pos.y > m_vecMaxs.y ) m_vecMaxs.y = pos.y;
-				if( pos.z > m_vecMaxs.z ) m_vecMaxs.z = pos.z;
-			}
+			m_Aabb = AABB( m_vecPositions.data(), m_vecPositions.size() );
 
 			m_bufPosition.Reset( params.position );
 		}
@@ -150,5 +141,9 @@ namespace Bat
 	size_t Mesh::GetIndexCount() const
 	{
 		return m_iIndices.size();
+	}
+	void Mesh::DoImGuiMenu()
+	{
+		ImGui::CheckboxFlags( GetName().c_str(), (unsigned int*)&m_RenderFlags, (unsigned int)RenderFlags::DRAW_BBOX );
 	}
 }
