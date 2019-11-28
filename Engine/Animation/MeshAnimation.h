@@ -18,10 +18,25 @@ namespace Bat
 		DirectX::XMMATRIX inverse_bind_transform;
 	};
 
+	struct BoneTransform
+	{
+		Vec3 translation = { 0.0f, 0.0f, 0.0f };
+		Vec4 rotation = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+		BoneTransform operator*( const BoneTransform& rhs );
+		static DirectX::XMMATRIX ToMatrix( const BoneTransform& transform );
+		static BoneTransform FromMatrix( DirectX::XMMATRIX matrix );
+	};
+
 	struct BoneNode
 	{
-		DirectX::XMMATRIX local_transform;
+		BoneTransform transform;
 		int parent_index;
+	};
+
+	struct SkeletonPose
+	{
+		std::vector<BoneNode> bones;
 	};
 
 	template <typename T>
@@ -65,7 +80,7 @@ namespace Bat
 	{
 	public:
 		// Returns bone space transform of this bone in the pose at the given timestamp
-		DirectX::XMMATRIX GetSample( float timestamp ) const;
+		BoneTransform GetSample( float timestamp ) const;
 	public:
 		std::vector<PosKeyFrame> position_keyframes;
 		std::vector<RotKeyFrame> rotation_keyframes;
@@ -85,16 +100,16 @@ namespace Bat
 		float duration;
 
 		// Returns bone space transforms for each node in the skeleton at the given timestamp
-		std::vector<DirectX::XMMATRIX> GetSample( float timestamp, const std::vector<BoneNode>& original_skeleton ) const;
+		SkeletonPose GetSample( float timestamp, const SkeletonPose& bind_pose ) const;
 	};
 
 	class MeshAnimator
 	{
 	public:
 		MeshAnimator() = default;
-		MeshAnimator( std::vector<BoneNode> original_skeleton, std::vector<BoneData> bones, std::vector<MeshAnimation> animations )
+		MeshAnimator( SkeletonPose bind_pose, std::vector<BoneData> bones, std::vector<MeshAnimation> animations )
 			:
-			m_OriginalSkeleton( std::move( original_skeleton ) ),
+			m_BindPose( std::move( bind_pose ) ),
 			m_Bones( std::move( bones ) ),
 			m_Animations( std::move( animations ) )
 		{}
@@ -116,7 +131,7 @@ namespace Bat
 	private:
 		// Vector of each bone, guaranteed to have parent pones positioned before their child bones
 		std::vector<BoneData> m_Bones;
-		std::vector<BoneNode> m_OriginalSkeleton;
+		SkeletonPose m_BindPose;
 		std::vector<MeshAnimation> m_Animations;
 	
 		struct CB_Bones
@@ -162,7 +177,7 @@ namespace Bat
 			return GetChannel( curr_anim.name );
 		}
 
-		DirectX::XMMATRIX GetSample()
+		BoneTransform GetSample()
 		{
 			const AnimationChannel* channel = GetCurrentChannel();
 			float timestamp = m_pAnimator->GetTimestamp();

@@ -44,7 +44,7 @@ namespace Bat
 
 		scene.Set( world.CreateEntity() ); // Root entity;
 		animators.emplace_back();
-		size_t scene_index = scene.AddChild( loader.Load( "Assets/Ignore/Sponza/sponza.gltf", &animators.back() ) );
+		size_t scene_index = scene.AddChild( loader.Load( "Assets/Ignore/iclone/scene.gltf", &animators.back() ) );
 
 		flashlight = world.CreateEntity();
 		flashlight.Add<LightComponent>()

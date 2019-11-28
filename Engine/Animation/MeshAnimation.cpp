@@ -77,7 +77,7 @@ namespace Bat
 		return InterpolateRotKeyFrames( keyframes[prev_key_frame], keyframes[next_key_frame], timestamp );
 	}
 
-	DirectX::XMMATRIX AnimationChannel::GetSample( float timestamp ) const
+	BoneTransform AnimationChannel::GetSample( float timestamp ) const
 	{
 		if( timestamp < last_timestamp )
 		{
@@ -89,14 +89,13 @@ namespace Bat
 		if( position_keyframes.empty() || rotation_keyframes.empty() )
 		{
 			ASSERT( position_keyframes.empty() && rotation_keyframes.empty(), "Only 1 keyframe type provided" );
-			return DirectX::XMMatrixIdentity();
+			return {};
 		}
 
-		Vec3 interp_pos = GetPosKeyFrameAt( position_keyframes, &last_pos_index, timestamp );
-		Vec4 interp_rot = GetRotKeyFrameAt( rotation_keyframes, &last_rot_index, timestamp );
-
-		return DirectX::XMMatrixRotationQuaternion( interp_rot ) *
-			DirectX::XMMatrixTranslation( interp_pos.x, interp_pos.y, interp_pos.z );
+		BoneTransform transform;
+		transform.translation = GetPosKeyFrameAt( position_keyframes, &last_pos_index, timestamp );
+		transform.rotation    = GetRotKeyFrameAt( rotation_keyframes, &last_rot_index, timestamp );
+		return transform;
 	}
 
 	void AnimationChannel::ResetCache() const
@@ -105,20 +104,16 @@ namespace Bat
 		last_rot_index = 0;
 	}
 
-	std::vector<DirectX::XMMATRIX> MeshAnimation::GetSample( float timestamp, const std::vector<BoneNode>& original_skeleton ) const
+	SkeletonPose MeshAnimation::GetSample( float timestamp, const SkeletonPose& bind_pose ) const
 	{
-		std::vector<DirectX::XMMATRIX> new_transforms;
-		new_transforms.reserve( original_skeleton.size() );
-		std::transform( original_skeleton.begin(), original_skeleton.end(), std::back_inserter( new_transforms ), []( const BoneNode& node ) {
-			return node.local_transform;
-		} );
+		SkeletonPose new_pose = bind_pose;
 
 		for( const AnimationChannel& channel : channels )
 		{
-			new_transforms[channel.node_index] = channel.GetSample( timestamp );
+			new_pose.bones[channel.node_index].transform = channel.GetSample( timestamp );
 		}
 
-		return new_transforms;
+		return new_pose;
 	}
 
 	void MeshAnimator::Bind( IGPUContext* pContext )
@@ -153,16 +148,18 @@ namespace Bat
 		ASSERT( m_Bones.size() <= MAX_BONES, "Too many bones!" );
 
 		// Initially given in local space, need to convert to model space by concatenating transforms down skeleton, then multiply by inverse bind of bind pose to get offset
-		std::vector<DirectX::XMMATRIX> transforms = animation.GetSample( timestamp, m_OriginalSkeleton );
+		SkeletonPose pose = animation.GetSample( timestamp, m_BindPose );
 
-		for( size_t i = 1; i < transforms.size(); i++ )
+		for( size_t i = 1; i < pose.bones.size(); i++ )
 		{
-			transforms[i] = transforms[i] * transforms[m_OriginalSkeleton[i].parent_index];
+			int parent_index = pose.bones[i].parent_index;
+			pose.bones[i].transform = pose.bones[i].transform * pose.bones[parent_index].transform;
 		}
 
 		for( size_t i = 0; i < m_Bones.size(); i++ )
 		{
-			out[i] = m_Bones[i].inverse_bind_transform * transforms[m_Bones[i].index];
+			DirectX::XMMATRIX bone_transform = BoneTransform::ToMatrix( pose.bones[m_Bones[i].index].transform );
+			out[i] = m_Bones[i].inverse_bind_transform * bone_transform;
 		}
 	}
 
@@ -183,9 +180,31 @@ namespace Bat
 					continue;
 				}
 
-				DirectX::XMMATRIX sample = anim.GetSample();
-				t.SetTransform( sample );
+				BoneTransform sample = anim.GetSample();
+				t.SetTransform( BoneTransform::ToMatrix( sample ) );
 			}
 		}
+	}
+
+	BoneTransform BoneTransform::operator*( const BoneTransform& rhs )
+	{
+		// Wildly inefficient but trying to concatenate translation/rotation myself wasn't working out
+		return FromMatrix( ToMatrix( *this ) * ToMatrix( rhs ) );
+	}
+	DirectX::XMMATRIX BoneTransform::ToMatrix( const BoneTransform& transform )
+	{
+		return DirectX::XMMatrixRotationQuaternion( transform.rotation ) *
+			DirectX::XMMatrixTranslation( transform.translation.x, transform.translation.y, transform.translation.z );
+	}
+	BoneTransform BoneTransform::FromMatrix( DirectX::XMMATRIX matrix )
+	{
+		DirectX::XMVECTOR translation, rotation, scale;
+		DirectX::XMMatrixDecompose( &scale, &rotation, &translation, matrix );
+
+		BoneTransform transform;
+		transform.translation = translation;
+		transform.rotation = rotation;
+
+		return transform;
 	}
 }

@@ -69,7 +69,7 @@ namespace Bat
 		std::vector<MeshAnimation> m_Animations;
 
 		std::vector<BoneData> m_Bones;
-		std::vector<BoneNode> m_OriginalSkeleton;
+		SkeletonPose m_OriginalSkeleton;
 		std::unordered_map<std::string, aiBone*> m_mapBoneNameToAiBone;
 		std::unordered_map<std::string, int> m_mapNodeNameToIndex;
 		std::unordered_map<std::string, int> m_mapBoneNameToIndex;

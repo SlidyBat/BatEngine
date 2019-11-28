@@ -213,14 +213,14 @@ namespace Bat
 
 	int SceneLoader::AddSkeletonNode( aiNode* pAiNode, int parent_index )
 	{
-		int index = (int)m_OriginalSkeleton.size();
+		int index = (int)m_OriginalSkeleton.bones.size();
 		m_mapNodeNameToIndex[pAiNode->mName.C_Str()] = index;
 		
 		BoneNode node;
-		node.local_transform = AiToDxMatrix( pAiNode->mTransformation );
+		node.transform = BoneTransform::FromMatrix( AiToDxMatrix( pAiNode->mTransformation ) );
 		node.parent_index = parent_index;
 
-		m_OriginalSkeleton.push_back( node );
+		m_OriginalSkeleton.bones.push_back( node );
 
 		return index;
 	}
