@@ -215,6 +215,10 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Animation\AnimationChannel.cpp" />
+    <ClCompile Include="Animation\AnimationClip.cpp" />
+    <ClCompile Include="Animation\AnimationSkeleton.cpp" />
+    <ClCompile Include="Animation\AnimationSystem.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Audio\Audio.cpp" />
     <ClCompile Include="Core\Console.cpp" />
@@ -228,7 +232,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClCompile Include="Events\Event.cpp" />
     <ClCompile Include="Graphics\DebugDraw.cpp" />
     <ClCompile Include="Graphics\GraphicsFormats.cpp" />
-    <ClCompile Include="Animation\MeshAnimation.cpp" />
+    <ClCompile Include="Animation\MeshAnimator.cpp" />
     <ClCompile Include="Graphics\MeshBuilder.cpp" />
     <ClCompile Include="Graphics\ScratchRenderTarget.cpp" />
     <ClCompile Include="Physics\EntityTrace.cpp" />
@@ -355,12 +359,18 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animation\AnimationChannel.h" />
+    <ClInclude Include="Animation\AnimationClip.h" />
+    <ClInclude Include="Animation\AnimationComponent.h" />
+    <ClInclude Include="Animation\AnimationSkeleton.h" />
+    <ClInclude Include="Animation\AnimationSystem.h" />
+    <ClInclude Include="Animation\KeyFrame.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="Audio\Audio.h" />
     <ClInclude Include="Core\CoreEntityComponents.h" />
     <ClInclude Include="Graphics\DDSTextureLoader.h" />
     <ClInclude Include="Events\PhysicsEvents.h" />
-    <ClInclude Include="Animation\MeshAnimation.h" />
+    <ClInclude Include="Animation\MeshAnimator.h" />
     <ClInclude Include="Graphics\DebugDraw.h" />
     <ClInclude Include="Graphics\MeshBuilder.h" />
     <ClInclude Include="Graphics\Passes\SceneRenderPass.h" />

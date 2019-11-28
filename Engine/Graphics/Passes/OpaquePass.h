@@ -11,6 +11,7 @@
 #include "ShaderManager.h"
 #include "LitGenericPipeline.h"
 #include "DebugDraw.h"
+#include "AnimationComponent.h"
 
 namespace Bat
 {

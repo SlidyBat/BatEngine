@@ -2,68 +2,59 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Graphics">
-      <UniqueIdentifier>{79abc410-ea40-4389-93d0-9c3d921e7e48}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Animation">
-      <UniqueIdentifier>{053bbf28-c81c-497e-9e6f-cec9aef4ed1e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Physics">
-      <UniqueIdentifier>{d152ac45-19a2-46eb-8d7e-03cb20ede7c0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Platform">
-      <UniqueIdentifier>{8015cbea-14b1-447e-a8d4-e7504d159c1b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\ImGui">
-      <UniqueIdentifier>{7a190a0c-324d-46ca-8551-9d4582022b8c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty">
-      <UniqueIdentifier>{855a4042-4e2b-45ef-8670-d64fd4650faa}</UniqueIdentifier>
+      <UniqueIdentifier>{63a2547d-33b9-4a98-9feb-4cdabb9fe5a3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics\UI">
-      <UniqueIdentifier>{f0c1d52e-0624-4d8a-a7c4-d0ad6c701209}</UniqueIdentifier>
+      <UniqueIdentifier>{a590c86c-c362-4a45-8042-5940337fdc6e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics\UI\UltralightAdapters">
-      <UniqueIdentifier>{4685e007-848f-4298-8e3e-2fac2cff7ae4}</UniqueIdentifier>
+      <UniqueIdentifier>{c48ff624-53fe-469e-8cf0-d97ea66fd758}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Animation">
+      <UniqueIdentifier>{4f5b74d3-67f9-4bbd-984b-0863b6e4948e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{ef02a316-5e31-4fc8-a990-015a8a4eb24f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{a054a087-1906-48b2-88c4-02b37469bf26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\ImGui">
+      <UniqueIdentifier>{abff941e-63b8-4144-a9d4-7769e7809927}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty">
+      <UniqueIdentifier>{f95a0890-69e4-4713-b90f-70fc9902ddd2}</UniqueIdentifier>
     </Filter>
     <Filter Include="Util">
-      <UniqueIdentifier>{ae0503e6-9d65-4e8f-bbbc-7b730962d26d}</UniqueIdentifier>
+      <UniqueIdentifier>{a60c2694-6f46-4d42-9173-bc18062baea5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core">
-      <UniqueIdentifier>{27b18ff1-68e1-4753-a422-90b4628f5fb8}</UniqueIdentifier>
+      <UniqueIdentifier>{2124be27-8b27-4666-96c6-bf8db0cb9909}</UniqueIdentifier>
     </Filter>
     <Filter Include="Networking">
-      <UniqueIdentifier>{b4931de0-63f9-4c9f-8eaa-fbed44741d09}</UniqueIdentifier>
+      <UniqueIdentifier>{6735a282-834a-4d99-8ebe-fc6ee46de93d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Audio">
-      <UniqueIdentifier>{f650bb00-0fbe-43cd-9c66-c6fe53aafe61}</UniqueIdentifier>
+      <UniqueIdentifier>{3531c5e6-ccdf-429e-8274-19a16a5a7331}</UniqueIdentifier>
     </Filter>
     <Filter Include="Events">
-      <UniqueIdentifier>{c809dabc-0de1-4f76-8fe9-fb2e5ae7addd}</UniqueIdentifier>
+      <UniqueIdentifier>{db571f0c-7bef-4520-8e79-a8bcddc37dab}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics\Passes">
-      <UniqueIdentifier>{f33b87cf-6171-4d35-9dc0-791726c18d93}</UniqueIdentifier>
+      <UniqueIdentifier>{2f49cc01-9940-4986-8e8d-4ef0f83b8161}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics\Shaders">
-      <UniqueIdentifier>{a35fded9-4c1d-4bb6-a3e6-22653ae6abf5}</UniqueIdentifier>
+      <UniqueIdentifier>{71014bba-57ca-4148-808d-c9b27278f61c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Assets">
-      <UniqueIdentifier>{f50da01a-7cce-4b69-a8fd-e9e65a097917}</UniqueIdentifier>
+      <UniqueIdentifier>{42b1cfc0-fcd9-4fca-8b1b-5df36d6def36}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Graphics\GraphicsFormats.cpp">
+    <ClCompile Include="Graphics\DDSTextureLoader.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Animation\MeshAnimation.cpp">
-      <Filter>Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="Physics\EntityTrace.cpp">
-      <Filter>Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="Physics\PhysicsComponent.cpp">
-      <Filter>Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\DDSTextureLoader.cpp">
+    <ClCompile Include="Graphics\GraphicsFormats.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\IRenderPass.cpp">
@@ -87,13 +78,22 @@
     <ClCompile Include="Graphics\Model.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\LitGenericPipeline.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
     <ClCompile Include="Graphics\Light.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\MoveableCamera.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\SkyboxPipeline.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
     <ClCompile Include="Graphics\Camera.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ColourPipeline.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\D3DGPUDevice.cpp">
@@ -102,29 +102,53 @@
     <ClCompile Include="Graphics\SceneLoader.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Platform\GDIPManager.cpp">
-      <Filter>Platform</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\Graphics.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Texture.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\TexturePipeline.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
     <ClCompile Include="Graphics\WICTextureLoader.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\LitGenericPipeline.cpp">
-      <Filter>Graphics</Filter>
+    <ClCompile Include="Graphics\UI\HtmlUI.cpp">
+      <Filter>Graphics\UI</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\SkyboxPipeline.cpp">
-      <Filter>Graphics</Filter>
+    <ClCompile Include="Graphics\UI\UltralightAdapters\FileSystemBasic.cpp">
+      <Filter>Graphics\UI\UltralightAdapters</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\ColourPipeline.cpp">
-      <Filter>Graphics</Filter>
+    <ClCompile Include="Graphics\UI\UltralightAdapters\FontLoaderWin.cpp">
+      <Filter>Graphics\UI\UltralightAdapters</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\TexturePipeline.cpp">
-      <Filter>Graphics</Filter>
+    <ClCompile Include="Graphics\UI\UltralightAdapters\GPUDriverD3D11.cpp">
+      <Filter>Graphics\UI\UltralightAdapters</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation\MeshAnimator.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\EntityTrace.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\PhysicsComponent.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\Physics.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\COMInitialize.cpp">
+      <Filter>Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\GDIPManager.cpp">
+      <Filter>Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\Input.cpp">
+      <Filter>Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\Window.cpp">
+      <Filter>Platform</Filter>
     </ClCompile>
     <ClCompile Include="ThirdParty\ImGui\imgui.cpp">
       <Filter>ThirdParty\ImGui</Filter>
@@ -143,18 +167,6 @@
     </ClCompile>
     <ClCompile Include="ThirdParty\ImGui\imgui_widgets.cpp">
       <Filter>ThirdParty\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\UI\HtmlUI.cpp">
-      <Filter>Graphics\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\UI\UltralightAdapters\FileSystemBasic.cpp">
-      <Filter>Graphics\UI\UltralightAdapters</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\UI\UltralightAdapters\FontLoaderWin.cpp">
-      <Filter>Graphics\UI\UltralightAdapters</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\UI\UltralightAdapters\GPUDriverD3D11.cpp">
-      <Filter>Graphics\UI\UltralightAdapters</Filter>
     </ClCompile>
     <ClCompile Include="Util\Frustum.cpp">
       <Filter>Util</Filter>
@@ -175,6 +187,9 @@
       <Filter>Util</Filter>
     </ClCompile>
     <ClCompile Include="Util\FrameTimer.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\MathLib.cpp">
       <Filter>Util</Filter>
     </ClCompile>
     <ClCompile Include="Util\MemoryStream.cpp">
@@ -201,53 +216,38 @@
     <ClCompile Include="Core\Globals.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Util\MathLib.cpp">
-      <Filter>Util</Filter>
-    </ClCompile>
-    <ClCompile Include="Platform\COMInitialize.cpp">
-      <Filter>Platform</Filter>
-    </ClCompile>
-    <ClCompile Include="Platform\Input.cpp">
-      <Filter>Platform</Filter>
-    </ClCompile>
-    <ClCompile Include="Platform\Window.cpp">
-      <Filter>Platform</Filter>
-    </ClCompile>
     <ClCompile Include="Networking\Networking.cpp">
       <Filter>Networking</Filter>
     </ClCompile>
     <ClCompile Include="Audio\Audio.cpp">
       <Filter>Audio</Filter>
     </ClCompile>
-    <ClCompile Include="Physics\Physics.cpp">
-      <Filter>Physics</Filter>
-    </ClCompile>
     <ClCompile Include="Events\Event.cpp">
       <Filter>Events</Filter>
     </ClCompile>
-    <ClCompile Include="Application.cpp" />
-    <ClCompile Include="PCH.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Graphics\DebugDraw.cpp" />
-    <ClCompile Include="Graphics\MeshBuilder.cpp" />
-    <ClCompile Include="Graphics\ScratchRenderTarget.cpp" />
+    <ClCompile Include="Graphics\DebugDraw.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\MeshBuilder.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ScratchRenderTarget.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation\AnimationChannel.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation\AnimationClip.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation\AnimationSystem.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation\AnimationSkeleton.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Events\PhysicsEvents.h">
-      <Filter>Events</Filter>
-    </ClInclude>
-    <ClInclude Include="Animation\MeshAnimation.h">
-      <Filter>Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics\EntityTrace.h">
-      <Filter>Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics\PhysicsComponent.h">
-      <Filter>Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics\PhysicsSystem.h">
-      <Filter>Physics</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\DDSTextureLoader.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -275,6 +275,9 @@
     <ClInclude Include="Graphics\ShaderBuffers.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\LitGenericPipeline.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
     <ClInclude Include="Graphics\Light.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -284,10 +287,16 @@
     <ClInclude Include="Graphics\MoveableCamera.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\SkyboxPipeline.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
     <ClInclude Include="Graphics\Camera.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Colour.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ColourPipeline.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Mesh.h">
@@ -317,6 +326,9 @@
     <ClInclude Include="Graphics\Texture.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\TexturePipeline.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
     <ClInclude Include="Graphics\VertexTypes.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -325,42 +337,6 @@
     </ClInclude>
     <ClInclude Include="Graphics\WICTextureLoader.h">
       <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\LitGenericPipeline.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\SkyboxPipeline.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ColourPipeline.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\TexturePipeline.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\ImGui\imconfig.h">
-      <Filter>ThirdParty\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\ImGui\imgui.h">
-      <Filter>ThirdParty\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\ImGui\imgui_impl_dx11.h">
-      <Filter>ThirdParty\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\ImGui\imgui_impl_win32.h">
-      <Filter>ThirdParty\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\ImGui\imgui_internal.h">
-      <Filter>ThirdParty\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\ImGui\imstb_rectpack.h">
-      <Filter>ThirdParty\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\ImGui\imstb_textedit.h">
-      <Filter>ThirdParty\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\ImGui\imstb_truetype.h">
-      <Filter>ThirdParty\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\UI\HtmlUI.h">
       <Filter>Graphics\UI</Filter>
@@ -401,6 +377,60 @@
     <ClInclude Include="Graphics\Passes\SkyboxPass.h">
       <Filter>Graphics\Passes</Filter>
     </ClInclude>
+    <ClInclude Include="Animation\MeshAnimator.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\EntityTrace.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\PhysicsComponent.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\PhysicsSystem.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\Physics.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\COMInitialize.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\GDIPManager.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\Input.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\BatWinAPI.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\Window.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\ImGui\imconfig.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\ImGui\imgui.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\ImGui\imgui_impl_dx11.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\ImGui\imgui_impl_win32.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\ImGui\imgui_internal.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\ImGui\imstb_rectpack.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\ImGui\imstb_textedit.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\ImGui\imstb_truetype.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
     <ClInclude Include="Util\Tree.h">
       <Filter>Util</Filter>
     </ClInclude>
@@ -419,6 +449,9 @@
     <ClInclude Include="Util\TokenStream.h">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="Util\BatAssert.h">
+      <Filter>Util</Filter>
+    </ClInclude>
     <ClInclude Include="Util\FileWatchdog.h">
       <Filter>Util</Filter>
     </ClInclude>
@@ -434,11 +467,56 @@
     <ClInclude Include="Util\StackAllocator.h">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="Util\StringLib.h">
+      <Filter>Util</Filter>
+    </ClInclude>
     <ClInclude Include="Util\FrameTimer.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\COMException.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\MathLib.h">
       <Filter>Util</Filter>
     </ClInclude>
     <ClInclude Include="Util\MemoryStream.h">
       <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\CoreEntityComponents.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\EngineSystems.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Console.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Entity.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Common.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\ResourceManager.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Log.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Globals.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\ILayer.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Networking\Networking.h">
+      <Filter>Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\Audio.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Events\PhysicsEvents.h">
+      <Filter>Events</Filter>
     </ClInclude>
     <ClInclude Include="Events\EntityEvents.h">
       <Filter>Events</Filter>
@@ -458,77 +536,39 @@
     <ClInclude Include="Events\WindowEvents.h">
       <Filter>Events</Filter>
     </ClInclude>
-    <ClInclude Include="Core\CoreEntityComponents.h">
-      <Filter>Core</Filter>
+    <ClInclude Include="Animation\AnimationChannel.h">
+      <Filter>Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Core\EngineSystems.h">
-      <Filter>Core</Filter>
+    <ClInclude Include="Animation\AnimationClip.h">
+      <Filter>Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Console.h">
-      <Filter>Core</Filter>
+    <ClInclude Include="Animation\AnimationComponent.h">
+      <Filter>Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Entity.h">
-      <Filter>Core</Filter>
+    <ClInclude Include="Animation\AnimationSkeleton.h">
+      <Filter>Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Util\BatAssert.h">
-      <Filter>Util</Filter>
+    <ClInclude Include="Animation\AnimationSystem.h">
+      <Filter>Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Common.h">
-      <Filter>Core</Filter>
+    <ClInclude Include="Animation\KeyFrame.h">
+      <Filter>Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Core\ResourceManager.h">
-      <Filter>Core</Filter>
+    <ClInclude Include="Graphics\DebugDraw.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Log.h">
-      <Filter>Core</Filter>
+    <ClInclude Include="Graphics\MeshBuilder.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Util\StringLib.h">
-      <Filter>Util</Filter>
+    <ClInclude Include="Graphics\Passes\ToneMappingPass.h">
+      <Filter>Graphics\Passes</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Globals.h">
-      <Filter>Core</Filter>
+    <ClInclude Include="Graphics\RenderFlags.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Core\ILayer.h">
-      <Filter>Core</Filter>
+    <ClInclude Include="Graphics\ScratchRenderTarget.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Util\MathLib.h">
-      <Filter>Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Platform\COMInitialize.h">
-      <Filter>Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\COMException.h">
-      <Filter>Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Platform\GDIPManager.h">
-      <Filter>Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="Platform\Input.h">
-      <Filter>Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="Platform\BatWinAPI.h">
-      <Filter>Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="Platform\Window.h">
-      <Filter>Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="Networking\Networking.h">
-      <Filter>Networking</Filter>
-    </ClInclude>
-    <ClInclude Include="Audio\Audio.h">
-      <Filter>Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics\Physics.h">
-      <Filter>Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="Application.h" />
-    <ClInclude Include="PCH.h" />
-    <ClInclude Include="Resource.h" />
-    <ClInclude Include="Graphics\Passes\ToneMappingPass.h" />
-    <ClInclude Include="Graphics\DebugDraw.h" />
-    <ClInclude Include="Graphics\MeshBuilder.h" />
-    <ClInclude Include="Graphics\RenderFlags.h" />
-    <ClInclude Include="Graphics\ScratchRenderTarget.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\RenderNodeDataTypes.def">
@@ -537,17 +577,6 @@
     <None Include="Graphics\Shaders\CommonPS.hlsli">
       <Filter>Graphics\Shaders</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Engine.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Assets\mario.png">
-      <Filter>Assets</Filter>
-    </Image>
-    <Image Include="Assets\slidy.ico">
-      <Filter>Assets</Filter>
-    </Image>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Graphics\Shaders\BloomPS.hlsl">
@@ -589,6 +618,17 @@
     <FxCompile Include="Graphics\Shaders\TextureVS.hlsl">
       <Filter>Graphics\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Graphics\Shaders\ToneMappingPS.hlsl" />
+    <FxCompile Include="Graphics\Shaders\ToneMappingPS.hlsl">
+      <Filter>Graphics\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\mario.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\slidy.ico">
+      <Filter>Assets</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup />
 </Project>

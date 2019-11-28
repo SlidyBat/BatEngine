@@ -66,7 +66,7 @@ namespace Bat
 		};
 		std::vector<LoadedMesh> m_LoadedMeshes;
 
-		std::vector<MeshAnimation> m_Animations;
+		std::vector<AnimationClip> m_Animations;
 
 		std::vector<BoneData> m_Bones;
 		SkeletonPose m_OriginalSkeleton;

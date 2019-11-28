@@ -11,6 +11,7 @@
 #include "KeyboardEvents.h"
 #include "MouseEvents.h"
 #include "PhysicsSystem.h"
+#include "AnimationSystem.h"
 
 namespace Bat
 {

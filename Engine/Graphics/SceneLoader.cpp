@@ -2,6 +2,7 @@
 #include "SceneLoader.h"
 
 #include "CoreEntityComponents.h"
+#include "AnimationComponent.h"
 #include "Mesh.h"
 #include "Model.h"
 #include "Colour.h"
@@ -291,7 +292,7 @@ namespace Bat
 				ticks_per_second = 1.0f;
 			}
 
-			MeshAnimation animation;
+			AnimationClip animation;
 			animation.name = pAiAnimation->mName.C_Str();
 			animation.channels.resize( pAiAnimation->mNumChannels );
 			animation.duration = (float)pAiAnimation->mDuration / ticks_per_second;
