@@ -266,7 +266,7 @@ namespace Bat
 					}
 
 					static int selected_clip = 0;
-					ImGui::Combo( "Clip", &selected_clip, clip_names.data(), clip_names.size() );
+					ImGui::Combo( "Clip", &selected_clip, clip_names.data(), (int)clip_names.size() );
 					if( ImGui::Button( "Add clip" ) )
 					{
 						AnimationState new_state( clips[selected_clip] );

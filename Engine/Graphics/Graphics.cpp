@@ -157,12 +157,20 @@ namespace Bat
 
 	void Graphics::RenderUI()
 	{
+		IGPUContext* pContext = gpu->GetContext();
+
+		pContext->BeginEvent( "ultralight ui" );
 		m_UI.Update();
 		m_UI.Render();
+		pContext->EndEvent();
 	}
 
 	void Graphics::RenderImGui()
 	{
+		IGPUContext* pContext = gpu->GetContext();
+
+		pContext->BeginEvent( "imgui" );
+
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );
 
@@ -172,5 +180,7 @@ namespace Bat
 			ImGui::UpdatePlatformWindows();
 			ImGui::RenderPlatformWindowsDefault();
 		}
+
+		pContext->EndEvent();
 	}
 }
