@@ -3,6 +3,7 @@
 
 #include "CoreEntityComponents.h"
 #include "AnimationComponent.h"
+#include "AnimationClip.h"
 #include "Mesh.h"
 #include "Model.h"
 #include "Colour.h"
@@ -274,7 +275,7 @@ namespace Bat
 		return m_Bones.size();
 	}
 
-	void SceneLoader::LoadAnimations( MeshAnimator* animator_out )
+	void SceneLoader::LoadAnimations( AnimationComponent* animation_out )
 	{
 		m_Animations.reserve( m_pAiScene->mNumAnimations );
 
@@ -338,16 +339,19 @@ namespace Bat
 
 					channel.rotation_keyframes.push_back( keyframe );
 				}
-				
-				Entity ent = GetSceneNode( node_index );
-				AnimationComponent& anim = ent.Ensure<AnimationComponent>( animator_out );
-				anim.AddChannel( animation.name, channel_index );
 			}
 
 			m_Animations.push_back( animation );
 		}
 
-		*animator_out = MeshAnimator( std::move( m_OriginalSkeleton ), std::move( m_Bones ), std::move( m_Animations ) );
+		for( int i = 0; i < (int)m_OriginalSkeleton.bones.size(); i++ )
+		{
+			m_OriginalSkeleton.bones[i].entity = GetSceneNode( i );
+		}
+
+		animation_out->bind_pose = std::move( m_OriginalSkeleton );
+		animation_out->bones = std::move( m_Bones );
+		animation_out->clips = std::move( m_Animations );
 	}
 
 	static void AddBoneWeight( std::vector<Veu4>* ids, std::vector<Vec4>* weights, unsigned int vertex_id, unsigned int bone_id, float weight )
@@ -590,7 +594,7 @@ namespace Bat
 		}
 	}
 
-	SceneNode SceneLoader::Load( const std::string& filename, MeshAnimator* animator_out )
+	SceneNode SceneLoader::Load( const std::string& filename )
 	{
 		if( !this->ReadFile( filename ) )
 		{
@@ -607,21 +611,11 @@ namespace Bat
 
 		ProcessNode( m_pAiScene->mRootNode, root_node );
 
-		if( animator_out )
+		if( m_pAiScene->HasAnimations() )
 		{
-			LoadAnimations( animator_out );
-
-			if( animator_out->GetNumAnimations() > 0 && !root_node.Get().Has<AnimationComponent>() )
-			{
-				// HACK: Add a root node animation component that has reference to the animator
-				// This way we guarantee that there is always an animation component defined before bone
-				// and can bind a model's animation more easily
-				Entity animator = world.CreateEntity();
-				animator.Add<AnimationComponent>( animator_out );
-				SceneNode animator_node( animator );
-				animator_node.AddChild( root_node );
-				root_node = std::move( animator_node );
-			}
+			auto& anim = e.Add<AnimationComponent>();
+			e.Ensure<TransformComponent>(); // Animations rely on transform component, so ensure it exists
+			LoadAnimations( &anim );
 		}
 
 		float time = ft.Mark();

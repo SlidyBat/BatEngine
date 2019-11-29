@@ -13,6 +13,8 @@ namespace Bat
 {
 	class Mesh;
 	class Material;
+	class AnimationComponent;
+	struct AnimationClip;
 
 	class SceneLoader
 	{
@@ -27,7 +29,7 @@ namespace Bat
 			Disk
 		};
 	public:
-		SceneNode Load( const std::string& filename, MeshAnimator* animator_out = nullptr );
+		SceneNode Load( const std::string& filename );
 	private:
 		bool ReadFile( const std::string& filename );
 		const std::string& GetDirectory() const { return m_szDirectory; }
@@ -51,7 +53,7 @@ namespace Bat
 		int FindBoneByName( const std::string& name ) const;
 		size_t GetNumBones() const;
 		
-		void LoadAnimations( MeshAnimator* animator_out );
+		void LoadAnimations( AnimationComponent* animation_out );
 	private:
 		Assimp::Importer m_Importer;
 

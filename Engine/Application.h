@@ -51,7 +51,6 @@ namespace Bat
 		Entity sun;
 		Entity player;
 
-		std::vector<MeshAnimator> animators;
 		float timestamp = 0.0f;
 		float anim_timescale = 1.0f;
 		int selected_anim = 0;

@@ -42,9 +42,13 @@ namespace Bat
 
 		camera.SetAspectRatio( (float)wnd.GetWidth() / wnd.GetHeight() );
 
-		scene.Set( world.CreateEntity() ); // Root entity;
-		animators.emplace_back();
-		size_t scene_index = scene.AddChild( loader.Load( "Assets/Ignore/iclone/scene.gltf", &animators.back() ) );
+		scene.Set( world.CreateEntity() ); // Root entity
+		size_t scale_index = scene.AddChild( world.CreateEntity() );
+		SceneNode& scale_node = scene.GetChild( scale_index );
+		size_t scene_index = scale_node.AddChild( loader.Load( "Assets/Ignore/iclone/scene.gltf" ) );
+
+		scale_node.Get().Add<TransformComponent>()
+			.SetScale( 0.01f );
 
 		flashlight = world.CreateEntity();
 		flashlight.Add<LightComponent>()
@@ -81,16 +85,13 @@ namespace Bat
 				.SetKinematic( true )
 				.AddSphereShape( 0.05f );
 
-			Entity scene_ent = scene.GetChild( scene_index ).Get();
-			scene_ent.Ensure<TransformComponent>()
-				.SetScale( 0.01f );
 			//scene_ent.Add<PhysicsComponent>( PhysicsObjectType::STATIC )
 			//	.AddMeshShape();
 		}
 
 		wnd.input.AddEventListener<KeyPressedEvent>( *this );
 
-		g_Console.AddCommand( "load_scene", [&scene = scene, &cam = camera, &gfx = gfx, &animators = animators]( const CommandArgs_t& args )
+		g_Console.AddCommand( "load_scene", [&scene = scene, &cam = camera, &gfx = gfx]( const CommandArgs_t& args )
 		{
 			std::string filepath = std::string( args[1] );
 			if( !std::filesystem::exists( filepath ) )
@@ -99,12 +100,11 @@ namespace Bat
 			}
 
 			SceneLoader loader;
-			animators.emplace_back();
-			scene = loader.Load( filepath, &animators.back() );
+			scene = loader.Load( filepath );
 			gfx.SetActiveScene( &scene );
 		} );
 
-		g_Console.AddCommand( "add_model", [&scene = scene, &cam = camera, &animators = animators]( const CommandArgs_t& args )
+		g_Console.AddCommand( "add_model", [&scene = scene, &cam = camera]( const CommandArgs_t& args )
 		{
 			std::string filepath = std::string( args[1] );
 			if( !std::filesystem::exists( filepath ) )
@@ -113,8 +113,7 @@ namespace Bat
 			}
 
 			SceneLoader loader;
-			animators.emplace_back();
-			SceneNode new_node = loader.Load( filepath, &animators.back() );
+			SceneNode new_node = loader.Load( filepath );
 
 			auto pos = cam.GetPosition();
 			Entity new_model = new_node.Get();
@@ -179,21 +178,7 @@ namespace Bat
 			.SetRotation( camera.GetRotation() );
 
 		physics_system.Update( world, deltatime );
-		for( MeshAnimator& animator : animators )
-		{
-			if( animator.GetNumAnimations() > 0 )
-			{
-				timestamp += deltatime * anim_timescale;
-				if( timestamp >= animator.GetCurrentAnimation().duration )
-				{
-					timestamp = 0;
-				}
-
-				animator.SetCurrentAnimationIndex( selected_anim );
-				animator.SetTimestamp( timestamp );
-			}
-		}
-		anim_system.Update( world );
+		anim_system.Update( world, deltatime );
 
 		Physics::Simulate( deltatime );
 	}
@@ -236,7 +221,61 @@ namespace Bat
 			}
 			if( e.Has<AnimationComponent>() )
 			{
-				ImGui::Text( "Animation" );
+				if( ImGui::TreeNode( "Animation" ) )
+				{
+					auto& anim = e.Get<AnimationComponent>();
+
+					for( size_t i = 0; i < anim.states.size(); )
+					{
+						AnimationState& state = anim.states[i];
+						state.DoImGuiMenu();
+						ImGui::PushID( state.GetClip() );
+						if( ImGui::Button( "Delete" ) )
+						{
+							anim.states.erase( anim.states.begin() + i );
+						}
+						else
+						{
+							i++;
+						}
+						ImGui::PopID();
+					}
+
+					std::vector<AnimationClip*> clips;
+					std::vector<const char*> clip_names;
+					for( AnimationClip& clip : anim.clips )
+					{
+						bool exists = false;
+
+						for( AnimationState& state : anim.states )
+						{
+							if( state.GetClip() == &clip )
+							{
+								exists = true;
+								break;
+							}
+						}
+
+						if( exists )
+						{
+							continue;
+						}
+
+						clips.push_back( &clip );
+						clip_names.push_back( clip.name.c_str() );
+					}
+
+					static int selected_clip = 0;
+					ImGui::Combo( "Clip", &selected_clip, clip_names.data(), clip_names.size() );
+					if( ImGui::Button( "Add clip" ) )
+					{
+						AnimationState new_state( clips[selected_clip] );
+						anim.states.push_back( new_state );
+						selected_clip = 0;
+					}
+
+					ImGui::TreePop();
+				}
 			}
 			if( e.Has<TransformComponent>() )
 			{
@@ -293,60 +332,52 @@ namespace Bat
 
 		if( imgui_menu_enabled )
 		{
-			ImGui::Begin( "Application" );
+			if( ImGui::Begin( "Application" ) )
+			{
+				ImGui::Text( "FPS: %s", fps_string.c_str() );
+				ImGui::Text( "Pos: %.2f %.2f %.2f", camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z );
 
-			ImGui::Text( "FPS: %s", fps_string.c_str() );
-			ImGui::Text( "Pos: %.2f %.2f %.2f", camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z );
-			
-			bool changed = false;
-			
-			changed |= ImGui::Checkbox( "Opaque pass", &opaque_pass );
-			changed |= ImGui::Checkbox( "Transparent pass", &transparent_pass );
-			
-			changed |= ImGui::Checkbox( "Bloom", &bloom_enabled );
-			if( bloom_enabled )
-			{
-				if( ImGui::SliderFloat( "Bloom threshold", &bloom_threshold, 0.0f, 100.0f ) )
+				if( ImGui::CollapsingHeader( "Render Passes" ) )
 				{
-					auto bloom = static_cast<BloomPass*>(rendergraph.GetPassByName( "bloom" ));
-					bloom->SetThreshold( bloom_threshold );
-				}
-			}
+					bool changed = false;
 
-			changed |= ImGui::Checkbox( "Motion blur", &motion_blur_enabled );
-			changed |= ImGui::Checkbox( "Tonemapping", &tonemapping_enabled );
-			if( tonemapping_enabled )
-			{
-				if( ImGui::SliderFloat( "Exposure", &exposure, 0.0f, 32.0f ) )
-				{
-					auto tm = static_cast<ToneMappingPass*>(rendergraph.GetPassByName( "tonemapping" ));
-					tm->SetExposure( exposure );
-				}
-			}
-			
-			if( changed )
-			{
-				BuildRenderGraph();
-			}
+					changed |= ImGui::Checkbox( "Opaque pass", &opaque_pass );
+					changed |= ImGui::Checkbox( "Transparent pass", &transparent_pass );
 
-			for( MeshAnimator& animator : animators )
-			{
-				if( animator.GetNumAnimations() > 0 )
-				{
-					std::vector<const char*> animation_names;
-					for( size_t i = 0; i < animator.GetNumAnimations(); i++ )
+					changed |= ImGui::Checkbox( "Bloom", &bloom_enabled );
+					if( bloom_enabled )
 					{
-						animation_names.push_back( animator.GetAnimation( i ).name.c_str() );
+						if( ImGui::SliderFloat( "Bloom threshold", &bloom_threshold, 0.0f, 100.0f ) )
+						{
+							auto bloom = static_cast<BloomPass*>(rendergraph.GetPassByName( "bloom" ));
+							bloom->SetThreshold( bloom_threshold );
+						}
 					}
-					ImGui::Combo( "Animation", &selected_anim, animation_names.data(), (int)animator.GetNumAnimations() );
-					ImGui::SliderFloat( "Animation timestamp", &timestamp, 0.0f, animator.GetAnimation( selected_anim ).duration );
-					ImGui::SliderFloat( "Animation timescale", &anim_timescale, 1.0f, 100.0f );
-				}
-			}
-			
-			AddNodeTree( scene );
 
-			ImGui::End();
+					changed |= ImGui::Checkbox( "Motion blur", &motion_blur_enabled );
+					changed |= ImGui::Checkbox( "Tonemapping", &tonemapping_enabled );
+					if( tonemapping_enabled )
+					{
+						if( ImGui::SliderFloat( "Exposure", &exposure, 0.0f, 32.0f ) )
+						{
+							auto tm = static_cast<ToneMappingPass*>(rendergraph.GetPassByName( "tonemapping" ));
+							tm->SetExposure( exposure );
+						}
+					}
+
+					if( changed )
+					{
+						BuildRenderGraph();
+					}
+				}
+
+				if( ImGui::CollapsingHeader( "Scene Hierarchy" ) )
+				{
+					AddNodeTree( scene );
+				}
+
+				ImGui::End();
+			}
 		}
 	}
 

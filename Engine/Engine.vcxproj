@@ -232,7 +232,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClCompile Include="Events\Event.cpp" />
     <ClCompile Include="Graphics\DebugDraw.cpp" />
     <ClCompile Include="Graphics\GraphicsFormats.cpp" />
-    <ClCompile Include="Animation\MeshAnimator.cpp" />
+    <ClCompile Include="Animation\AnimationState.cpp" />
     <ClCompile Include="Graphics\MeshBuilder.cpp" />
     <ClCompile Include="Graphics\ScratchRenderTarget.cpp" />
     <ClCompile Include="Physics\EntityTrace.cpp" />
@@ -370,7 +370,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Core\CoreEntityComponents.h" />
     <ClInclude Include="Graphics\DDSTextureLoader.h" />
     <ClInclude Include="Events\PhysicsEvents.h" />
-    <ClInclude Include="Animation\MeshAnimator.h" />
+    <ClInclude Include="Animation\AnimationState.h" />
     <ClInclude Include="Graphics\DebugDraw.h" />
     <ClInclude Include="Graphics\MeshBuilder.h" />
     <ClInclude Include="Graphics\Passes\SceneRenderPass.h" />

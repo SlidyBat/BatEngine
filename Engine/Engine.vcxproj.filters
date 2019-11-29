@@ -2,59 +2,68 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Graphics">
-      <UniqueIdentifier>{63a2547d-33b9-4a98-9feb-4cdabb9fe5a3}</UniqueIdentifier>
+      <UniqueIdentifier>{215d1a02-3797-46d9-8706-511869d7b4c6}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics\UI">
-      <UniqueIdentifier>{a590c86c-c362-4a45-8042-5940337fdc6e}</UniqueIdentifier>
+      <UniqueIdentifier>{50c9f06f-0c3a-4f75-adad-59cef8f82db5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics\UI\UltralightAdapters">
-      <UniqueIdentifier>{c48ff624-53fe-469e-8cf0-d97ea66fd758}</UniqueIdentifier>
+      <UniqueIdentifier>{1ecadc50-91ff-4790-b94e-3a325ff3c33f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Animation">
-      <UniqueIdentifier>{4f5b74d3-67f9-4bbd-984b-0863b6e4948e}</UniqueIdentifier>
+      <UniqueIdentifier>{78a376d3-97b9-4ba0-986d-87a250d5a7a5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Physics">
-      <UniqueIdentifier>{ef02a316-5e31-4fc8-a990-015a8a4eb24f}</UniqueIdentifier>
+      <UniqueIdentifier>{2d2353ee-0a93-4a1e-91e8-be09721a7d67}</UniqueIdentifier>
     </Filter>
     <Filter Include="Platform">
-      <UniqueIdentifier>{a054a087-1906-48b2-88c4-02b37469bf26}</UniqueIdentifier>
+      <UniqueIdentifier>{09f5cb07-d103-43e5-b5f0-9a3c3c202f55}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\ImGui">
-      <UniqueIdentifier>{abff941e-63b8-4144-a9d4-7769e7809927}</UniqueIdentifier>
+      <UniqueIdentifier>{ed2a7cc7-6ef1-4d18-ba13-2a967ef26728}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty">
-      <UniqueIdentifier>{f95a0890-69e4-4713-b90f-70fc9902ddd2}</UniqueIdentifier>
+      <UniqueIdentifier>{bdf478bf-89fd-4242-be8a-385deb9ca388}</UniqueIdentifier>
     </Filter>
     <Filter Include="Util">
-      <UniqueIdentifier>{a60c2694-6f46-4d42-9173-bc18062baea5}</UniqueIdentifier>
+      <UniqueIdentifier>{6dc4dd74-1a79-4c31-9373-3e62be8604c6}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core">
-      <UniqueIdentifier>{2124be27-8b27-4666-96c6-bf8db0cb9909}</UniqueIdentifier>
+      <UniqueIdentifier>{db177c88-b0ce-4125-9255-c7861c6009c1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Networking">
-      <UniqueIdentifier>{6735a282-834a-4d99-8ebe-fc6ee46de93d}</UniqueIdentifier>
+      <UniqueIdentifier>{4aca6f05-5b69-4502-80a9-b6eea4cf64c1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Audio">
-      <UniqueIdentifier>{3531c5e6-ccdf-429e-8274-19a16a5a7331}</UniqueIdentifier>
+      <UniqueIdentifier>{6a5a94eb-5a7d-4394-9556-731254697816}</UniqueIdentifier>
     </Filter>
     <Filter Include="Events">
-      <UniqueIdentifier>{db571f0c-7bef-4520-8e79-a8bcddc37dab}</UniqueIdentifier>
+      <UniqueIdentifier>{e2ceeeef-8ec9-42b0-8056-7eb6474ccdb1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics\Passes">
-      <UniqueIdentifier>{2f49cc01-9940-4986-8e8d-4ef0f83b8161}</UniqueIdentifier>
+      <UniqueIdentifier>{daa1b38e-1ce5-4f57-bd88-d26b083d0e80}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics\Shaders">
-      <UniqueIdentifier>{71014bba-57ca-4148-808d-c9b27278f61c}</UniqueIdentifier>
+      <UniqueIdentifier>{ddb14485-8ce3-4f15-94e3-fee5a77d20a1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Assets">
-      <UniqueIdentifier>{42b1cfc0-fcd9-4fca-8b1b-5df36d6def36}</UniqueIdentifier>
+      <UniqueIdentifier>{28e33f51-7cb4-407f-95c2-ccf777780c7b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphics\DDSTextureLoader.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\DebugDraw.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
     <ClCompile Include="Graphics\GraphicsFormats.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\MeshBuilder.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ScratchRenderTarget.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\IRenderPass.cpp">
@@ -126,7 +135,19 @@
     <ClCompile Include="Graphics\UI\UltralightAdapters\GPUDriverD3D11.cpp">
       <Filter>Graphics\UI\UltralightAdapters</Filter>
     </ClCompile>
-    <ClCompile Include="Animation\MeshAnimator.cpp">
+    <ClCompile Include="Animation\AnimationChannel.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation\AnimationClip.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation\AnimationSkeleton.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation\AnimationSystem.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation\AnimationState.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
     <ClCompile Include="Physics\EntityTrace.cpp">
@@ -225,30 +246,21 @@
     <ClCompile Include="Events\Event.cpp">
       <Filter>Events</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\DebugDraw.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\MeshBuilder.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\ScratchRenderTarget.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Animation\AnimationChannel.cpp">
-      <Filter>Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="Animation\AnimationClip.cpp">
-      <Filter>Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="Animation\AnimationSystem.cpp">
-      <Filter>Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="Animation\AnimationSkeleton.cpp">
-      <Filter>Animation</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\DDSTextureLoader.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\DebugDraw.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\MeshBuilder.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RenderFlags.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ScratchRenderTarget.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\IGPUDevice.h">
@@ -356,6 +368,9 @@
     <ClInclude Include="Graphics\Passes\SceneRenderPass.h">
       <Filter>Graphics\Passes</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Passes\ToneMappingPass.h">
+      <Filter>Graphics\Passes</Filter>
+    </ClInclude>
     <ClInclude Include="Graphics\Passes\TransparentPass.h">
       <Filter>Graphics\Passes</Filter>
     </ClInclude>
@@ -377,7 +392,25 @@
     <ClInclude Include="Graphics\Passes\SkyboxPass.h">
       <Filter>Graphics\Passes</Filter>
     </ClInclude>
-    <ClInclude Include="Animation\MeshAnimator.h">
+    <ClInclude Include="Animation\AnimationChannel.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation\AnimationClip.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation\AnimationComponent.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation\AnimationSkeleton.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation\AnimationSystem.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation\KeyFrame.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation\AnimationState.h">
       <Filter>Animation</Filter>
     </ClInclude>
     <ClInclude Include="Physics\EntityTrace.h">
@@ -535,39 +568,6 @@
     </ClInclude>
     <ClInclude Include="Events\WindowEvents.h">
       <Filter>Events</Filter>
-    </ClInclude>
-    <ClInclude Include="Animation\AnimationChannel.h">
-      <Filter>Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="Animation\AnimationClip.h">
-      <Filter>Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="Animation\AnimationComponent.h">
-      <Filter>Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="Animation\AnimationSkeleton.h">
-      <Filter>Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="Animation\AnimationSystem.h">
-      <Filter>Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="Animation\KeyFrame.h">
-      <Filter>Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\DebugDraw.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\MeshBuilder.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Passes\ToneMappingPass.h">
-      <Filter>Graphics\Passes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\RenderFlags.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ScratchRenderTarget.h">
-      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
