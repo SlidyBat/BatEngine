@@ -9,6 +9,7 @@ namespace Bat
 	void RenderGraph::AddPass( const std::string& name, std::unique_ptr<IRenderPass> pass )
 	{
 		m_mapPassNameToIndex[name] = m_vRenderPasses.size();
+		m_vPassNames.push_back( name );
 		m_vRenderPasses.emplace_back( std::move( pass ) );
 		m_vNodeAndResourceBindings.emplace_back();
 		m_vPassEnabled.emplace_back( true );
@@ -17,6 +18,11 @@ namespace Bat
 	size_t RenderGraph::GetPassCount() const
 	{
 		return m_vRenderPasses.size();
+	}
+
+	std::string RenderGraph::GetPassNameByIndex( size_t idx )
+	{
+		return m_vPassNames[idx];
 	}
 
 	IRenderPass* RenderGraph::GetPassByIndex( size_t idx )
@@ -168,8 +174,11 @@ namespace Bat
 				}
 			}
 
-			// run the pass
-			m_vRenderPasses[i]->Execute( gpu->GetContext(), camera, scene, data );
+			IGPUContext* pContext = gpu->GetContext();
+
+			pContext->BeginEvent( m_vPassNames[i] );
+			m_vRenderPasses[i]->Execute( pContext, camera, scene, data );
+			pContext->EndEvent();
 		}
 	}
 
@@ -187,6 +196,7 @@ namespace Bat
 	void RenderGraph::ResetPasses()
 	{
 		m_vRenderPasses.clear();
+		m_vPassNames.clear();
 		m_mapPassNameToIndex.clear();
 		m_vPassEnabled.clear();
 		m_OutputNode.reset();

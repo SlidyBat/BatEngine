@@ -21,6 +21,7 @@ namespace Bat
 	public:
 		void AddPass( const std::string& name, std::unique_ptr<IRenderPass> pass );
 		size_t GetPassCount() const;
+		std::string GetPassNameByIndex( size_t idx );
 		IRenderPass* GetPassByIndex( size_t idx );
 		IRenderPass* GetPassByName( const std::string& name );
 		int GetPassIndexByName( const std::string& name );
@@ -76,6 +77,7 @@ namespace Bat
 	private:
 		// passes
 		std::vector<std::unique_ptr<IRenderPass>> m_vRenderPasses;
+		std::vector<std::string> m_vPassNames;
 		std::unordered_map<std::string, size_t> m_mapPassNameToIndex;
 		std::vector<bool> m_vPassEnabled;
 		std::optional<Node_t> m_OutputNode;

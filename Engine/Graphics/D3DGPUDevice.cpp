@@ -197,6 +197,9 @@ namespace Bat
 	public:
 		D3DGPUContext( D3DGPUDevice* pDevice );
 
+		// Called once device context is initialized by device
+		void Init();
+
 		virtual IGPUDevice* GetDevice() override;
 		virtual const IGPUDevice* GetDevice() const override;
 
@@ -281,6 +284,9 @@ namespace Bat
 		virtual void Draw( size_t vertex_count ) override;
 		virtual void DrawIndexed( size_t index_count ) override;
 
+		virtual void BeginEvent( const std::string& name ) override;
+		virtual void EndEvent() override;
+
 		virtual void* GetImpl() override { return m_pDeviceContext.Get(); }
 	private:
 		void BindViewports();
@@ -290,6 +296,7 @@ namespace Bat
 		D3DGPUDevice* m_pDevice = nullptr;
 
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_pDeviceContext;
+		Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation> m_pAnnotation;
 		std::vector<std::vector<IRenderTarget*>> m_RenderTargetStack;
 		std::vector<std::vector<Viewport>> m_ViewportStack;
 		class D3DDepthStencil* m_pDepthStencil = nullptr;
@@ -494,11 +501,16 @@ namespace Bat
 		Microsoft::WRL::ComPtr<ID3D11SamplerState> m_pSamplerState = nullptr;
 	};
 
-	D3DGPUContext::D3DGPUContext(D3DGPUDevice* pDevice)
+	D3DGPUContext::D3DGPUContext( D3DGPUDevice* pDevice )
 		:
 		m_pDevice( pDevice )
+	{}
+
+	void D3DGPUContext::Init()
 	{
 		m_ViewportStack.emplace_back();
+
+		m_pDeviceContext.As( &m_pAnnotation );
 	}
 
 	IGPUDevice* D3DGPUContext::GetDevice()
@@ -1038,6 +1050,23 @@ namespace Bat
 		DXGI_CONTEXT_CALL( m_pDeviceContext->DrawIndexed( (UINT)index_count, 0, 0 ) );
 	}
 
+	void D3DGPUContext::BeginEvent( const std::string& name )
+	{
+		if( m_pAnnotation )
+		{
+			std::wstring wname = StringToWide( name );
+			m_pAnnotation->BeginEvent( wname.c_str() );
+		}
+	}
+
+	void D3DGPUContext::EndEvent()
+	{
+		if( m_pAnnotation )
+		{
+			m_pAnnotation->EndEvent();
+		}
+	}
+
 	void D3DGPUContext::BindViewports()
 	{
 		size_t count = m_ViewportStack.back().size();
@@ -1217,6 +1246,8 @@ namespace Bat
 				D3D11_SDK_VERSION,
 				&swapChainDesc, &m_pSwapChain,
 				&m_pDevice, NULL, &m_GPUContext.m_pDeviceContext ) );
+
+			m_GPUContext.Init();
 
 			BAT_LOG( "Using video card '%s' with %iMB VRAM",
 				m_DeviceInfo.name,

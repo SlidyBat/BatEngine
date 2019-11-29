@@ -140,6 +140,8 @@ namespace Bat
 	void DebugDraw::Flush( const Camera& camera )
 	{
 		IGPUContext* pContext = gpu->GetContext();
+		pContext->BeginEvent( "debug_draw" );
+
 		InitDebugDrawState( pContext );
 
 		for( const DebugRect& rect : g_DebugRects )
@@ -169,5 +171,7 @@ namespace Bat
 
 			g_DebugTexts.clear();
 		}
+
+		pContext->EndEvent();
 	}
 }

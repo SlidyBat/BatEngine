@@ -85,6 +85,8 @@ namespace Bat
 		virtual void* GetImpl() = 0;
 	};
 
+	using GraphicsEventHandle_t = uintptr_t;
+
 	class IGPUContext
 	{
 	public:
@@ -186,6 +188,9 @@ namespace Bat
 
 		virtual void Draw( size_t vertex_count ) = 0;
 		virtual void DrawIndexed( size_t index_count ) = 0;
+
+		virtual void BeginEvent( const std::string& name ) = 0;
+		virtual void EndEvent() = 0;
 
 		// Gets pointer to underlying implementation
 		// e.g. for D3D11 device this returns the ID3D11DeviceContext*
