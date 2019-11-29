@@ -401,6 +401,11 @@ namespace Bat
 		{
 			return DirectX::XMLoadFloat4( this );
 		}
+
+		static float Dot( const Vec4& a, const Vec4& b )
+		{
+			return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+		}
 	};
 
 	struct Plane

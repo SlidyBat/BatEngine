@@ -11,6 +11,7 @@
 #include "ShaderManager.h"
 #include "LitGenericPipeline.h"
 #include "DebugDraw.h"
+#include "AnimationComponent.h"
 
 namespace Bat
 {
@@ -24,8 +25,6 @@ namespace Bat
 	private:
 		virtual void PreRender( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data ) override
 		{
-			m_pCurrentAnimator = nullptr;
-
 			IRenderTarget* target = data.GetRenderTarget( "dst" );
 			pContext->SetRenderTarget( target );
 
@@ -46,12 +45,14 @@ namespace Bat
 			if( e.Has<AnimationComponent>() )
 			{
 				auto& anim = e.Get<AnimationComponent>();
-				MeshAnimator* animator = anim.GetAnimator();
-				if( animator != m_pCurrentAnimator )
-				{
-					m_pCurrentAnimator = animator;
-					animator->Bind( pContext );
-				}
+
+				DirectX::XMMATRIX* cbuf = m_cbufBones.Lock( pContext )->bone_transforms;
+
+				GetMatrixPalette( cbuf, anim.bones, anim.current_pose );
+
+				m_cbufBones.Unlock( pContext );
+
+				pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufBones, VS_CBUF_BONES );
 			}
 			if( e.Has<ModelComponent>() )
 			{
@@ -94,7 +95,19 @@ namespace Bat
 			AABB transformed_aabb = aabb.Transform( world_transform );
 			DebugDraw::Box( transformed_aabb.mins, transformed_aabb.maxs );
 		}
+
+		void GetMatrixPalette( DirectX::XMMATRIX* out, const std::vector<BoneData>& bones, SkeletonPose pose ) const
+		{
+			ASSERT( bones.size() <= MAX_BONES, "Too many bones!" );
+
+			auto model_pose = SkeletonPose::ToModelSpace( std::move( pose ) );
+			SkeletonPose::ToMatrixPalette( model_pose, bones, out );
+		}
 	private:
-		MeshAnimator* m_pCurrentAnimator = nullptr;
+		struct CB_Bones
+		{
+			DirectX::XMMATRIX bone_transforms[MAX_BONES];
+		};
+		ConstantBuffer<CB_Bones> m_cbufBones;
 	};
 }

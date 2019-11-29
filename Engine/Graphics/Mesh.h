@@ -8,7 +8,7 @@
 #include "VertexTypes.h"
 #include "IPipeline.h"
 #include "Material.h"
-#include "MeshAnimation.h"
+#include "AnimationSkeleton.h"
 #include "RenderFlags.h"
 
 namespace Bat
