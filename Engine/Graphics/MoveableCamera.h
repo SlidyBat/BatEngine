@@ -10,7 +10,7 @@ namespace Bat
 	class MoveableCamera : public Camera
 	{
 	public:
-		MoveableCamera( Input& input, float speed = 20.0f, float angSpeed = 200.0f );
+		MoveableCamera( Input& input, float speed = 20.0f, float angSpeed = 1.0f );
 
 		void Update( float deltatime );
 		void OnEvent( const MouseMovedEvent& e );

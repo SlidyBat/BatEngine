@@ -70,8 +70,8 @@ namespace Bat
 		if( m_Input.IsLeftDown() )
 		{
 			const Vei2& delta = e.GetDeltaPosition();
-			const float deltayaw = GetAngularSpeed() * delta.x * g_pGlobals->deltatime;
-			const float deltapitch = GetAngularSpeed() * delta.y * g_pGlobals->deltatime;
+			const float deltayaw = GetAngularSpeed() * delta.x;
+			const float deltapitch = GetAngularSpeed() * delta.y;
 
 			RotateBy( deltapitch, deltayaw, 0.0f );
 		}
