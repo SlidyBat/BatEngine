@@ -246,6 +246,12 @@
     <ClCompile Include="Events\Event.cpp">
       <Filter>Events</Filter>
     </ClCompile>
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="PCH.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="FileDialog.cpp">
+      <Filter>Platform</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\DDSTextureLoader.h">
@@ -434,9 +440,6 @@
     <ClInclude Include="Platform\Input.h">
       <Filter>Platform</Filter>
     </ClInclude>
-    <ClInclude Include="Platform\BatWinAPI.h">
-      <Filter>Platform</Filter>
-    </ClInclude>
     <ClInclude Include="Platform\Window.h">
       <Filter>Platform</Filter>
     </ClInclude>
@@ -569,6 +572,15 @@
     <ClInclude Include="Events\WindowEvents.h">
       <Filter>Events</Filter>
     </ClInclude>
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="PCH.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="FileDialog.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\BatWinAPI.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\RenderNodeDataTypes.def">
@@ -630,5 +642,7 @@
       <Filter>Assets</Filter>
     </Image>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ResourceCompile Include="Engine.rc" />
+  </ItemGroup>
 </Project>

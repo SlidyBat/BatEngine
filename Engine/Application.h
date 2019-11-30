@@ -32,6 +32,7 @@ namespace Bat
 		void OnEvent( const KeyPressedEvent& e );
 		void OnEvent( const MouseButtonPressedEvent& e );
 	private:
+		void LoadModel( const std::string& filename );
 		void BuildRenderGraph();
 	public:
 		bool opaque_pass = true;
@@ -46,6 +47,7 @@ namespace Bat
 		ISoundEngine* snd;
 		MoveableCamera camera;
 		SceneNode scene;
+		size_t scale_index;
 		RenderGraph rendergraph;
 		Entity flashlight;
 		Entity sun;
