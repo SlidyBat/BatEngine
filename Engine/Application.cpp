@@ -173,6 +173,7 @@ namespace Bat
 	static void AddNodeTree( const SceneNode& node )
 	{
 		Entity e = node.Get();
+		ImGui::PushID( std::to_string( e.GetId().Raw() ).c_str() );
 
 		std::string name;
 		if( world.HasComponent<NameComponent>( e ) )
@@ -287,6 +288,8 @@ namespace Bat
 
 			ImGui::TreePop();
 		}
+
+		ImGui::PopID();
 	}
 
 	void Application::OnRender()
