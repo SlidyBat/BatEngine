@@ -36,7 +36,7 @@ namespace Bat
 		:
 		gfx( gfx ),
 		wnd( wnd ),
-		camera( wnd.input, 2.0f, 100.0f ),
+		camera( wnd.input, 2.0f, 1.0f ),
 		physics_system( world )
 	{
 		SceneLoader loader;
