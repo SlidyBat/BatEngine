@@ -28,6 +28,7 @@
 #include "Passes/DrawLightsPass.h"
 #include "DebugDraw.h"
 #include "ScratchRenderTarget.h"
+#include "FileDialog.h"
 
 namespace Bat
 {
@@ -43,7 +44,7 @@ namespace Bat
 		camera.SetAspectRatio( (float)wnd.GetWidth() / wnd.GetHeight() );
 
 		scene.Set( world.CreateEntity() ); // Root entity
-		size_t scale_index = scene.AddChild( world.CreateEntity() );
+		scale_index = scene.AddChild( world.CreateEntity() );
 		SceneNode& scale_node = scene.GetChild( scale_index );
 		size_t scene_index = scale_node.AddChild( loader.Load( "Assets/Ignore/iclone/scene.gltf" ) );
 
@@ -104,23 +105,9 @@ namespace Bat
 			gfx.SetActiveScene( &scene );
 		} );
 
-		g_Console.AddCommand( "add_model", [&scene = scene, &cam = camera]( const CommandArgs_t& args )
+		g_Console.AddCommand( "add_model", [this]( const CommandArgs_t& args )
 		{
-			std::string filepath = std::string( args[1] );
-			if( !std::filesystem::exists( filepath ) )
-			{
-				BAT_WARN( "Invalid file path '%s'", filepath );
-			}
-
-			SceneLoader loader;
-			SceneNode new_node = loader.Load( filepath );
-
-			auto pos = cam.GetPosition();
-			Entity new_model = new_node.Get();
-			new_model.Ensure<TransformComponent>()
-				.SetPosition( pos );
-
-			scene.AddChild( new_node );
+			LoadModel( std::string( args[1] ) );
 		} );
 
 		g_Console.AddCommand( "cam_speed", [&cam = camera]( const CommandArgs_t& args )
@@ -374,6 +361,15 @@ namespace Bat
 				if( ImGui::CollapsingHeader( "Scene Hierarchy" ) )
 				{
 					AddNodeTree( scene );
+				
+					if( ImGui::Button( "Load model" ) )
+					{
+						auto path = FileDialog::Open( "Assets" );
+						if( path )
+						{
+							LoadModel( path->string() );
+						}
+					}
 				}
 
 				ImGui::End();
@@ -490,6 +486,26 @@ namespace Bat
 				phys.AddLinearImpulse( (t.GetPosition() - camera.GetPosition()).Normalize() * 10.0f );
 			}
 		}
+	}
+
+	void Application::LoadModel( const std::string& filename )
+	{
+		std::string filepath = std::string( filename );
+		if( !std::filesystem::exists( filepath ) )
+		{
+			BAT_WARN( "Invalid file path '%s'", filepath );
+		}
+
+		SceneLoader loader;
+		SceneNode new_node = loader.Load( filepath );
+
+		const Vec3& pos = camera.GetPosition();
+		SceneNode pos_node( world.CreateEntity() );
+		pos_node.AddChild( new_node );
+		pos_node.Get().Add<TransformComponent>()
+			.SetPosition( pos );
+
+		scene.GetChild( scale_index ).AddChild( pos_node );
 	}
 
 	void Application::BuildRenderGraph()

@@ -223,6 +223,12 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClCompile Include="Audio\Audio.cpp" />
     <ClCompile Include="Core\Console.cpp" />
     <ClCompile Include="Core\Entity.cpp" />
+    <ClCompile Include="FileDialog.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Graphics\DDSTextureLoader.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -368,6 +374,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Application.h" />
     <ClInclude Include="Audio\Audio.h" />
     <ClInclude Include="Core\CoreEntityComponents.h" />
+    <ClInclude Include="FileDialog.h" />
     <ClInclude Include="Graphics\DDSTextureLoader.h" />
     <ClInclude Include="Events\PhysicsEvents.h" />
     <ClInclude Include="Animation\AnimationState.h" />
