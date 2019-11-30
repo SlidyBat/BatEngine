@@ -352,6 +352,7 @@ namespace Bat
 		animation_out->bind_pose = std::move( m_OriginalSkeleton );
 		animation_out->bones = std::move( m_Bones );
 		animation_out->clips = std::move( m_Animations );
+		animation_out->current_pose = animation_out->bind_pose;
 	}
 
 	static void AddBoneWeight( std::vector<Veu4>* ids, std::vector<Vec4>* weights, unsigned int vertex_id, unsigned int bone_id, float weight )
