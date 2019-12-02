@@ -168,7 +168,8 @@ namespace Bat
 		~D3DVertexShader();
 
 		virtual std::string GetName() const override { return m_szName; }
-		virtual int GetVertexAttributeSlot( VertexAttribute attribute ) const override { return m_iAttributeSlot[(int)attribute]; }
+		virtual int GetVertexAttributeCount( VertexAttribute attribute ) const { return m_iAttributeCount[(int)attribute]; }
+		virtual int GetVertexAttributeSlot( VertexAttribute attribute, int index  ) const override { return m_iAttributeSlot[(int)attribute][index]; }
 		ID3D11VertexShader* GetShader( ID3D11Device* pDevice );
 		ID3D11InputLayout* GetLayout() { return m_pInputLayout.Get(); }
 		const ID3D11InputLayout* GetLayout() const { return m_pInputLayout.Get(); }
@@ -179,9 +180,12 @@ namespace Bat
 		bool IsDirty() const { return m_bDirty; }
 		void SetDirty( bool dirty ) { m_bDirty = dirty; }
 	private:
+		static constexpr int MAX_ATTRIBUTE_COUNT = 16;
+
 		std::string m_szName;
-		Microsoft::WRL::ComPtr<ID3D11InputLayout>	m_pInputLayout;
-		int m_iAttributeSlot[(int)VertexAttribute::TotalAttributes];
+		Microsoft::WRL::ComPtr<ID3D11InputLayout> m_pInputLayout;
+		int m_iAttributeCount[(int)VertexAttribute::TotalAttributes];
+		int m_iAttributeSlot[(int)VertexAttribute::TotalAttributes][MAX_ATTRIBUTE_COUNT];
 		std::vector<ShaderMacro> m_Macros;
 		std::atomic_bool m_bDirty = true;
 		Microsoft::WRL::ComPtr<ID3D11VertexShader> m_pShader;
@@ -1763,8 +1767,12 @@ namespace Bat
 
 			auto attribute = AttributeInfo::SemanticToAttribute( paramDesc.SemanticName );
 			ASSERT( attribute != VertexAttribute::Invalid, "Unknown semantic type" );
-			ASSERT( m_iAttributeSlot[(int)attribute] == -1, "Vertex shader attribute slot set twice" );
-			m_iAttributeSlot[(int)attribute] = elementDesc.InputSlot;
+
+			int attribute_index = m_iAttributeCount[(int)attribute];
+			m_iAttributeCount[(int)attribute]++;
+
+			ASSERT( m_iAttributeSlot[(int)attribute][attribute_index] == -1, "Vertex shader attribute slot set twice" );
+			m_iAttributeSlot[(int)attribute][attribute_index] = elementDesc.InputSlot;
 
 			// determine DXGI format
 			int val_count = 0;
@@ -1809,9 +1817,13 @@ namespace Bat
 
 	void D3DVertexShader::LoadFromFile( ID3D11Device* pDevice, const std::string& filename, bool crash_on_error )
 	{
-		for( int i = 0; i < (int)VertexAttribute::TotalAttributes; i++ )
+		for( int attrib = 0; attrib < (int)VertexAttribute::TotalAttributes; attrib++ )
 		{
-			m_iAttributeSlot[i] = -1;
+			for( int index = 0; index < MAX_ATTRIBUTE_COUNT; index++ )
+			{
+				m_iAttributeSlot[attrib][index] = -1;
+			}
+			m_iAttributeCount[attrib] = 0;
 		}
 
 		// compiled shader object

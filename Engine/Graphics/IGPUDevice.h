@@ -209,8 +209,10 @@ namespace Bat
 		virtual ~IVertexShader() = default;
 
 		virtual std::string GetName() const = 0;
+		// Gets the number of elements in the shader that use this attribute, or 0 if the shader doesn't require this attribute at all
+		virtual int GetVertexAttributeCount( VertexAttribute attribute ) const = 0;
 		// Gets the slot that this shader expects the attribute to be at, or -1 if the shader doesn't require this attribute at all
-		virtual int GetVertexAttributeSlot( VertexAttribute attribute ) const = 0;
+		virtual int GetVertexAttributeSlot( VertexAttribute attribute, int index ) const = 0;
 	};
 
 	class IVertexBuffer

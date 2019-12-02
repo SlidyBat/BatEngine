@@ -20,42 +20,42 @@ namespace Bat
 
 		int slot = -1;
 
-		if( (slot = pVertexShader->GetVertexAttributeSlot( VertexAttribute::Position )) != -1 )
+		if( (slot = pVertexShader->GetVertexAttributeSlot( VertexAttribute::Position, 0 )) != -1 )
 		{
 			ASSERT( m_bufPosition->GetVertexCount() > 0, "Shader requires model to have vertex position data" );
 			pContext->SetVertexBuffer( m_bufPosition, slot++ );
 		}
-		if( (slot = pVertexShader->GetVertexAttributeSlot( VertexAttribute::Colour )) != -1 )
+		if( (slot = pVertexShader->GetVertexAttributeSlot( VertexAttribute::Colour, 0 )) != -1 )
 		{
 			ASSERT( m_bufColour->GetVertexCount() > 0, "Shader requires model to have vertex colour data" );
 			pContext->SetVertexBuffer( m_bufColour, slot++ );
 		}
-		if( (slot = pVertexShader->GetVertexAttributeSlot( VertexAttribute::Normal )) != -1 )
+		if( (slot = pVertexShader->GetVertexAttributeSlot( VertexAttribute::Normal, 0 )) != -1 )
 		{
 			ASSERT( m_bufNormal->GetVertexCount() > 0, "Shader requires model to have vertex normal data" );
 			pContext->SetVertexBuffer( m_bufNormal, slot++ );
 		}
-		if( (slot = pVertexShader->GetVertexAttributeSlot( VertexAttribute::UV )) != -1 )
+		if( (slot = pVertexShader->GetVertexAttributeSlot( VertexAttribute::UV, 0 )) != -1 )
 		{
 			ASSERT( m_bufUV->GetVertexCount() > 0, "Shader requires model to have vertex UV data" );
 			pContext->SetVertexBuffer( m_bufUV, slot++ );
 		}
-		if( (slot = pVertexShader->GetVertexAttributeSlot( VertexAttribute::Tangent )) != -1 )
+		if( (slot = pVertexShader->GetVertexAttributeSlot( VertexAttribute::Tangent, 0 )) != -1 )
 		{
 			ASSERT( m_bufTangent->GetVertexCount() > 0, "Shader requires model to have vertex tangent data" );
 			pContext->SetVertexBuffer( m_bufTangent, slot++ );
 		}
-		if( (slot = pVertexShader->GetVertexAttributeSlot( VertexAttribute::Bitangent )) != -1 )
+		if( (slot = pVertexShader->GetVertexAttributeSlot( VertexAttribute::Bitangent, 0 )) != -1 )
 		{
 			ASSERT( m_bufBitangent->GetVertexCount() > 0, "Shader requires model to have vertex bitangent data" );
 			pContext->SetVertexBuffer( m_bufBitangent, slot++ );
 		}
-		if( (slot = pVertexShader->GetVertexAttributeSlot( VertexAttribute::BoneId )) != -1 )
+		if( (slot = pVertexShader->GetVertexAttributeSlot( VertexAttribute::BoneId, 0 )) != -1 )
 		{
 			ASSERT( m_bufBoneIds->GetVertexCount() > 0, "Shader requires model to have bone id data" );
 			pContext->SetVertexBuffer( m_bufBoneIds, slot++ );
 		}
-		if( (slot = pVertexShader->GetVertexAttributeSlot( VertexAttribute::BoneWeight )) != -1 )
+		if( (slot = pVertexShader->GetVertexAttributeSlot( VertexAttribute::BoneWeight, 0 )) != -1 )
 		{
 			ASSERT( m_bufBoneWeights->GetVertexCount() > 0, "Shader requires model to have bone weight data" );
 			pContext->SetVertexBuffer( m_bufBoneWeights, slot++ );
