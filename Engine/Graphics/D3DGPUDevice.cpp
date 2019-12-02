@@ -168,7 +168,7 @@ namespace Bat
 		~D3DVertexShader();
 
 		virtual std::string GetName() const override { return m_szName; }
-		virtual bool RequiresVertexAttribute( VertexAttribute attribute ) const override { return m_bUsesAttribute[(int)attribute]; }
+		virtual int GetVertexAttributeSlot( VertexAttribute attribute ) const override { return m_iAttributeSlot[(int)attribute]; }
 		ID3D11VertexShader* GetShader( ID3D11Device* pDevice );
 		ID3D11InputLayout* GetLayout() { return m_pInputLayout.Get(); }
 		const ID3D11InputLayout* GetLayout() const { return m_pInputLayout.Get(); }
@@ -181,7 +181,7 @@ namespace Bat
 	private:
 		std::string m_szName;
 		Microsoft::WRL::ComPtr<ID3D11InputLayout>	m_pInputLayout;
-		bool m_bUsesAttribute[(int)VertexAttribute::TotalAttributes];
+		int m_iAttributeSlot[(int)VertexAttribute::TotalAttributes];
 		std::vector<ShaderMacro> m_Macros;
 		std::atomic_bool m_bDirty = true;
 		Microsoft::WRL::ComPtr<ID3D11VertexShader> m_pShader;
@@ -1750,7 +1750,7 @@ namespace Bat
 		for( UINT i = 0; i < shaderDesc.InputParameters; i++ )
 		{
 			D3D11_SIGNATURE_PARAMETER_DESC paramDesc;
-			pVertexShaderReflection->GetInputParameterDesc( i, &paramDesc );
+			COM_THROW_IF_FAILED( pVertexShaderReflection->GetInputParameterDesc( i, &paramDesc ) );
 
 			// fill out input element desc
 			D3D11_INPUT_ELEMENT_DESC elementDesc;
@@ -1763,28 +1763,37 @@ namespace Bat
 
 			auto attribute = AttributeInfo::SemanticToAttribute( paramDesc.SemanticName );
 			ASSERT( attribute != VertexAttribute::Invalid, "Unknown semantic type" );
-			m_bUsesAttribute[(int)attribute] = true;
+			ASSERT( m_iAttributeSlot[(int)attribute] == -1, "Vertex shader attribute slot set twice" );
+			m_iAttributeSlot[(int)attribute] = elementDesc.InputSlot;
 
 			// determine DXGI format
-			if( paramDesc.Mask == 1 )
+			int val_count = 0;
+			uint8_t mask = paramDesc.Mask;
+			while( mask & 1 )
+			{
+				val_count += 1;
+				mask >>= 1;
+			}
+
+			if( val_count == 1 )
 			{
 				if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32 ) elementDesc.Format = DXGI_FORMAT_R32_UINT;
 				else if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32 ) elementDesc.Format = DXGI_FORMAT_R32_SINT;
 				else if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32 ) elementDesc.Format = DXGI_FORMAT_R32_FLOAT;
 			}
-			else if( paramDesc.Mask <= 3 )
+			else if( val_count == 2 )
 			{
 				if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32 ) elementDesc.Format = DXGI_FORMAT_R32G32_UINT;
 				else if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32 ) elementDesc.Format = DXGI_FORMAT_R32G32_SINT;
 				else if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32 ) elementDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
 			}
-			else if( paramDesc.Mask <= 7 )
+			else if( val_count == 3 )
 			{
 				if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32 ) elementDesc.Format = DXGI_FORMAT_R32G32B32_UINT;
 				else if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32 ) elementDesc.Format = DXGI_FORMAT_R32G32B32_SINT;
 				else if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32 ) elementDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
 			}
-			else if( paramDesc.Mask <= 15 )
+			else if( val_count == 4 )
 			{
 				if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32 ) elementDesc.Format = DXGI_FORMAT_R32G32B32A32_UINT;
 				else if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32 ) elementDesc.Format = DXGI_FORMAT_R32G32B32A32_SINT;
@@ -1802,7 +1811,7 @@ namespace Bat
 	{
 		for( int i = 0; i < (int)VertexAttribute::TotalAttributes; i++ )
 		{
-			m_bUsesAttribute[i] = false;
+			m_iAttributeSlot[i] = -1;
 		}
 
 		// compiled shader object
