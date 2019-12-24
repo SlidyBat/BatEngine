@@ -28,9 +28,9 @@ namespace Bat
 			Reset( data.data(), data.size() );
 		}
 
-		void Update( IGPUContext* pContext, const V* pData )
+		void Update( IGPUContext* pContext, const V* pData, size_t count = 0, size_t offset = 0 )
 		{
-			pContext->UpdateBuffer( m_pVertexBuffer.get(), pData );
+			pContext->UpdateBuffer( m_pVertexBuffer.get(), pData, count, offset );
 		}
 
 		V* Lock( IGPUContext* pContext )

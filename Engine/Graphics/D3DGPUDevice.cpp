@@ -169,7 +169,7 @@ namespace Bat
 
 		virtual std::string GetName() const override { return m_szName; }
 		virtual int GetVertexAttributeCount( VertexAttribute attribute ) const { return m_iAttributeCount[(int)attribute]; }
-		virtual int GetVertexAttributeSlot( VertexAttribute attribute, int index  ) const override { return m_iAttributeSlot[(int)attribute][index]; }
+		virtual int GetVertexAttributeSlot( VertexAttribute attribute, int index ) const override { return m_iAttributeSlot[(int)attribute][index]; }
 		ID3D11VertexShader* GetShader( ID3D11Device* pDevice );
 		ID3D11InputLayout* GetLayout() { return m_pInputLayout.Get(); }
 		const ID3D11InputLayout* GetLayout() const { return m_pInputLayout.Get(); }
@@ -260,13 +260,13 @@ namespace Bat
 		virtual void BindTexture( IDepthStencil* pDepthStencil, size_t slot ) override;
 		virtual void UnbindTextureSlot( size_t slot ) override;
 
-		virtual void UpdateBuffer( IVertexBuffer* pBuffer, const void* pData ) override;
+		virtual void UpdateBuffer( IVertexBuffer* pBuffer, const void* pData, size_t count = 0, size_t offset = 0 ) override;
 		virtual void* Lock( IVertexBuffer* pBuffer ) override;
 		virtual void Unlock( IVertexBuffer* pBuffer ) override;
-		virtual void UpdateBuffer( IIndexBuffer* pBuffer, const void* pData ) override;
+		virtual void UpdateBuffer( IIndexBuffer* pBuffer, const void* pData, size_t count = 0, size_t offset = 0 ) override;
 		virtual void* Lock( IIndexBuffer* pBuffer ) override;
 		virtual void Unlock( IIndexBuffer* pBuffer ) override;
-		virtual void UpdateBuffer( IConstantBuffer* pBuffer, const void* pData ) override;
+		virtual void UpdateBuffer( IConstantBuffer* pBuffer, const void* pData, size_t count = 0, size_t offset = 0 ) override;
 		virtual void* Lock( IConstantBuffer* pBuffer ) override;
 		virtual void Unlock( IConstantBuffer* pBuffer ) override;
 
@@ -399,7 +399,7 @@ namespace Bat
 		size_t GetElementSize() const override { return m_iElemSize; }
 
 		ID3D11Buffer* GetBuffer() const { return m_pVertexBuffer.Get(); }
-		void UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData );
+		void UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData, size_t count = 0, size_t offset = 0 );
 		void* Lock( ID3D11DeviceContext* pDeviceContext );
 		void Unlock( ID3D11DeviceContext* pDeviceContext );
 	private:
@@ -417,7 +417,7 @@ namespace Bat
 		virtual size_t GetElementSize() const override { return m_iElemSize; }
 
 		ID3D11Buffer* GetBuffer() const { return m_pIndexBuffer.Get(); }
-		void UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData );
+		void UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData, size_t count = 0, size_t offset = 0 );
 		void* Lock( ID3D11DeviceContext* pDeviceContext );
 		void Unlock( ID3D11DeviceContext* pDeviceContext );
 	private:
@@ -434,7 +434,7 @@ namespace Bat
 		virtual size_t GetSize() const { return m_iSize; }
 
 		ID3D11Buffer* GetBuffer() const { return m_pConstantBuffer.Get(); }
-		void UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData );
+		void UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData, size_t count = 0, size_t offset = 0 );
 		void* Lock( ID3D11DeviceContext* pDeviceContext );
 		void Unlock( ID3D11DeviceContext* pDeviceContext );
 	private:
@@ -889,9 +889,9 @@ namespace Bat
 		DXGI_CONTEXT_CALL( m_pDeviceContext->PSSetShaderResources( (UINT)slot, 1, &pNullResource ) );
 	}
 
-	void D3DGPUContext::UpdateBuffer( IVertexBuffer* pBuffer, const void* pData )
+	void D3DGPUContext::UpdateBuffer( IVertexBuffer* pBuffer, const void* pData, size_t count, size_t offset )
 	{
-		static_cast<D3DVertexBuffer*>( pBuffer )->UpdateBuffer( m_pDeviceContext.Get(), pData );
+		static_cast<D3DVertexBuffer*>( pBuffer )->UpdateBuffer( m_pDeviceContext.Get(), pData, count, offset );
 	}
 
 	void* D3DGPUContext::Lock( IVertexBuffer* pBuffer )
@@ -904,9 +904,9 @@ namespace Bat
 		static_cast<D3DVertexBuffer*>(pBuffer)->Unlock( m_pDeviceContext.Get() );
 	}
 
-	void D3DGPUContext::UpdateBuffer( IIndexBuffer* pBuffer, const void* pData )
+	void D3DGPUContext::UpdateBuffer( IIndexBuffer* pBuffer, const void* pData, size_t count, size_t offset )
 	{
-		static_cast<D3DIndexBuffer*>( pBuffer )->UpdateBuffer( m_pDeviceContext.Get(), pData );
+		static_cast<D3DIndexBuffer*>( pBuffer )->UpdateBuffer( m_pDeviceContext.Get(), pData, count, offset );
 	}
 
 	void* D3DGPUContext::Lock( IIndexBuffer* pBuffer )
@@ -919,9 +919,9 @@ namespace Bat
 		static_cast<D3DIndexBuffer*>(pBuffer)->Unlock( m_pDeviceContext.Get() );
 	}
 
-	void D3DGPUContext::UpdateBuffer( IConstantBuffer* pBuffer, const void* pData )
+	void D3DGPUContext::UpdateBuffer( IConstantBuffer* pBuffer, const void* pData, size_t count, size_t offset )
 	{
-		static_cast<D3DConstantBuffer*>( pBuffer )->UpdateBuffer( m_pDeviceContext.Get(), pData );
+		static_cast<D3DConstantBuffer*>( pBuffer )->UpdateBuffer( m_pDeviceContext.Get(), pData, count, offset );
 	}
 
 	void* D3DGPUContext::Lock( IConstantBuffer* pBuffer )
@@ -1049,9 +1049,15 @@ namespace Bat
 		DXGI_CONTEXT_CALL( m_pDeviceContext->Draw( (UINT)vertex_count, 0 ) );
 	}
 
+	void D3DGPUContext::DrawInstanced( size_t vertex_count, size_t instance_count )
 	void D3DGPUContext::DrawIndexed( size_t index_count )
 	{
 		DXGI_CONTEXT_CALL( m_pDeviceContext->DrawIndexed( (UINT)index_count, 0, 0 ) );
+	}
+
+	void D3DGPUContext::DrawInstancedIndexed( size_t index_count, size_t instance_count )
+	{
+		DXGI_CONTEXT_CALL( m_pDeviceContext->DrawIndexedInstanced( (UINT)index_count, (UINT)instance_count, 0, 0, 0 ) );
 	}
 
 	void D3DGPUContext::BeginEvent( const std::string& name )
@@ -2064,10 +2070,10 @@ namespace Bat
 		m_iSize = size;
 
 		D3D11_BUFFER_DESC vertexBufferDesc;
-		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 		vertexBufferDesc.ByteWidth = (UINT)(elem_size * size);
 		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		vertexBufferDesc.CPUAccessFlags = 0;
+		vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		vertexBufferDesc.MiscFlags = 0;
 		vertexBufferDesc.StructureByteStride = 0;
 
@@ -2084,12 +2090,13 @@ namespace Bat
 		COM_THROW_IF_FAILED( pDevice->CreateBuffer( &vertexBufferDesc, pVertexData, &m_pVertexBuffer ) );
 	}
 
-	void D3DVertexBuffer::UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData )
+	void D3DVertexBuffer::UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData, size_t count, size_t offset )
 	{
-		size_t pitch = m_iElemSize * m_iSize;
+		size_t actual_count = (count > 0) ? count : m_iSize;
+		size_t pitch = m_iElemSize * actual_count;
 
 		const char* pSrcBytes = reinterpret_cast<const char*>( pData );
-		char* pDstBytes = reinterpret_cast<char*>( Lock( pDeviceContext ) );
+		char* pDstBytes = reinterpret_cast<char*>( Lock( pDeviceContext ) ) + m_iElemSize * offset;
 
 		memcpy( pDstBytes, pSrcBytes, pitch );
 
@@ -2134,12 +2141,13 @@ namespace Bat
 		COM_THROW_IF_FAILED( pDevice->CreateBuffer( &indexBufferDesc, pIndexData, &m_pIndexBuffer ) );
 	}
 
-	void D3DIndexBuffer::UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData )
+	void D3DIndexBuffer::UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData, size_t count, size_t offset )
 	{
-		size_t pitch = m_iElemSize * m_iSize;
+		size_t actual_count = (count > 0) ? count : m_iSize;
+		size_t pitch = m_iElemSize * actual_count;
 
-		const char* pSrcBytes = reinterpret_cast<const char*>( pData );
-		char* pDstBytes = reinterpret_cast<char*>( Lock( pDeviceContext ) );
+		const char* pSrcBytes = reinterpret_cast<const char*>(pData);
+		char* pDstBytes = reinterpret_cast<char*>(Lock( pDeviceContext )) + m_iElemSize * offset;
 
 		memcpy( pDstBytes, pSrcBytes, pitch );
 
@@ -2183,12 +2191,14 @@ namespace Bat
 		COM_THROW_IF_FAILED( pDevice->CreateBuffer( &desc, pCbufData, &m_pConstantBuffer ) );
 	}
 
-	void D3DConstantBuffer::UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData )
+	void D3DConstantBuffer::UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData, size_t count, size_t offset )
 	{
-		const char* pSrcBytes = reinterpret_cast<const char*>( pData );
-		char* pDstBytes = reinterpret_cast<char*>( Lock( pDeviceContext ) );
+		size_t pitch = (count > 0) ? count : m_iSize;
 
-		memcpy( pDstBytes, pSrcBytes, m_iSize );
+		const char* pSrcBytes = reinterpret_cast<const char*>(pData);
+		char* pDstBytes = reinterpret_cast<char*>(Lock( pDeviceContext )) + offset;
+
+		memcpy( pDstBytes, pSrcBytes, pitch );
 
 		Unlock( pDeviceContext );
 	}
