@@ -23,7 +23,7 @@ namespace Bat
 			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TARGET );
 		}
 	private:
-		virtual void PreRender( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data ) override
+		virtual void PreRender( IGPUContext* pContext, Camera& camera, RenderData& data ) override
 		{
 			IRenderTarget* target = data.GetRenderTarget( "dst" );
 			pContext->SetRenderTarget( target );
@@ -34,13 +34,11 @@ namespace Bat
 			pContext->SetCullMode( CullMode::BACK );
 		}
 
-		virtual void Render( const DirectX::XMMATRIX& transform, const SceneNode& node ) override
+		virtual void Render( const DirectX::XMMATRIX& transform, Entity e ) override
 		{
 			IGPUContext* pContext = SceneRenderPass::GetContext();
 			Camera* pCamera = SceneRenderPass::GetCamera();
 			LightList light_list = SceneRenderPass::GetLights();
-
-			Entity e = node.Get();
 
 			if( e.Has<AnimationComponent>() )
 			{
@@ -56,7 +54,6 @@ namespace Bat
 			}
 			if( e.Has<ModelComponent>() )
 			{
-				auto& name = e.Get<NameComponent>().name;
 				auto& model = e.Get<ModelComponent>();
 
 				DirectX::XMMATRIX w = transform;

@@ -72,4 +72,18 @@ namespace Bat
 		Vec3 rotation = { 0.0f, 0.0f, 0.0f };
 		mutable bool dirty = true;
 	};
+
+	struct HierarchyComponent : Component<HierarchyComponent>
+	{
+		DirectX::XMMATRIX abs_transform;
+	};
+
+	class HierarchySystem
+	{
+	public:
+		void Update( SceneNode& root_node );
+	private:
+		std::vector<SceneNode*> m_NodeStack;
+		std::vector<DirectX::XMMATRIX> m_Transforms;
+	};
 }

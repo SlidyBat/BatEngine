@@ -222,6 +222,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Audio\Audio.cpp" />
     <ClCompile Include="Core\Console.cpp" />
+    <ClCompile Include="Core\CoreEntityComponents.cpp" />
     <ClCompile Include="Core\Entity.cpp" />
     <ClCompile Include="Platform\FileDialog.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>

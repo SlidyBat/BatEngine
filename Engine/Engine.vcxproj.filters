@@ -252,6 +252,7 @@
     <ClCompile Include="Platform\FileDialog.cpp">
       <Filter>Platform</Filter>
     </ClCompile>
+    <ClCompile Include="Core\CoreEntityComponents.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\DDSTextureLoader.h">

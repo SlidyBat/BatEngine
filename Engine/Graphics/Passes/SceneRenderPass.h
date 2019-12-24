@@ -34,50 +34,34 @@ namespace Bat
 			m_pContext->SetDepthStencilEnabled( true );
 			pContext->SetBlendingEnabled( false );
 
-			m_bGettingLights = true;
-			Traverse( scene );
-			m_bGettingLights = false;
+			TraverseLights();
 
-			PreRender( pContext, camera, scene, data );
-			Traverse( scene );
-			PostRender( pContext, camera, scene, data );
+			PreRender( pContext, camera, data );
+			Traverse();
+			PostRender( pContext, camera, data );
 		}
 	private:
-		virtual void Visit( const DirectX::XMMATRIX& transform, const SceneNode& node ) override
+		void TraverseLights()
 		{
-			Entity e = node.Get();
-
-			if( !m_bGettingLights )
-			{
-				Render( transform, node );
-			}
-			else
+			for( Entity e : world )
 			{
 				if( e.Has<LightComponent>() )
 				{
-					auto& light = e.Get<LightComponent>();
-
-					if( light.GetType() == LightType::POINT )
-					{
-						// View frustum culling
-						DirectX::XMVECTOR vs, vr, vp;
-						DirectX::XMMatrixDecompose( &vs, &vr, &vp, transform );
-
-						if( !m_pCamera->GetFrustum().IsSphereInside( vp, light.GetRange() ) )
-						{
-							return;
-						}
-					}
-
+					auto& hier = e.Get<HierarchyComponent>();
 					m_Lights.push_back( e );
-					m_LightTransforms.push_back( transform );
+					m_LightTransforms.push_back( hier.abs_transform );
 				}
 			}
 		}
+
+		virtual void Visit( const DirectX::XMMATRIX& transform, Entity e ) override
+		{
+			Render( transform, e );
+		}
 	protected:
-		virtual void PreRender( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data ) {};
-		virtual void Render( const DirectX::XMMATRIX& transform, const SceneNode& node ) = 0;
-		virtual void PostRender( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data ) {};
+		virtual void PreRender( IGPUContext* pContext, Camera& camera, RenderData& data ) {};
+		virtual void Render( const DirectX::XMMATRIX& transform, Entity e ) = 0;
+		virtual void PostRender( IGPUContext* pContext, Camera& camera, RenderData& data ) {};
 
 		IGPUContext* GetContext() { return m_pContext; }
 		Camera* GetCamera() { return m_pCamera; }
@@ -114,7 +98,6 @@ namespace Bat
 			return true;
 		}
 	private:
-		bool m_bGettingLights;
 		Camera* m_pCamera = nullptr;
 		std::vector<Entity> m_Lights;
 		std::vector<DirectX::XMMATRIX> m_LightTransforms;

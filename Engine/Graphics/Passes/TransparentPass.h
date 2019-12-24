@@ -22,7 +22,7 @@ namespace Bat
 			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TARGET );
 		}
 	private:
-		virtual void PreRender( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data ) override
+		virtual void PreRender( IGPUContext* pContext, Camera& camera, RenderData& data ) override
 		{
 			IRenderTarget* target = data.GetRenderTarget( "dst" );
 			pContext->SetRenderTarget( target );
@@ -35,13 +35,11 @@ namespace Bat
 			m_TranslucentMeshes.clear();
 		}
 
-		virtual void Render( const DirectX::XMMATRIX& transform, const SceneNode& node ) override
+		virtual void Render( const DirectX::XMMATRIX& transform, Entity e ) override
 		{
 			IGPUContext* pContext = GetContext();
 			Camera* pCamera = GetCamera();
 			LightList light_list = GetLights();
-
-			Entity e = node.Get();
 
 			if( e.Has<ModelComponent>() )
 			{
@@ -70,7 +68,7 @@ namespace Bat
 			}
 		}
 
-		virtual void PostRender( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data ) override
+		virtual void PostRender( IGPUContext* pContext, Camera& camera, RenderData& data ) override
 		{
 			// Sort the meshes we got so that they are drawn back-to-front
 			std::sort( m_TranslucentMeshes.begin(), m_TranslucentMeshes.end(), [camera]( const TranslucentMesh& a, const TranslucentMesh& b )
