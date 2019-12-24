@@ -84,14 +84,14 @@ namespace Bat
 
 		struct LightList
 		{
-			LightList( const std::vector<Entity>& lights, const std::vector<DirectX::XMMATRIX> light_transforms )
+			LightList( const std::vector<Entity>& lights, const std::vector<DirectX::XMMATRIX>& light_transforms )
 				:
 				entities( lights ),
 				transforms( light_transforms )
 			{}
 
 			const std::vector<Entity>& entities;
-			const std::vector<DirectX::XMMATRIX> transforms;
+			const std::vector<DirectX::XMMATRIX>& transforms;
 		};
 		LightList GetLights() const
 		{
