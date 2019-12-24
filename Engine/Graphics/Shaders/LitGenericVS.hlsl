@@ -19,6 +19,9 @@ struct VertexInputType
 	uint4  boneids : BONEID;
 	float4 boneweights : BONEWEIGHT;
 #endif
+#ifdef INSTANCED
+	float4x4 instance_world : INSTANCE_DATA;
+#endif
 };
 
 struct PixelInputType
@@ -36,13 +39,15 @@ struct PixelInputType
 PixelInputType main(VertexInputType input)
 {
 	PixelInputType output;
-
+	
 	float4 pos = float4(input.position, 1.0f);
 	float4 normal = float4(input.normal, 0.0f);
 #ifdef HAS_TANGENT
 	float4 tangent = float4(input.tangent, 0.0f);
 	float4 bitangent = float4(input.bitangent, 0.0f);
 #endif
+	
+	float4x4 final_world = world;
 
 #ifdef HAS_BONES
 	float4x4 bone_transform = BoneTransforms[input.boneids.x] * input.boneweights.x;
@@ -50,21 +55,20 @@ PixelInputType main(VertexInputType input)
 	bone_transform += BoneTransforms[input.boneids.z] * input.boneweights.z;
 	bone_transform += BoneTransforms[input.boneids.w] * input.boneweights.w;
 
-	pos = mul( pos, bone_transform );
-	normal = mul( normal, bone_transform );
-#ifdef HAS_TANGENT
-	tangent = mul( tangent, bone_transform );
-	bitangent = mul( bitangent, bone_transform );
+	final_world = mul(bone_transform, final_world);
 #endif
+	
+#ifdef INSTANCED
+	final_world = mul(input.instance_world, final_world);
 #endif
 
-	output.world_pos = mul( pos, world );
+	output.world_pos = mul( pos, final_world );
 	output.position = mul( output.world_pos, viewproj );
 
-	output.normal = normalize( mul( normal, world ) ).xyz;
+	output.normal = normalize( mul( normal, final_world ) ).xyz;
 #ifdef HAS_TANGENT
-	output.tangent = normalize( mul( tangent, world ) ).xyz;
-	output.bitangent = normalize( mul( bitangent, world ) ).xyz;
+	output.tangent = normalize( mul( tangent, final_world ) ).xyz;
+	output.bitangent = normalize( mul( bitangent, final_world ) ).xyz;
 #endif
 
 	output.tex = input.tex;

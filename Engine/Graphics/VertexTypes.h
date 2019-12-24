@@ -16,6 +16,7 @@ namespace Bat
 		Bitangent,
 		BoneId,
 		BoneWeight,
+		InstanceData,
 		TotalAttributes
 	};
 }

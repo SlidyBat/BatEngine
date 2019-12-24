@@ -76,6 +76,17 @@ namespace Bat
 						continue;
 					}
 
+					if( pMesh->HasRenderFlag( RenderFlags::INSTANCED ) )
+					{
+						LitGenericInstanceData data;
+						data.world = w;
+
+						auto& instances = m_mapInstancedMeshes[pMesh.get()];
+						instances.push_back( data );
+
+						continue;
+					}
+
 					if( pMesh->HasRenderFlag( RenderFlags::DRAW_BBOX ) )
 					{
 						DrawOutlineBox( pContext, *pCamera, pMesh->GetAABB(), w );
@@ -84,6 +95,18 @@ namespace Bat
 					auto pPipeline = ShaderManager::GetPipeline<LitGenericPipeline>();
 					pPipeline->Render( pContext, *pMesh, *pCamera, w, light_list.entities, light_list.transforms );
 				}
+			}
+		}
+
+		virtual void PostRender( IGPUContext* pContext, Camera& camera, RenderData& data ) override
+		{
+			LightList light_list = SceneRenderPass::GetLights();
+			auto pPipeline = ShaderManager::GetPipeline<LitGenericPipeline>();
+			
+			for( auto& [pMesh, instances] : m_mapInstancedMeshes )
+			{
+				pPipeline->RenderInstanced( pContext, *pMesh, instances, camera, light_list.entities, light_list.transforms );
+				instances.clear();
 			}
 		}
 
@@ -106,5 +129,8 @@ namespace Bat
 			DirectX::XMMATRIX bone_transforms[MAX_BONES];
 		};
 		ConstantBuffer<CB_Bones> m_cbufBones;
+
+		
+		std::unordered_map<Mesh*, std::vector<LitGenericInstanceData>> m_mapInstancedMeshes;
 	};
 }

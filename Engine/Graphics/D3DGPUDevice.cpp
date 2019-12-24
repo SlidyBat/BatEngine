@@ -70,6 +70,7 @@ namespace Bat
 				s_mapConvert["BITANGENT"] = VertexAttribute::Bitangent;
 				s_mapConvert["BONEID"] = VertexAttribute::BoneId;
 				s_mapConvert["BONEWEIGHT"] = VertexAttribute::BoneWeight;
+				s_mapConvert["INSTANCE_DATA"] = VertexAttribute::InstanceData;
 			}
 
 			auto it = s_mapConvert.find( semantic );
@@ -96,6 +97,7 @@ namespace Bat
 				s_mapConvert[VertexAttribute::Bitangent] = "BITANGENT";
 				s_mapConvert[VertexAttribute::BoneId] = "BONEID";
 				s_mapConvert[VertexAttribute::BoneWeight] = "BONEWEIGHT";
+				s_mapConvert[VertexAttribute::InstanceData] = "INSTANCE_DATA";
 			}
 
 			auto it = s_mapConvert.find( attribute );
@@ -286,7 +288,9 @@ namespace Bat
 		virtual void SetSampler( ShaderType shader, ISampler* pSampler, size_t slot ) override;
 
 		virtual void Draw( size_t vertex_count ) override;
+		virtual void DrawInstanced( size_t vertex_count, size_t instance_count ) override;
 		virtual void DrawIndexed( size_t index_count ) override;
+		virtual void DrawInstancedIndexed( size_t index_count, size_t instance_count ) override;
 
 		virtual void BeginEvent( const std::string& name ) override;
 		virtual void EndEvent() override;
@@ -1050,6 +1054,10 @@ namespace Bat
 	}
 
 	void D3DGPUContext::DrawInstanced( size_t vertex_count, size_t instance_count )
+	{
+		DXGI_CONTEXT_CALL( m_pDeviceContext->DrawInstanced( (UINT)vertex_count, (UINT)instance_count, 0, 0 ) );
+	}
+
 	void D3DGPUContext::DrawIndexed( size_t index_count )
 	{
 		DXGI_CONTEXT_CALL( m_pDeviceContext->DrawIndexed( (UINT)index_count, 0, 0 ) );
@@ -1755,6 +1763,8 @@ namespace Bat
 		D3D11_SHADER_DESC shaderDesc;
 		pVertexShaderReflection->GetDesc( &shaderDesc );
 
+		size_t slot = 0;
+
 		// Read input layout description from shader info
 		std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc;
 		for( UINT i = 0; i < shaderDesc.InputParameters; i++ )
@@ -1766,20 +1776,40 @@ namespace Bat
 			D3D11_INPUT_ELEMENT_DESC elementDesc;
 			elementDesc.SemanticName = paramDesc.SemanticName;
 			elementDesc.SemanticIndex = paramDesc.SemanticIndex;
-			elementDesc.InputSlot = i;
+			elementDesc.InputSlot = slot;
 			elementDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-			elementDesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-			elementDesc.InstanceDataStepRate = 0;
 
 			auto attribute = AttributeInfo::SemanticToAttribute( paramDesc.SemanticName );
 			ASSERT( attribute != VertexAttribute::Invalid, "Unknown semantic type" );
 
 			int attribute_index = m_iAttributeCount[(int)attribute];
-			m_iAttributeCount[(int)attribute]++;
+			if( attribute != VertexAttribute::InstanceData )
+			{
+				elementDesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+				elementDesc.InstanceDataStepRate = 0;
+				m_iAttributeCount[(int)attribute]++;
 
-			ASSERT( m_iAttributeSlot[(int)attribute][attribute_index] == -1, "Vertex shader attribute slot set twice" );
-			m_iAttributeSlot[(int)attribute][attribute_index] = elementDesc.InputSlot;
+				ASSERT( m_iAttributeSlot[(int)attribute][attribute_index] == -1, "Per-vertex shader attribute slot set twice" );
+				m_iAttributeSlot[(int)attribute][attribute_index] = elementDesc.InputSlot;
 
+				slot++;
+			}
+			else
+			{
+				elementDesc.InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA;
+				elementDesc.InstanceDataStepRate = 1;
+				if( m_iAttributeSlot[(int)attribute][attribute_index] != -1 )
+				{
+					elementDesc.InputSlot = (UINT)m_iAttributeSlot[(int)attribute][attribute_index];
+				}
+				else
+				{
+					m_iAttributeSlot[(int)attribute][attribute_index] = elementDesc.InputSlot;
+					slot++;
+				}
+			}
+			
+			
 			// determine DXGI format
 			int val_count = 0;
 			uint8_t mask = paramDesc.Mask;

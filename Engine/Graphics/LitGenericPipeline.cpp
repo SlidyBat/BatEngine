@@ -15,7 +15,12 @@
 
 namespace Bat
 {
-	void LitGenericPipeline::Render( IGPUContext* pContext, const Mesh& mesh, const Camera& camera, const DirectX::XMMATRIX& world_transform, const std::vector<Entity>& light_ents, const std::vector<DirectX::XMMATRIX>& light_transforms )
+	void LitGenericPipeline::Render( IGPUContext* pContext,
+		const Mesh& mesh,
+		const Camera& camera,
+		const DirectX::XMMATRIX& world_transform,
+		const std::vector<Entity>& light_ents,
+		const std::vector<DirectX::XMMATRIX>& light_transforms )
 	{
 		auto macros = BuildMacrosForMesh( mesh );
 
@@ -34,18 +39,57 @@ namespace Bat
 		pContext->DrawIndexed( mesh.GetIndexCount() );
 	}
 
-	std::vector<ShaderMacro> LitGenericPipeline::BuildMacrosForMesh( const Mesh& mesh ) const
+	void LitGenericPipeline::RenderInstanced( IGPUContext* pContext,
+		const Mesh& mesh,
+		const std::vector<LitGenericInstanceData>& instances,
+		const Camera& camera,
+		const std::vector<Entity>& light_ents,
+		const std::vector<DirectX::XMMATRIX>& light_transforms )
+	{
+		auto macros = BuildMacrosForInstancedMesh( mesh );
+
+		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/LitGenericVS.hlsl", macros );
+		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/LitGenericPS.hlsl", macros );
+
+		pContext->SetVertexShader( pVertexShader );
+		pContext->SetPixelShader( pPixelShader );
+
+		BindTransforms( pContext, camera, DirectX::XMMatrixIdentity() );
+
+		mesh.Bind( pContext, pVertexShader );
+		BindMaterial( pContext, mesh.GetMaterial() );
+		BindLights( pContext, light_ents, light_transforms );
+		BindInstances( pContext, pVertexShader, instances );
+
+		pContext->DrawInstancedIndexed( mesh.GetIndexCount(), instances.size() );
+	}
+
+	std::vector<ShaderMacro> LitGenericPipeline::BuildMacrosForAnyMesh( const Mesh& mesh ) const
 	{
 		std::vector<ShaderMacro> macros;
+		if( mesh.HasTangentsAndBitangents() )
+		{
+			macros.emplace_back( "HAS_TANGENT" );
+		}
+
+		return macros;
+	}
+
+	std::vector<ShaderMacro> LitGenericPipeline::BuildMacrosForMesh( const Mesh& mesh ) const
+	{
+		std::vector<ShaderMacro> macros = BuildMacrosForAnyMesh( mesh );
 		if( mesh.HasBones() )
 		{
 			macros.emplace_back( "HAS_BONES" );
 		}
 
-		if( mesh.HasTangentsAndBitangents() )
-		{
-			macros.emplace_back( "HAS_TANGENT" );
-		}
+		return macros;
+	}
+
+	std::vector<ShaderMacro> LitGenericPipeline::BuildMacrosForInstancedMesh( const Mesh& mesh ) const
+	{
+		std::vector<ShaderMacro> macros = BuildMacrosForAnyMesh( mesh );
+		macros.emplace_back( "INSTANCED" );
 
 		return macros;
 	}
@@ -120,5 +164,25 @@ namespace Bat
 		lights.num_lights = (uint32_t)j;
 		m_cbufLightParams.Update( pContext, lights );
 		pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufLightParams, PS_CBUF_SLOT_1 );
+	}
+	void LitGenericPipeline::BindInstances( IGPUContext* pContext, IVertexShader* pVertexShader, const std::vector<LitGenericInstanceData>& instances )
+	{
+		if( !m_vbufInstanceData )
+		{
+			m_vbufInstanceData.Reset( instances );
+		}
+		else if( m_vbufInstanceData->GetVertexCount() < instances.size() )
+		{
+			m_vbufInstanceData.Reset( instances );
+		}
+		else
+		{
+			m_vbufInstanceData.Update( pContext, instances.data(), instances.size() );
+		}
+
+		int slot = pVertexShader->GetVertexAttributeSlot( VertexAttribute::InstanceData, 0 );
+		ASSERT( slot != -1, "Shader does not allow instanced drawing" );
+
+		pContext->SetVertexBuffer( m_vbufInstanceData, slot );
 	}
 }

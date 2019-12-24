@@ -39,6 +39,7 @@ namespace Bat
 		camera( wnd.input, 2.0f, 1.0f ),
 		physics_system( world )
 	{
+		world.EnsureEntityCapacity( 1000005 );
 		SceneLoader loader;
 
 		camera.SetAspectRatio( (float)wnd.GetWidth() / wnd.GetHeight() );
@@ -46,10 +47,38 @@ namespace Bat
 		scene.Set( world.CreateEntity() ); // Root entity
 		scale_index = scene.AddChild( world.CreateEntity() );
 		SceneNode& scale_node = scene.GetChild( scale_index );
-		size_t scene_index = scale_node.AddChild( loader.Load( "Assets/Ignore/iclone/scene.gltf" ) );
+		SceneNode sphere_node = loader.Load( "Assets/sphere.gltf" );
+		Entity sphere = sphere_node.GetChild( 2 ).Get();
+		ModelComponent& model = sphere.Get<ModelComponent>();
+		Resource<Mesh> mesh = model.GetMeshes()[0];
+		mesh->AddRenderFlag( RenderFlags::INSTANCED );
+		for( int y = 0; y < 100; y++ )
+		{
+			for( int x = 0; x < 100; x++ )
+			{
+				int z = 0;
+
+				Vec3 pos = { x * 2.0f, y * 2.0f, z * 2.0f };
+
+				Entity new_sphere = world.CreateEntity();
+				new_sphere.Add<NameComponent>( Bat::Format( "instance_%i_%i_%i", x, y, z ) );
+				new_sphere.Add<TransformComponent>().SetPosition( pos );
+				new_sphere.Add<ModelComponent>( std::vector<Resource<Mesh>>{ mesh } );
+				new_sphere.Add<PhysicsComponent>( PhysicsObjectType::DYNAMIC )
+					.AddSphereShape( 1.0f );
+				scale_node.AddChild( new_sphere );
+			}
+		}
+		world.DestroyEntity( sphere );
+		Entity floor = world.CreateEntity();
+		floor.Add<TransformComponent>()
+			.SetPosition( { 0.0f, -2.0f, 0.0f } )
+			.SetRotation( { 0.0f, 90.0f, 0.0f } );
+		floor.Add<PhysicsComponent>( PhysicsObjectType::STATIC )
+			.AddPlaneShape();
 
 		scale_node.Get().Add<TransformComponent>()
-			.SetScale( 0.01f );
+			.SetScale( 0.5f );
 
 		flashlight = world.CreateEntity();
 		flashlight.Add<LightComponent>()
@@ -166,8 +195,12 @@ namespace Bat
 
 		physics_system.Update( world, deltatime );
 		anim_system.Update( world, deltatime );
+		hier_system.Update( scene );
 
-		Physics::Simulate( deltatime );
+		if( physics_simulate )
+		{
+			Physics::Simulate( deltatime );
+		}
 	}
 
 	static void AddNodeTree( const SceneNode& node )
@@ -461,33 +494,16 @@ namespace Bat
 				phys.AddLinearImpulse( (t.GetPosition() - camera.GetPosition()).Normalize() * 10.0f );
 			}
 		}
+		else if( e.key == 'X' )
+		{
+			physics_simulate = !physics_simulate;
+		}
 	}
 
 	void Application::OnEvent( const MouseButtonPressedEvent& e )
 	{
 		if( e.button == Input::MouseButton::Left )
 		{
-			DirectX::XMMATRIX inv_proj = DirectX::XMMatrixInverse( nullptr, camera.GetProjectionMatrix() );
-			DirectX::XMMATRIX inv_view = DirectX::XMMatrixInverse( nullptr, camera.GetViewMatrix() );
-
-			float x = (2.0f * e.pos.x) / wnd.GetWidth() - 1.0f;
-			float y = 1.0f - (2.0f * e.pos.y) / wnd.GetHeight();
-			Vec4 clip = { x, y, 1.0f, -1.0f };
-			Vec4 eye = DirectX::XMVector4Transform( clip, inv_proj );
-			eye.z = 1.0f;
-			eye.w = 0.0f;
-			Vec4 world = DirectX::XMVector4Transform( eye, inv_view );
-			Vec3 ray = Vec3( world.x, world.y, world.z ).Normalized();
-
-			auto result = EntityTrace::RayCast( camera.GetPosition() + ray * 0.5f, ray, 500.0f, HIT_DYNAMICS );
-			if( result.hit )
-			{
-				Entity hit_ent = result.entity;
-				BAT_LOG( "HIT! Entity: %i", hit_ent.GetId().GetIndex() );
-				const auto& t = hit_ent.Get<TransformComponent>();
-				auto& phys = hit_ent.Get<PhysicsComponent>();
-				phys.AddLinearImpulse( (t.GetPosition() - camera.GetPosition()).Normalize() * 10.0f );
-			}
 		}
 	}
 

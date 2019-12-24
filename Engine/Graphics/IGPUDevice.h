@@ -194,7 +194,9 @@ namespace Bat
 		virtual void SetSampler( ShaderType shader, ISampler* pSampler, size_t slot ) = 0;
 
 		virtual void Draw( size_t vertex_count ) = 0;
+		virtual void DrawInstanced( size_t vertex_count, size_t instance_count ) = 0;
 		virtual void DrawIndexed( size_t index_count ) = 0;
+		virtual void DrawInstancedIndexed( size_t index_count, size_t instance_count ) = 0;
 
 		virtual void BeginEvent( const std::string& name ) = 0;
 		virtual void EndEvent() = 0;
