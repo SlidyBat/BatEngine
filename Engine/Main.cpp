@@ -45,6 +45,10 @@ int WINAPI WinMain(
 		while( Window::ProcessMessagesForAllWindows() && wnd.IsOpen() )
 		{
 			float dt = ft.Mark();
+			if( dt > 1.0f )
+			{
+				dt = 1.0f / 60.0f;
+			}
 			g_pGlobals->deltatime = dt;
 			g_pGlobals->elapsed_time += dt;
 

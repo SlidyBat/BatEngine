@@ -463,5 +463,7 @@ namespace Bat
 		float GetRandomFloat( float min, float max );
 
 		bool CloseEnough( float a, float b, float epsilon = 0.001f );
+
+		float Lerp( float a, float b, float t );
 	}
 }

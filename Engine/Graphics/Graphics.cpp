@@ -4,10 +4,6 @@
 #include "D3DGPUDevice.h"
 
 #include "GraphicsFormats.h"
-#include "TexturePipeline.h"
-#include "ColourPipeline.h"
-#include "LitGenericPipeline.h"
-#include "SkyboxPipeline.h"
 
 #include "MathLib.h"
 #include "Camera.h"
@@ -15,8 +11,6 @@
 #include "Light.h"
 #include "RenderGraph.h"
 #include "Window.h"
-#include "SpriteBatch.h"
-#include "SpriteFont.h"
 #include "ShaderManager.h"
 #include "WindowEvents.h"
 #include "DebugDraw.h"

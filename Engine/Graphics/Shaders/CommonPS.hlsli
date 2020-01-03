@@ -67,30 +67,29 @@ struct GlobalsBuf
 	float pad0;
 };
 
+// Defines for cbuffer slots
+// Use these instead of normal slots to ensure that you don't overwrite slots for global buffers
+#define B_SLOT_GLOBALS   b0
+#define B_SLOT_PARTICLES b1
+#define B_SLOT_0 b2
+#define B_SLOT_1 b3
+#define B_SLOT_2 b4
+#define B_SLOT_3 b5
+#define B_SLOT_4 b6
+#define B_SLOT_5 b7
+#define B_SLOT_6 b8
+
 // Global buffers
-cbuffer GlobalsBuf : register(b0)
+cbuffer GlobalsBuf : register(B_SLOT_GLOBALS)
 {
 	GlobalsBuf Globals;
 };
 
-// Defines for cbuffer slots
-// Use these instead of normal slots to ensure that you don't overwrite slots for global buffers
-#define B_SLOT_0 b1
-#define B_SLOT_1 b2
-#define B_SLOT_2 b3
-#define B_SLOT_3 b4
-#define B_SLOT_4 b5
-#define B_SLOT_5 b6
-#define B_SLOT_6 b7
-#define B_SLOT_7 b8
-
-// Global samplers
-SamplerState WrapSampler : register(s0);
-SamplerState ClampSampler : register(s1);
-SamplerState MirrorSampler : register(s1);
-
 // Defines for sampler slots
 // Use these instead of normal slots to ensure that you don't overwrite slots for global samplers
+#define S_SLOT_WRAP   s0
+#define S_SLOT_CLAMP  s1
+#define S_SLOT_MIRROR s2
 #define S_SLOT_0 s3
 #define S_SLOT_1 s4
 #define S_SLOT_2 s5
@@ -99,6 +98,11 @@ SamplerState MirrorSampler : register(s1);
 #define S_SLOT_5 s8
 #define S_SLOT_6 s9
 #define S_SLOT_7 s10
+
+// Global samplers
+SamplerState WrapSampler : register(S_SLOT_WRAP);
+SamplerState ClampSampler : register(S_SLOT_CLAMP);
+SamplerState MirrorSampler : register(S_SLOT_MIRROR);
 
 // Defines for texture slots
 // Use these instead of normal slots to ensure that you don't overwrite slots for global textures

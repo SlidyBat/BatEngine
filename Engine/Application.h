@@ -12,6 +12,7 @@
 #include "MouseEvents.h"
 #include "PhysicsSystem.h"
 #include "AnimationSystem.h"
+#include "Particles.h"
 
 namespace Bat
 {
@@ -62,6 +63,7 @@ namespace Bat
 		HierarchySystem hier_system;
 		PhysicsSystem physics_system;
 		AnimationSystem anim_system;
+		ParticleSystem particle_system;
 
 		float bloom_threshold = 1.0f;
 		float exposure = 2.0f;

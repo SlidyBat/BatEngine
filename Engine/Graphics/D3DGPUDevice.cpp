@@ -62,6 +62,7 @@ namespace Bat
 			if( !initialized )
 			{
 				initialized = true;
+				s_mapConvert["SV_VertexID"] = VertexAttribute::VertexId;
 				s_mapConvert["POSITION"] = VertexAttribute::Position;
 				s_mapConvert["COLOR"] = VertexAttribute::Colour;
 				s_mapConvert["NORMAL"] = VertexAttribute::Normal;
@@ -89,6 +90,7 @@ namespace Bat
 			if( !initialized )
 			{
 				initialized = true;
+				s_mapConvert[VertexAttribute::VertexId] = "SV_VertexID";
 				s_mapConvert[VertexAttribute::Position] = "POSITION";
 				s_mapConvert[VertexAttribute::Colour] = "COLOR";
 				s_mapConvert[VertexAttribute::Normal] = "NORMAL";
@@ -967,8 +969,8 @@ namespace Bat
 	{
 		auto pD3DBuffer = static_cast<D3DVertexBuffer*>( pBuffer );
 
-		ID3D11Buffer* pVertexBuffer = pD3DBuffer->GetBuffer();
-		UINT stride = (UINT)pD3DBuffer->GetElementSize();
+		ID3D11Buffer* pVertexBuffer = pD3DBuffer ? pD3DBuffer->GetBuffer() : nullptr;
+		UINT stride = pD3DBuffer ? (UINT)pD3DBuffer->GetElementSize() : 0;
 		UINT offset = 0;
 
 		DXGI_CONTEXT_CALL( m_pDeviceContext->IASetVertexBuffers( (UINT)slot, 1, &pVertexBuffer, &stride, &offset ) );
@@ -1772,15 +1774,21 @@ namespace Bat
 			D3D11_SIGNATURE_PARAMETER_DESC paramDesc;
 			COM_THROW_IF_FAILED( pVertexShaderReflection->GetInputParameterDesc( i, &paramDesc ) );
 
+			auto attribute = AttributeInfo::SemanticToAttribute( paramDesc.SemanticName );
+			ASSERT( attribute != VertexAttribute::Invalid, "Unknown semantic type" );
+
+			if( attribute == VertexAttribute::VertexId )
+			{
+				// Vertex ID is a system value, not handled by us
+				continue;
+			}
+
 			// fill out input element desc
 			D3D11_INPUT_ELEMENT_DESC elementDesc;
 			elementDesc.SemanticName = paramDesc.SemanticName;
 			elementDesc.SemanticIndex = paramDesc.SemanticIndex;
-			elementDesc.InputSlot = slot;
+			elementDesc.InputSlot = (UINT)slot;
 			elementDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-
-			auto attribute = AttributeInfo::SemanticToAttribute( paramDesc.SemanticName );
-			ASSERT( attribute != VertexAttribute::Invalid, "Unknown semantic type" );
 
 			int attribute_index = m_iAttributeCount[(int)attribute];
 			if( attribute != VertexAttribute::InstanceData )
@@ -1848,7 +1856,10 @@ namespace Bat
 			inputLayoutDesc.push_back( elementDesc );
 		}
 
-		pDevice->CreateInputLayout( inputLayoutDesc.data(), (UINT)inputLayoutDesc.size(), pCodeBytes, size, &m_pInputLayout );
+		if( !inputLayoutDesc.empty() )
+		{
+			COM_THROW_IF_FAILED( pDevice->CreateInputLayout( inputLayoutDesc.data(), (UINT)inputLayoutDesc.size(), pCodeBytes, size, &m_pInputLayout ) );
+		}
 	}
 
 	void D3DVertexShader::LoadFromFile( ID3D11Device* pDevice, const std::string& filename, bool crash_on_error )

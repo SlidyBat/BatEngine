@@ -8,6 +8,7 @@ namespace Bat
 	enum class VertexAttribute
 	{
 		Invalid = -1,
+		VertexId,
 		Position,
 		Colour,
 		Normal,

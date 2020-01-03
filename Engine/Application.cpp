@@ -47,29 +47,7 @@ namespace Bat
 		scene.Set( world.CreateEntity() ); // Root entity
 		scale_index = scene.AddChild( world.CreateEntity() );
 		SceneNode& scale_node = scene.GetChild( scale_index );
-		SceneNode sphere_node = loader.Load( "Assets/sphere.gltf" );
-		Entity sphere = sphere_node.GetChild( 2 ).Get();
-		ModelComponent& model = sphere.Get<ModelComponent>();
-		Resource<Mesh> mesh = model.GetMeshes()[0];
-		mesh->AddRenderFlag( RenderFlags::INSTANCED );
-		for( int y = 0; y < 100; y++ )
-		{
-			for( int x = 0; x < 100; x++ )
-			{
-				int z = 0;
-
-				Vec3 pos = { x * 2.0f, y * 2.0f, z * 2.0f };
-
-				Entity new_sphere = world.CreateEntity();
-				new_sphere.Add<NameComponent>( Bat::Format( "instance_%i_%i_%i", x, y, z ) );
-				new_sphere.Add<TransformComponent>().SetPosition( pos );
-				new_sphere.Add<ModelComponent>( std::vector<Resource<Mesh>>{ mesh } );
-				new_sphere.Add<PhysicsComponent>( PhysicsObjectType::DYNAMIC )
-					.AddSphereShape( 1.0f );
-				scale_node.AddChild( new_sphere );
-			}
-		}
-		world.DestroyEntity( sphere );
+		scale_node.AddChild( loader.Load( "Assets/Ignore/Sponza/sponza.gltf" ) );
 		Entity floor = world.CreateEntity();
 		floor.Add<TransformComponent>()
 			.SetPosition( { 0.0f, -2.0f, 0.0f } )
@@ -78,7 +56,13 @@ namespace Bat
 			.AddPlaneShape();
 
 		scale_node.Get().Add<TransformComponent>()
-			.SetScale( 0.5f );
+			.SetScale( 0.01f );
+
+		Entity emitter_test = world.CreateEntity();
+		emitter_test.Add<TransformComponent>()
+			.SetPosition( { 0.0f, 0.0f, 0.0f } );
+		emitter_test.Add<HierarchyComponent>();
+		emitter_test.Add<ParticleEmitterComponent>( ResourceManager::GetTexture( "Assets/Ignore/particles/smoke_01.png" ) );
 
 		flashlight = world.CreateEntity();
 		flashlight.Add<LightComponent>()
@@ -196,6 +180,7 @@ namespace Bat
 		physics_system.Update( world, deltatime );
 		anim_system.Update( world, deltatime );
 		hier_system.Update( scene );
+		particle_system.Update( world, deltatime );
 
 		if( physics_simulate )
 		{
