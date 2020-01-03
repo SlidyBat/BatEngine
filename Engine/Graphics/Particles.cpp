@@ -9,7 +9,7 @@ namespace Bat
 	{
 		Particle new_particle;
 		new_particle.position = pos;
-		new_particle.velocity = { Math::GetRandomFloat( -5.0f, 5.0f ), Math::GetRandomFloat( 1.0f, 10.0f ), Math::GetRandomFloat( -5.0f, 5.0f ) };
+		new_particle.velocity = { Math::GetRandomFloat( -2.0f, 2.0f ), Math::GetRandomFloat( 1.0f, 5.0f ), Math::GetRandomFloat( -2.0f, 2.0f ) };
 		new_particle.lifetime = 0;
 		return new_particle;
 	}
@@ -58,7 +58,7 @@ namespace Bat
 					}
 					else
 					{
-						std::swap( p, emitter.particles[emitter.num_particles - 1] );
+						p = emitter.particles[emitter.num_particles - 1];
 						emitter.num_particles--;
 						i--;
 					}

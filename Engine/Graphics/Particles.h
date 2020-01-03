@@ -27,7 +27,7 @@ namespace Bat
 		Resource<Texture> texture;
 
 		float particles_per_sec = 60.0f;
-		float lifetime = 10.0f;
+		float lifetime = 1.0f;
 		float start_scale = 1.0f;
 		float end_scale = 1.0f;
 		Colour start_colour = Colours::White;

@@ -83,7 +83,7 @@ namespace Bat
 			IGPUContext* pContext = GetContext();
 			Camera* pCamera = GetCamera();
 			
-			std::sort( emitter.particles.begin(), emitter.particles.end(), [pCamera]( const Particle& a, const Particle& b )
+			std::sort( emitter.particles.begin(), emitter.particles.begin() + emitter.num_particles, [pCamera]( const Particle& a, const Particle& b )
 			{
 				const Vec3& cam_pos = pCamera->GetPosition();
 
