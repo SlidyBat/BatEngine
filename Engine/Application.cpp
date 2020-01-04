@@ -58,11 +58,39 @@ namespace Bat
 		scale_node.Get().Add<TransformComponent>()
 			.SetScale( 0.01f );
 
-		Entity emitter_test = world.CreateEntity();
-		emitter_test.Add<TransformComponent>()
-			.SetPosition( { 0.0f, 0.0f, 0.0f } );
-		emitter_test.Add<HierarchyComponent>();
-		emitter_test.Add<ParticleEmitterComponent>( ResourceManager::GetTexture( "Assets/Ignore/particles/smoke_01.png" ) );
+		// Fire
+		{
+			Entity emitter_test = world.CreateEntity();
+			emitter_test.Add<TransformComponent>()
+				.SetPosition( { 0.0f, 0.0f, 0.0f } );
+			emitter_test.Add<HierarchyComponent>();
+			auto& emitter = emitter_test.Add<ParticleEmitterComponent>( ResourceManager::GetTexture( "Assets/Ignore/particles/fire_02.png" ) );
+			emitter.particles_per_sec = 100.0f;
+			emitter.lifetime = 5.0f;
+			emitter.start_scale = 0.2f;
+			emitter.end_scale = 0.15f;
+			emitter.gradient.AddStop( Colour( 237, 237, 0 ), 0.1f )
+				.AddStop( Colour( 255, 0, 0 ), 0.5f );
+			emitter.start_alpha = 1.0f;
+			emitter.end_alpha = 0.0f;
+			emitter.gravity_multiplier = 0.0f;
+		}
+		// Smoke
+		{
+			Entity emitter_test = world.CreateEntity();
+			emitter_test.Add<TransformComponent>()
+				.SetPosition( { 0.0f, 0.0f, 0.0f } );
+			emitter_test.Add<HierarchyComponent>();
+			auto& emitter = emitter_test.Add<ParticleEmitterComponent>( ResourceManager::GetTexture( "Assets/Ignore/particles/smoke_01.png" ) );
+			emitter.particles_per_sec = 50.0f;
+			emitter.lifetime = 10.0f;
+			emitter.start_scale = 0.2f;
+			emitter.end_scale = 0.1f;
+			emitter.gradient.AddStop( Colour( 128, 128, 128 ), 0.0f );
+			emitter.start_alpha = 0.05f;
+			emitter.end_alpha = 0.0f;
+			emitter.gravity_multiplier = 0.0f;
+		}
 
 		flashlight = world.CreateEntity();
 		flashlight.Add<LightComponent>()

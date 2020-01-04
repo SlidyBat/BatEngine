@@ -12,7 +12,8 @@ namespace Bat
 	{
 		Vec3 velocity;
 		Vec3 position;
-		float lifetime;
+		float age;
+		Vec4 colour;
 	};
 
 	struct ParticleEmitterComponent : public Component<ParticleEmitterComponent>
@@ -30,8 +31,7 @@ namespace Bat
 		float lifetime = 1.0f;
 		float start_scale = 1.0f;
 		float end_scale = 1.0f;
-		Colour start_colour = Colours::White;
-		Colour end_colour = Colours::White;
+		Gradient gradient;
 		float start_alpha = 1.0f;
 		float end_alpha = 1.0f;
 		float gravity_multiplier = 1.0f;

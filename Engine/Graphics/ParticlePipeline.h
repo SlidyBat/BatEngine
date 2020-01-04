@@ -11,7 +11,8 @@ namespace Bat
 	struct ParticleInstanceData
 	{
 		Vec3 position;
-		float _pad0;
+		float age;
+		Vec4 colour;
 	};
 
 	class ParticlePipeline : public IPipeline
@@ -19,11 +20,14 @@ namespace Bat
 	public:
 		void Render( IGPUContext* pContext,
 			const std::vector<ParticleInstanceData>& instances,
-			ITexture* texture,
+			const ParticleEmitterComponent& emitter,
 			const Camera& camera );
 	private:
 		void BindTransforms( IGPUContext* pContext, const Camera& camera );
-		void BindInstances( IGPUContext* pContext, IVertexShader* pVertexShader, const std::vector<ParticleInstanceData>& instances );
+		void BindParticles( IGPUContext* pContext,
+			IVertexShader* pVertexShader,
+			const std::vector<ParticleInstanceData>& instances,
+			const ParticleEmitterComponent& emitter );
 	private:
 		struct CB_ParticlePipelineMatrix
 		{
@@ -34,6 +38,14 @@ namespace Bat
 
 		struct CB_ParticlePipelineParticles
 		{
+			float lifetime;
+			float start_alpha;
+			float end_alpha;
+			float start_scale;
+
+			float end_scale;
+			float _pad0[3];
+
 			ParticleInstanceData particles[MAX_PARTICLES];
 		};
 		ConstantBuffer<CB_ParticlePipelineParticles> m_cbufParticles;

@@ -101,11 +101,13 @@ namespace Bat
 				const Particle& particle = emitter.particles[i];
 				ParticleInstanceData instance;
 				instance.position = particle.position;
+				instance.age = particle.age;
+				instance.colour = particle.colour;
 				instances.push_back( instance );
 			}
 
 			auto pPipeline = ShaderManager::GetPipeline<ParticlePipeline>();
-			pPipeline->Render( pContext, instances, emitter.texture->Get(), *pCamera );
+			pPipeline->Render( pContext, instances, emitter, *pCamera );
 		}
 
 		virtual void PostRender( IGPUContext* pContext, Camera& camera, RenderData& data ) override

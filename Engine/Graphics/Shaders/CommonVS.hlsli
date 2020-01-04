@@ -15,3 +15,25 @@ cbuffer SkeletalAnimationData : register(B_SLOT_BONES)
 {
 	float4x4 BoneTransforms[MAX_BONES];
 };
+
+#define MAX_PARTICLES 1000
+
+struct Particle
+{
+	float3 position;
+	float age;
+	float4 colour;
+};
+
+cbuffer ParticlesBuf : register(B_SLOT_PARTICLES)
+{
+	float Lifetime;
+	float StartAlpha;
+	float EndAlpha;
+	float StartScale;
+	
+	float EndScale;
+	float3 _pad0;
+	
+	Particle Particles[MAX_PARTICLES];
+}

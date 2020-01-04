@@ -5,12 +5,13 @@
 
 namespace Bat
 {
-	static Particle CreateParticle( const Vec3& pos )
+	static Particle CreateParticle( const Vec3& pos, const Vec4& colour )
 	{
 		Particle new_particle;
 		new_particle.position = pos;
-		new_particle.velocity = { Math::GetRandomFloat( -2.0f, 2.0f ), Math::GetRandomFloat( 1.0f, 5.0f ), Math::GetRandomFloat( -2.0f, 2.0f ) };
-		new_particle.lifetime = 0;
+		new_particle.velocity = { Math::GetRandomFloat( -0.1f, 0.1f ), Math::GetRandomFloat( 0.1f, 0.5f ), Math::GetRandomFloat( -0.1f, 0.1f ) };
+		new_particle.age = 0.0f;
+		new_particle.colour = colour;
 		return new_particle;
 	}
 
@@ -47,13 +48,14 @@ namespace Bat
 				const float gravity = -9.8f;
 				p.velocity.y += gravity * dt * emitter.gravity_multiplier;
 				p.position += p.velocity * dt;
+				p.colour = emitter.gradient.Get( p.age / emitter.lifetime ).AsVector();
 
-				p.lifetime += dt;
-				if( p.lifetime >= emitter.lifetime )
+				p.age += dt;
+				if( p.age >= emitter.lifetime )
 				{
 					if( particles_to_create )
 					{
-						p = CreateParticle( emitter_pos );
+						p = CreateParticle( emitter_pos, emitter.gradient.Get( 0.0f ).AsVector() );
 						particles_to_create--;
 					}
 					else
@@ -72,7 +74,7 @@ namespace Bat
 					return;
 				}
 
-				emitter.particles[emitter.num_particles] = CreateParticle( emitter_pos );
+				emitter.particles[emitter.num_particles] = CreateParticle( emitter_pos, emitter.gradient.Get( 0.0f ).AsVector() );
 				emitter.num_particles++;
 			}
 		}

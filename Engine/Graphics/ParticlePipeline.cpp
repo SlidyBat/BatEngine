@@ -8,7 +8,7 @@ namespace Bat
 {
 	void ParticlePipeline::Render( IGPUContext* pContext,
 		const std::vector<ParticleInstanceData>& instances,
-		ITexture* texture,
+		const ParticleEmitterComponent& emitter,
 		const Camera& camera )
 	{
 		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/ParticleVS.hlsl" );
@@ -18,9 +18,9 @@ namespace Bat
 		pContext->SetPixelShader( pPixelShader );
 
 		BindTransforms( pContext, camera );
-		BindInstances( pContext, pVertexShader, instances );
+		BindParticles( pContext, pVertexShader, instances, emitter );
 		pContext->SetVertexBuffer( nullptr, 0 );
-		pContext->BindTexture( texture, PS_TEX_SLOT_0 );
+		pContext->BindTexture( emitter.texture->Get(), PS_TEX_SLOT_0 );
 
 		pContext->Draw( instances.size() * 6 );
 	}
@@ -34,12 +34,20 @@ namespace Bat
 		pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, VS_CBUF_TRANSFORMS );
 	}
 
-	void ParticlePipeline::BindInstances( IGPUContext* pContext, IVertexShader* pVertexShader, const std::vector<ParticleInstanceData>& instances )
+	void ParticlePipeline::BindParticles( IGPUContext* pContext,
+		IVertexShader* pVertexShader,
+		const std::vector<ParticleInstanceData>& instances,
+		const ParticleEmitterComponent& emitter )
 	{
 		ASSERT( instances.size() <= MAX_PARTICLES, "Too many particles!" );
 		
 		auto buf = m_cbufParticles.Lock( pContext );
 		memcpy( buf->particles, instances.data(), instances.size() * sizeof( ParticleInstanceData ) );
+		buf->lifetime = emitter.lifetime;
+		buf->start_alpha = emitter.start_alpha;
+		buf->end_alpha = emitter.end_alpha;
+		buf->start_scale = emitter.start_scale;
+		buf->end_scale = emitter.end_scale;
 		m_cbufParticles.Unlock( pContext );
 
 		pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufParticles, VS_CBUF_PARTICLES );
