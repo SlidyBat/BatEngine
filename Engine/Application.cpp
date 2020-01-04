@@ -73,8 +73,10 @@ namespace Bat
 				.AddStop( Colour( 255, 0, 0 ), 0.5f );
 			emitter.start_alpha = 0.08f;
 			emitter.end_alpha = 0.0f;
-			emitter.gravity_multiplier = 0.0f;
+			emitter.force_multiplier = 0.0f;
 			emitter.motion_blur = 8.0f;
+			emitter.normal = { 0.0f, 0.3f, 0.0f };
+			emitter.rand_velocity_range = { 0.0f, 0.0f, 0.0f };
 
 			scene.AddChild( emitter_test );
 		}
@@ -325,13 +327,26 @@ namespace Bat
 				if( ImGui::TreeNode( "Particle Emitter" ) )
 				{
 					ImGui::Text( "%i Particles", emitter.num_particles );
+					if( ImGui::Button( "Texture" ) )
+					{
+						auto path = FileDialog::Open( "Assets" );
+						if( path )
+						{
+							auto texture = ResourceManager::GetTexture( path->string() );
+							if( texture ) emitter.texture = std::move( texture );
+						}
+					}
 					ImGui::DragFloat( "Particles/Sec", &emitter.particles_per_sec, 0.1f, 0.0f, 1000.0f );
 					ImGui::DragFloat( "Lifetime", &emitter.lifetime, 0.01f, 0.0f, 10.0f );
 					ImGui::DragFloat( "Start Alpha", &emitter.start_alpha, 0.01f, 0.0f, 1.0f );
 					ImGui::DragFloat( "End Alpha", &emitter.end_alpha, 0.01f, 0.0f, 1.0f );
 					ImGui::DragFloat( "Start Scale", &emitter.start_scale, 0.01f, 0.0f, 2.0f );
 					ImGui::DragFloat( "End Scale", &emitter.end_scale, 0.01f, 0.0f, 2.0f );
-					ImGui::DragFloat( "Gravity Multiplier", &emitter.gravity_multiplier, 0.1f, 0.0f, 10.0f );
+					ImGui::DragFloat3( "Force", (float*)&emitter.force, 0.01f, -10.0f, 10.0f );
+					ImGui::DragFloat( "Force Multiplier", &emitter.force_multiplier, 0.1f, 0.0f, 10.0f );
+					ImGui::DragFloat3( "Normal", (float*)&emitter.normal, 0.01f, -5.0f, 5.0f );
+					ImGui::DragFloat( "Rot. Velocity Range", &emitter.rand_rot_velocity_range, 0.01f, 0.0f, 100.0f );
+					ImGui::DragFloat3( "Velocity Range", (float*)&emitter.rand_velocity_range, 0.01f, 0.0f, 100.0f );
 					ImGui::DragFloat( "Motion Blur", &emitter.motion_blur, 1.0f, 0.0f, 100.0f );
 					ImGui::TreePop();
 				}

@@ -5,14 +5,20 @@
 
 namespace Bat
 {
-	static Particle CreateParticle( const Vec3& pos, const Vec4& colour )
+	static Particle CreateParticle( const Vec3& pos, const ParticleEmitterComponent& emitter )
 	{
+		Vec3 rand_vel = {
+			Math::GetRandomFloat( -emitter.rand_velocity_range.x, emitter.rand_velocity_range.x ),
+			Math::GetRandomFloat( -emitter.rand_velocity_range.y, emitter.rand_velocity_range.y ),
+			Math::GetRandomFloat( -emitter.rand_velocity_range.z, emitter.rand_velocity_range.z )
+		};
+
 		Particle new_particle;
 		new_particle.position = pos;
-		new_particle.velocity = { Math::GetRandomFloat( -0.1f, 0.1f ), Math::GetRandomFloat( 0.1f, 0.5f ), Math::GetRandomFloat( -0.1f, 0.1f ) };
+		new_particle.velocity = emitter.normal + rand_vel;
 		new_particle.age = 0.0f;
-		new_particle.colour = colour;
-		new_particle.rot_velocity = Math::GetRandomFloat( -5.0f, 5.0f );
+		new_particle.colour = emitter.gradient.Get( 0.0f ).AsVector();
+		new_particle.rot_velocity = Math::GetRandomFloat( -emitter.rand_rot_velocity_range, emitter.rand_rot_velocity_range );
 		return new_particle;
 	}
 
@@ -46,8 +52,7 @@ namespace Bat
 			for( int i = 0; i < emitter.num_particles; i++ )
 			{
 				Particle& p = emitter.particles[i];
-				const float gravity = -9.8f;
-				p.velocity.y += gravity * dt * emitter.gravity_multiplier;
+				p.velocity += emitter.force * dt * emitter.force_multiplier;
 				p.position += p.velocity * dt;
 				p.colour = emitter.gradient.Get( p.age / emitter.lifetime ).AsVector();
 
@@ -56,7 +61,7 @@ namespace Bat
 				{
 					if( particles_to_create )
 					{
-						p = CreateParticle( emitter_pos, emitter.gradient.Get( 0.0f ).AsVector() );
+						p = CreateParticle( emitter_pos, emitter );
 						particles_to_create--;
 					}
 					else
@@ -75,7 +80,7 @@ namespace Bat
 					return;
 				}
 
-				emitter.particles[emitter.num_particles] = CreateParticle( emitter_pos, emitter.gradient.Get( 0.0f ).AsVector() );
+				emitter.particles[emitter.num_particles] = CreateParticle( emitter_pos, emitter );
 				emitter.num_particles++;
 			}
 		}
