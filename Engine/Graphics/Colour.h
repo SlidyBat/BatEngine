@@ -138,6 +138,15 @@ namespace Bat
 
 		Colour Get( float t )
 		{
+			if( t <= m_Stops.front().t )
+			{
+				return m_Stops.front().c;
+			}
+			if( t >= m_Stops.back().t )
+			{
+				return m_Stops.back().c;
+			}
+
 			GradientStop* pPrevStop = &m_Stops[0];
 			GradientStop* pNextStop = nullptr;
 			for( size_t i = 1; i < m_Stops.size(); i++ )
