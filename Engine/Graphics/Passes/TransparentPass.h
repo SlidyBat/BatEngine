@@ -100,6 +100,8 @@ namespace Bat
 			{
 				const Particle& particle = emitter.particles[i];
 				ParticleInstanceData instance;
+				instance.velocity = particle.velocity;
+				instance.rot_velocity = particle.rot_velocity;
 				instance.position = particle.position;
 				instance.age = particle.age;
 				instance.colour = particle.colour;

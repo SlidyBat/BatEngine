@@ -48,6 +48,7 @@ namespace Bat
 		buf->end_alpha = emitter.end_alpha;
 		buf->start_scale = emitter.start_scale;
 		buf->end_scale = emitter.end_scale;
+		buf->motion_blur = emitter.motion_blur;
 		m_cbufParticles.Unlock( pContext );
 
 		pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufParticles, VS_CBUF_PARTICLES );

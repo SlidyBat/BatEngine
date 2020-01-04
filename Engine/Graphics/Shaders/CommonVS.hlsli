@@ -20,6 +20,8 @@ cbuffer SkeletalAnimationData : register(B_SLOT_BONES)
 
 struct Particle
 {
+	float3 velocity;
+	float rot_velocity;
 	float3 position;
 	float age;
 	float4 colour;
@@ -33,7 +35,8 @@ cbuffer ParticlesBuf : register(B_SLOT_PARTICLES)
 	float StartScale;
 	
 	float EndScale;
-	float3 _pad0;
+	float MotionBlur;
+	float2 _pad0;
 	
 	Particle Particles[MAX_PARTICLES];
 }

@@ -10,6 +10,8 @@ namespace Bat
 {
 	struct ParticleInstanceData
 	{
+		Vec3 velocity;
+		float rot_velocity;
 		Vec3 position;
 		float age;
 		Vec4 colour;
@@ -44,7 +46,8 @@ namespace Bat
 			float start_scale;
 
 			float end_scale;
-			float _pad0[3];
+			float motion_blur;
+			float _pad0[2];
 
 			ParticleInstanceData particles[MAX_PARTICLES];
 		};

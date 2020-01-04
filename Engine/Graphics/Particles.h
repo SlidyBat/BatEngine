@@ -11,6 +11,7 @@ namespace Bat
 	struct Particle
 	{
 		Vec3 velocity;
+		float rot_velocity;
 		Vec3 position;
 		float age;
 		Vec4 colour;
@@ -35,6 +36,7 @@ namespace Bat
 		float start_alpha = 1.0f;
 		float end_alpha = 1.0f;
 		float gravity_multiplier = 1.0f;
+		float motion_blur = 0.0f;
 
 		float timer = 0.0f;
 	};

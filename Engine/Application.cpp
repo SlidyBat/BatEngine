@@ -65,31 +65,18 @@ namespace Bat
 				.SetPosition( { 0.0f, 0.0f, 0.0f } );
 			emitter_test.Add<HierarchyComponent>();
 			auto& emitter = emitter_test.Add<ParticleEmitterComponent>( ResourceManager::GetTexture( "Assets/Ignore/particles/fire_02.png" ) );
-			emitter.particles_per_sec = 100.0f;
-			emitter.lifetime = 5.0f;
-			emitter.start_scale = 0.2f;
-			emitter.end_scale = 0.15f;
+			emitter.particles_per_sec = 50.0f;
+			emitter.lifetime = 2.0f;
+			emitter.start_scale = 0.32f;
+			emitter.end_scale = 0.35f;
 			emitter.gradient.AddStop( Colour( 237, 237, 0 ), 0.1f )
 				.AddStop( Colour( 255, 0, 0 ), 0.5f );
-			emitter.start_alpha = 1.0f;
+			emitter.start_alpha = 0.08f;
 			emitter.end_alpha = 0.0f;
 			emitter.gravity_multiplier = 0.0f;
-		}
-		// Smoke
-		{
-			Entity emitter_test = world.CreateEntity();
-			emitter_test.Add<TransformComponent>()
-				.SetPosition( { 0.0f, 0.0f, 0.0f } );
-			emitter_test.Add<HierarchyComponent>();
-			auto& emitter = emitter_test.Add<ParticleEmitterComponent>( ResourceManager::GetTexture( "Assets/Ignore/particles/smoke_01.png" ) );
-			emitter.particles_per_sec = 50.0f;
-			emitter.lifetime = 10.0f;
-			emitter.start_scale = 0.2f;
-			emitter.end_scale = 0.1f;
-			emitter.gradient.AddStop( Colour( 128, 128, 128 ), 0.0f );
-			emitter.start_alpha = 0.05f;
-			emitter.end_alpha = 0.0f;
-			emitter.gravity_multiplier = 0.0f;
+			emitter.motion_blur = 8.0f;
+
+			scene.AddChild( emitter_test );
 		}
 
 		flashlight = world.CreateEntity();
@@ -328,6 +315,24 @@ namespace Bat
 					ImGui::Text( rot_text.c_str() );
 					ImGui::Text( scale_text.c_str() );
 
+					ImGui::TreePop();
+				}
+			}
+			if( e.Has<ParticleEmitterComponent>() )
+			{
+				auto& emitter = e.Get<ParticleEmitterComponent>();
+
+				if( ImGui::TreeNode( "Particle Emitter" ) )
+				{
+					ImGui::Text( "%i Particles", emitter.num_particles );
+					ImGui::DragFloat( "Particles/Sec", &emitter.particles_per_sec, 0.1f, 0.0f, 1000.0f );
+					ImGui::DragFloat( "Lifetime", &emitter.lifetime, 0.01f, 0.0f, 10.0f );
+					ImGui::DragFloat( "Start Alpha", &emitter.start_alpha, 0.01f, 0.0f, 1.0f );
+					ImGui::DragFloat( "End Alpha", &emitter.end_alpha, 0.01f, 0.0f, 1.0f );
+					ImGui::DragFloat( "Start Scale", &emitter.start_scale, 0.01f, 0.0f, 2.0f );
+					ImGui::DragFloat( "End Scale", &emitter.end_scale, 0.01f, 0.0f, 2.0f );
+					ImGui::DragFloat( "Gravity Multiplier", &emitter.gravity_multiplier, 0.1f, 0.0f, 10.0f );
+					ImGui::DragFloat( "Motion Blur", &emitter.motion_blur, 1.0f, 0.0f, 100.0f );
 					ImGui::TreePop();
 				}
 			}

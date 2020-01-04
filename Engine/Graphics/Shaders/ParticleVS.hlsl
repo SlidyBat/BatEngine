@@ -37,20 +37,30 @@ PixelInputType main(VertexInputType input)
 	uint particle_index = input.index / 6;
 	Particle particle = Particles[particle_index];
 	
+	float t = particle.age / Lifetime;
 	float3 quad_pos = quad[vertex_index];
-	float2 uv = quad_pos.xy * float2(0.5f, -0.5f) + 0.5f;
 	
-	float scale = lerp(StartScale, EndScale, particle.age / Lifetime);
+	float2 uv = quad_pos.xy * float2(0.5f, -0.5f) + 0.5f;
+	float scale = lerp(StartScale, EndScale, t);
+	float rotation = particle.rot_velocity * t;
+	float3 velocity = mul(particle.velocity, (float3x3)view);
+	
+	float2x2 rot = float2x2(
+		cos(rotation), -sin(rotation),
+		sin(rotation), cos(rotation) );
+	quad_pos.xy = mul(quad_pos.xy, rot);
+	quad_pos *= scale;
+	quad_pos += dot(quad_pos, velocity) * velocity * MotionBlur;
 	
 	output.position = float4(particle.position, 1.0f);
 	output.position = mul(output.position, view);
-	output.position.xyz += quad_pos * scale;
+	output.position.xyz += quad_pos;
 	output.position = mul(output.position, proj);
 	
 	output.tex = uv;
 
 	output.colour = particle.colour;
-	output.colour.a *= lerp(StartAlpha, EndAlpha, particle.age / Lifetime);
+	output.colour.a *= lerp(StartAlpha, EndAlpha, t);
 	
 	return output;
 }

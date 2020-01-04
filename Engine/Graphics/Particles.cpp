@@ -12,6 +12,7 @@ namespace Bat
 		new_particle.velocity = { Math::GetRandomFloat( -0.1f, 0.1f ), Math::GetRandomFloat( 0.1f, 0.5f ), Math::GetRandomFloat( -0.1f, 0.1f ) };
 		new_particle.age = 0.0f;
 		new_particle.colour = colour;
+		new_particle.rot_velocity = Math::GetRandomFloat( -5.0f, 5.0f );
 		return new_particle;
 	}
 
