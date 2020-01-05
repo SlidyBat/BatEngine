@@ -12,6 +12,7 @@
 #include "MouseEvents.h"
 #include "PhysicsSystem.h"
 #include "AnimationSystem.h"
+#include "Particles.h"
 
 namespace Bat
 {
@@ -53,12 +54,16 @@ namespace Bat
 		Entity sun;
 		Entity player;
 
+		bool physics_simulate = false;
+
 		float timestamp = 0.0f;
 		float anim_timescale = 1.0f;
 		int selected_anim = 0;
 
+		HierarchySystem hier_system;
 		PhysicsSystem physics_system;
 		AnimationSystem anim_system;
+		ParticleSystem particle_system;
 
 		float bloom_threshold = 1.0f;
 		float exposure = 2.0f;

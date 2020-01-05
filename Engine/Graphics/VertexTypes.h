@@ -8,6 +8,7 @@ namespace Bat
 	enum class VertexAttribute
 	{
 		Invalid = -1,
+		VertexId,
 		Position,
 		Colour,
 		Normal,
@@ -16,6 +17,7 @@ namespace Bat
 		Bitangent,
 		BoneId,
 		BoneWeight,
+		InstanceData,
 		TotalAttributes
 	};
 }

@@ -39,6 +39,7 @@ namespace Bat
 		camera( wnd.input, 2.0f, 1.0f ),
 		physics_system( world )
 	{
+		world.EnsureEntityCapacity( 1000005 );
 		SceneLoader loader;
 
 		camera.SetAspectRatio( (float)wnd.GetWidth() / wnd.GetHeight() );
@@ -46,10 +47,39 @@ namespace Bat
 		scene.Set( world.CreateEntity() ); // Root entity
 		scale_index = scene.AddChild( world.CreateEntity() );
 		SceneNode& scale_node = scene.GetChild( scale_index );
-		size_t scene_index = scale_node.AddChild( loader.Load( "Assets/Ignore/iclone/scene.gltf" ) );
+		scale_node.AddChild( loader.Load( "Assets/Ignore/Sponza/sponza.gltf" ) );
+		Entity floor = world.CreateEntity();
+		floor.Add<TransformComponent>()
+			.SetPosition( { 0.0f, -2.0f, 0.0f } )
+			.SetRotation( { 0.0f, 90.0f, 0.0f } );
+		floor.Add<PhysicsComponent>( PhysicsObjectType::STATIC )
+			.AddPlaneShape();
 
 		scale_node.Get().Add<TransformComponent>()
 			.SetScale( 0.01f );
+
+		// Fire
+		{
+			Entity emitter_test = world.CreateEntity();
+			emitter_test.Add<TransformComponent>()
+				.SetPosition( { 0.0f, 0.0f, 0.0f } );
+			emitter_test.Add<HierarchyComponent>();
+			auto& emitter = emitter_test.Add<ParticleEmitterComponent>( ResourceManager::GetTexture( "Assets/Ignore/particles/fire_02.png" ) );
+			emitter.particles_per_sec = 50.0f;
+			emitter.lifetime = 2.0f;
+			emitter.start_scale = 0.32f;
+			emitter.end_scale = 0.35f;
+			emitter.gradient.AddStop( Colour( 237, 237, 0 ), 0.1f )
+				.AddStop( Colour( 255, 0, 0 ), 0.5f );
+			emitter.start_alpha = 0.08f;
+			emitter.end_alpha = 0.0f;
+			emitter.force_multiplier = 0.0f;
+			emitter.motion_blur = 8.0f;
+			emitter.normal = { 0.0f, 0.3f, 0.0f };
+			emitter.rand_velocity_range = { 0.0f, 0.0f, 0.0f };
+
+			scene.AddChild( emitter_test );
+		}
 
 		flashlight = world.CreateEntity();
 		flashlight.Add<LightComponent>()
@@ -166,8 +196,13 @@ namespace Bat
 
 		physics_system.Update( world, deltatime );
 		anim_system.Update( world, deltatime );
+		hier_system.Update( scene );
+		particle_system.Update( world, deltatime );
 
-		Physics::Simulate( deltatime );
+		if( physics_simulate )
+		{
+			Physics::Simulate( deltatime );
+		}
 	}
 
 	static void AddNodeTree( const SceneNode& node )
@@ -282,6 +317,38 @@ namespace Bat
 					ImGui::Text( rot_text.c_str() );
 					ImGui::Text( scale_text.c_str() );
 
+					ImGui::TreePop();
+				}
+			}
+			if( e.Has<ParticleEmitterComponent>() )
+			{
+				auto& emitter = e.Get<ParticleEmitterComponent>();
+
+				if( ImGui::TreeNode( "Particle Emitter" ) )
+				{
+					ImGui::Text( "%i Particles", emitter.num_particles );
+					if( ImGui::ImageButton( emitter.texture->Get()->GetImpl(), { 50, 50 } ) )
+					{
+						auto path = FileDialog::Open( "Assets" );
+						if( path )
+						{
+							auto texture = ResourceManager::GetTexture( path->string() );
+							if( texture ) emitter.texture = std::move( texture );
+						}
+					}
+					emitter.gradient.DoImGuiButton();
+					ImGui::DragFloat( "Particles/Sec", &emitter.particles_per_sec, 0.1f, 0.0f, 1000.0f );
+					ImGui::DragFloat( "Lifetime", &emitter.lifetime, 0.01f, 0.0f, 10.0f );
+					ImGui::DragFloat( "Start Alpha", &emitter.start_alpha, 0.01f, 0.0f, 1.0f );
+					ImGui::DragFloat( "End Alpha", &emitter.end_alpha, 0.01f, 0.0f, 1.0f );
+					ImGui::DragFloat( "Start Scale", &emitter.start_scale, 0.01f, 0.0f, 2.0f );
+					ImGui::DragFloat( "End Scale", &emitter.end_scale, 0.01f, 0.0f, 2.0f );
+					ImGui::DragFloat3( "Force", (float*)&emitter.force, 0.01f, -10.0f, 10.0f );
+					ImGui::DragFloat( "Force Multiplier", &emitter.force_multiplier, 0.1f, 0.0f, 10.0f );
+					ImGui::DragFloat3( "Normal", (float*)&emitter.normal, 0.01f, -5.0f, 5.0f );
+					ImGui::DragFloat( "Rot. Velocity Range", &emitter.rand_rot_velocity_range, 0.01f, 0.0f, 100.0f );
+					ImGui::DragFloat3( "Velocity Range", (float*)&emitter.rand_velocity_range, 0.01f, 0.0f, 100.0f );
+					ImGui::DragFloat( "Motion Blur", &emitter.motion_blur, 1.0f, 0.0f, 100.0f );
 					ImGui::TreePop();
 				}
 			}
@@ -461,33 +528,16 @@ namespace Bat
 				phys.AddLinearImpulse( (t.GetPosition() - camera.GetPosition()).Normalize() * 10.0f );
 			}
 		}
+		else if( e.key == 'X' )
+		{
+			physics_simulate = !physics_simulate;
+		}
 	}
 
 	void Application::OnEvent( const MouseButtonPressedEvent& e )
 	{
 		if( e.button == Input::MouseButton::Left )
 		{
-			DirectX::XMMATRIX inv_proj = DirectX::XMMatrixInverse( nullptr, camera.GetProjectionMatrix() );
-			DirectX::XMMATRIX inv_view = DirectX::XMMatrixInverse( nullptr, camera.GetViewMatrix() );
-
-			float x = (2.0f * e.pos.x) / wnd.GetWidth() - 1.0f;
-			float y = 1.0f - (2.0f * e.pos.y) / wnd.GetHeight();
-			Vec4 clip = { x, y, 1.0f, -1.0f };
-			Vec4 eye = DirectX::XMVector4Transform( clip, inv_proj );
-			eye.z = 1.0f;
-			eye.w = 0.0f;
-			Vec4 world = DirectX::XMVector4Transform( eye, inv_view );
-			Vec3 ray = Vec3( world.x, world.y, world.z ).Normalized();
-
-			auto result = EntityTrace::RayCast( camera.GetPosition() + ray * 0.5f, ray, 500.0f, HIT_DYNAMICS );
-			if( result.hit )
-			{
-				Entity hit_ent = result.entity;
-				BAT_LOG( "HIT! Entity: %i", hit_ent.GetId().GetIndex() );
-				const auto& t = hit_ent.Get<TransformComponent>();
-				auto& phys = hit_ent.Get<PhysicsComponent>();
-				phys.AddLinearImpulse( (t.GetPosition() - camera.GetPosition()).Normalize() * 10.0f );
-			}
 		}
 	}
 

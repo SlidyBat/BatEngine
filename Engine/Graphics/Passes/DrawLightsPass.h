@@ -33,10 +33,10 @@ namespace Bat
 			pContext->SetBlendingEnabled( false );
 			pContext->SetCullMode( CullMode::BACK );
 
-			Traverse( scene );
+			Traverse();
 		}
 	public:
-		virtual void Visit( const DirectX::XMMATRIX& transform, const SceneNode& node ) override
+		virtual void Visit( const DirectX::XMMATRIX& transform, Entity e ) override
 		{
 			static Entity* light_model = nullptr;
 			static Material light_material;
@@ -48,7 +48,6 @@ namespace Bat
 				light_model->Get<TransformComponent>().SetScale( 0.05f );
 			}
 
-			Entity e = node.Get();
 			if( e.Has<LightComponent>() )
 			{
 				auto light = e.Get<LightComponent>();

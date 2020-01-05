@@ -17,11 +17,7 @@
 		BAT_DEBUG_BREAK(); \
 	}
 #else
-#define ASSERT( expr, ... ) if( expr ) {} \
-	else \
-	{\
-		BAT_ERROR( __VA_ARGS__ ); \
-	}
+#define ASSERT( expr, ... ) 
 #endif
 
 namespace Bat

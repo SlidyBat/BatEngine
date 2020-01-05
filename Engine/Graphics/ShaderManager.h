@@ -10,7 +10,8 @@ namespace Bat
 	enum
 	{
 		PS_CBUF_GLOBALS = 0,
-		PS_CBUF_SLOT_0 = 1,
+		PS_CBUF_PARTICLES = 1,
+		PS_CBUF_SLOT_0 = 2,
 		PS_CBUF_SLOT_1,
 		PS_CBUF_SLOT_2,
 		PS_CBUF_SLOT_3,
@@ -51,14 +52,15 @@ namespace Bat
 	{
 		VS_CBUF_TRANSFORMS = 0,
 		VS_CBUF_BONES = 1,
-		VS_CBUF_SLOT_0 = 2,
+		VS_CBUF_PARTICLES = 2,
+		VS_CBUF_SLOT_0 = 3,
 		VS_CBUF_SLOT_1,
 		VS_CBUF_SLOT_2,
 		VS_CBUF_SLOT_3,
 		VS_CBUF_SLOT_4,
 		VS_CBUF_SLOT_5,
 		VS_CBUF_SLOT_6,
-		VS_CBUF_SLOT_7,
+		VS_CBUF_SLOT_7
 	};
 
 	class ShaderManager

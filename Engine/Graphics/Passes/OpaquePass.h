@@ -23,7 +23,7 @@ namespace Bat
 			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TARGET );
 		}
 	private:
-		virtual void PreRender( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data ) override
+		virtual void PreRender( IGPUContext* pContext, Camera& camera, RenderData& data ) override
 		{
 			IRenderTarget* target = data.GetRenderTarget( "dst" );
 			pContext->SetRenderTarget( target );
@@ -34,13 +34,11 @@ namespace Bat
 			pContext->SetCullMode( CullMode::BACK );
 		}
 
-		virtual void Render( const DirectX::XMMATRIX& transform, const SceneNode& node ) override
+		virtual void Render( const DirectX::XMMATRIX& transform, Entity e ) override
 		{
 			IGPUContext* pContext = SceneRenderPass::GetContext();
 			Camera* pCamera = SceneRenderPass::GetCamera();
 			LightList light_list = SceneRenderPass::GetLights();
-
-			Entity e = node.Get();
 
 			if( e.Has<AnimationComponent>() )
 			{
@@ -56,7 +54,6 @@ namespace Bat
 			}
 			if( e.Has<ModelComponent>() )
 			{
-				auto& name = e.Get<NameComponent>().name;
 				auto& model = e.Get<ModelComponent>();
 
 				DirectX::XMMATRIX w = transform;
@@ -79,6 +76,17 @@ namespace Bat
 						continue;
 					}
 
+					if( pMesh->HasRenderFlag( RenderFlags::INSTANCED ) )
+					{
+						LitGenericInstanceData data;
+						data.world = w;
+
+						auto& instances = m_mapInstancedMeshes[pMesh.get()];
+						instances.push_back( data );
+
+						continue;
+					}
+
 					if( pMesh->HasRenderFlag( RenderFlags::DRAW_BBOX ) )
 					{
 						DrawOutlineBox( pContext, *pCamera, pMesh->GetAABB(), w );
@@ -87,6 +95,18 @@ namespace Bat
 					auto pPipeline = ShaderManager::GetPipeline<LitGenericPipeline>();
 					pPipeline->Render( pContext, *pMesh, *pCamera, w, light_list.entities, light_list.transforms );
 				}
+			}
+		}
+
+		virtual void PostRender( IGPUContext* pContext, Camera& camera, RenderData& data ) override
+		{
+			LightList light_list = SceneRenderPass::GetLights();
+			auto pPipeline = ShaderManager::GetPipeline<LitGenericPipeline>();
+			
+			for( auto& [pMesh, instances] : m_mapInstancedMeshes )
+			{
+				pPipeline->RenderInstanced( pContext, *pMesh, instances, camera, light_list.entities, light_list.transforms );
+				instances.clear();
 			}
 		}
 
@@ -109,5 +129,8 @@ namespace Bat
 			DirectX::XMMATRIX bone_transforms[MAX_BONES];
 		};
 		ConstantBuffer<CB_Bones> m_cbufBones;
+
+		
+		std::unordered_map<Mesh*, std::vector<LitGenericInstanceData>> m_mapInstancedMeshes;
 	};
 }

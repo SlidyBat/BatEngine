@@ -184,11 +184,12 @@ namespace Bat
 
 		Iterator begin() { return Iterator( this, 0 ); }
 		Iterator end() { return Iterator( this, m_iEntityHead ); }
+
+		void EnsureEntityCapacity( uint32_t index );
 	private:
 		template <typename C>
 		ObjectChunkedAllocator<C>& GetComponentAllocator();
 
-		void EnsureEntityCapacity( uint32_t index );
 
 		void SortFreeList();
 	private:
@@ -246,7 +247,12 @@ namespace Bat
 		const size_t entity_idx = entity.GetId().GetIndex();
 		ObjectChunkedAllocator<C>& allocator = GetComponentAllocator<C>();
 
-		C* pComponent = allocator.Get( entity_idx );
+		const size_t elements_per_chunk = allocator.m_iChunkSize / allocator.m_iObjectSize;
+		const size_t chunk_index = entity_idx / elements_per_chunk;
+		char* chunk = allocator.m_pChunks[chunk_index];
+		const size_t offset = (entity_idx % elements_per_chunk) * allocator.m_iObjectSize;
+		char* ptr = chunk + offset;
+		C* pComponent = reinterpret_cast<C*>(ptr);
 		return *pComponent;
 	}
 
@@ -258,7 +264,12 @@ namespace Bat
 		const size_t entity_idx = entity.GetId().GetIndex();
 		ObjectChunkedAllocator<C>& allocator = GetComponentAllocator<C>();
 
-		C* pComponent = allocator.Get( entity_idx );
+		const size_t elements_per_chunk = allocator.m_iChunkSize / allocator.m_iObjectSize;
+		const size_t chunk_index = entity_idx / elements_per_chunk;
+		const char* chunk = allocator.m_pChunks[chunk_index];
+		const size_t offset = (entity_idx % elements_per_chunk) * allocator.m_iObjectSize;
+		const char* ptr = chunk + offset;
+		const C* pComponent = reinterpret_cast<const C*>( ptr );
 		return *pComponent;
 	}
 
@@ -277,12 +288,8 @@ namespace Bat
 		if( !m_pComponentAllocators[component_idx] )
 		{
 			auto allocator = std::make_unique<ObjectChunkedAllocator<C>>();
-			allocator->EnsureCapacity( m_iEntityHead );
+			allocator->EnsureCapacity( m_EntityVersions.size() );
 			m_pComponentAllocators[component_idx] = std::move( allocator );
-		}
-
-		if( !m_pComponentHelpers[component_idx] )
-		{
 			m_pComponentHelpers[component_idx] = std::make_unique<ComponentHelper<C>>();
 		}
 

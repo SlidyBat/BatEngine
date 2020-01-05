@@ -16,6 +16,7 @@ namespace Bat
 		if( m_FreeList.empty() )
 		{
 			idx = m_iEntityHead++;
+			EnsureEntityCapacity( idx );
 		}
 		else
 		{
@@ -25,10 +26,6 @@ namespace Bat
 		}
 
 		Entity::Id id( idx, version );
-		if( idx + 1 > m_EntityComponentMasks.size() )
-		{
-			m_EntityComponentMasks.resize( idx + 1 );
-		}
 		Entity entity( *this, id );
 
 		DispatchEvent<EntityCreatedEvent>( entity );
@@ -65,13 +62,18 @@ namespace Bat
 	void EntityManager::EnsureEntityCapacity( uint32_t index )
 	{
 		const uint32_t capacity = index + 1;
-		m_EntityVersions.resize( capacity );
-		m_FreeList.resize( capacity );
-		m_EntityComponentMasks.resize( capacity );
-
-		for( auto& allocator : m_pComponentAllocators )
+		if( m_EntityVersions.size() < capacity )
 		{
-			allocator->EnsureCapacity( capacity );
+			m_EntityVersions.resize( capacity );
+			m_EntityComponentMasks.resize( capacity );
+
+			for( auto& allocator : m_pComponentAllocators )
+			{
+				if( allocator )
+				{
+					allocator->EnsureCapacity( capacity );
+				}
+			}
 		}
 	}
 	void EntityManager::SortFreeList()

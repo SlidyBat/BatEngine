@@ -6,6 +6,44 @@
 
 namespace Bat
 {
+	class Vec2;
+	class Vec3;
+	class Vec4;
+
+	namespace Math
+	{
+		constexpr float PI = DirectX::XM_PI;
+
+		constexpr inline float DegToRad( const float deg )
+		{
+			return deg * (PI / 180.0f);
+		}
+		constexpr inline float RadToDeg( const float rad )
+		{
+			return rad * (180.0f / PI);
+		}
+
+		Vec3 QuaternionToEuler( const Vec4& quat );
+		Vec4 EulerToQuaternion( const Vec3& euler );
+
+		__m128 Abs( __m128 m );
+		__m128 Sin( __m128 m_x );
+		float Sin( float x );
+		float Cos( float x );
+		void SinCos( float x, float* s, float* c );
+
+		void AngleVectors( const Vec3& angles, Vec3* forward = nullptr, Vec3* right = nullptr, Vec3* up = nullptr );
+
+		// Returns a random int in the range [min, max]
+		int GetRandomInt( int min, int max );
+		// Returns a random float in the range [min, max)
+		float GetRandomFloat( float min, float max );
+
+		bool CloseEnough( float a, float b, float epsilon = 0.001f );
+
+		float Lerp( float a, float b, float t );
+	}
+
 	template <typename T>
 	class _Vec2
 	{
@@ -186,6 +224,12 @@ namespace Bat
 		{
 			return DirectX::XMLoadFloat2( this );
 		}
+
+		static Vec2 Lerp( const Vec2& a, const Vec2& b, float t )
+		{
+			return Vec2( Math::Lerp( a.x, b.x, t ),
+				Math::Lerp( a.y, b.y, t ) );
+		}
 	};
 
 	class Vec3 : public DirectX::XMFLOAT3
@@ -299,6 +343,13 @@ namespace Bat
 		{
 			return DirectX::XMLoadFloat3( this );
 		}
+
+		static Vec3 Lerp( const Vec3& a, const Vec3& b, float t )
+		{
+			return Vec3( Math::Lerp( a.x, b.x, t ),
+				Math::Lerp( a.y, b.y, t ),
+				Math::Lerp( a.z, b.z, t ) );
+		}
 	};
 
 	class Vec4 : public DirectX::XMFLOAT4
@@ -406,6 +457,14 @@ namespace Bat
 		{
 			return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 		}
+
+		static Vec4 Lerp( const Vec4& a, const Vec4& b, float t )
+		{
+			return Vec4( Math::Lerp( a.x, b.x, t ),
+				Math::Lerp( a.y, b.y, t ),
+				Math::Lerp( a.z, b.z, t ),
+				Math::Lerp( a.w, b.w, t ) );
+		}
 	};
 
 	struct Plane
@@ -432,36 +491,4 @@ namespace Bat
 		Vec3 mins;
 		Vec3 maxs;
 	};
-
-	namespace Math
-	{
-		constexpr float PI = DirectX::XM_PI;
-
-		constexpr inline float DegToRad( const float deg )
-		{
-			return deg * (PI / 180.0f);
-		}
-		constexpr inline float RadToDeg( const float rad )
-		{
-			return rad * (180.0f / PI);
-		}
-
-		Vec3 QuaternionToEuler( const Vec4& quat );
-		Vec4 EulerToQuaternion( const Vec3& euler );
-
-		__m128 Abs( __m128 m );
-		__m128 Sin( __m128 m_x );
-		float Sin( float x );
-		float Cos( float x );
-		void SinCos( float x, float* s, float* c );
-
-		void AngleVectors( const Vec3& angles, Vec3* forward = nullptr, Vec3* right = nullptr, Vec3* up = nullptr );
-
-		// Returns a random int in the range [min, max]
-		int GetRandomInt( int min, int max );
-		// Returns a random float in the range [min, max)
-		float GetRandomFloat( float min, float max );
-
-		bool CloseEnough( float a, float b, float epsilon = 0.001f );
-	}
 }

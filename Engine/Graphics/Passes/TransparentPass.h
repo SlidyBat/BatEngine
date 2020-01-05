@@ -10,6 +10,9 @@
 #include "Material.h"
 #include "ShaderManager.h"
 #include "LitGenericPipeline.h"
+#include "ParticlePipeline.h"
+#include "Particles.h"
+#include "MeshBuilder.h"
 #include <algorithm>
 
 namespace Bat
@@ -22,7 +25,7 @@ namespace Bat
 			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TARGET );
 		}
 	private:
-		virtual void PreRender( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data ) override
+		virtual void PreRender( IGPUContext* pContext, Camera& camera, RenderData& data ) override
 		{
 			IRenderTarget* target = data.GetRenderTarget( "dst" );
 			pContext->SetRenderTarget( target );
@@ -35,42 +38,81 @@ namespace Bat
 			m_TranslucentMeshes.clear();
 		}
 
-		virtual void Render( const DirectX::XMMATRIX& transform, const SceneNode& node ) override
+		virtual void Render( const DirectX::XMMATRIX& transform, Entity e ) override
 		{
-			IGPUContext* pContext = GetContext();
-			Camera* pCamera = GetCamera();
-			LightList light_list = GetLights();
-
-			Entity e = node.Get();
-
 			if( e.Has<ModelComponent>() )
 			{
-				auto& model = e.Get<ModelComponent>();
-
-				DirectX::XMMATRIX w = transform;
-
-				auto& meshes = model.GetMeshes();
-				for( auto& pMesh : meshes )
-				{
-					if( !pMesh->GetMaterial().IsTranslucent() )
-					{
-						continue;
-					}
-
-					if( !MeshInCameraFrustum( pMesh.get(), pCamera, w ) )
-					{
-						continue;
-					}
-
-					TranslucentMesh translucent_mesh;
-					translucent_mesh.mesh = pMesh.get();
-					translucent_mesh.world_transform = w;
-					m_TranslucentMeshes.push_back( translucent_mesh );
-				}
+				const auto& model = e.Get<ModelComponent>();
+				RenderModel( model, transform );
+			}
+			if( e.Has<ParticleEmitterComponent>() )
+			{
+				auto& emitter = e.Get<ParticleEmitterComponent>();
+				RenderParticles( emitter, transform );
 			}
 		}
 
-		virtual void PostRender( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data ) override
+		void RenderModel( const ModelComponent& model, const DirectX::XMMATRIX& transform )
+		{
+			Camera* pCamera = GetCamera();
+
+			DirectX::XMMATRIX w = transform;
+
+			auto& meshes = model.GetMeshes();
+			for( auto& pMesh : meshes )
+			{
+				if( !pMesh->GetMaterial().IsTranslucent() )
+				{
+					continue;
+				}
+
+				if( !MeshInCameraFrustum( pMesh.get(), pCamera, w ) )
+				{
+					continue;
+				}
+
+				TranslucentMesh translucent_mesh;
+				translucent_mesh.mesh = pMesh.get();
+				translucent_mesh.world_transform = w;
+				m_TranslucentMeshes.push_back( translucent_mesh );
+			}
+		}
+
+		void RenderParticles( ParticleEmitterComponent& emitter, const DirectX::XMMATRIX& transform )
+		{
+			IGPUContext* pContext = GetContext();
+			Camera* pCamera = GetCamera();
+			
+			std::sort( emitter.particles.begin(), emitter.particles.begin() + emitter.num_particles, [pCamera]( const Particle& a, const Particle& b )
+			{
+				const Vec3& cam_pos = pCamera->GetPosition();
+
+				const float a_distance_sq = (a.position - cam_pos).LengthSq();
+				const float b_distance_sq = (b.position - cam_pos).LengthSq();
+
+				return a_distance_sq > b_distance_sq;
+			} );
+
+			static std::vector<ParticleInstanceData> instances;
+			instances.clear();
+			instances.reserve( emitter.particles.size() );
+			for( int i = 0; i < emitter.num_particles; i++ )
+			{
+				const Particle& particle = emitter.particles[i];
+				ParticleInstanceData instance;
+				instance.velocity = particle.velocity;
+				instance.rot_velocity = particle.rot_velocity;
+				instance.position = particle.position;
+				instance.age = particle.age;
+				instance.colour = particle.colour;
+				instances.push_back( instance );
+			}
+
+			auto pPipeline = ShaderManager::GetPipeline<ParticlePipeline>();
+			pPipeline->Render( pContext, instances, emitter, *pCamera );
+		}
+
+		virtual void PostRender( IGPUContext* pContext, Camera& camera, RenderData& data ) override
 		{
 			// Sort the meshes we got so that they are drawn back-to-front
 			std::sort( m_TranslucentMeshes.begin(), m_TranslucentMeshes.end(), [camera]( const TranslucentMesh& a, const TranslucentMesh& b )

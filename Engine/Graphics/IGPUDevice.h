@@ -159,13 +159,22 @@ namespace Bat
 		virtual void BindTexture( IDepthStencil* pDepthStencil, size_t slot ) = 0;
 		virtual void UnbindTextureSlot( size_t slot ) = 0;
 
-		virtual void UpdateBuffer( IVertexBuffer* pBuffer, const void* pData ) = 0;
+		// Update the vertex buffer with the given data
+		// Count is the number of vertices to update, or 0 to update the full buffer
+		// Offset is the offset from the beginning of the buffer to update from in vertices
+		virtual void UpdateBuffer( IVertexBuffer* pBuffer, const void* pData, size_t count = 0, size_t offset = 0 ) = 0;
 		virtual void* Lock( IVertexBuffer* pBuffer ) = 0;
 		virtual void Unlock( IVertexBuffer* pBuffer ) = 0;
-		virtual void UpdateBuffer( IIndexBuffer* pBuffer, const void* pData ) = 0;
+		// Update the index buffer with the given data
+		// Count is the number of indices to update, or 0 to update the full buffer
+		// Offset is the offset from the beginning of the buffer to update from in indices
+		virtual void UpdateBuffer( IIndexBuffer* pBuffer, const void* pData, size_t count = 0, size_t offset = 0 ) = 0;
 		virtual void* Lock( IIndexBuffer* pBuffer ) = 0;
 		virtual void Unlock( IIndexBuffer* pBuffer ) = 0;
-		virtual void UpdateBuffer( IConstantBuffer* pBuffer, const void* pData ) = 0;
+		// Update the constant buffer with the given data
+		// Count is the number of bytes to update, or 0 to update the full buffer
+		// Offset is the offset from the beginning of the buffer to update from in bytes
+		virtual void UpdateBuffer( IConstantBuffer* pBuffer, const void* pData, size_t count = 0, size_t offset = 0 ) = 0;
 		virtual void* Lock( IConstantBuffer* pBuffer ) = 0;
 		virtual void Unlock( IConstantBuffer* pBuffer ) = 0;
 
@@ -185,7 +194,9 @@ namespace Bat
 		virtual void SetSampler( ShaderType shader, ISampler* pSampler, size_t slot ) = 0;
 
 		virtual void Draw( size_t vertex_count ) = 0;
+		virtual void DrawInstanced( size_t vertex_count, size_t instance_count ) = 0;
 		virtual void DrawIndexed( size_t index_count ) = 0;
+		virtual void DrawInstancedIndexed( size_t index_count, size_t instance_count ) = 0;
 
 		virtual void BeginEvent( const std::string& name ) = 0;
 		virtual void EndEvent() = 0;
@@ -209,7 +220,10 @@ namespace Bat
 		virtual ~IVertexShader() = default;
 
 		virtual std::string GetName() const = 0;
-		virtual bool RequiresVertexAttribute( VertexAttribute attribute ) const = 0;
+		// Gets the number of elements in the shader that use this attribute, or 0 if the shader doesn't require this attribute at all
+		virtual int GetVertexAttributeCount( VertexAttribute attribute ) const = 0;
+		// Gets the slot that this shader expects the attribute to be at, or -1 if the shader doesn't require this attribute at all
+		virtual int GetVertexAttributeSlot( VertexAttribute attribute, int index ) const = 0;
 	};
 
 	class IVertexBuffer
@@ -248,6 +262,7 @@ namespace Bat
 		virtual size_t GetHeight() const = 0;
 		virtual TexFormat GetFormat() const = 0;
 		virtual bool IsTranslucent() const = 0;
+		virtual void* GetImpl() = 0;
 	};
 
 	class IDepthStencil

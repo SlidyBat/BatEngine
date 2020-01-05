@@ -181,6 +181,11 @@ namespace Bat
 		{
 			return abs( a - b ) < epsilon;
 		}
+
+		float Lerp( float a, float b, float t )
+		{
+			return a * (1 - t) + b * t;
+		}
 	}
 	AABB::AABB( const Vec3& mins, const Vec3& maxs )
 		:

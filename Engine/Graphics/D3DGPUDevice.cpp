@@ -62,6 +62,7 @@ namespace Bat
 			if( !initialized )
 			{
 				initialized = true;
+				s_mapConvert["SV_VertexID"] = VertexAttribute::VertexId;
 				s_mapConvert["POSITION"] = VertexAttribute::Position;
 				s_mapConvert["COLOR"] = VertexAttribute::Colour;
 				s_mapConvert["NORMAL"] = VertexAttribute::Normal;
@@ -70,6 +71,7 @@ namespace Bat
 				s_mapConvert["BITANGENT"] = VertexAttribute::Bitangent;
 				s_mapConvert["BONEID"] = VertexAttribute::BoneId;
 				s_mapConvert["BONEWEIGHT"] = VertexAttribute::BoneWeight;
+				s_mapConvert["INSTANCE_DATA"] = VertexAttribute::InstanceData;
 			}
 
 			auto it = s_mapConvert.find( semantic );
@@ -88,6 +90,7 @@ namespace Bat
 			if( !initialized )
 			{
 				initialized = true;
+				s_mapConvert[VertexAttribute::VertexId] = "SV_VertexID";
 				s_mapConvert[VertexAttribute::Position] = "POSITION";
 				s_mapConvert[VertexAttribute::Colour] = "COLOR";
 				s_mapConvert[VertexAttribute::Normal] = "NORMAL";
@@ -96,6 +99,7 @@ namespace Bat
 				s_mapConvert[VertexAttribute::Bitangent] = "BITANGENT";
 				s_mapConvert[VertexAttribute::BoneId] = "BONEID";
 				s_mapConvert[VertexAttribute::BoneWeight] = "BONEWEIGHT";
+				s_mapConvert[VertexAttribute::InstanceData] = "INSTANCE_DATA";
 			}
 
 			auto it = s_mapConvert.find( attribute );
@@ -168,7 +172,8 @@ namespace Bat
 		~D3DVertexShader();
 
 		virtual std::string GetName() const override { return m_szName; }
-		virtual bool RequiresVertexAttribute( VertexAttribute attribute ) const override { return m_bUsesAttribute[(int)attribute]; }
+		virtual int GetVertexAttributeCount( VertexAttribute attribute ) const { return m_iAttributeCount[(int)attribute]; }
+		virtual int GetVertexAttributeSlot( VertexAttribute attribute, int index ) const override { return m_iAttributeSlot[(int)attribute][index]; }
 		ID3D11VertexShader* GetShader( ID3D11Device* pDevice );
 		ID3D11InputLayout* GetLayout() { return m_pInputLayout.Get(); }
 		const ID3D11InputLayout* GetLayout() const { return m_pInputLayout.Get(); }
@@ -179,9 +184,12 @@ namespace Bat
 		bool IsDirty() const { return m_bDirty; }
 		void SetDirty( bool dirty ) { m_bDirty = dirty; }
 	private:
+		static constexpr int MAX_ATTRIBUTE_COUNT = 16;
+
 		std::string m_szName;
-		Microsoft::WRL::ComPtr<ID3D11InputLayout>	m_pInputLayout;
-		bool m_bUsesAttribute[(int)VertexAttribute::TotalAttributes];
+		Microsoft::WRL::ComPtr<ID3D11InputLayout> m_pInputLayout;
+		int m_iAttributeCount[(int)VertexAttribute::TotalAttributes];
+		int m_iAttributeSlot[(int)VertexAttribute::TotalAttributes][MAX_ATTRIBUTE_COUNT];
 		std::vector<ShaderMacro> m_Macros;
 		std::atomic_bool m_bDirty = true;
 		Microsoft::WRL::ComPtr<ID3D11VertexShader> m_pShader;
@@ -256,13 +264,13 @@ namespace Bat
 		virtual void BindTexture( IDepthStencil* pDepthStencil, size_t slot ) override;
 		virtual void UnbindTextureSlot( size_t slot ) override;
 
-		virtual void UpdateBuffer( IVertexBuffer* pBuffer, const void* pData ) override;
+		virtual void UpdateBuffer( IVertexBuffer* pBuffer, const void* pData, size_t count = 0, size_t offset = 0 ) override;
 		virtual void* Lock( IVertexBuffer* pBuffer ) override;
 		virtual void Unlock( IVertexBuffer* pBuffer ) override;
-		virtual void UpdateBuffer( IIndexBuffer* pBuffer, const void* pData ) override;
+		virtual void UpdateBuffer( IIndexBuffer* pBuffer, const void* pData, size_t count = 0, size_t offset = 0 ) override;
 		virtual void* Lock( IIndexBuffer* pBuffer ) override;
 		virtual void Unlock( IIndexBuffer* pBuffer ) override;
-		virtual void UpdateBuffer( IConstantBuffer* pBuffer, const void* pData ) override;
+		virtual void UpdateBuffer( IConstantBuffer* pBuffer, const void* pData, size_t count = 0, size_t offset = 0 ) override;
 		virtual void* Lock( IConstantBuffer* pBuffer ) override;
 		virtual void Unlock( IConstantBuffer* pBuffer ) override;
 
@@ -282,7 +290,9 @@ namespace Bat
 		virtual void SetSampler( ShaderType shader, ISampler* pSampler, size_t slot ) override;
 
 		virtual void Draw( size_t vertex_count ) override;
+		virtual void DrawInstanced( size_t vertex_count, size_t instance_count ) override;
 		virtual void DrawIndexed( size_t index_count ) override;
+		virtual void DrawInstancedIndexed( size_t index_count, size_t instance_count ) override;
 
 		virtual void BeginEvent( const std::string& name ) override;
 		virtual void EndEvent() override;
@@ -395,7 +405,7 @@ namespace Bat
 		size_t GetElementSize() const override { return m_iElemSize; }
 
 		ID3D11Buffer* GetBuffer() const { return m_pVertexBuffer.Get(); }
-		void UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData );
+		void UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData, size_t count = 0, size_t offset = 0 );
 		void* Lock( ID3D11DeviceContext* pDeviceContext );
 		void Unlock( ID3D11DeviceContext* pDeviceContext );
 	private:
@@ -413,7 +423,7 @@ namespace Bat
 		virtual size_t GetElementSize() const override { return m_iElemSize; }
 
 		ID3D11Buffer* GetBuffer() const { return m_pIndexBuffer.Get(); }
-		void UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData );
+		void UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData, size_t count = 0, size_t offset = 0 );
 		void* Lock( ID3D11DeviceContext* pDeviceContext );
 		void Unlock( ID3D11DeviceContext* pDeviceContext );
 	private:
@@ -430,7 +440,7 @@ namespace Bat
 		virtual size_t GetSize() const { return m_iSize; }
 
 		ID3D11Buffer* GetBuffer() const { return m_pConstantBuffer.Get(); }
-		void UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData );
+		void UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData, size_t count = 0, size_t offset = 0 );
 		void* Lock( ID3D11DeviceContext* pDeviceContext );
 		void Unlock( ID3D11DeviceContext* pDeviceContext );
 	private:
@@ -455,6 +465,7 @@ namespace Bat
 		virtual size_t GetHeight() const override { return m_iHeight; }
 		virtual TexFormat GetFormat() const override { return m_Format; }
 		virtual bool IsTranslucent() const override { return m_bIsTranslucent; }
+		virtual void* GetImpl() override { return m_pTextureView.Get(); }
 
 		void UpdatePixels( ID3D11DeviceContext* pDeviceContext, const void* pPixels, size_t pitch );
 		ID3D11ShaderResourceView* GetShaderResourceView() const { return m_pTextureView.Get(); }
@@ -885,9 +896,9 @@ namespace Bat
 		DXGI_CONTEXT_CALL( m_pDeviceContext->PSSetShaderResources( (UINT)slot, 1, &pNullResource ) );
 	}
 
-	void D3DGPUContext::UpdateBuffer( IVertexBuffer* pBuffer, const void* pData )
+	void D3DGPUContext::UpdateBuffer( IVertexBuffer* pBuffer, const void* pData, size_t count, size_t offset )
 	{
-		static_cast<D3DVertexBuffer*>( pBuffer )->UpdateBuffer( m_pDeviceContext.Get(), pData );
+		static_cast<D3DVertexBuffer*>( pBuffer )->UpdateBuffer( m_pDeviceContext.Get(), pData, count, offset );
 	}
 
 	void* D3DGPUContext::Lock( IVertexBuffer* pBuffer )
@@ -900,9 +911,9 @@ namespace Bat
 		static_cast<D3DVertexBuffer*>(pBuffer)->Unlock( m_pDeviceContext.Get() );
 	}
 
-	void D3DGPUContext::UpdateBuffer( IIndexBuffer* pBuffer, const void* pData )
+	void D3DGPUContext::UpdateBuffer( IIndexBuffer* pBuffer, const void* pData, size_t count, size_t offset )
 	{
-		static_cast<D3DIndexBuffer*>( pBuffer )->UpdateBuffer( m_pDeviceContext.Get(), pData );
+		static_cast<D3DIndexBuffer*>( pBuffer )->UpdateBuffer( m_pDeviceContext.Get(), pData, count, offset );
 	}
 
 	void* D3DGPUContext::Lock( IIndexBuffer* pBuffer )
@@ -915,9 +926,9 @@ namespace Bat
 		static_cast<D3DIndexBuffer*>(pBuffer)->Unlock( m_pDeviceContext.Get() );
 	}
 
-	void D3DGPUContext::UpdateBuffer( IConstantBuffer* pBuffer, const void* pData )
+	void D3DGPUContext::UpdateBuffer( IConstantBuffer* pBuffer, const void* pData, size_t count, size_t offset )
 	{
-		static_cast<D3DConstantBuffer*>( pBuffer )->UpdateBuffer( m_pDeviceContext.Get(), pData );
+		static_cast<D3DConstantBuffer*>( pBuffer )->UpdateBuffer( m_pDeviceContext.Get(), pData, count, offset );
 	}
 
 	void* D3DGPUContext::Lock( IConstantBuffer* pBuffer )
@@ -959,8 +970,8 @@ namespace Bat
 	{
 		auto pD3DBuffer = static_cast<D3DVertexBuffer*>( pBuffer );
 
-		ID3D11Buffer* pVertexBuffer = pD3DBuffer->GetBuffer();
-		UINT stride = (UINT)pD3DBuffer->GetElementSize();
+		ID3D11Buffer* pVertexBuffer = pD3DBuffer ? pD3DBuffer->GetBuffer() : nullptr;
+		UINT stride = pD3DBuffer ? (UINT)pD3DBuffer->GetElementSize() : 0;
 		UINT offset = 0;
 
 		DXGI_CONTEXT_CALL( m_pDeviceContext->IASetVertexBuffers( (UINT)slot, 1, &pVertexBuffer, &stride, &offset ) );
@@ -1045,9 +1056,19 @@ namespace Bat
 		DXGI_CONTEXT_CALL( m_pDeviceContext->Draw( (UINT)vertex_count, 0 ) );
 	}
 
+	void D3DGPUContext::DrawInstanced( size_t vertex_count, size_t instance_count )
+	{
+		DXGI_CONTEXT_CALL( m_pDeviceContext->DrawInstanced( (UINT)vertex_count, (UINT)instance_count, 0, 0 ) );
+	}
+
 	void D3DGPUContext::DrawIndexed( size_t index_count )
 	{
 		DXGI_CONTEXT_CALL( m_pDeviceContext->DrawIndexed( (UINT)index_count, 0, 0 ) );
+	}
+
+	void D3DGPUContext::DrawInstancedIndexed( size_t index_count, size_t instance_count )
+	{
+		DXGI_CONTEXT_CALL( m_pDeviceContext->DrawIndexedInstanced( (UINT)index_count, (UINT)instance_count, 0, 0, 0 ) );
 	}
 
 	void D3DGPUContext::BeginEvent( const std::string& name )
@@ -1745,46 +1766,87 @@ namespace Bat
 		D3D11_SHADER_DESC shaderDesc;
 		pVertexShaderReflection->GetDesc( &shaderDesc );
 
+		size_t slot = 0;
+
 		// Read input layout description from shader info
 		std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc;
 		for( UINT i = 0; i < shaderDesc.InputParameters; i++ )
 		{
 			D3D11_SIGNATURE_PARAMETER_DESC paramDesc;
-			pVertexShaderReflection->GetInputParameterDesc( i, &paramDesc );
+			COM_THROW_IF_FAILED( pVertexShaderReflection->GetInputParameterDesc( i, &paramDesc ) );
+
+			auto attribute = AttributeInfo::SemanticToAttribute( paramDesc.SemanticName );
+			ASSERT( attribute != VertexAttribute::Invalid, "Unknown semantic type" );
+
+			if( attribute == VertexAttribute::VertexId )
+			{
+				// Vertex ID is a system value, not handled by us
+				continue;
+			}
 
 			// fill out input element desc
 			D3D11_INPUT_ELEMENT_DESC elementDesc;
 			elementDesc.SemanticName = paramDesc.SemanticName;
 			elementDesc.SemanticIndex = paramDesc.SemanticIndex;
-			elementDesc.InputSlot = i;
+			elementDesc.InputSlot = (UINT)slot;
 			elementDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-			elementDesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-			elementDesc.InstanceDataStepRate = 0;
 
-			auto attribute = AttributeInfo::SemanticToAttribute( paramDesc.SemanticName );
-			ASSERT( attribute != VertexAttribute::Invalid, "Unknown semantic type" );
-			m_bUsesAttribute[(int)attribute] = true;
+			int attribute_index = m_iAttributeCount[(int)attribute];
+			if( attribute != VertexAttribute::InstanceData )
+			{
+				elementDesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+				elementDesc.InstanceDataStepRate = 0;
+				m_iAttributeCount[(int)attribute]++;
 
+				ASSERT( m_iAttributeSlot[(int)attribute][attribute_index] == -1, "Per-vertex shader attribute slot set twice" );
+				m_iAttributeSlot[(int)attribute][attribute_index] = elementDesc.InputSlot;
+
+				slot++;
+			}
+			else
+			{
+				elementDesc.InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA;
+				elementDesc.InstanceDataStepRate = 1;
+				if( m_iAttributeSlot[(int)attribute][attribute_index] != -1 )
+				{
+					elementDesc.InputSlot = (UINT)m_iAttributeSlot[(int)attribute][attribute_index];
+				}
+				else
+				{
+					m_iAttributeSlot[(int)attribute][attribute_index] = elementDesc.InputSlot;
+					slot++;
+				}
+			}
+			
+			
 			// determine DXGI format
-			if( paramDesc.Mask == 1 )
+			int val_count = 0;
+			uint8_t mask = paramDesc.Mask;
+			while( mask & 1 )
+			{
+				val_count += 1;
+				mask >>= 1;
+			}
+
+			if( val_count == 1 )
 			{
 				if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32 ) elementDesc.Format = DXGI_FORMAT_R32_UINT;
 				else if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32 ) elementDesc.Format = DXGI_FORMAT_R32_SINT;
 				else if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32 ) elementDesc.Format = DXGI_FORMAT_R32_FLOAT;
 			}
-			else if( paramDesc.Mask <= 3 )
+			else if( val_count == 2 )
 			{
 				if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32 ) elementDesc.Format = DXGI_FORMAT_R32G32_UINT;
 				else if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32 ) elementDesc.Format = DXGI_FORMAT_R32G32_SINT;
 				else if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32 ) elementDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
 			}
-			else if( paramDesc.Mask <= 7 )
+			else if( val_count == 3 )
 			{
 				if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32 ) elementDesc.Format = DXGI_FORMAT_R32G32B32_UINT;
 				else if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32 ) elementDesc.Format = DXGI_FORMAT_R32G32B32_SINT;
 				else if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32 ) elementDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
 			}
-			else if( paramDesc.Mask <= 15 )
+			else if( val_count == 4 )
 			{
 				if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32 ) elementDesc.Format = DXGI_FORMAT_R32G32B32A32_UINT;
 				else if( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32 ) elementDesc.Format = DXGI_FORMAT_R32G32B32A32_SINT;
@@ -1795,14 +1857,21 @@ namespace Bat
 			inputLayoutDesc.push_back( elementDesc );
 		}
 
-		pDevice->CreateInputLayout( inputLayoutDesc.data(), (UINT)inputLayoutDesc.size(), pCodeBytes, size, &m_pInputLayout );
+		if( !inputLayoutDesc.empty() )
+		{
+			COM_THROW_IF_FAILED( pDevice->CreateInputLayout( inputLayoutDesc.data(), (UINT)inputLayoutDesc.size(), pCodeBytes, size, &m_pInputLayout ) );
+		}
 	}
 
 	void D3DVertexShader::LoadFromFile( ID3D11Device* pDevice, const std::string& filename, bool crash_on_error )
 	{
-		for( int i = 0; i < (int)VertexAttribute::TotalAttributes; i++ )
+		for( int attrib = 0; attrib < (int)VertexAttribute::TotalAttributes; attrib++ )
 		{
-			m_bUsesAttribute[i] = false;
+			for( int index = 0; index < MAX_ATTRIBUTE_COUNT; index++ )
+			{
+				m_iAttributeSlot[attrib][index] = -1;
+			}
+			m_iAttributeCount[attrib] = 0;
 		}
 
 		// compiled shader object
@@ -2043,10 +2112,10 @@ namespace Bat
 		m_iSize = size;
 
 		D3D11_BUFFER_DESC vertexBufferDesc;
-		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 		vertexBufferDesc.ByteWidth = (UINT)(elem_size * size);
 		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		vertexBufferDesc.CPUAccessFlags = 0;
+		vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		vertexBufferDesc.MiscFlags = 0;
 		vertexBufferDesc.StructureByteStride = 0;
 
@@ -2063,12 +2132,13 @@ namespace Bat
 		COM_THROW_IF_FAILED( pDevice->CreateBuffer( &vertexBufferDesc, pVertexData, &m_pVertexBuffer ) );
 	}
 
-	void D3DVertexBuffer::UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData )
+	void D3DVertexBuffer::UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData, size_t count, size_t offset )
 	{
-		size_t pitch = m_iElemSize * m_iSize;
+		size_t actual_count = (count > 0) ? count : m_iSize;
+		size_t pitch = m_iElemSize * actual_count;
 
 		const char* pSrcBytes = reinterpret_cast<const char*>( pData );
-		char* pDstBytes = reinterpret_cast<char*>( Lock( pDeviceContext ) );
+		char* pDstBytes = reinterpret_cast<char*>( Lock( pDeviceContext ) ) + m_iElemSize * offset;
 
 		memcpy( pDstBytes, pSrcBytes, pitch );
 
@@ -2113,12 +2183,13 @@ namespace Bat
 		COM_THROW_IF_FAILED( pDevice->CreateBuffer( &indexBufferDesc, pIndexData, &m_pIndexBuffer ) );
 	}
 
-	void D3DIndexBuffer::UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData )
+	void D3DIndexBuffer::UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData, size_t count, size_t offset )
 	{
-		size_t pitch = m_iElemSize * m_iSize;
+		size_t actual_count = (count > 0) ? count : m_iSize;
+		size_t pitch = m_iElemSize * actual_count;
 
-		const char* pSrcBytes = reinterpret_cast<const char*>( pData );
-		char* pDstBytes = reinterpret_cast<char*>( Lock( pDeviceContext ) );
+		const char* pSrcBytes = reinterpret_cast<const char*>(pData);
+		char* pDstBytes = reinterpret_cast<char*>(Lock( pDeviceContext )) + m_iElemSize * offset;
 
 		memcpy( pDstBytes, pSrcBytes, pitch );
 
@@ -2162,12 +2233,14 @@ namespace Bat
 		COM_THROW_IF_FAILED( pDevice->CreateBuffer( &desc, pCbufData, &m_pConstantBuffer ) );
 	}
 
-	void D3DConstantBuffer::UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData )
+	void D3DConstantBuffer::UpdateBuffer( ID3D11DeviceContext* pDeviceContext, const void* pData, size_t count, size_t offset )
 	{
-		const char* pSrcBytes = reinterpret_cast<const char*>( pData );
-		char* pDstBytes = reinterpret_cast<char*>( Lock( pDeviceContext ) );
+		size_t pitch = (count > 0) ? count : m_iSize;
 
-		memcpy( pDstBytes, pSrcBytes, m_iSize );
+		const char* pSrcBytes = reinterpret_cast<const char*>(pData);
+		char* pDstBytes = reinterpret_cast<char*>(Lock( pDeviceContext )) + offset;
+
+		memcpy( pDstBytes, pSrcBytes, pitch );
 
 		Unlock( pDeviceContext );
 	}

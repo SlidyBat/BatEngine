@@ -20,7 +20,7 @@ namespace Bat
 		{
 			of.lpstrTitle = title.c_str();
 		}
-		of.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+		of.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
 		if( GetOpenFileName( &of ) != 0 )
 		{
