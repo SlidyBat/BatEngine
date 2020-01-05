@@ -12,8 +12,8 @@ struct PixelInputType
 float4 main(PixelInputType input) : SV_TARGET
 {
 	float alpha = SceneTexture.Sample(WrapSampler, input.tex).r;
-	float4 c = input.colour;
-	c.a *= alpha;
+	alpha *= input.colour.a;
+	float3 c = input.colour.rgb;
 	
-	return c;
+	return float4(c, alpha);
 }

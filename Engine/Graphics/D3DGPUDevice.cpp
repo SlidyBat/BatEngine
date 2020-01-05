@@ -465,6 +465,7 @@ namespace Bat
 		virtual size_t GetHeight() const override { return m_iHeight; }
 		virtual TexFormat GetFormat() const override { return m_Format; }
 		virtual bool IsTranslucent() const override { return m_bIsTranslucent; }
+		virtual void* GetImpl() override { return m_pTextureView.Get(); }
 
 		void UpdatePixels( ID3D11DeviceContext* pDeviceContext, const void* pPixels, size_t pitch );
 		ID3D11ShaderResourceView* GetShaderResourceView() const { return m_pTextureView.Get(); }

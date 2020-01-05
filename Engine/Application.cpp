@@ -327,7 +327,7 @@ namespace Bat
 				if( ImGui::TreeNode( "Particle Emitter" ) )
 				{
 					ImGui::Text( "%i Particles", emitter.num_particles );
-					if( ImGui::Button( "Texture" ) )
+					if( ImGui::ImageButton( emitter.texture->Get()->GetImpl(), { 50, 50 } ) )
 					{
 						auto path = FileDialog::Open( "Assets" );
 						if( path )
@@ -336,6 +336,7 @@ namespace Bat
 							if( texture ) emitter.texture = std::move( texture );
 						}
 					}
+					emitter.gradient.DoImGuiButton();
 					ImGui::DragFloat( "Particles/Sec", &emitter.particles_per_sec, 0.1f, 0.0f, 1000.0f );
 					ImGui::DragFloat( "Lifetime", &emitter.lifetime, 0.01f, 0.0f, 10.0f );
 					ImGui::DragFloat( "Start Alpha", &emitter.start_alpha, 0.01f, 0.0f, 1.0f );

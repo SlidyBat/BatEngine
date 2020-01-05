@@ -1,5 +1,7 @@
 #pragma once
 
+#include "imgui_color_gradient.h"
+
 namespace Bat
 {
 	class Colour
@@ -133,11 +135,18 @@ namespace Bat
 			stop.t = t;
 			m_Stops.insert( it, stop );
 
+			SyncWithImgui();
+
 			return *this;
 		}
 
 		Colour Get( float t ) const
 		{
+			if( m_Stops.empty() )
+			{
+				return Colours::Black;
+			}
+
 			if( t <= m_Stops.front().t )
 			{
 				return m_Stops.front().c;
@@ -173,7 +182,54 @@ namespace Bat
 			float actual_t = (t - pPrevStop->t) / range;
 			return Colour::Lerp( pPrevStop->c, pNextStop->c, actual_t );
 		}
+
+		void DoImGuiButton()
+		{
+			if( ImGui::GradientButton( &m_ImguiGradient ) )
+			{
+				m_bEditorShowing = !m_bEditorShowing;
+				if( m_bEditorShowing )
+				{
+					SyncWithImgui();
+				}
+			}
+
+			if( m_bEditorShowing )
+			{
+				if( ImGui::Button( "Delete Selected Stop" ) )
+				{
+					m_ImguiGradient.removeMark( m_pSelectedMark );
+				}
+				if( ImGui::GradientEditor( &m_ImguiGradient, m_pDraggingMark, m_pSelectedMark ) )
+				{
+					m_Stops.clear();
+					const std::list<ImGradientMark*>& pMarks = m_ImguiGradient.getMarks();
+					for( auto it = pMarks.begin(); it != pMarks.end(); ++it )
+					{
+						ImGradientMark& mark = **it;
+						GradientStop stop;
+						stop.c = Colour::FromVector( Vec4{ mark.color[0], mark.color[1], mark.color[2], 1.0f } );
+						stop.t = mark.position;
+						m_Stops.push_back( stop );
+					}
+				}
+			}
+		}
+	private:
+		void SyncWithImgui()
+		{
+			m_ImguiGradient.reset();
+
+			for( const GradientStop& stop : m_Stops )
+			{
+				m_ImguiGradient.addMark( stop.t, ImColor( stop.c.GetR(), stop.c.GetG(), stop.c.GetB(), stop.c.GetA() ) );
+			}
+		}
 	private:
 		std::vector<GradientStop> m_Stops;
+		ImGradient m_ImguiGradient;
+		ImGradientMark* m_pDraggingMark = nullptr;
+		ImGradientMark* m_pSelectedMark = nullptr;
+		bool m_bEditorShowing = false;
 	};
 }
