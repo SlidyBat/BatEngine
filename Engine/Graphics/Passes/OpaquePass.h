@@ -28,7 +28,7 @@ namespace Bat
 			IRenderTarget* target = data.GetRenderTarget( "dst" );
 			pContext->SetRenderTarget( target );
 
-			pContext->SetDepthStencilEnabled( true );
+			pContext->SetDepthEnabled( true );
 			pContext->SetDepthWriteEnabled( true );
 			pContext->SetBlendingEnabled( false );
 			pContext->SetCullMode( CullMode::BACK );

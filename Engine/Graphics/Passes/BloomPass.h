@@ -65,7 +65,7 @@ namespace Bat
 			IPixelShader* pGaussBlurPS = ResourceManager::GetPixelShader( "Graphics/Shaders/GaussBlurPS.hlsl" );
 			IPixelShader* pBloomShader = ResourceManager::GetPixelShader( "Graphics/Shaders/BloomPS.hlsl" );
 
-			pContext->SetDepthStencilEnabled( false );
+			pContext->SetDepthEnabled( false );
 			pContext->SetDepthStencil( nullptr );
 			pContext->SetBlendingEnabled( false );
 

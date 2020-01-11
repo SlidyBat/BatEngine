@@ -25,9 +25,47 @@
 #include "WICTextureLoader.h"
 #include "DDSTextureLoader.h"
 
+#include "Hash.h"
+
 #pragma comment( lib, "d3d11.lib" )
 #pragma comment( lib, "dxgi.lib" )
 #pragma comment( lib, "d3dcompiler.lib" )
+
+MAKE_HASHABLE( D3D11_DEPTH_STENCILOP_DESC, t,
+	t.StencilFailOp,
+	t.StencilDepthFailOp,
+	t.StencilPassOp,
+	t.StencilFunc );
+
+inline bool operator==( const D3D11_DEPTH_STENCILOP_DESC& a, const D3D11_DEPTH_STENCILOP_DESC& b )
+{
+	return a.StencilFailOp == b.StencilFailOp &&
+		a.StencilDepthFailOp == b.StencilDepthFailOp &&
+		a.StencilPassOp == b.StencilPassOp &&
+		a.StencilFunc == b.StencilFunc;
+}
+
+MAKE_HASHABLE( D3D11_DEPTH_STENCIL_DESC, t,
+	t.DepthEnable,
+	t.DepthWriteMask,
+	t.DepthFunc,
+	t.StencilEnable,
+	t.StencilReadMask,
+	t.StencilWriteMask,
+	t.FrontFace,
+	t.BackFace );
+
+inline bool operator==( const D3D11_DEPTH_STENCIL_DESC& a, const D3D11_DEPTH_STENCIL_DESC& b )
+{
+	return a.DepthEnable == b.DepthEnable &&
+		a.DepthWriteMask == b.DepthWriteMask &&
+		a.DepthFunc == b.DepthFunc &&
+		a.StencilEnable == b.StencilEnable &&
+		a.StencilReadMask == b.StencilReadMask &&
+		a.StencilWriteMask == b.StencilWriteMask &&
+		a.FrontFace == b.FrontFace &&
+		a.BackFace == b.BackFace;
+}
 
 #ifdef _DEBUG
 #define DXGI_CALL( dev, fn ) do { \
@@ -227,10 +265,22 @@ namespace Bat
 
 		virtual void SetDepthStencil( IDepthStencil* pDepthStencil, size_t index = 0 ) override;
 		virtual IDepthStencil* GetDepthStencil() const override;
-		virtual bool IsDepthStencilEnabled() const override;
-		virtual void SetDepthStencilEnabled( bool enabled ) override;
+		virtual bool IsDepthEnabled() const override;
+		virtual void SetDepthEnabled( bool enabled ) override;
 		virtual bool IsDepthWriteEnabled() const override;
 		virtual void SetDepthWriteEnabled( bool enabled ) override;
+		virtual ComparisonFunc GetDepthComparisonFunc() const;
+		virtual void SetDepthComparisonFunc( ComparisonFunc func );
+		virtual bool IsStencilEnabled() const;
+		virtual void SetStencilEnabled( bool enabled );
+		virtual uint8_t GetStencilReadMask() const;
+		virtual void SetStencilReadMask( uint8_t mask );
+		virtual uint8_t GetStencilWriteMask() const;
+		virtual void SetStencilWriteMask( uint8_t mask );
+		virtual StencilOpDesc GetStencilFrontFaceOp() const;
+		virtual void SetStencilFrontFaceOp( const StencilOpDesc& desc );
+		virtual StencilOpDesc GetStencilBackFaceOp() const;
+		virtual void SetStencilBackFaceOp( const StencilOpDesc& desc );
 
 		virtual CullMode GetCullMode() const override;
 		virtual void SetCullMode( CullMode mode ) override;
@@ -301,7 +351,7 @@ namespace Bat
 	private:
 		void BindViewports();
 		void BindRenderTarget();
-		void BindDepthState();
+		void BindDepthStencilState();
 	private:
 		D3DGPUDevice* m_pDevice = nullptr;
 
@@ -315,8 +365,7 @@ namespace Bat
 		D3DVertexShader* m_pVertexShader = nullptr;
 
 		CullMode m_CullMode;
-		bool m_bDepthStencilEnabled = false;
-		bool m_bDepthWriteEnabled = false;
+		D3D11_DEPTH_STENCIL_DESC m_CurrentDepthStencilState = {};
 		bool m_bBlendingEnabled = false;
 	};
 
@@ -358,10 +407,10 @@ namespace Bat
 		virtual IGPUContext* GetContext() override { return &m_GPUContext; };
 
 		virtual void* GetImpl() override { return m_pDevice.Get(); }
+
+		ID3D11DepthStencilState* GetDepthStencilState( const D3D11_DEPTH_STENCIL_DESC& state );
+		ID3D11DepthStencilState* AddDepthStencilState( const D3D11_DEPTH_STENCIL_DESC& state );
 	public:
-		ID3D11DepthStencilState* GetDepthStencilEnabledState() { return m_pDepthStencilEnabledState.Get(); }
-		ID3D11DepthStencilState* GetDepthStencilEnabledNoWriteState() { return m_pDepthStencilEnabledNoWriteState.Get(); }
-		ID3D11DepthStencilState* GetDepthStencilDisabledState() { return m_pDepthStencilDisabledState.Get(); }
 		ID3D11RasterizerState*   GetRasterizerCullBackState() { return m_pRasterStateCullBack.Get(); }
 		ID3D11RasterizerState*   GetRasterizerCullFrontState() { return m_pRasterStateCullFront.Get(); }
 		ID3D11RasterizerState*   GetRasterizerCullNoneState() { return m_pRasterStateCullNone.Get(); }
@@ -387,11 +436,10 @@ namespace Bat
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState>    m_pRasterStateCullFront;
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState>    m_pRasterStateCullNone;
 
-		Microsoft::WRL::ComPtr<ID3D11DepthStencilState>  m_pDepthStencilEnabledState;
-		Microsoft::WRL::ComPtr<ID3D11DepthStencilState>  m_pDepthStencilEnabledNoWriteState;
-		Microsoft::WRL::ComPtr<ID3D11DepthStencilState>  m_pDepthStencilDisabledState;
 		Microsoft::WRL::ComPtr<ID3D11BlendState>         m_pBlendEnabledState;
 		Microsoft::WRL::ComPtr<ID3D11BlendState>         m_pBlendDisabledState;
+
+		std::unordered_map<D3D11_DEPTH_STENCIL_DESC, Microsoft::WRL::ComPtr<ID3D11DepthStencilState>>  m_pDepthStencilStates;
 
 		D3DGPUContext m_GPUContext;
 		D3DRenderTarget m_Backbuffer;
@@ -523,6 +571,21 @@ namespace Bat
 	void D3DGPUContext::Init()
 	{
 		m_ViewportStack.emplace_back();
+
+		m_CurrentDepthStencilState.DepthEnable = TRUE;
+		m_CurrentDepthStencilState.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
+		m_CurrentDepthStencilState.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS;
+		m_CurrentDepthStencilState.StencilEnable = FALSE;
+		m_CurrentDepthStencilState.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
+		m_CurrentDepthStencilState.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
+		m_CurrentDepthStencilState.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+		m_CurrentDepthStencilState.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+		m_CurrentDepthStencilState.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		m_CurrentDepthStencilState.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		m_CurrentDepthStencilState.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+		m_CurrentDepthStencilState.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+		m_CurrentDepthStencilState.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		m_CurrentDepthStencilState.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 
 		m_pDeviceContext.As( &m_pAnnotation );
 	}
@@ -661,26 +724,110 @@ namespace Bat
 		return m_pDepthStencil;
 	}
 
-	bool D3DGPUContext::IsDepthStencilEnabled() const
+	bool D3DGPUContext::IsDepthEnabled() const
 	{
-		return m_bDepthStencilEnabled;
+		return m_CurrentDepthStencilState.DepthEnable;
 	}
 
-	void D3DGPUContext::SetDepthStencilEnabled( bool enabled )
+	void D3DGPUContext::SetDepthEnabled( bool enabled )
 	{
-		m_bDepthStencilEnabled = enabled;
-		BindDepthState();
+		m_CurrentDepthStencilState.DepthEnable = enabled;
+		BindDepthStencilState();
 	}
 
 	bool D3DGPUContext::IsDepthWriteEnabled() const
 	{
-		return m_bDepthWriteEnabled;
+		return m_CurrentDepthStencilState.DepthWriteMask != D3D11_DEPTH_WRITE_MASK_ZERO;
 	}
 
 	void D3DGPUContext::SetDepthWriteEnabled( bool enabled )
 	{
-		m_bDepthWriteEnabled = enabled;
-		BindDepthState();
+		m_CurrentDepthStencilState.DepthWriteMask = enabled ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
+		BindDepthStencilState();
+	}
+
+	ComparisonFunc D3DGPUContext::GetDepthComparisonFunc() const
+	{
+		return (ComparisonFunc)m_CurrentDepthStencilState.DepthFunc;
+	}
+
+	void D3DGPUContext::SetDepthComparisonFunc( ComparisonFunc func )
+	{
+		m_CurrentDepthStencilState.DepthFunc = (D3D11_COMPARISON_FUNC)func;
+		BindDepthStencilState();
+	}
+
+	bool D3DGPUContext::IsStencilEnabled() const
+	{
+		return m_CurrentDepthStencilState.StencilEnable;
+	}
+
+	void D3DGPUContext::SetStencilEnabled( bool enabled )
+	{
+		m_CurrentDepthStencilState.StencilEnable = enabled;
+		BindDepthStencilState();
+	}
+
+	uint8_t D3DGPUContext::GetStencilReadMask() const
+	{
+		return (uint8_t)m_CurrentDepthStencilState.StencilReadMask;
+	}
+
+	void D3DGPUContext::SetStencilReadMask( uint8_t mask )
+	{
+		m_CurrentDepthStencilState.StencilReadMask = (UINT8)mask;
+		BindDepthStencilState();
+	}
+
+	uint8_t D3DGPUContext::GetStencilWriteMask() const
+	{
+		return (uint8_t)m_CurrentDepthStencilState.StencilWriteMask;
+	}
+
+	void D3DGPUContext::SetStencilWriteMask( uint8_t mask )
+	{
+		m_CurrentDepthStencilState.StencilWriteMask = (UINT8)mask;
+		BindDepthStencilState();
+	}
+
+	StencilOpDesc D3DGPUContext::GetStencilFrontFaceOp() const
+	{
+		StencilOpDesc desc;
+		desc.fail_op = (StencilOp)m_CurrentDepthStencilState.FrontFace.StencilFailOp;
+		desc.depth_fail_op = (StencilOp)m_CurrentDepthStencilState.FrontFace.StencilDepthFailOp;
+		desc.pass_op = (StencilOp)m_CurrentDepthStencilState.FrontFace.StencilPassOp;
+		desc.func = (ComparisonFunc)m_CurrentDepthStencilState.FrontFace.StencilFunc;
+
+		return desc;
+	}
+
+	void D3DGPUContext::SetStencilFrontFaceOp( const StencilOpDesc& desc )
+	{
+		m_CurrentDepthStencilState.FrontFace.StencilFailOp = (D3D11_STENCIL_OP)desc.fail_op;
+		m_CurrentDepthStencilState.FrontFace.StencilDepthFailOp = (D3D11_STENCIL_OP)desc.depth_fail_op;
+		m_CurrentDepthStencilState.FrontFace.StencilPassOp = (D3D11_STENCIL_OP)desc.pass_op;
+		m_CurrentDepthStencilState.FrontFace.StencilFunc = (D3D11_COMPARISON_FUNC)desc.func;
+		BindDepthStencilState();
+	}
+
+	StencilOpDesc D3DGPUContext::GetStencilBackFaceOp() const
+	{
+		StencilOpDesc desc;
+		desc.fail_op = (StencilOp)m_CurrentDepthStencilState.BackFace.StencilFailOp;
+		desc.depth_fail_op = (StencilOp)m_CurrentDepthStencilState.BackFace.StencilDepthFailOp;
+		desc.pass_op = (StencilOp)m_CurrentDepthStencilState.BackFace.StencilPassOp;
+		desc.func = (ComparisonFunc)m_CurrentDepthStencilState.BackFace.StencilFunc;
+
+		return desc;
+	}
+
+	void D3DGPUContext::SetStencilBackFaceOp( const StencilOpDesc& desc )
+	{
+		m_CurrentDepthStencilState.BackFace.StencilFailOp = (D3D11_STENCIL_OP)desc.fail_op;
+		m_CurrentDepthStencilState.BackFace.StencilDepthFailOp = (D3D11_STENCIL_OP)desc.depth_fail_op;
+		m_CurrentDepthStencilState.BackFace.StencilPassOp = (D3D11_STENCIL_OP)desc.pass_op;
+		m_CurrentDepthStencilState.BackFace.StencilFunc = (D3D11_COMPARISON_FUNC)desc.func;
+		BindDepthStencilState();
 	}
 
 	CullMode D3DGPUContext::GetCullMode() const
@@ -1145,23 +1292,14 @@ namespace Bat
 		}
 	}
 
-	void D3DGPUContext::BindDepthState()
+	void D3DGPUContext::BindDepthStencilState()
 	{
-		if( m_bDepthStencilEnabled )
+		auto state = m_pDevice->GetDepthStencilState( m_CurrentDepthStencilState );
+		if( !state )
 		{
-			if( m_bDepthWriteEnabled )
-			{
-				DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetDepthStencilState( m_pDevice->GetDepthStencilEnabledState(), 0 ) );
-			}
-			else
-			{
-				DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetDepthStencilState( m_pDevice->GetDepthStencilEnabledNoWriteState(), 0 ) );
-			}
+			state = m_pDevice->AddDepthStencilState( m_CurrentDepthStencilState );
 		}
-		else
-		{
-			DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetDepthStencilState( m_pDevice->GetDepthStencilDisabledState(), 0 ) );
-		}
+		DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetDepthStencilState( state, 0 ) );
 	}
 
 	D3DGPUDevice::D3DGPUDevice( Window& wnd, bool vsync_enabled, float screen_depth, float screen_near )
@@ -1315,25 +1453,6 @@ namespace Bat
 			rasterDesc.CullMode = D3D11_CULL_NONE;
 
 			COM_THROW_IF_FAILED( m_pDevice->CreateRasterizerState( &rasterDesc, &m_pRasterStateCullNone ) );
-		}
-
-		// Create depth stencil state enabled/disabled states
-		{
-			D3D11_DEPTH_STENCIL_DESC depthstencildesc{};
-
-			depthstencildesc.DepthEnable = true;
-			depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
-			depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
-
-			COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilEnabledState ) );
-
-			depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ZERO;
-
-			COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilEnabledNoWriteState ) );
-
-			depthstencildesc.DepthEnable = false;
-
-			COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilDisabledState ) );
 		}
 
 		// Create blending enabled/disabled states
@@ -1600,6 +1719,24 @@ namespace Bat
 		COM_THROW_IF_FAILED( m_pDevice->CreateRenderTargetView( pBackBuffer.Get(), NULL, &m_pRenderTargetView ) );
 
 		m_Backbuffer.Reset( m_pRenderTargetView.Get(), width, height );
+	}
+
+	ID3D11DepthStencilState* D3DGPUDevice::GetDepthStencilState( const D3D11_DEPTH_STENCIL_DESC& state )
+	{
+		auto it = m_pDepthStencilStates.find( state );
+		if( it == m_pDepthStencilStates.end() )
+		{
+			return nullptr;
+		}
+
+		return it->second.Get();
+	}
+
+	ID3D11DepthStencilState* D3DGPUDevice::AddDepthStencilState( const D3D11_DEPTH_STENCIL_DESC& state )
+	{
+		auto& depth_stencil_state = m_pDepthStencilStates[state];
+		COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilState( &state, &depth_stencil_state ) );
+		return depth_stencil_state.Get();
 	}
 
 	static const char* FeatureLevel2String( D3D_FEATURE_LEVEL level )

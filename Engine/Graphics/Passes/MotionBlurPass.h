@@ -59,7 +59,7 @@ namespace Bat
 			IVertexShader* pTextureVS = ResourceManager::GetVertexShader( "Graphics/Shaders/TextureVS.hlsl" );
 			IPixelShader* pMotionBlurPS = ResourceManager::GetPixelShader( "Graphics/Shaders/MotionBlurPS.hlsl" );
 
-			pContext->SetDepthStencilEnabled( false );
+			pContext->SetDepthEnabled( false );
 			pContext->SetBlendingEnabled( false );
 
 			pContext->SetPrimitiveTopology( PrimitiveTopology::TRIANGLELIST );

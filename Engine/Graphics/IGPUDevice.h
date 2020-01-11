@@ -113,10 +113,22 @@ namespace Bat
 		virtual void SetDepthStencil( IDepthStencil* pDepthStencil, size_t index = 0 ) = 0;
 		// Gets currently bound depth stencil, or nullptr if none is bound
 		virtual IDepthStencil* GetDepthStencil() const = 0;
-		virtual bool IsDepthStencilEnabled() const = 0;
-		virtual void SetDepthStencilEnabled( bool enabled ) = 0;
+		virtual bool IsDepthEnabled() const = 0;
+		virtual void SetDepthEnabled( bool enabled ) = 0;
 		virtual bool IsDepthWriteEnabled() const = 0;
 		virtual void SetDepthWriteEnabled( bool enabled ) = 0;
+		virtual ComparisonFunc GetDepthComparisonFunc() const = 0;
+		virtual void SetDepthComparisonFunc( ComparisonFunc func ) = 0;
+		virtual bool IsStencilEnabled() const = 0;
+		virtual void SetStencilEnabled( bool enabled ) = 0;
+		virtual uint8_t GetStencilReadMask() const = 0;
+		virtual void SetStencilReadMask( uint8_t mask ) = 0;
+		virtual uint8_t GetStencilWriteMask() const = 0;
+		virtual void SetStencilWriteMask( uint8_t mask ) = 0;
+		virtual StencilOpDesc GetStencilFrontFaceOp() const = 0;
+		virtual void SetStencilFrontFaceOp( const StencilOpDesc& desc ) = 0;
+		virtual StencilOpDesc GetStencilBackFaceOp() const = 0;
+		virtual void SetStencilBackFaceOp( const StencilOpDesc& desc ) = 0;
 
 		virtual CullMode GetCullMode() const = 0;
 		virtual void SetCullMode( CullMode mode ) = 0;

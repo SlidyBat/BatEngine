@@ -66,7 +66,7 @@ namespace Bat
 			IPixelShader* pToneMapShader = ResourceManager::GetPixelShader( "Graphics/Shaders/ToneMappingPS.hlsl" );
 
 			pContext->SetPrimitiveTopology( PrimitiveTopology::TRIANGLELIST );
-			pContext->SetDepthStencilEnabled( false );
+			pContext->SetDepthEnabled( false );
 			pContext->SetDepthStencil( nullptr );
 			pContext->SetBlendingEnabled( false );
 

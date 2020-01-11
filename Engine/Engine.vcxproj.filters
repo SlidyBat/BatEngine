@@ -605,6 +605,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Graphics\Passes\ShadowPass.h" />
     <ClInclude Include="Graphics\ShadowPipeline.h" />
+    <ClInclude Include="Util\Hash.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\RenderNodeDataTypes.def">

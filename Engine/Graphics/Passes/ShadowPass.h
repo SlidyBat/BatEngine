@@ -22,7 +22,7 @@ namespace Bat
 			m_pContext = pContext;
 
 			pContext->SetRenderTarget( nullptr );
-			pContext->SetDepthStencilEnabled( true );
+			pContext->SetDepthEnabled( true );
 			pContext->SetDepthWriteEnabled( true );
 			pContext->SetBlendingEnabled( false );
 			pContext->UnbindTextureSlot( PS_TEX_SHADOWMAPS );

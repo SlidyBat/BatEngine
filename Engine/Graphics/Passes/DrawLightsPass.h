@@ -28,7 +28,7 @@ namespace Bat
 			pContext->SetRenderTarget( target );
 
 			m_pContext = pContext;
-			m_pContext->SetDepthStencilEnabled( true );
+			m_pContext->SetDepthEnabled( true );
 			m_pContext->SetDepthWriteEnabled( true );
 			pContext->SetBlendingEnabled( false );
 			pContext->SetCullMode( CullMode::BACK );
