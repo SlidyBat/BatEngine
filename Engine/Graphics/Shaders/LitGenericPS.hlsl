@@ -44,12 +44,24 @@ float Shadow( Light light, float3 pos_ws, float3 normal, float3 light_dir )
 	float4 proj_coords = mul( float4( pos_ws, 1.0f ), ShadowMatrix[light.ShadowIndex] );
 	proj_coords.xyz /= proj_coords.w;
 	
-	float bias = 0.005f;
+	float bias = 0.0005f;
 	float current_depth = proj_coords.z - bias;
 	
 	float2 shadow_uv = proj_coords.xy * float2( 0.5f, -0.5f ) + float2( 0.5f, 0.5f );
-	float shadow = ShadowMap.SampleCmpLevelZero( CompareDepthSampler, float3( shadow_uv, light.ShadowIndex ), current_depth ).r;
-	return 1.0f - shadow;
+	
+	int range = 2;
+	float shadow = 0.0f;
+	[unroll]
+	for (int y = -range; y <= range; y++)
+	{
+		for (int x = -range; x <= range; x++)
+		{
+			shadow += ShadowMap.SampleCmpLevelZero(CompareDepthSampler, float3(shadow_uv, light.ShadowIndex), current_depth, int2(x, y)).r;
+		}
+	}
+	shadow /= (range * 2 + 1) * (range * 2 + 1);
+
+	return shadow;
 }
 
 float3 DoDiffuse( Light light, Material material, float3 light_dir, float3 n )
