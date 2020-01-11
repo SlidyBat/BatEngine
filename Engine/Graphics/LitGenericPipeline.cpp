@@ -90,7 +90,7 @@ namespace Bat
 					{
 						auto& t = light_ent.Get<TransformComponent>();
 						light_view = DirectX::XMMatrixLookToLH( t.GetPosition(), light.GetDirection(), { 0.0f, 1.0f, 0.0f } );
-						light_proj = DirectX::XMMatrixPerspectiveFovLH( light.GetSpotlightAngle() * 2, 1.0f, 0.1f, light.GetRange() );
+						light_proj = DirectX::XMMatrixPerspectiveFovLH( light.GetSpotlightAngle() * 2, 1.0f, light.GetRange(), 0.1f );
 					}
 					else
 					{

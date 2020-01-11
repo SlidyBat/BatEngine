@@ -24,6 +24,7 @@ namespace Bat
 			pContext->SetRenderTarget( nullptr );
 			pContext->SetDepthEnabled( true );
 			pContext->SetDepthWriteEnabled( true );
+			pContext->SetDepthComparisonFunc( ComparisonFunc::GREATER );
 			pContext->SetBlendingEnabled( false );
 			pContext->UnbindTextureSlot( PS_TEX_SHADOWMAPS );
 
@@ -76,17 +77,18 @@ namespace Bat
 					}
 					AABB bounds = AABB( frustum_corners, 8 );
 					//m_matLightProj = DirectX::XMMatrixOrthographicOffCenterLH( bounds.mins.x, bounds.maxs.x, bounds.mins.y, bounds.maxs.y, bounds.mins.z, bounds.maxs.z );
-					m_matLightProj = DirectX::XMMatrixPerspectiveFovLH( light.GetSpotlightAngle() * 2, 1.0f, 0.1f, light.GetRange() );
+					m_matLightProj = DirectX::XMMatrixPerspectiveFovLH( light.GetSpotlightAngle() * 2, 1.0f, light.GetRange(), 0.1f );
 
 					light.SetShadowIndex( shadow_map_counter++ );
 
-					pContext->ClearDepthStencil( m_pShadowMaps.get(), CLEAR_FLAG_DEPTH, 1.0f, 0, light.GetShadowIndex() );
+					pContext->ClearDepthStencil( m_pShadowMaps.get(), CLEAR_FLAG_DEPTH, 0.0f, 0, light.GetShadowIndex() );
 					pContext->SetDepthStencil( m_pShadowMaps.get(), light.GetShadowIndex() );
 
 					Traverse();
 				}
 			}
 
+			pContext->SetDepthComparisonFunc( ComparisonFunc::LESS );
 			pContext->SetDepthStencil( original_depth );
 			pContext->PopViewport();
 

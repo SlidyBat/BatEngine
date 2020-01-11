@@ -45,7 +45,7 @@ float Shadow( Light light, float3 pos_ws, float3 normal, float3 light_dir )
 	proj_coords.xyz /= proj_coords.w;
 	
 	float bias = 0.0005f;
-	float current_depth = proj_coords.z - bias;
+	float current_depth = proj_coords.z + bias;
 	
 	float2 shadow_uv = proj_coords.xy * float2( 0.5f, -0.5f ) + float2( 0.5f, 0.5f );
 	
