@@ -1388,6 +1388,7 @@ namespace Bat
 #define CREATE_N_DESTROY_MSG( type ) D3D11_MESSAGE_ID_CREATE_##type, D3D11_MESSAGE_ID_DESTROY_##type
 				std::vector<DXGI_INFO_QUEUE_MESSAGE_ID> message_filter_list = {
 					D3D11_MESSAGE_ID_DEVICE_DRAW_SHADERRESOURCEVIEW_NOT_SET,
+					//D3D11_MESSAGE_ID_DEVICE_DRAW_RENDERTARGETVIEW_NOT_SET,
 					CREATE_N_DESTROY_MSG( AUTHENTICATEDCHANNEL ),
 					CREATE_N_DESTROY_MSG( BLENDSTATE ),
 					CREATE_N_DESTROY_MSG( BUFFER ),
@@ -2297,14 +2298,32 @@ namespace Bat
 		depthStencilBufferDesc.CPUAccessFlags = 0;
 		depthStencilBufferDesc.MiscFlags = 0;
 
+		DXGI_FORMAT depth_format;
+		switch( format )
+		{
+		case DXGI_FORMAT_R24G8_TYPELESS: depth_format = DXGI_FORMAT_D24_UNORM_S8_UINT; break;
+		case DXGI_FORMAT_R32_FLOAT:      depth_format = DXGI_FORMAT_D32_FLOAT; break;
+		case DXGI_FORMAT_R16_UNORM:      depth_format = DXGI_FORMAT_D16_UNORM; break;
+		default: ASSERT( false, "Unknown depth stencil format" );
+		}
+
 		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
 		depthStencilViewDesc.Flags = 0;
-		depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthStencilViewDesc.Format = depth_format;
 		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		depthStencilViewDesc.Texture2D.MipSlice = 0;
 
+		DXGI_FORMAT shader_format;
+		switch( format )
+		{
+		case DXGI_FORMAT_R24G8_TYPELESS: shader_format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS; break;
+		case DXGI_FORMAT_R32_FLOAT:      shader_format = DXGI_FORMAT_R32_FLOAT; break;
+		case DXGI_FORMAT_R16_UNORM:      shader_format = DXGI_FORMAT_R16_UNORM; break;
+		default: ASSERT( false, "Unknown depth stencil format" );
+		}
+
 		D3D11_SHADER_RESOURCE_VIEW_DESC depthShaderResourceViewDesc;
-		depthShaderResourceViewDesc.Format                    = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		depthShaderResourceViewDesc.Format                    = shader_format;
 		depthShaderResourceViewDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
 		depthShaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 		depthShaderResourceViewDesc.Texture2D.MipLevels       = -1;

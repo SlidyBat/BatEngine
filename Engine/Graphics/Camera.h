@@ -40,6 +40,7 @@ namespace Bat
 		Vec3 GetLookAtVector() const;
 
 		const Frustum& GetFrustum() const { return m_Frustum; }
+		void CalculateFrustumCorners( Vec3 corners_out[8] );
 
 		DirectX::XMMATRIX GetViewMatrix() const;
 		DirectX::XMMATRIX GetProjectionMatrix() const;

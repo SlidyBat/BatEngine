@@ -92,6 +92,17 @@ namespace Bat
 		return true;
 	}
 
+	Frustum Frustum::Transform( const Frustum& frustum, DirectX::XMMATRIX transform )
+	{
+		Frustum transformed;
+		for( int i = 0; i < TOTAL_PLANES; i++ )
+		{
+			transformed.planes[i] = DirectX::XMPlaneTransform( frustum.planes[i], transform );
+		}
+
+		return transformed;
+	}
+
 	float Frustum::PlaneDotCoord( const Vec4& plane, const Vec3& point )
 	{
 		DirectX::XMVECTOR p = DirectX::XMLoadFloat4( &plane );

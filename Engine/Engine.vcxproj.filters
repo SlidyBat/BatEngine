@@ -261,6 +261,10 @@
     <ClCompile Include="ThirdParty\ImGui\imgui_color_gradient.cpp">
       <Filter>ThirdParty\ImGui</Filter>
     </ClCompile>
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="PCH.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Graphics\ShadowPipeline.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\ParticlePipeline.h">
@@ -596,6 +600,11 @@
     <ClInclude Include="ThirdParty\ImGui\imgui_color_gradient.h">
       <Filter>ThirdParty\ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="PCH.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="Graphics\Passes\ShadowPass.h" />
+    <ClInclude Include="Graphics\ShadowPipeline.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\RenderNodeDataTypes.def">
@@ -657,6 +666,7 @@
     <FxCompile Include="Graphics\Shaders\ToneMappingPS.hlsl">
       <Filter>Graphics\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Graphics\Shaders\ShadowMapVS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\mario.png">
@@ -666,5 +676,7 @@
       <Filter>Assets</Filter>
     </Image>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ResourceCompile Include="Engine.rc" />
+  </ItemGroup>
 </Project>

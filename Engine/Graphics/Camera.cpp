@@ -160,6 +160,27 @@ namespace Bat
 		return res;
 	}
 
+	void Camera::CalculateFrustumCorners( Vec3 corners_out[8] )
+	{
+		float gradient_h = tanf( Math::DegToRad( m_flFOV / 2.0f ) );
+		float gradient_v = tanf( Math::DegToRad( ( m_flFOV * m_flAspectRatio ) / 2.0f ) );
+
+		float xn = m_flScreenNear * gradient_h;
+		float yn = m_flScreenNear * gradient_v;
+		float xf = m_flScreenFar * gradient_h;
+		float yf = m_flScreenFar * gradient_v;
+
+		corners_out[0] = {  xn,  yn, m_flScreenNear };
+		corners_out[1] = { -xn,  yn, m_flScreenNear };
+		corners_out[2] = { -xn, -yn, m_flScreenNear };
+		corners_out[3] = {  xn, -yn, m_flScreenNear };
+		
+		corners_out[4] = {  xn,  yn, m_flScreenFar };
+		corners_out[5] = { -xn,  yn, m_flScreenFar };
+		corners_out[6] = { -xn, -yn, m_flScreenFar };
+		corners_out[7] = {  xn, -yn, m_flScreenFar };
+	}
+
 	DirectX::XMMATRIX Camera::GetViewMatrix() const
 	{
 		return m_matViewMatrix;
@@ -193,12 +214,10 @@ namespace Bat
 			Math::DegToRad( m_angRotation.y ),
 			Math::DegToRad( m_angRotation.z ) );
 
-		lookAtVec = XMVector3TransformCoord( lookAtVec, rotationMatrix );
-		upVec = XMVector3TransformCoord( upVec, rotationMatrix );
+		lookAtVec = XMVector3TransformNormal( lookAtVec, rotationMatrix );
+		upVec = XMVector3TransformNormal( upVec, rotationMatrix );
 
-		lookAtVec += positionVec;
-
-		m_matViewMatrix = XMMatrixLookAtLH( positionVec, lookAtVec, upVec );
+		m_matViewMatrix = XMMatrixLookToLH( positionVec, lookAtVec, upVec );
 
 		static const XMFLOAT4 forward_vector = { 0.0f, 0.0f, 1.0f, 0.0f };
 		static const XMFLOAT4 right_vector = { 1.0f, 0.0f, 0.0f, 0.0f };

@@ -4,6 +4,7 @@ Texture2D DiffuseTexture : register(T_SLOT_0);
 Texture2D SpecularTexture : register(T_SLOT_1);
 Texture2D EmissiveTexture : register(T_SLOT_2);
 Texture2D NormalTexture : register(T_SLOT_3);
+Texture2D ShadowMap : register(T_SLOT_4);
 
 cbuffer Material : register(B_SLOT_0)
 {
@@ -14,6 +15,11 @@ cbuffer LightParams : register(B_SLOT_1)
 {
 	uint NumLights;
 	Light Lights[MAX_LIGHTS];
+}
+
+cbuffer Matrices : register(B_SLOT_2)
+{
+	float4x4 ShadowMatrix;
 }
 
 struct PixelInput
@@ -27,6 +33,26 @@ struct PixelInput
 #endif
 	float2 tex : TEXCOORD;
 };
+
+float Shadow( float3 pos_ws, float3 normal, float3 light_dir )
+{
+	float4 proj_coords = mul( float4( pos_ws, 1.0f ), ShadowMatrix );
+	proj_coords.xyz /= proj_coords.w;
+	
+	float2 shadow_uv = proj_coords.xy * float2( 0.5f, -0.5f ) + float2( 0.5f, 0.5f );
+	float closest_depth = ShadowMap.Sample( BorderSampler, shadow_uv ).r;
+	float current_depth = proj_coords.z;
+	
+	if( current_depth > 1.0f )
+	{
+		return 1.0f;
+	}
+	
+	float bias = 0.005f;
+	float shadow = current_depth - bias > closest_depth ? 0.0f : 1.0f;
+	
+	return shadow;
+}
 
 float3 DoDiffuse( Light light, Material material, float3 light_dir, float3 n )
 {
@@ -70,7 +96,7 @@ float3 DoSpotLight( Light light, Material material, float3 world_pos, float3 n )
 	float3 diffuse = DoDiffuse( light, material, light_dir, n );
 	float3 specular = DoSpecular( light, material, world_pos, light_dir, n );
 
-	return (diffuse + specular) * attenuation * spot_intensity;
+	return (diffuse + specular) * attenuation * spot_intensity * Shadow( world_pos, n, light_dir );
 }
 
 float3 DoDirectionalLight( Light light, Material material, float3 world_pos, float3 n )
@@ -80,7 +106,7 @@ float3 DoDirectionalLight( Light light, Material material, float3 world_pos, flo
 	float3 diffuse = DoDiffuse( light, material, light_dir, n );
 	float3 specular = DoSpecular( light, material, world_pos, light_dir, n );
 
-	return (diffuse + specular);
+	return (diffuse + specular) * Shadow( world_pos, n, light_dir );
 }
 
 float3 DoLight( Light light, Material material, float3 world_pos, float3 normal )

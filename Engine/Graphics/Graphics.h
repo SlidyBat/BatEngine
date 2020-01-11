@@ -68,7 +68,7 @@ namespace Bat
 	public:
 		static constexpr bool	FullScreen = false;
 		static constexpr int	VSyncEnabled = false;
-		static constexpr float	ScreenFar = 2000.0f;
+		static constexpr float	ScreenFar = 200.0f;
 		static constexpr float	ScreenNear = 0.1f;
 		static constexpr float	FOV = 90.0f;
 		static constexpr float  FOVRadians = FOV * (DirectX::XM_PI / 180.0f);

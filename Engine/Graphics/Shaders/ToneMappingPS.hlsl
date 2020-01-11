@@ -1,6 +1,7 @@
 #include "CommonPS.hlsli"
 
 Texture2D SceneTexture : register(T_SLOT_0);
+Texture2D ShadowMap : register(T_SLOT_4);
 
 struct PixelInputType
 {

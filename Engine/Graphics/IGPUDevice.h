@@ -128,7 +128,7 @@ namespace Bat
 		virtual size_t GetRenderTargetCount() const = 0;
 		// Get's currently bound render target, or nullptr if no render target is bound
 		virtual IRenderTarget* GetRenderTarget( size_t slot = 0 ) const = 0;
-		// Sets current render target. Pass nullptr to bind backbuffer
+		// Sets current render target.
 		virtual void SetRenderTarget( IRenderTarget* pRT ) = 0;
 		virtual void SetRenderTargets( const std::vector<IRenderTarget*>& pRTs ) = 0;
 		// Pushes a new layer in RT stack, but doesn't add any render targets to it. Use this to push a layer without any render targets bound.

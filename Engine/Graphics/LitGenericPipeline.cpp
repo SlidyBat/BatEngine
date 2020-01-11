@@ -22,7 +22,7 @@ namespace Bat
 		const std::vector<Entity>& light_ents,
 		const std::vector<DirectX::XMMATRIX>& light_transforms )
 	{
-		auto macros = BuildMacrosForMesh( mesh );
+		auto macros = ShaderManager::BuildMacrosForMesh( mesh );
 
 		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/LitGenericVS.hlsl", macros );
 		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/LitGenericPS.hlsl", macros );
@@ -30,13 +30,29 @@ namespace Bat
 		pContext->SetVertexShader( pVertexShader );
 		pContext->SetPixelShader( pPixelShader );
 
-		BindTransforms( pContext, camera, world_transform );
+		BindTransforms( pContext, camera, world_transform, light_ents );
 
 		mesh.Bind( pContext, pVertexShader );
 		BindMaterial( pContext, mesh.GetMaterial() );
 		BindLights( pContext, light_ents, light_transforms );
 
+		IDepthStencil* pShadowMap = nullptr;
+		for( Entity light_ent : light_ents )
+		{
+			auto& light = light_ent.Get<LightComponent>();
+			if( light.GetShadowMap() )
+			{
+				pShadowMap = light.GetShadowMap();
+			}
+		}
+		if( pShadowMap )
+		{
+			pContext->BindTexture( pShadowMap, PS_TEX_SLOT_4 );
+		}
+
 		pContext->DrawIndexed( mesh.GetIndexCount() );
+
+		pContext->UnbindTextureSlot( PS_TEX_SLOT_4 );
 	}
 
 	void LitGenericPipeline::RenderInstanced( IGPUContext* pContext,
@@ -46,7 +62,7 @@ namespace Bat
 		const std::vector<Entity>& light_ents,
 		const std::vector<DirectX::XMMATRIX>& light_transforms )
 	{
-		auto macros = BuildMacrosForInstancedMesh( mesh );
+		auto macros = ShaderManager::BuildMacrosForInstancedMesh( mesh );
 
 		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/LitGenericVS.hlsl", macros );
 		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/LitGenericPS.hlsl", macros );
@@ -54,7 +70,7 @@ namespace Bat
 		pContext->SetVertexShader( pVertexShader );
 		pContext->SetPixelShader( pPixelShader );
 
-		BindTransforms( pContext, camera, DirectX::XMMatrixIdentity() );
+		BindTransforms( pContext, camera, DirectX::XMMatrixIdentity(), light_ents );
 
 		mesh.Bind( pContext, pVertexShader );
 		BindMaterial( pContext, mesh.GetMaterial() );
@@ -64,43 +80,45 @@ namespace Bat
 		pContext->DrawInstancedIndexed( mesh.GetIndexCount(), instances.size() );
 	}
 
-	std::vector<ShaderMacro> LitGenericPipeline::BuildMacrosForAnyMesh( const Mesh& mesh ) const
+	void LitGenericPipeline::BindTransforms( IGPUContext* pContext,
+		const Camera& camera,
+		const DirectX::XMMATRIX& world_transform,
+		const std::vector<Entity>& light_ents )
 	{
-		std::vector<ShaderMacro> macros;
-		if( mesh.HasTangentsAndBitangents() )
+		DirectX::XMMATRIX light_proj = DirectX::XMMatrixIdentity(), light_view = DirectX::XMMatrixIdentity();
+		for( Entity light_ent : light_ents )
 		{
-			macros.emplace_back( "HAS_TANGENT" );
+			auto& light = light_ent.Get<LightComponent>();
+			if( light.GetShadowMap() )
+			{
+				if( light.GetType() == LightType::SPOT )
+				{
+					auto& t = light_ent.Get<TransformComponent>();
+					light_view = DirectX::XMMatrixLookToLH( t.GetPosition(), light.GetDirection(), { 0.0f, 1.0f, 0.0f } );
+					light_proj = DirectX::XMMatrixPerspectiveFovLH( light.GetSpotlightAngle() * 2, 1.0f, 0.1f, light.GetRange() );
+				}
+				else
+				{
+					ASSERT( false, "What?" );
+					light_view = DirectX::XMMatrixLookToLH( { 0.0f, 0.0f, 0.0f }, light.GetDirection(), { 0.0f, 1.0f, 0.0f } );
+					light_proj = DirectX::XMMatrixOrthographicOffCenterLH( -10.0f, 10.0f, -10.0f, 10.0f, 0.0f, 100.0f );
+				}
+			}
 		}
 
-		return macros;
-	}
-
-	std::vector<ShaderMacro> LitGenericPipeline::BuildMacrosForMesh( const Mesh& mesh ) const
-	{
-		std::vector<ShaderMacro> macros = BuildMacrosForAnyMesh( mesh );
-		if( mesh.HasBones() )
 		{
-			macros.emplace_back( "HAS_BONES" );
+			CB_LitGenericPipelineMatrix transform;
+			transform.world = world_transform;
+			transform.viewproj = camera.GetViewMatrix() * camera.GetProjectionMatrix();
+			m_cbufTransform.Update( pContext, transform );
+			pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, VS_CBUF_TRANSFORMS );
 		}
-
-		return macros;
-	}
-
-	std::vector<ShaderMacro> LitGenericPipeline::BuildMacrosForInstancedMesh( const Mesh& mesh ) const
-	{
-		std::vector<ShaderMacro> macros = BuildMacrosForAnyMesh( mesh );
-		macros.emplace_back( "INSTANCED" );
-
-		return macros;
-	}
-
-	void LitGenericPipeline::BindTransforms( IGPUContext* pContext, const Camera& camera, const DirectX::XMMATRIX& world_transform )
-	{
-		CB_LitGenericPipelineMatrix transform;
-		transform.world = world_transform;
-		transform.viewproj = camera.GetViewMatrix() * camera.GetProjectionMatrix();
-		m_cbufTransform.Update( pContext, transform );
-		pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, VS_CBUF_TRANSFORMS );
+		{
+			CB_LitGenericPipelinePSMatrix transform;
+			transform.shadow = light_view * light_proj;
+			m_cbufPSTransform.Update( pContext, transform );
+			pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufPSTransform, PS_CBUF_SLOT_2 );
+		}
 	}
 
 	void LitGenericPipeline::BindMaterial( IGPUContext* pContext, const Material& material )
@@ -142,7 +160,7 @@ namespace Bat
 				break;
 			}
 
-			auto l = light_ents[i].Get<LightComponent>();
+			const auto& l = light_ents[i].Get<LightComponent>();
 
 			if( !l.IsEnabled() )
 			{

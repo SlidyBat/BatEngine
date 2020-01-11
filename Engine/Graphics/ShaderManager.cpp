@@ -2,8 +2,8 @@
 #include "ShaderManager.h"
 
 #include "Globals.h"
-
 #include "ConstantBuffer.h"
+#include "Mesh.h"
 
 namespace Bat
 {
@@ -33,10 +33,10 @@ namespace Bat
 			sampler_desc.mip_lod_bias = -0.5f;
 			sampler_desc.max_anisotropy = 8;
 			sampler_desc.comparison_func = ComparisonFunc::ALWAYS;
-			sampler_desc.border_color[0] = 0.0f;
-			sampler_desc.border_color[1] = 0.0f;
-			sampler_desc.border_color[2] = 0.0f;
-			sampler_desc.border_color[3] = 0.0f;
+			sampler_desc.border_color[0] = 1.0f;
+			sampler_desc.border_color[1] = 1.0f;
+			sampler_desc.border_color[2] = 1.0f;
+			sampler_desc.border_color[3] = 1.0f;
 			sampler_desc.min_lod = 0;
 			sampler_desc.max_lod = FLT_MAX;
 
@@ -58,6 +58,12 @@ namespace Bat
 			sampler_desc.address_w = TextureAddressMode::MIRROR;
 			samplers.emplace_back( gpu->CreateSampler( sampler_desc ) );
 
+			// border sampler
+			sampler_desc.address_u = TextureAddressMode::BORDER;
+			sampler_desc.address_v = TextureAddressMode::BORDER;
+			sampler_desc.address_w = TextureAddressMode::BORDER;
+			samplers.emplace_back( gpu->CreateSampler( sampler_desc ) );
+
 			initialized = true;
 		}
 
@@ -74,5 +80,35 @@ namespace Bat
 		g.camera_pos = pCamera ? pCamera->GetPosition() : Vec3{ 0.0f, 0.0f, 0.0f };
 		cb_globals.Update( pContext, g );
 		pContext->SetConstantBuffer( ShaderType::PIXEL, cb_globals, PS_CBUF_GLOBALS );
+	}
+
+	static std::vector<ShaderMacro> BuildMacrosForAnyMesh( const Mesh& mesh )
+	{
+		std::vector<ShaderMacro> macros;
+		if( mesh.HasTangentsAndBitangents() )
+		{
+			macros.emplace_back( "HAS_TANGENT" );
+		}
+
+		return macros;
+	}
+
+	std::vector<ShaderMacro> ShaderManager::BuildMacrosForMesh( const Mesh& mesh )
+	{
+		std::vector<ShaderMacro> macros = BuildMacrosForAnyMesh( mesh );
+		if( mesh.HasBones() )
+		{
+			macros.emplace_back( "HAS_BONES" );
+		}
+
+		return macros;
+	}
+
+	std::vector<ShaderMacro> ShaderManager::BuildMacrosForInstancedMesh( const Mesh& mesh )
+	{
+		std::vector<ShaderMacro> macros = BuildMacrosForAnyMesh( mesh );
+		macros.emplace_back( "INSTANCED" );
+
+		return macros;
 	}
 }

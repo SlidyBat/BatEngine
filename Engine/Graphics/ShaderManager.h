@@ -6,6 +6,7 @@
 namespace Bat
 {
 	class Camera;
+	class Mesh;
 
 	enum
 	{
@@ -26,7 +27,8 @@ namespace Bat
 		PS_SAMP_WRAP = 0,
 		PS_SAMP_CLAMP = 1,
 		PS_SAMP_MIRROR = 2,
-		PS_SAMP_SLOT_0 = 3,
+		PS_SAMP_BORDER = 4,
+		PS_SAMP_SLOT_0 = 5,
 		PS_SAMP_SLOT_1,
 		PS_SAMP_SLOT_2,
 		PS_SAMP_SLOT_3,
@@ -85,6 +87,9 @@ namespace Bat
 
 			return static_cast<Pipeline*>( it->second.get() );
 		}
+		
+		static std::vector<ShaderMacro> BuildMacrosForMesh( const Mesh& mesh );
+		static std::vector<ShaderMacro> BuildMacrosForInstancedMesh( const Mesh& mesh );
 	private:
 		static std::unordered_map<std::type_index, std::unique_ptr<IPipeline>> m_mapPipelines;
 	};

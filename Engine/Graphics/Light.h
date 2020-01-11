@@ -2,6 +2,7 @@
 
 #include "PCH.h"
 #include "Entity.h"
+#include "IGPUDevice.h"
 
 namespace Bat
 {
@@ -11,6 +12,13 @@ namespace Bat
 		DIRECTIONAL,
 		SPOT
 	};
+
+	enum class LightFlags
+	{
+		NONE = 0,
+		EMIT_SHADOWS = (1 << 0)
+	};
+	BAT_ENUM_OPERATORS( LightFlags );
 
 	class LightComponent : public Component<LightComponent>
 	{
@@ -36,6 +44,13 @@ namespace Bat
 		float GetIntensity() const { return m_flIntensity; }
 		LightComponent& SetIntensity( float intensity ) { m_flIntensity = intensity; return *this; }
 
+		IDepthStencil* GetShadowMap() { return m_pShadowMap.get(); }
+		void SetShadowMap( std::unique_ptr<IDepthStencil> pShadowMap ) { m_pShadowMap = std::move( pShadowMap ); }
+
+		LightComponent& AddFlag( LightFlags flag ) { m_Flags |= flag; return *this; }
+		LightComponent& RemoveFlag( LightFlags flag ) { m_Flags &= ~flag; return *this; }
+		bool HasFlag( LightFlags flag ) { return ( m_Flags & flag ) == flag; }
+
 		void DoImGuiMenu();
 	private:
 		bool m_bEnabled = true;
@@ -45,5 +60,7 @@ namespace Bat
 		float m_flIntensity = 1.0f;
 		Vec3 m_colColour = { 1.0f, 1.0f, 1.0f };
 		float m_flRange = 10.0f;
+		LightFlags m_Flags;
+		std::unique_ptr<IDepthStencil> m_pShadowMap = nullptr;
 	};
 }

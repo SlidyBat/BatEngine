@@ -50,7 +50,7 @@ namespace Bat
 
 			if( e.Has<LightComponent>() )
 			{
-				auto light = e.Get<LightComponent>();
+				const auto& light = e.Get<LightComponent>();
 				if( light.GetType() == LightType::POINT )
 				{
 					auto emissive = light.GetColour() * 3;

@@ -26,6 +26,7 @@
 #include "Passes/OpaquePass.h"
 #include "Passes/TransparentPass.h"
 #include "Passes/DrawLightsPass.h"
+#include "Passes/ShadowPass.h"
 #include "DebugDraw.h"
 #include "ScratchRenderTarget.h"
 #include "FileDialog.h"
@@ -39,7 +40,6 @@ namespace Bat
 		camera( wnd.input, 2.0f, 1.0f ),
 		physics_system( world )
 	{
-		world.EnsureEntityCapacity( 1000005 );
 		SceneLoader loader;
 
 		camera.SetAspectRatio( (float)wnd.GetWidth() / wnd.GetHeight() );
@@ -89,7 +89,7 @@ namespace Bat
 		scene.AddChild( flashlight );
 
 		sun = world.CreateEntity();
-		sun.Add<LightComponent>()	
+		sun.Add<LightComponent>()
 			.SetType( LightType::DIRECTIONAL )
 			.SetEnabled( false );
 		scene.AddChild( sun );
@@ -364,6 +364,9 @@ namespace Bat
 		Vec3 pos = camera.GetPosition();
 		auto posstr = Format( "Pos: %.2f %.2f %.2f", pos.x, pos.y, pos.z );
 		DebugDraw::Text( posstr, { 10, 10 } );
+		Vec3 rot = camera.GetLookAtVector();
+		auto rotstr = Format( "Rot: %.2f %.2f %.2f", rot.x, rot.y, rot.z );
+		DebugDraw::Text( rotstr, { 10, 20 } );
 
 		// Dockspace setup
 		{
@@ -532,6 +535,18 @@ namespace Bat
 		{
 			physics_simulate = !physics_simulate;
 		}
+		else if( e.key == 'E' )
+		{
+			Entity spotlight = world.CreateEntity();
+			spotlight.Add<LightComponent>()
+				.SetType( LightType::SPOT )
+				.SetSpotlightAngle( Math::DegToRad( 45.0f ) )
+				.SetDirection( camera.GetLookAtVector() )
+				.AddFlag( LightFlags::EMIT_SHADOWS );
+			spotlight.Add<TransformComponent>()
+				.SetPosition( camera.GetPosition() );
+			scene.AddChild( spotlight );
+		}
 	}
 
 	void Application::OnEvent( const MouseButtonPressedEvent& e )
@@ -596,6 +611,8 @@ namespace Bat
 		rendergraph.AddPass( "crt", std::make_unique<ClearRenderTargetPass>() );
 		rendergraph.BindToResource( "crt.buffer", "target" );
 		rendergraph.BindToResource( "crt.depth", "depth" );
+
+		rendergraph.AddPass( "shadows", std::make_unique<ShadowPass>() );
 
 		if( opaque_pass )
 		{
