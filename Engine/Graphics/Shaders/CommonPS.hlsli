@@ -36,11 +36,14 @@ struct Material
 #define LIGHT_DIRECTIONAL 1
 #define LIGHT_SPOT        2
 
+#define MAX_SHADOW_SOURCES 16
+#define INVALID_SHADOW_MAP_INDEX (~0)
+
 #define MAX_LIGHTS 16
 struct Light
 {
 	float3 Position;
-	float _pad0;
+	int ShadowIndex;
 
 	float3 Direction;
 	float SpotlightAngle;
@@ -91,31 +94,34 @@ cbuffer GlobalsBuf : register(B_SLOT_GLOBALS)
 #define S_SLOT_CLAMP  s1
 #define S_SLOT_MIRROR s2
 #define S_SLOT_BORDER s3
-#define S_SLOT_0 s4
-#define S_SLOT_1 s5
-#define S_SLOT_2 s6
-#define S_SLOT_3 s7
-#define S_SLOT_4 s8
-#define S_SLOT_5 s9
-#define S_SLOT_6 s10
-#define S_SLOT_7 s11
+#define S_SLOT_CMP_DEPTH s4
+#define S_SLOT_0 s5
+#define S_SLOT_1 s6
+#define S_SLOT_2 s7
+#define S_SLOT_3 s8
+#define S_SLOT_4 s9
+#define S_SLOT_5 s10
+#define S_SLOT_6 s11
+#define S_SLOT_7 s12
 
 // Global samplers
 SamplerState WrapSampler : register(S_SLOT_WRAP);
 SamplerState ClampSampler : register(S_SLOT_CLAMP);
 SamplerState MirrorSampler : register(S_SLOT_MIRROR);
 SamplerState BorderSampler : register(S_SLOT_BORDER);
+SamplerComparisonState CompareDepthSampler : register(S_SLOT_CMP_DEPTH);
 
 // Defines for texture slots
 // Use these instead of normal slots to ensure that you don't overwrite slots for global textures
-#define T_SLOT_0 t0
-#define T_SLOT_1 t1
-#define T_SLOT_2 t2
-#define T_SLOT_3 t3
-#define T_SLOT_4 t4
-#define T_SLOT_5 t5
-#define T_SLOT_6 t6
-#define T_SLOT_7 t7
+#define T_SLOT_SHADOWMAPS t0
+#define T_SLOT_0 t1
+#define T_SLOT_1 t2
+#define T_SLOT_2 t3
+#define T_SLOT_3 t4
+#define T_SLOT_4 t5
+#define T_SLOT_5 t6
+#define T_SLOT_6 t7
+#define T_SLOT_7 t8
 
 #define GAMMA 2.2f
 

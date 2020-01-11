@@ -6,6 +6,9 @@
 
 namespace Bat
 {
+	static constexpr int MAX_SHADOW_SOURCES = 16;
+	static constexpr size_t INVALID_SHADOW_MAP_INDEX = ~0;
+
 	enum class LightType
 	{
 		POINT = 0,
@@ -44,8 +47,8 @@ namespace Bat
 		float GetIntensity() const { return m_flIntensity; }
 		LightComponent& SetIntensity( float intensity ) { m_flIntensity = intensity; return *this; }
 
-		IDepthStencil* GetShadowMap() { return m_pShadowMap.get(); }
-		void SetShadowMap( std::unique_ptr<IDepthStencil> pShadowMap ) { m_pShadowMap = std::move( pShadowMap ); }
+		size_t GetShadowIndex() const { return m_iShadowIndex; }
+		void SetShadowIndex( size_t index ) { m_iShadowIndex = index; }
 
 		LightComponent& AddFlag( LightFlags flag ) { m_Flags |= flag; return *this; }
 		LightComponent& RemoveFlag( LightFlags flag ) { m_Flags &= ~flag; return *this; }
@@ -61,6 +64,6 @@ namespace Bat
 		Vec3 m_colColour = { 1.0f, 1.0f, 1.0f };
 		float m_flRange = 10.0f;
 		LightFlags m_Flags;
-		std::unique_ptr<IDepthStencil> m_pShadowMap = nullptr;
+		size_t m_iShadowIndex = INVALID_SHADOW_MAP_INDEX;
 	};
 }

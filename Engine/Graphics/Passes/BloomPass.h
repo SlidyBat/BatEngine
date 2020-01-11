@@ -106,7 +106,7 @@ namespace Bat
 
 			pContext->SetRenderTarget( rt1 );
 			pContext->SetPixelShader( pBrightExtractPS );
-			pContext->BindTexture( src, 0 );
+			pContext->BindTexture( src, PS_TEX_SLOT_0 );
 			pContext->DrawIndexed( m_bufIndices->GetIndexCount() );
 
 			CB_BlurSettings blur_settings;
@@ -116,14 +116,14 @@ namespace Bat
 			{
 				// Unbind whatever is currently bound, to avoid binding on input/output at same time
 				pContext->SetRenderTarget( nullptr );
-				pContext->UnbindTextureSlot( 0 );
+				pContext->UnbindTextureSlot( PS_TEX_SLOT_0 );
 
 				if( i % 2 == 0 )
 				{
 					blur_settings.Horizontal = true;
 					m_cbufBlurSettings.Update( pContext, blur_settings );
 
-					pContext->BindTexture( rt1, 0 );
+					pContext->BindTexture( rt1, PS_TEX_SLOT_0 );
 					pContext->SetRenderTarget( rt2 );
 				}
 				else
@@ -131,7 +131,7 @@ namespace Bat
 					blur_settings.Horizontal = false;
 					m_cbufBlurSettings.Update( pContext, blur_settings );
 
-					pContext->BindTexture( rt2, 0 );
+					pContext->BindTexture( rt2, PS_TEX_SLOT_0 );
 					pContext->SetRenderTarget( rt1 );
 				}
 
@@ -140,19 +140,19 @@ namespace Bat
 
 			// Unbind whatever is currently bound, to avoid binding on input/output at same time
 			pContext->SetRenderTarget( nullptr );
-			pContext->UnbindTextureSlot( 0 );
+			pContext->UnbindTextureSlot( PS_TEX_SLOT_0 );
 
 			pContext->PopViewport();
 
 			pContext->SetPixelShader( pBloomShader );
-			pContext->BindTexture( src, 0 );
-			pContext->BindTexture( rt1, 1 );
+			pContext->BindTexture( src, PS_TEX_SLOT_0 );
+			pContext->BindTexture( rt1, PS_TEX_SLOT_1 );
 			pContext->SetRenderTarget( dst );
 			pContext->DrawIndexed( m_bufIndices->GetIndexCount() );
 
 			// Unbind again
-			pContext->UnbindTextureSlot( 0 );
-			pContext->UnbindTextureSlot( 1 );
+			pContext->UnbindTextureSlot( PS_TEX_SLOT_0 );
+			pContext->UnbindTextureSlot( PS_TEX_SLOT_1 );
 		}
 	private:
 		int m_iBlurPasses = 5;

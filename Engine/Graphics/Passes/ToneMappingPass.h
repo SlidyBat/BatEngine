@@ -89,7 +89,7 @@ namespace Bat
 
 			pContext->SetRenderTarget( dst );
 			pContext->SetPixelShader( pToneMapShader );
-			pContext->BindTexture( src, 0 );
+			pContext->BindTexture( src, PS_TEX_SLOT_0 );
 			pContext->DrawIndexed( m_bufIndices->GetIndexCount() );
 		}
 	private:

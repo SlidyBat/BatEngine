@@ -92,14 +92,14 @@ namespace Bat
 			pContext->SetPixelShader( pMotionBlurPS );
 
 			pContext->SetRenderTarget( dst );
-			pContext->BindTexture( src, 0 );
+			pContext->BindTexture( src, PS_TEX_SLOT_0 );
 			pContext->SetDepthStencil( nullptr ); // Unbind depth stencil from output
-			pContext->BindTexture( depth, 1 ); // Bind to input
+			pContext->BindTexture( depth, PS_TEX_SLOT_1 ); // Bind to input
 
 			pContext->DrawIndexed( m_bufIndices->GetIndexCount() );
 
 			// Unbind depth stencil from input again
-			pContext->UnbindTextureSlot( 1 );
+			pContext->UnbindTextureSlot( PS_TEX_SLOT_1 );
 
 			m_matPrevViewProj = viewproj;
 		}

@@ -2,6 +2,7 @@
 
 #include "SceneRenderPass.h"
 #include "ShadowPipeline.h"
+#include "ShaderManager.h"
 
 namespace Bat
 {
@@ -11,6 +12,11 @@ namespace Bat
 		static constexpr int SHADOW_MAP_WIDTH = 1024;
 		static constexpr int SHADOW_MAP_HEIGHT = 1024;
 
+		ShadowPass()
+		{
+			m_pShadowMaps = std::unique_ptr<IDepthStencil>( gpu->CreateDepthStencil( SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, TEX_FORMAT_R24G8_TYPELESS, MAX_SHADOW_SOURCES ) );
+		}
+
 		virtual void Execute( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data ) override
 		{
 			m_pContext = pContext;
@@ -19,6 +25,7 @@ namespace Bat
 			pContext->SetDepthStencilEnabled( true );
 			pContext->SetDepthWriteEnabled( true );
 			pContext->SetBlendingEnabled( false );
+			pContext->UnbindTextureSlot( PS_TEX_SHADOWMAPS );
 
 			Viewport vp;
 			vp.width = SHADOW_MAP_WIDTH;
@@ -29,12 +36,15 @@ namespace Bat
 			pContext->PushViewport( vp );
 
 			IDepthStencil* original_depth = pContext->GetDepthStencil();
+			size_t shadow_map_counter = 0;
 
 			for( Entity e : world )
 			{
 				if( e.Has<LightComponent>() )
 				{
 					auto& light = e.Get<LightComponent>();
+					light.SetShadowIndex( INVALID_SHADOW_MAP_INDEX );
+					
 					if( !light.IsEnabled() || light.GetType() == LightType::POINT )
 					{
 						continue;
@@ -68,14 +78,10 @@ namespace Bat
 					//m_matLightProj = DirectX::XMMatrixOrthographicOffCenterLH( bounds.mins.x, bounds.maxs.x, bounds.mins.y, bounds.maxs.y, bounds.mins.z, bounds.maxs.z );
 					m_matLightProj = DirectX::XMMatrixPerspectiveFovLH( light.GetSpotlightAngle() * 2, 1.0f, 0.1f, light.GetRange() );
 
-					if( !light.GetShadowMap() )
-					{
-						auto shadow_map = std::unique_ptr<IDepthStencil>( gpu->CreateDepthStencil( SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, TEX_FORMAT_R24G8_TYPELESS ) );
-						light.SetShadowMap( std::move( shadow_map ) );
-					}
+					light.SetShadowIndex( shadow_map_counter++ );
 
-					pContext->ClearDepthStencil( light.GetShadowMap(), CLEAR_FLAG_DEPTH, 1.0f, 0 );
-					pContext->SetDepthStencil( light.GetShadowMap() );
+					pContext->ClearDepthStencil( m_pShadowMaps.get(), CLEAR_FLAG_DEPTH, 1.0f, 0, light.GetShadowIndex() );
+					pContext->SetDepthStencil( m_pShadowMaps.get(), light.GetShadowIndex() );
 
 					Traverse();
 				}
@@ -83,6 +89,8 @@ namespace Bat
 
 			pContext->SetDepthStencil( original_depth );
 			pContext->PopViewport();
+
+			pContext->BindTexture( m_pShadowMaps.get(), PS_TEX_SHADOWMAPS );
 		}
 	private:
 		virtual void Visit( const DirectX::XMMATRIX& transform, Entity e ) override
@@ -145,5 +153,6 @@ namespace Bat
 			DirectX::XMMATRIX bone_transforms[MAX_BONES];
 		};
 		ConstantBuffer<CB_Bones> m_cbufBones;
+		std::unique_ptr<IDepthStencil> m_pShadowMaps;
 	};
 }

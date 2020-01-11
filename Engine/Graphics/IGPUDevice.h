@@ -61,7 +61,7 @@ namespace Bat
 			TexFormat format,
 			GPUResourceUsage usage = USAGE_DEFAULT ) = 0;
 
-		virtual IDepthStencil* CreateDepthStencil( size_t width, size_t height, TexFormat format ) = 0;
+		virtual IDepthStencil* CreateDepthStencil( size_t width, size_t height, TexFormat format, size_t array_size = 1 ) = 0;
 
 		virtual IRenderTarget* CreateRenderTarget( size_t width, size_t height, TexFormat format ) = 0;
 
@@ -110,7 +110,7 @@ namespace Bat
 		virtual void PopViewport() = 0;
 
 		// Binds depth stencil buffer
-		virtual void SetDepthStencil( IDepthStencil* pDepthStencil ) = 0;
+		virtual void SetDepthStencil( IDepthStencil* pDepthStencil, size_t index = 0 ) = 0;
 		// Gets currently bound depth stencil, or nullptr if none is bound
 		virtual IDepthStencil* GetDepthStencil() const = 0;
 		virtual bool IsDepthStencilEnabled() const = 0;
@@ -151,7 +151,7 @@ namespace Bat
 		// Clears specified render target with the set colour. Pass nullptr to clear backbuffer.
 		virtual void ClearRenderTarget( IRenderTarget* pRT, float r, float g, float b, float a ) = 0;
 		// See ClearFlag enum for list of valid flags (can be ORed together)
-		virtual void ClearDepthStencil( IDepthStencil* pDepthStencil, int clearflag, float depth, uint8_t stencil ) = 0;
+		virtual void ClearDepthStencil( IDepthStencil* pDepthStencil, int clearflag, float depth, uint8_t stencil, size_t index = 0 ) = 0;
 
 		virtual void UpdateTexturePixels( ITexture* pTexture, const void* pPixels, size_t pitch ) = 0;
 		virtual void BindTexture( ITexture* pTexture, size_t slot ) = 0;
@@ -273,6 +273,7 @@ namespace Bat
 		virtual size_t GetWidth() const = 0;
 		virtual size_t GetHeight() const = 0;
 		virtual TexFormat GetFormat() const = 0;
+		virtual size_t GetArraySize() const = 0;
 	};
 
 	class IRenderTarget

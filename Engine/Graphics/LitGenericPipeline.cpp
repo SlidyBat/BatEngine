@@ -36,23 +36,7 @@ namespace Bat
 		BindMaterial( pContext, mesh.GetMaterial() );
 		BindLights( pContext, light_ents, light_transforms );
 
-		IDepthStencil* pShadowMap = nullptr;
-		for( Entity light_ent : light_ents )
-		{
-			auto& light = light_ent.Get<LightComponent>();
-			if( light.GetShadowMap() )
-			{
-				pShadowMap = light.GetShadowMap();
-			}
-		}
-		if( pShadowMap )
-		{
-			pContext->BindTexture( pShadowMap, PS_TEX_SLOT_4 );
-		}
-
 		pContext->DrawIndexed( mesh.GetIndexCount() );
-
-		pContext->UnbindTextureSlot( PS_TEX_SLOT_4 );
 	}
 
 	void LitGenericPipeline::RenderInstanced( IGPUContext* pContext,
@@ -85,27 +69,6 @@ namespace Bat
 		const DirectX::XMMATRIX& world_transform,
 		const std::vector<Entity>& light_ents )
 	{
-		DirectX::XMMATRIX light_proj = DirectX::XMMatrixIdentity(), light_view = DirectX::XMMatrixIdentity();
-		for( Entity light_ent : light_ents )
-		{
-			auto& light = light_ent.Get<LightComponent>();
-			if( light.GetShadowMap() )
-			{
-				if( light.GetType() == LightType::SPOT )
-				{
-					auto& t = light_ent.Get<TransformComponent>();
-					light_view = DirectX::XMMatrixLookToLH( t.GetPosition(), light.GetDirection(), { 0.0f, 1.0f, 0.0f } );
-					light_proj = DirectX::XMMatrixPerspectiveFovLH( light.GetSpotlightAngle() * 2, 1.0f, 0.1f, light.GetRange() );
-				}
-				else
-				{
-					ASSERT( false, "What?" );
-					light_view = DirectX::XMMatrixLookToLH( { 0.0f, 0.0f, 0.0f }, light.GetDirection(), { 0.0f, 1.0f, 0.0f } );
-					light_proj = DirectX::XMMatrixOrthographicOffCenterLH( -10.0f, 10.0f, -10.0f, 10.0f, 0.0f, 100.0f );
-				}
-			}
-		}
-
 		{
 			CB_LitGenericPipelineMatrix transform;
 			transform.world = world_transform;
@@ -113,9 +76,33 @@ namespace Bat
 			m_cbufTransform.Update( pContext, transform );
 			pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, VS_CBUF_TRANSFORMS );
 		}
+
 		{
 			CB_LitGenericPipelinePSMatrix transform;
-			transform.shadow = light_view * light_proj;
+
+			for( Entity light_ent : light_ents )
+			{
+				auto& light = light_ent.Get<LightComponent>();
+				if( light.GetShadowIndex() != INVALID_SHADOW_MAP_INDEX )
+				{
+					DirectX::XMMATRIX light_proj, light_view;
+					if( light.GetType() == LightType::SPOT )
+					{
+						auto& t = light_ent.Get<TransformComponent>();
+						light_view = DirectX::XMMatrixLookToLH( t.GetPosition(), light.GetDirection(), { 0.0f, 1.0f, 0.0f } );
+						light_proj = DirectX::XMMatrixPerspectiveFovLH( light.GetSpotlightAngle() * 2, 1.0f, 0.1f, light.GetRange() );
+					}
+					else
+					{
+						ASSERT( false, "What?" );
+						light_view = DirectX::XMMatrixLookToLH( { 0.0f, 0.0f, 0.0f }, light.GetDirection(), { 0.0f, 1.0f, 0.0f } );
+						light_proj = DirectX::XMMatrixOrthographicOffCenterLH( -10.0f, 10.0f, -10.0f, 10.0f, 0.0f, 100.0f );
+					}
+
+					transform.shadow[light.GetShadowIndex()] = light_view * light_proj;
+				}
+			}
+
 			m_cbufPSTransform.Update( pContext, transform );
 			pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufPSTransform, PS_CBUF_SLOT_2 );
 		}
@@ -170,6 +157,7 @@ namespace Bat
 			DirectX::XMVECTOR vs, vr, vp;
 			DirectX::XMMatrixDecompose( &vs, &vr, &vp, light_transforms[i] );
 			lights.lights[j].Position = vp;
+			lights.lights[j].ShadowIndex = (int)l.GetShadowIndex();
 			lights.lights[j].Direction = l.GetDirection(); // TODO: this should be influenced by the rotation of the transform
 			lights.lights[j].SpotlightAngle = l.GetSpotlightAngle();
 			lights.lights[j].Colour = l.GetColour();

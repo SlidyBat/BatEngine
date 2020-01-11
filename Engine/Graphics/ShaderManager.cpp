@@ -64,6 +64,16 @@ namespace Bat
 			sampler_desc.address_w = TextureAddressMode::BORDER;
 			samplers.emplace_back( gpu->CreateSampler( sampler_desc ) );
 
+			// compare depth sampler
+			sampler_desc.filter = SampleFilter::COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+			sampler_desc.address_u = TextureAddressMode::CLAMP;
+			sampler_desc.address_v = TextureAddressMode::CLAMP;
+			sampler_desc.address_w = TextureAddressMode::CLAMP;
+			sampler_desc.mip_lod_bias = 0.0f;
+			sampler_desc.max_anisotropy = 0;
+			sampler_desc.comparison_func = ComparisonFunc::GREATER_EQUAL;
+			samplers.emplace_back( gpu->CreateSampler( sampler_desc ) );
+
 			initialized = true;
 		}
 

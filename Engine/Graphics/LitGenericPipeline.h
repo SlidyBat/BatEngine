@@ -47,7 +47,7 @@ namespace Bat
 
 		struct CB_LitGenericPipelinePSMatrix
 		{
-			DirectX::XMMATRIX shadow;
+			DirectX::XMMATRIX shadow[MAX_SHADOW_SOURCES];
 		};
 
 		struct CB_LitGenericPipelineMaterial

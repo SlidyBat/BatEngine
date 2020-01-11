@@ -225,7 +225,7 @@ namespace Bat
 		// Pops top viewport from stack.
 		virtual void PopViewport() override;
 
-		virtual void SetDepthStencil( IDepthStencil* pDepthStencil ) override;
+		virtual void SetDepthStencil( IDepthStencil* pDepthStencil, size_t index = 0 ) override;
 		virtual IDepthStencil* GetDepthStencil() const override;
 		virtual bool IsDepthStencilEnabled() const override;
 		virtual void SetDepthStencilEnabled( bool enabled ) override;
@@ -256,7 +256,7 @@ namespace Bat
 		virtual void PopRenderTargetAndViewport() override;
 
 		virtual void ClearRenderTarget( IRenderTarget* pRT, float r, float g, float b, float a ) override;
-		virtual void ClearDepthStencil( IDepthStencil* pDepthStencil, int clearflag, float depth, uint8_t stencil ) override;
+		virtual void ClearDepthStencil( IDepthStencil* pDepthStencil, int clearflag, float depth, uint8_t stencil, size_t index = 0 ) override;
 
 		virtual void UpdateTexturePixels( ITexture* pTexture, const void* pPixels, size_t pitch ) override;
 		virtual void BindTexture( ITexture* pTexture, size_t slot ) override;
@@ -310,6 +310,7 @@ namespace Bat
 		std::vector<std::vector<IRenderTarget*>> m_RenderTargetStack;
 		std::vector<std::vector<Viewport>> m_ViewportStack;
 		class D3DDepthStencil* m_pDepthStencil = nullptr;
+		size_t m_iDepthStencilIndex = 0;
 		D3DPixelShader* m_pPixelShader = nullptr;
 		D3DVertexShader* m_pVertexShader = nullptr;
 
@@ -342,7 +343,7 @@ namespace Bat
 			TexFormat format,
 			GPUResourceUsage usage = USAGE_DEFAULT ) override;
 
-		virtual IDepthStencil* CreateDepthStencil( size_t width, size_t height, TexFormat format ) override;
+		virtual IDepthStencil* CreateDepthStencil( size_t width, size_t height, TexFormat format, size_t array_size = 1 ) override;
 
 		virtual IRenderTarget* CreateRenderTarget( size_t width, size_t height, TexFormat format ) override;
 		virtual IRenderTarget* GetBackbuffer() override;
@@ -482,24 +483,26 @@ namespace Bat
 	class D3DDepthStencil : public IDepthStencil
 	{
 	public:
-		D3DDepthStencil( ID3D11Device* pDevice, size_t width, size_t height, TexFormat format );
+		D3DDepthStencil( ID3D11Device* pDevice, size_t width, size_t height, TexFormat format, size_t array_size );
 
 		virtual size_t GetWidth() const override { return m_iWidth; }
 		virtual size_t GetHeight() const override { return m_iHeight; }
 		virtual TexFormat GetFormat() const override { return m_Format; }
+		virtual size_t GetArraySize() const override { return m_iArraySize; }
 
-		ID3D11DepthStencilView* GetDepthStencilView() { return m_pDepthStencilView.Get(); }
-		const ID3D11DepthStencilView* GetDepthStencilView() const { return m_pDepthStencilView.Get(); }
+		ID3D11DepthStencilView* GetDepthStencilView( size_t index ) { return m_pDepthStencilView[index].Get(); }
+		const ID3D11DepthStencilView* GetDepthStencilView( size_t index ) const { return m_pDepthStencilView[index].Get(); }
 		ID3D11ShaderResourceView* GetShaderResourceView() { return m_pDepthShaderResourceView.Get(); }
 		const ID3D11ShaderResourceView* GetShaderResourceView() const { return m_pDepthShaderResourceView.Get(); }
 	private:
-		Microsoft::WRL::ComPtr<ID3D11Texture2D>          m_pDepthStencilBuffer;
-		Microsoft::WRL::ComPtr<ID3D11DepthStencilView>   m_pDepthStencilView;
-		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_pDepthShaderResourceView;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D>                     m_pDepthStencilBuffer;
+		std::vector<Microsoft::WRL::ComPtr<ID3D11DepthStencilView>> m_pDepthStencilView;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>            m_pDepthShaderResourceView;
 
 		TexFormat m_Format;
 		size_t m_iWidth;
 		size_t m_iHeight;
+		size_t m_iArraySize;
 	};
 
 	class D3DSampler : public ISampler
@@ -646,9 +649,10 @@ namespace Bat
 		BindViewports();
 	}
 
-	void D3DGPUContext::SetDepthStencil( IDepthStencil* pDepthStencil )
+	void D3DGPUContext::SetDepthStencil( IDepthStencil* pDepthStencil, size_t index )
 	{
 		m_pDepthStencil = static_cast<D3DDepthStencil*>( pDepthStencil );
+		m_iDepthStencilIndex = index;
 		BindRenderTarget();
 	}
 
@@ -844,9 +848,9 @@ namespace Bat
 		PopViewport();
 	}
 
-	void D3DGPUContext::ClearDepthStencil( IDepthStencil* pDepthStencil, int clearflag, float depth, uint8_t stencil )
+	void D3DGPUContext::ClearDepthStencil( IDepthStencil* pDepthStencil, int clearflag, float depth, uint8_t stencil, size_t index )
 	{
-		ID3D11DepthStencilView* pView = static_cast<D3DDepthStencil*>( pDepthStencil )->GetDepthStencilView();
+		ID3D11DepthStencilView* pView = static_cast<D3DDepthStencil*>( pDepthStencil )->GetDepthStencilView( index );
 
 		DXGI_CONTEXT_CALL( m_pDeviceContext->ClearDepthStencilView( pView, (UINT)clearflag, (FLOAT)depth, (UINT8)stencil ) );
 	}
@@ -1113,7 +1117,7 @@ namespace Bat
 	{
 		size_t count = m_RenderTargetStack.empty() ? 0 : m_RenderTargetStack.back().size();
 
-		ID3D11DepthStencilView* pDSV = m_pDepthStencil ? m_pDepthStencil->GetDepthStencilView() : nullptr;
+		ID3D11DepthStencilView* pDSV = m_pDepthStencil ? m_pDepthStencil->GetDepthStencilView( m_iDepthStencilIndex ) : nullptr;
 
 		if( count )
 		{
@@ -1489,9 +1493,9 @@ namespace Bat
 		return new D3DTexture( m_pDevice.Get(), pPixels, pitch, width, height, format, usage );
 	}
 
-	IDepthStencil* D3DGPUDevice::CreateDepthStencil( size_t width, size_t height, TexFormat format )
+	IDepthStencil* D3DGPUDevice::CreateDepthStencil( size_t width, size_t height, TexFormat format, size_t array_size )
 	{
-		return new D3DDepthStencil( m_pDevice.Get(), width, height, format );
+		return new D3DDepthStencil( m_pDevice.Get(), width, height, format, array_size );
 	}
 
 	IRenderTarget* D3DGPUDevice::CreateRenderTarget( size_t width, size_t height, TexFormat format )
@@ -2278,18 +2282,19 @@ namespace Bat
 		pDevice->CreateSamplerState( &d3dsd, &m_pSamplerState );
 	}
 
-	D3DDepthStencil::D3DDepthStencil( ID3D11Device* pDevice, size_t width, size_t height, TexFormat format )
+	D3DDepthStencil::D3DDepthStencil( ID3D11Device* pDevice, size_t width, size_t height, TexFormat format, size_t array_size )
 	{
 		m_iWidth = width;
 		m_iHeight = height;
 		m_Format = format;
+		m_iArraySize = array_size;
 
 		//Describe our Depth/Stencil Buffer
 		D3D11_TEXTURE2D_DESC depthStencilBufferDesc;
 		depthStencilBufferDesc.Width = (UINT)width;
 		depthStencilBufferDesc.Height = (UINT)height;
 		depthStencilBufferDesc.MipLevels = 1;
-		depthStencilBufferDesc.ArraySize = 1;
+		depthStencilBufferDesc.ArraySize = (UINT)array_size;
 		depthStencilBufferDesc.Format = (DXGI_FORMAT)format;
 		depthStencilBufferDesc.SampleDesc.Count = 1;
 		depthStencilBufferDesc.SampleDesc.Quality = 0;
@@ -2297,6 +2302,10 @@ namespace Bat
 		depthStencilBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 		depthStencilBufferDesc.CPUAccessFlags = 0;
 		depthStencilBufferDesc.MiscFlags = 0;
+
+		COM_THROW_IF_FAILED(
+			pDevice->CreateTexture2D( &depthStencilBufferDesc, NULL, &m_pDepthStencilBuffer )
+		);
 
 		DXGI_FORMAT depth_format;
 		switch( format )
@@ -2307,11 +2316,39 @@ namespace Bat
 		default: ASSERT( false, "Unknown depth stencil format" );
 		}
 
+		m_pDepthStencilView.resize( array_size );
 		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
 		depthStencilViewDesc.Flags = 0;
 		depthStencilViewDesc.Format = depth_format;
-		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-		depthStencilViewDesc.Texture2D.MipSlice = 0;
+		if( array_size <= 1 )
+		{
+			depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+			depthStencilViewDesc.Texture2D.MipSlice = 0;
+
+			COM_THROW_IF_FAILED(
+				pDevice->CreateDepthStencilView( m_pDepthStencilBuffer.Get(),
+					&depthStencilViewDesc,
+					&m_pDepthStencilView[0]
+				)
+			);
+		}
+		else
+		{
+			for( size_t i = 0; i < array_size; i++ )
+			{
+				depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
+				depthStencilViewDesc.Texture2DArray.ArraySize = (UINT)1;
+				depthStencilViewDesc.Texture2DArray.FirstArraySlice = (UINT)i;
+				depthStencilViewDesc.Texture2DArray.MipSlice = 0;
+
+				COM_THROW_IF_FAILED(
+					pDevice->CreateDepthStencilView( m_pDepthStencilBuffer.Get(),
+						&depthStencilViewDesc,
+						&m_pDepthStencilView[i]
+					)
+				);
+			}
+		}
 
 		DXGI_FORMAT shader_format;
 		switch( format )
@@ -2324,19 +2361,21 @@ namespace Bat
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC depthShaderResourceViewDesc;
 		depthShaderResourceViewDesc.Format                    = shader_format;
-		depthShaderResourceViewDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
-		depthShaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-		depthShaderResourceViewDesc.Texture2D.MipLevels       = -1;
+		if( array_size <= 1 )
+		{
+			depthShaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+			depthShaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+			depthShaderResourceViewDesc.Texture2D.MipLevels = -1;
+		}
+		else
+		{
+			depthShaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+			depthShaderResourceViewDesc.Texture2DArray.ArraySize = (UINT)array_size;
+			depthShaderResourceViewDesc.Texture2DArray.FirstArraySlice = 0;
+			depthShaderResourceViewDesc.Texture2DArray.MostDetailedMip = 0;
+			depthShaderResourceViewDesc.Texture2DArray.MipLevels = -1;
+		}
 
-		COM_THROW_IF_FAILED(
-			pDevice->CreateTexture2D( &depthStencilBufferDesc, NULL, &m_pDepthStencilBuffer )
-		);
-		COM_THROW_IF_FAILED(
-			pDevice->CreateDepthStencilView( m_pDepthStencilBuffer.Get(),
-				&depthStencilViewDesc,
-				&m_pDepthStencilView
-			)
-		);
 		COM_THROW_IF_FAILED(
 			pDevice->CreateShaderResourceView(
 				m_pDepthStencilBuffer.Get(),

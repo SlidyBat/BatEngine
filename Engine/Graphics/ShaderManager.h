@@ -28,7 +28,8 @@ namespace Bat
 		PS_SAMP_CLAMP = 1,
 		PS_SAMP_MIRROR = 2,
 		PS_SAMP_BORDER = 4,
-		PS_SAMP_SLOT_0 = 5,
+		PS_SAMP_CMP_DEPTH = 5,
+		PS_SAMP_SLOT_0 = 6,
 		PS_SAMP_SLOT_1,
 		PS_SAMP_SLOT_2,
 		PS_SAMP_SLOT_3,
@@ -40,7 +41,8 @@ namespace Bat
 
 	enum
 	{
-		PS_TEX_SLOT_0 = 0,
+		PS_TEX_SHADOWMAPS = 0,
+		PS_TEX_SLOT_0 = 1,
 		PS_TEX_SLOT_1,
 		PS_TEX_SLOT_2,
 		PS_TEX_SLOT_3,
