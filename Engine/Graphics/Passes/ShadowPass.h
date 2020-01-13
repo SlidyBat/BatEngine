@@ -21,6 +21,8 @@ namespace Bat
 		{
 			m_pContext = pContext;
 
+			ComparisonFunc original_comp_func = pContext->GetDepthComparisonFunc();
+
 			pContext->SetRenderTarget( nullptr );
 			pContext->SetDepthEnabled( true );
 			pContext->SetDepthWriteEnabled( true );
@@ -88,7 +90,7 @@ namespace Bat
 				}
 			}
 
-			pContext->SetDepthComparisonFunc( ComparisonFunc::LESS );
+			pContext->SetDepthComparisonFunc( original_comp_func );
 			pContext->SetDepthStencil( original_depth );
 			pContext->PopViewport();
 

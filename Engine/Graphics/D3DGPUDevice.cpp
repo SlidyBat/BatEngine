@@ -574,7 +574,7 @@ namespace Bat
 
 		m_CurrentDepthStencilState.DepthEnable = TRUE;
 		m_CurrentDepthStencilState.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
-		m_CurrentDepthStencilState.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS;
+		m_CurrentDepthStencilState.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
 		m_CurrentDepthStencilState.StencilEnable = FALSE;
 		m_CurrentDepthStencilState.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
 		m_CurrentDepthStencilState.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
