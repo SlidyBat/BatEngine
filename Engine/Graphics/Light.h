@@ -34,11 +34,9 @@ namespace Bat
 		bool IsEnabled() const { return m_bEnabled; }
 		LightComponent& SetEnabled( bool enabled ) { m_bEnabled = enabled; return *this; }
 
-		Vec3 GetDirection() const { return m_vecDirection; }
-		LightComponent& SetDirection( const Vec3& dir ) { m_vecDirection = dir; return *this; }
 		float GetSpotlightAngle() const { return m_flSpotlightAngle; }
 		LightComponent& SetSpotlightAngle( float ang ) { m_flSpotlightAngle = ang; return *this; }
-		Vec3 GetColour() const { return m_colColour; }
+		const Vec3& GetColour() const { return m_colColour; }
 		LightComponent& SetColour( const Vec3& colour ) { m_colColour = colour; return *this; }
 
 		float GetRange() const { return m_flRange; }
@@ -57,7 +55,6 @@ namespace Bat
 		void DoImGuiMenu();
 	private:
 		bool m_bEnabled = true;
-		Vec3 m_vecDirection = { 0.0f, 0.0f, 0.0f };
 		float m_flSpotlightAngle = 1.0f;
 		LightType m_Type = LightType::POINT;
 		float m_flIntensity = 1.0f;

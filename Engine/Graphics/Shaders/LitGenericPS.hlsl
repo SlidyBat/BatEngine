@@ -6,6 +6,11 @@ Texture2D EmissiveTexture : register(T_SLOT_2);
 Texture2D NormalTexture : register(T_SLOT_3);
 Texture2DArray ShadowMap : register(T_SLOT_SHADOWMAPS);
 
+cbuffer ShadowMatrices : register(B_SLOT_SHADOWMATRICES)
+{
+	float4x4 ShadowMatrix[MAX_SHADOW_SOURCES];
+}
+
 cbuffer Material : register(B_SLOT_0)
 {
 	Material Mat;
@@ -17,10 +22,6 @@ cbuffer LightParams : register(B_SLOT_1)
 	Light Lights[MAX_LIGHTS];
 }
 
-cbuffer Matrices : register(B_SLOT_2)
-{
-	float4x4 ShadowMatrix[MAX_SHADOW_SOURCES];
-}
 
 struct PixelInput
 {
@@ -34,7 +35,7 @@ struct PixelInput
 	float2 tex : TEXCOORD;
 };
 
-float Shadow( Light light, float3 pos_ws, float3 normal, float3 light_dir )
+float Shadow( Light light, float3 pos_ws )
 {
 	if( light.ShadowIndex == INVALID_SHADOW_MAP_INDEX )
 	{
@@ -106,7 +107,7 @@ float3 DoSpotLight( Light light, Material material, float3 world_pos, float3 n )
 	float3 diffuse = DoDiffuse( light, material, light_dir, n );
 	float3 specular = DoSpecular( light, material, world_pos, light_dir, n );
 
-	return (diffuse + specular) * attenuation * spot_intensity * Shadow( light, world_pos, n, light_dir );
+	return (diffuse + specular) * attenuation * spot_intensity * Shadow( light, world_pos );
 }
 
 float3 DoDirectionalLight( Light light, Material material, float3 world_pos, float3 n )
@@ -116,7 +117,7 @@ float3 DoDirectionalLight( Light light, Material material, float3 world_pos, flo
 	float3 diffuse = DoDiffuse( light, material, light_dir, n );
 	float3 specular = DoSpecular( light, material, world_pos, light_dir, n );
 
-	return (diffuse + specular) * Shadow( light, world_pos, n, light_dir );
+	return (diffuse + specular) * Shadow( light, world_pos );
 }
 
 float3 DoLight( Light light, Material material, float3 world_pos, float3 normal )

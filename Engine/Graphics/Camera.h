@@ -11,7 +11,7 @@ namespace Bat
 	public:
 		Camera( const Vec3& pos, const Vec3& rot, float fov = 90.0f, float ar = 4.0f / 3.0f, float screen_near = Graphics::ScreenNear, float screen_far = Graphics::ScreenFar );
 		Camera( float fov = 90.0f, float ar = 4.0f / 3.0f, float screen_near = Graphics::ScreenNear, float screen_far = Graphics::ScreenFar );
-
+		
 		static Camera ScreenOrtho();
 
 		float GetFOV() const;
@@ -40,6 +40,7 @@ namespace Bat
 		Vec3 GetLookAtVector() const;
 
 		const Frustum& GetFrustum() const { return m_Frustum; }
+		// Gets frustum corners in world space
 		void CalculateFrustumCorners( Vec3 corners_out[8] );
 
 		DirectX::XMMATRIX GetViewMatrix() const;
@@ -50,6 +51,7 @@ namespace Bat
 		void UpdateProjectionMatrix();
 		void UpdateViewMatrix();
 		void UpdateFrustum();
+		void WrapAngle();
 	private:
 		Frustum m_Frustum;
 

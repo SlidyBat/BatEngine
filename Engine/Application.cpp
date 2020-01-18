@@ -91,7 +91,10 @@ namespace Bat
 		sun = world.CreateEntity();
 		sun.Add<LightComponent>()
 			.SetType( LightType::DIRECTIONAL )
-			.SetEnabled( false );
+			.SetEnabled( true )
+			.AddFlag( LightFlags::EMIT_SHADOWS );
+		sun.Add<TransformComponent>()
+			.SetRotation( 90.0f, 0.0f, 0.0f );
 		scene.AddChild( sun );
 
 		gfx.SetActiveScene( &scene );
@@ -186,8 +189,9 @@ namespace Bat
 		}
 
 		camera.Update( deltatime );
-		flashlight.Get<TransformComponent>().SetPosition( camera.GetPosition() );
-		flashlight.Get<LightComponent>().SetDirection( camera.GetLookAtVector() );
+		flashlight.Get<TransformComponent>()
+			.SetPosition( camera.GetPosition() )
+			.SetRotation( camera.GetRotation() );
 		snd->SetListenerPosition( camera.GetPosition(), camera.GetLookAtVector() );
 
 		player.Get<TransformComponent>()
@@ -364,7 +368,7 @@ namespace Bat
 		Vec3 pos = camera.GetPosition();
 		auto posstr = Format( "Pos: %.2f %.2f %.2f", pos.x, pos.y, pos.z );
 		DebugDraw::Text( posstr, { 10, 10 } );
-		Vec3 rot = camera.GetLookAtVector();
+		Vec3 rot = camera.GetRotation();
 		auto rotstr = Format( "Rot: %.2f %.2f %.2f", rot.x, rot.y, rot.z );
 		DebugDraw::Text( rotstr, { 10, 20 } );
 
@@ -541,11 +545,16 @@ namespace Bat
 			spotlight.Add<LightComponent>()
 				.SetType( LightType::SPOT )
 				.SetSpotlightAngle( Math::DegToRad( 45.0f ) )
-				.SetDirection( camera.GetLookAtVector() )
 				.AddFlag( LightFlags::EMIT_SHADOWS );
 			spotlight.Add<TransformComponent>()
-				.SetPosition( camera.GetPosition() );
+				.SetPosition( camera.GetPosition() )
+				.SetRotation( camera.GetRotation() );
 			scene.AddChild( spotlight );
+		}
+		else if( e.key == 'Q' )
+		{
+			auto& t = sun.Get<TransformComponent>();
+			t.SetRotation( camera.GetRotation() );
 		}
 	}
 

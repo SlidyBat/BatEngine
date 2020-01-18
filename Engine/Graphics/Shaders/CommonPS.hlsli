@@ -68,19 +68,22 @@ struct GlobalsBuf
 	// camera position in world space
 	float3 CameraPos;
 	float pad0;
+	
+	float4x4 CameraInvVP;
 };
 
 // Defines for cbuffer slots
 // Use these instead of normal slots to ensure that you don't overwrite slots for global buffers
-#define B_SLOT_GLOBALS   b0
-#define B_SLOT_PARTICLES b1
-#define B_SLOT_0 b2
-#define B_SLOT_1 b3
-#define B_SLOT_2 b4
-#define B_SLOT_3 b5
-#define B_SLOT_4 b6
-#define B_SLOT_5 b7
-#define B_SLOT_6 b8
+#define B_SLOT_GLOBALS        b0
+#define B_SLOT_PARTICLES      b1
+#define B_SLOT_SHADOWMATRICES b2
+#define B_SLOT_0 b3
+#define B_SLOT_1 b4
+#define B_SLOT_2 b5
+#define B_SLOT_3 b6
+#define B_SLOT_4 b7
+#define B_SLOT_5 b8
+#define B_SLOT_6 b9
 
 // Global buffers
 cbuffer GlobalsBuf : register(B_SLOT_GLOBALS)

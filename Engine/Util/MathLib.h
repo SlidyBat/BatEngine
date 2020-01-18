@@ -25,6 +25,8 @@ namespace Bat
 
 		Vec3 QuaternionToEuler( const Vec4& quat );
 		Vec4 EulerToQuaternion( const Vec3& euler );
+		// Normalizes an angle so that it becomes in the range [-180.0f, 180.0f)
+		float NormalizeAngle( float ang );
 
 		__m128 Abs( __m128 m );
 		__m128 Sin( __m128 m_x );
@@ -311,6 +313,22 @@ namespace Bat
 
 			return *this;
 		}
+		Vec3& operator*=( float scalar )
+		{
+			x *= scalar;
+			y *= scalar;
+			z *= scalar;
+
+			return *this;
+		}
+		Vec3& operator/=( float scalar )
+		{
+			x /= scalar;
+			y /= scalar;
+			z /= scalar;
+
+			return *this;
+		}
 
 		float LengthSq() const
 		{
@@ -342,6 +360,11 @@ namespace Bat
 		operator DirectX::XMVECTOR() const
 		{
 			return DirectX::XMLoadFloat3( this );
+		}
+
+		static float Dot( const Vec3& a, const Vec3& b )
+		{
+			return a.x * b.x + a.y * b.y + a.z * b.z;
 		}
 
 		static Vec3 Lerp( const Vec3& a, const Vec3& b, float t )

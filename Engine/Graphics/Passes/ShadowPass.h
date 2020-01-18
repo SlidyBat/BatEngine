@@ -39,12 +39,14 @@ namespace Bat
 			pContext->PushViewport( vp );
 
 			IDepthStencil* original_depth = pContext->GetDepthStencil();
+			CB_ShadowMatrices transforms;
 			size_t shadow_map_counter = 0;
 
 			for( Entity e : world )
 			{
 				if( e.Has<LightComponent>() )
 				{
+					auto& t = e.Get<TransformComponent>();
 					auto& light = e.Get<LightComponent>();
 					light.SetShadowIndex( INVALID_SHADOW_MAP_INDEX );
 					
@@ -58,30 +60,59 @@ namespace Bat
 						continue;
 					}
 
-					if( light.GetType() == LightType::SPOT )
+					switch( light.GetType() )
 					{
-						auto& t = e.Get<TransformComponent>();
-						m_matLightView = DirectX::XMMatrixLookToLH( t.GetPosition(), light.GetDirection(), { 0.0f, 1.0f, 0.0f } );
-					}
-					else
+					case LightType::DIRECTIONAL:
 					{
-						ASSERT( false, "What?" );
-						m_matLightView = DirectX::XMMatrixLookAtLH( { 0.0f, 0.0f, 0.0f }, light.GetDirection(), { 0.0f, 1.0f, 0.0f } );
+						DirectX::XMMATRIX rot = DirectX::XMMatrixRotationRollPitchYaw(
+							Math::DegToRad( t.GetRotation().x ),
+							Math::DegToRad( t.GetRotation().y ),
+							Math::DegToRad( t.GetRotation().z ) );
+						Vec3 up = DirectX::XMVector3TransformNormal( { 0.0f, 1.0f, 0.0f }, rot );
+						Vec3 to = DirectX::XMVector3TransformNormal( { 0.0f, 0.0f, 1.0f }, rot );
+
+						Vec3 frustum_corners[8];
+						Vec3 frustum_centre = { 0.0f, 0.0f, 0.0f };
+						camera.CalculateFrustumCorners( frustum_corners );
+						for( int i = 0; i < 8; i++ )
+						{
+							frustum_centre += frustum_corners[i];
+						}
+						frustum_centre /= 8.0f;
+
+						DirectX::XMMATRIX light_view = DirectX::XMMatrixLookToLH( frustum_centre, to, up );
+						Vec3 maxs = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
+						Vec3 mins = { FLT_MAX, FLT_MAX, FLT_MAX };
+						for( int i = 0; i < 8; i++ )
+						{
+							DirectX::XMVECTOR corner = DirectX::XMVector3TransformCoord( frustum_corners[i], light_view );
+							mins = DirectX::XMVectorMin( mins, corner );
+							maxs = DirectX::XMVectorMax( maxs, corner );
+						}
+
+						Vec3 shadow_camera_pos = frustum_centre - to * maxs.z;
+
+						m_matLightView = DirectX::XMMatrixLookAtLH( shadow_camera_pos, frustum_centre, up );
+						m_matLightProj = DirectX::XMMatrixOrthographicOffCenterLH( mins.x, maxs.x, mins.y, maxs.y, maxs.z, mins.z );
+						
+						break;
 					}
-					
-					Vec3 frustum_corners[8];
-					camera.CalculateFrustumCorners( frustum_corners );
-					DirectX::XMMATRIX inv_view = DirectX::XMMatrixInverse( nullptr, camera.GetViewMatrix() );
-					for( int i = 0; i < 8; i++ )
+					case LightType::SPOT:
 					{
-						frustum_corners[i] = DirectX::XMVector3Transform( frustum_corners[i], inv_view ); // To world space
-						frustum_corners[i] = DirectX::XMVector3Transform( frustum_corners[i], m_matLightView ); // To light space
+						Camera spot_cam( t.GetPosition(),
+							t.GetRotation(),
+							Math::RadToDeg( light.GetSpotlightAngle() * 2 ),
+							(float)SHADOW_MAP_WIDTH / SHADOW_MAP_HEIGHT,
+							light.GetRange(),
+							0.1f);
+						m_matLightView = spot_cam.GetViewMatrix();
+						m_matLightProj = spot_cam.GetProjectionMatrix();
+						break;
 					}
-					AABB bounds = AABB( frustum_corners, 8 );
-					//m_matLightProj = DirectX::XMMatrixOrthographicOffCenterLH( bounds.mins.x, bounds.maxs.x, bounds.mins.y, bounds.maxs.y, bounds.mins.z, bounds.maxs.z );
-					m_matLightProj = DirectX::XMMatrixPerspectiveFovLH( light.GetSpotlightAngle() * 2, 1.0f, light.GetRange(), 0.1f );
+					}
 
 					light.SetShadowIndex( shadow_map_counter++ );
+					transforms.shadow[light.GetShadowIndex()] = m_matLightView * m_matLightProj;
 
 					pContext->ClearDepthStencil( m_pShadowMaps.get(), CLEAR_FLAG_DEPTH, 0.0f, 0, light.GetShadowIndex() );
 					pContext->SetDepthStencil( m_pShadowMaps.get(), light.GetShadowIndex() );
@@ -94,6 +125,8 @@ namespace Bat
 			pContext->SetDepthStencil( original_depth );
 			pContext->PopViewport();
 
+			m_cbufShadowMatrices.Update( pContext, transforms );
+			pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufShadowMatrices, PS_CBUF_SHADOWMATRICES );
 			pContext->BindTexture( m_pShadowMaps.get(), PS_TEX_SHADOWMAPS );
 		}
 	private:
@@ -157,6 +190,11 @@ namespace Bat
 			DirectX::XMMATRIX bone_transforms[MAX_BONES];
 		};
 		ConstantBuffer<CB_Bones> m_cbufBones;
+		struct CB_ShadowMatrices
+		{
+			DirectX::XMMATRIX shadow[MAX_SHADOW_SOURCES];
+		};
+		ConstantBuffer<CB_ShadowMatrices> m_cbufShadowMatrices;
 		std::unique_ptr<IDepthStencil> m_pShadowMaps;
 	};
 }

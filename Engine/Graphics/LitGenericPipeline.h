@@ -33,8 +33,7 @@ namespace Bat
 	private:
 		void BindTransforms( IGPUContext* pContext,
 			const Camera& camera,
-			const DirectX::XMMATRIX& world_transform,
-			const std::vector<Entity>& light_ents );
+			const DirectX::XMMATRIX& world_transform );
 		void BindMaterial( IGPUContext* pContext, const Material& material );
 		void BindLights( IGPUContext* pContext, const std::vector<Entity>& light_ents, const std::vector<DirectX::XMMATRIX>& light_transforms );
 		void BindInstances( IGPUContext* pContext, IVertexShader* pVertexShader, const std::vector<LitGenericInstanceData>& instances );
@@ -43,11 +42,6 @@ namespace Bat
 		{
 			DirectX::XMMATRIX world;
 			DirectX::XMMATRIX viewproj;
-		};
-
-		struct CB_LitGenericPipelinePSMatrix
-		{
-			DirectX::XMMATRIX shadow[MAX_SHADOW_SOURCES];
 		};
 
 		struct CB_LitGenericPipelineMaterial
@@ -63,7 +57,6 @@ namespace Bat
 		};
 	private:
 		ConstantBuffer<CB_LitGenericPipelineMatrix>   m_cbufTransform;
-		ConstantBuffer<CB_LitGenericPipelinePSMatrix>   m_cbufPSTransform;
 		ConstantBuffer<CB_LitGenericPipelineMaterial> m_cbufMaterial;
 		ConstantBuffer<CB_LitGenericPipelineLights>    m_cbufLightParams;
 		VertexBuffer<LitGenericInstanceData> m_vbufInstanceData;

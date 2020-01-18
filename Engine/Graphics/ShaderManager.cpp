@@ -17,6 +17,7 @@ namespace Bat
 		float deltatime;
 		Vec3 camera_pos;
 		float pad;
+		DirectX::XMMATRIX camera_inv_vp;
 	};
 
 	void ShaderManager::BindShaderGlobals( const Camera* pCamera, const Vec2& resolution, IGPUContext* pContext )
@@ -88,6 +89,7 @@ namespace Bat
 		g.time = g_pGlobals->elapsed_time;
 		g.deltatime = g_pGlobals->deltatime;
 		g.camera_pos = pCamera ? pCamera->GetPosition() : Vec3{ 0.0f, 0.0f, 0.0f };
+		g.camera_inv_vp = pCamera ? DirectX::XMMatrixInverse(nullptr, pCamera->GetViewMatrix() * pCamera->GetProjectionMatrix()) : DirectX::XMMatrixIdentity();
 		cb_globals.Update( pContext, g );
 		pContext->SetConstantBuffer( ShaderType::PIXEL, cb_globals, PS_CBUF_GLOBALS );
 	}
