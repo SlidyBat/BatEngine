@@ -39,6 +39,7 @@ namespace Bat
 		bool opaque_pass = true;
 		bool transparent_pass = true;
 
+		bool skybox_enabled = true;
 		bool bloom_enabled = true;
 		bool motion_blur_enabled = false;
 		bool tonemapping_enabled = true;
@@ -64,6 +65,8 @@ namespace Bat
 		PhysicsSystem physics_system;
 		AnimationSystem anim_system;
 		ParticleSystem particle_system;
+
+		std::string skybox_tex = "Assets\\skybox.dds";
 
 		float bloom_threshold = 1.0f;
 		float exposure = 2.0f;

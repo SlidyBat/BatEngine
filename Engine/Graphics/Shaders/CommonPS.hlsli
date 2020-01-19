@@ -1,3 +1,5 @@
+#define PI 3.141592654f
+
 struct Material
 {
 	float4  GlobalAmbient;
