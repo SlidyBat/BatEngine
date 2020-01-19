@@ -52,18 +52,30 @@ namespace Bat
 		// Creates constant buffer with size `size` bytes and `data` as initial data. Pass nullptr to leave uninitialized.
 		virtual IConstantBuffer* CreateConstantBuffer( const void* data, size_t size ) = 0;
 
-		virtual ITexture* CreateTexture( const std::string& filename ) = 0;
-		virtual ITexture* CreateTexture( const char* pData, size_t size ) = 0;
+		virtual ITexture* CreateTexture( const std::string& filename, TexFlags flags = TexFlags::NONE ) = 0;
+		virtual ITexture* CreateTexture( const char* pData, size_t size, TexFlags flags = TexFlags::NONE ) = 0;
 		virtual ITexture* CreateTexture( const void* pPixels,
 			size_t pitch,
 			size_t width,
 			size_t height,
 			TexFormat format,
-			GPUResourceUsage usage = USAGE_DEFAULT ) = 0;
+			GPUResourceUsage usage = USAGE_DEFAULT,
+			TexFlags flags = TexFlags::NONE ) = 0;
 
-		virtual IDepthStencil* CreateDepthStencil( size_t width, size_t height, TexFormat format, size_t array_size = 1 ) = 0;
+		virtual IDepthStencil* CreateDepthStencil( size_t width,
+			size_t height,
+			TexFormat format,
+			size_t array_size = 1,
+			MsaaQuality ms_quality = MsaaQuality::NONE,
+			size_t ms_samples = 1,
+			TexFlags flags = TexFlags::NONE ) = 0;
 
-		virtual IRenderTarget* CreateRenderTarget( size_t width, size_t height, TexFormat format ) = 0;
+		virtual IRenderTarget* CreateRenderTarget( size_t width,
+			size_t height,
+			TexFormat format,
+			MsaaQuality ms_quality = MsaaQuality::NONE,
+			size_t ms_samples = 1,
+			TexFlags flags = TexFlags::NONE ) = 0;
 
 		// Gets backbuffer as render target
 		virtual IRenderTarget* GetBackbuffer() = 0;
@@ -162,15 +174,16 @@ namespace Bat
 		// Pops top render target & viewport from stack
 		virtual void PopRenderTargetAndViewport() = 0;
 
-		// Clears specified render target with the set colour. Pass nullptr to clear backbuffer.
+		// Clears specified render target with the set colour
 		virtual void ClearRenderTarget( IRenderTarget* pRT, float r, float g, float b, float a ) = 0;
 		// See ClearFlag enum for list of valid flags (can be ORed together)
 		virtual void ClearDepthStencil( IDepthStencil* pDepthStencil, int clearflag, float depth, uint8_t stencil, size_t index = 0 ) = 0;
+		virtual void Resolve( IRenderTarget* pDst, IRenderTarget* pSrc ) = 0;
 
 		virtual void UpdateTexturePixels( ITexture* pTexture, const void* pPixels, size_t pitch ) = 0;
 		virtual void BindTexture( ITexture* pTexture, size_t slot ) = 0;
 		virtual void BindTexture( IRenderTarget* pRT, size_t slot ) = 0;
-		virtual void BindTexture( IDepthStencil* pDepthStencil, size_t slot ) = 0;
+		virtual void BindTexture( IDepthStencil* pDepthStencil, size_t slot, size_t index = 0 ) = 0;
 		virtual void UnbindTextureSlot( size_t slot ) = 0;
 
 		// Update the vertex buffer with the given data

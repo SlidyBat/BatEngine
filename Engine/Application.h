@@ -67,6 +67,9 @@ namespace Bat
 
 		float bloom_threshold = 1.0f;
 		float exposure = 2.0f;
+		
+		bool msaa_enabled = true;
+		int msaa_samples = 4;
 
 		bool imgui_menu_enabled = false;
 

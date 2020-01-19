@@ -386,6 +386,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Core\CoreEntityComponents.h" />
     <ClInclude Include="Graphics\ParticlePipeline.h" />
     <ClInclude Include="Graphics\Particles.h" />
+    <ClInclude Include="Graphics\Passes\MsaaResolvePass.h" />
     <ClInclude Include="Graphics\Passes\ShadowPass.h" />
     <ClInclude Include="Graphics\ShadowPipeline.h" />
     <ClInclude Include="Platform\FileDialog.h" />

@@ -27,6 +27,7 @@
 #include "Passes/TransparentPass.h"
 #include "Passes/DrawLightsPass.h"
 #include "Passes/ShadowPass.h"
+#include "Passes/MsaaResolvePass.h"
 #include "DebugDraw.h"
 #include "ScratchRenderTarget.h"
 #include "FileDialog.h"
@@ -435,6 +436,18 @@ namespace Bat
 						}
 					}
 
+					changed |= ImGui::Checkbox( "MSAA", &msaa_enabled );
+					if( msaa_enabled )
+					{
+						static int current_msaa_sample = 2;
+						static const char* samples[] = { "1", "2", "4", "8" };
+						if( ImGui::Combo( "MSAA Samples", &current_msaa_sample, samples, ARRAYSIZE( samples ) ) )
+						{
+							changed = true;
+							msaa_samples = std::stoi( samples[current_msaa_sample] );
+						}
+					}
+
 					if( changed )
 					{
 						BuildRenderGraph();
@@ -602,22 +615,45 @@ namespace Bat
 		if( motion_blur_enabled ) post_process_count++;
 		if( tonemapping_enabled ) post_process_count++;
 
+		size_t ms_samples = msaa_enabled ? (size_t)msaa_samples : 1;
+		MsaaQuality ms_quality = msaa_enabled ? MsaaQuality::STANDARD_PATTERN : MsaaQuality::NONE;
+
 		// initialize resources
 		// render texture to draw scene to
 		if( post_process_count )
 		{
-			rendergraph.AddRenderTargetResource( "target",
-				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
-			rendergraph.AddRenderTargetResource( "target2",
-				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
+			if( msaa_enabled )
+			{
+				rendergraph.AddRenderTargetResource( "target",
+					std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT, ms_quality, ms_samples ) ) );
+				rendergraph.AddRenderTargetResource( "target2",
+					std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
+				rendergraph.AddRenderTargetResource( "resolve_target",
+					std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
+			}
+			else
+			{
+				rendergraph.AddRenderTargetResource( "target",
+					std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT, ms_quality, ms_samples ) ) );
+				rendergraph.AddRenderTargetResource( "target2",
+					std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT, ms_quality, ms_samples ) ) );
+			}
 		}
 		else
 		{
-			rendergraph.AddRenderTargetResource( "target", gpu->GetBackbuffer() );
+			if( msaa_enabled )
+			{
+				rendergraph.AddRenderTargetResource( "target",
+					std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT, ms_quality, ms_samples, TexFlags::NO_SHADER_BIND ) ) );
+				rendergraph.AddRenderTargetResource( "resolve_target", gpu->GetBackbuffer() );
+			}
+			else
+			{
+				rendergraph.AddRenderTargetResource( "target", gpu->GetBackbuffer() );
+			}
 		}
 
-		auto depth = std::unique_ptr<IDepthStencil>( gpu->CreateDepthStencil( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R24G8_TYPELESS ) );
-		gpu->GetContext()->SetDepthStencil( depth.get() );
+		auto depth = std::unique_ptr<IDepthStencil>( gpu->CreateDepthStencil( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R24G8_TYPELESS, 1, ms_quality, ms_samples, TexFlags::NO_SHADER_BIND ) );
 		rendergraph.AddDepthStencilResource( "depth", std::move( depth ) );
 
 		rendergraph.AddTextureResource( "skybox", std::unique_ptr<ITexture>( gpu->CreateTexture( "Assets\\skybox.dds" ) ) );
@@ -648,12 +684,29 @@ namespace Bat
 		rendergraph.BindToResource( "skybox.skyboxtex", "skybox" );
 		if( !post_process_count )
 		{
-			rendergraph.MarkOutput( "skybox.dst" );
+			if( msaa_enabled )
+			{
+				rendergraph.AddPass( "resolve", std::make_unique<MsaaResolvePass>() );
+				rendergraph.BindToResource( "resolve.src", "target" );
+				rendergraph.BindToResource( "resolve.dst", "resolve_target" );
+			}
+			else
+			{
+				rendergraph.MarkOutput( "skybox.dst" );
+			}
 		}
 		else
 		{
 			rendergraph.BindToResource( "skybox.dst", "target" );
 			std::string input_rt = "target";
+
+			if( msaa_enabled )
+			{
+				rendergraph.AddPass( "resolve", std::make_unique<MsaaResolvePass>() );
+				rendergraph.BindToResource( "resolve.src", input_rt );
+				rendergraph.BindToResource( "resolve.dst", "resolve_target" );
+				input_rt = "resolve_target";
+			}
 
 			if( bloom_enabled )
 			{
