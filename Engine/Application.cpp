@@ -415,6 +415,31 @@ namespace Bat
 					changed |= ImGui::Checkbox( "Opaque pass", &opaque_pass );
 					changed |= ImGui::Checkbox( "Transparent pass", &transparent_pass );
 
+					changed |= ImGui::Checkbox( "Skybox", &skybox_enabled );
+					if( skybox_enabled && rendergraph.GetPassByName( "skybox" ) )
+					{
+						auto skybox = static_cast<SkyboxPass*>( rendergraph.GetPassByName( "skybox" ) );
+						bool dynamic_sky = skybox->IsDynamicSkyEnabled();
+
+						if( ImGui::Checkbox( "Dynamic sky", &dynamic_sky ) )
+						{
+							skybox->SetDynamicSkyEnabled( dynamic_sky );
+						}
+
+						if( !dynamic_sky )
+						{
+							if( ImGui::Button( "Load texture" ) )
+							{
+								auto path = FileDialog::Open( "Assets" );
+								if( path )
+								{
+									skybox_tex = path->string();
+									changed = true;
+								}
+							}
+						}
+					}
+
 					changed |= ImGui::Checkbox( "Bloom", &bloom_enabled );
 					if( bloom_enabled )
 					{
@@ -656,7 +681,7 @@ namespace Bat
 		auto depth = std::unique_ptr<IDepthStencil>( gpu->CreateDepthStencil( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R24G8_TYPELESS, 1, ms_quality, ms_samples, TexFlags::NO_SHADER_BIND ) );
 		rendergraph.AddDepthStencilResource( "depth", std::move( depth ) );
 
-		rendergraph.AddTextureResource( "skybox", std::unique_ptr<ITexture>( gpu->CreateTexture( "Assets\\skybox.dds" ) ) );
+		rendergraph.AddTextureResource( "skybox", std::unique_ptr<ITexture>( gpu->CreateTexture( skybox_tex ) ) );
 
 		// add passes
 		rendergraph.AddPass( "crt", std::make_unique<ClearRenderTargetPass>() );
@@ -678,10 +703,12 @@ namespace Bat
 		}
 
 		rendergraph.AddPass( "draw_lights", std::make_unique<DrawLightsPass>() );
-		rendergraph.BindToResource( "draw_lights.dst", "target" );
 
-		rendergraph.AddPass( "skybox", std::make_unique<SkyboxPass>() );
-		rendergraph.BindToResource( "skybox.skyboxtex", "skybox" );
+		if( skybox_enabled )
+		{
+			rendergraph.AddPass( "skybox", std::make_unique<SkyboxPass>() );
+			rendergraph.BindToResource( "skybox.skyboxtex", "skybox" );
+		}
 		if( !post_process_count )
 		{
 			if( msaa_enabled )
@@ -690,14 +717,25 @@ namespace Bat
 				rendergraph.BindToResource( "resolve.src", "target" );
 				rendergraph.BindToResource( "resolve.dst", "resolve_target" );
 			}
-			else
+			else if( skybox_enabled )
 			{
 				rendergraph.MarkOutput( "skybox.dst" );
+			}
+			else
+			{
+				rendergraph.MarkOutput( "draw_lights.dst" );
 			}
 		}
 		else
 		{
-			rendergraph.BindToResource( "skybox.dst", "target" );
+			if( skybox_enabled )
+			{
+				rendergraph.BindToResource( "skybox.dst", "target" );
+			}
+			else
+			{
+				rendergraph.BindToResource( "draw_lights.dst", "target" );
+			}
 			std::string input_rt = "target";
 
 			if( msaa_enabled )

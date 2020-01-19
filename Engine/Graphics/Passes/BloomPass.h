@@ -31,27 +31,6 @@ namespace Bat
 			// initialize render nodes
 			AddRenderNode( "src", NodeType::INPUT, NodeDataType::RENDER_TARGET );     // the initial texture that bloom should be applied to
 			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TARGET );    // the output render texture (can re-use buffer2 if needed)
-
-			// initialize buffers
-			const std::vector<Vec4> positions = {
-				{ -1.0f, -1.0f, 1.0f, 1.0f },
-				{ -1.0f,  1.0f, 1.0f, 1.0f },
-				{  1.0f,  1.0f, 1.0f, 1.0f },
-				{  1.0f, -1.0f, 1.0f, 1.0f }
-			};
-
-			const std::vector<Vec2> uvs = {
-				{ 0.0f, 1.0f },
-				{ 0.0f, 0.0f },
-				{ 1.0f, 0.0f },
-				{ 1.0f, 1.0f }
-			};
-
-			const std::vector<uint32_t> indices = { 0, 1, 2,  2, 3, 0 };
-
-			m_bufPosition.Reset( positions );
-			m_bufUV.Reset( uvs );
-			m_bufIndices.Reset( indices );
 		}
 
 		virtual std::string GetDescription() const override { return "Bloom pass"; }
@@ -60,7 +39,7 @@ namespace Bat
 
 		virtual void Execute( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data )
 		{
-			IVertexShader* pTextureVS = ResourceManager::GetVertexShader( "Graphics/Shaders/TextureVS.hlsl" );
+			IVertexShader* pPostProcessVS = ResourceManager::GetVertexShader( "Graphics/Shaders/PostProcessVS.hlsl" );
 			IPixelShader* pBrightExtractPS = ResourceManager::GetPixelShader( "Graphics/Shaders/BrightExtractPS.hlsl" );
 			IPixelShader* pGaussBlurPS = ResourceManager::GetPixelShader( "Graphics/Shaders/GaussBlurPS.hlsl" );
 			IPixelShader* pBloomShader = ResourceManager::GetPixelShader( "Graphics/Shaders/BloomPS.hlsl" );
@@ -87,27 +66,17 @@ namespace Bat
 
 			pContext->SetPrimitiveTopology( PrimitiveTopology::TRIANGLELIST );
 
-			CB_TexturePipelineMatrix transform;
-			transform.viewproj = DirectX::XMMatrixIdentity();
-			transform.world = DirectX::XMMatrixIdentity();
-			m_cbufTransform.Update( pContext, transform );
-			pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, VS_CBUF_TRANSFORMS );
-
 			CB_ThresholdBuf threshold;
 			threshold.BrightThreshold = m_flThreshold;
 			m_cbufThreshold.Update( pContext, threshold );
 			pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufThreshold, PS_CBUF_SLOT_0 );
 
-			pContext->SetVertexBuffer( m_bufPosition, 0 );
-			pContext->SetVertexBuffer( m_bufUV, 1 );
-			pContext->SetIndexBuffer( m_bufIndices );
-
-			pContext->SetVertexShader( pTextureVS );
+			pContext->SetVertexShader( pPostProcessVS );
 
 			pContext->SetRenderTarget( rt1 );
 			pContext->SetPixelShader( pBrightExtractPS );
 			pContext->BindTexture( src, PS_TEX_SLOT_0 );
-			pContext->DrawIndexed( m_bufIndices->GetIndexCount() );
+			pContext->Draw( 3 );
 
 			CB_BlurSettings blur_settings;
 			pContext->SetPixelShader( pGaussBlurPS );
@@ -135,7 +104,7 @@ namespace Bat
 					pContext->SetRenderTarget( rt1 );
 				}
 
-				pContext->DrawIndexed( m_bufIndices->GetIndexCount() );
+				pContext->Draw( 3 );
 			}
 
 			// Unbind whatever is currently bound, to avoid binding on input/output at same time
@@ -148,7 +117,7 @@ namespace Bat
 			pContext->BindTexture( src, PS_TEX_SLOT_0 );
 			pContext->BindTexture( rt1, PS_TEX_SLOT_1 );
 			pContext->SetRenderTarget( dst );
-			pContext->DrawIndexed( m_bufIndices->GetIndexCount() );
+			pContext->Draw( 3 );
 
 			// Unbind again
 			pContext->UnbindTextureSlot( PS_TEX_SLOT_0 );
@@ -158,12 +127,7 @@ namespace Bat
 		int m_iBlurPasses = 5;
 		float m_flThreshold = 1.0f;
 
-		ConstantBuffer<CB_TexturePipelineMatrix> m_cbufTransform;
 		ConstantBuffer<CB_BlurSettings> m_cbufBlurSettings;
 		ConstantBuffer<CB_ThresholdBuf> m_cbufThreshold;
-
-		VertexBuffer<Vec4> m_bufPosition;
-		VertexBuffer<Vec2> m_bufUV;
-		IndexBuffer m_bufIndices;
 	};
 }

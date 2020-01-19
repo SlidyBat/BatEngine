@@ -19,6 +19,9 @@ namespace Bat
 			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TARGET );
 		}
 
+		bool IsDynamicSkyEnabled() const { return m_bDynamicSky; }
+		void SetDynamicSkyEnabled( bool enabled ) { m_bDynamicSky = enabled; }
+
 		virtual std::string GetDescription() const override
 		{
 			return "Renders skybox. Ideally this should be after all geometry has been rendered so that most of the pixels are occluded";
@@ -33,11 +36,26 @@ namespace Bat
 			IRenderTarget* target = data.GetRenderTarget( "dst" );
 			pContext->SetRenderTarget( target );
 
-			if( ITexture* pSkybox = data.GetTexture( "skyboxtex" ) )
+			if( m_bDynamicSky )
 			{
-				auto pPipeline = ShaderManager::GetPipeline<SkyboxPipeline>();
-				pPipeline->Render( pContext, camera, pSkybox );
+				IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/DynamicSkyVS.hlsl" );
+				IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/DynamicSkyPS.hlsl" );
+
+				pContext->SetVertexShader( pVertexShader );
+				pContext->SetPixelShader( pPixelShader );
+
+				pContext->Draw( 3 );
+			}
+			else
+			{
+				if( ITexture* pSkybox = data.GetTexture( "skyboxtex" ) )
+				{
+					auto pPipeline = ShaderManager::GetPipeline<SkyboxPipeline>();
+					pPipeline->Render( pContext, camera, pSkybox );
+				}
 			}
 		}
+	private:
+		bool m_bDynamicSky = true;
 	};
 }
