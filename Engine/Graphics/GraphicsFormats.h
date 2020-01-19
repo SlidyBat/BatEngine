@@ -291,4 +291,18 @@ namespace Bat
 		StencilOp pass_op;
 		ComparisonFunc func;
 	};
+
+	enum class MsaaQuality
+	{
+		NONE = 0,
+		STANDARD_PATTERN = -1,
+		CENTER_PATTERN = -2
+	};
+
+	enum class TexFlags
+	{
+		NONE = 0,
+		NO_SHADER_BIND = (1 << 0) // This resource won't be bound to a shader
+	};
+	BAT_ENUM_OPERATORS( TexFlags );
 }
