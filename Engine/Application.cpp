@@ -91,7 +91,7 @@ namespace Bat
 		sun = world.CreateEntity();
 		sun.Add<LightComponent>()
 			.SetType( LightType::DIRECTIONAL )
-			.SetEnabled( true )
+			.SetEnabled( false )
 			.AddFlag( LightFlags::EMIT_SHADOWS );
 		sun.Add<TransformComponent>()
 			.SetRotation( 90.0f, 0.0f, 0.0f );
@@ -209,7 +209,7 @@ namespace Bat
 		}
 	}
 
-	static void AddNodeTree( const SceneNode& node )
+	static void AddNodeTree( SceneNode* parent_node, SceneNode& node )
 	{
 		Entity e = node.Get();
 		ImGui::PushID( std::to_string( e.GetId().Raw() ).c_str() );
@@ -229,7 +229,7 @@ namespace Bat
 			size_t num_children = node.GetNumChildren();
 			for( size_t i = 0; i < num_children; i++ )
 			{
-				AddNodeTree( node.GetChild( i ) );
+				AddNodeTree( &node, node.GetChild( i ) );
 			}
 
 			if( e.Has<ModelComponent>() )
@@ -357,6 +357,12 @@ namespace Bat
 				}
 			}
 
+			if( parent_node && ImGui::Button( "Delete" ) )
+			{
+				parent_node->RemoveChild( node.Get() );
+				world.DestroyEntity( e );
+			}
+
 			ImGui::TreePop();
 		}
 
@@ -437,7 +443,7 @@ namespace Bat
 
 				if( ImGui::CollapsingHeader( "Scene Hierarchy" ) )
 				{
-					AddNodeTree( scene );
+					AddNodeTree( nullptr, scene );
 				
 					if( ImGui::Button( "Load model" ) )
 					{

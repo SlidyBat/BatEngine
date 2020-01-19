@@ -117,10 +117,12 @@ namespace Bat
 							Vec3 texel_size = extents / SHADOW_MAP_SIZE;
 							mins = DirectX::XMVectorFloor( mins / texel_size ) * texel_size;
 
-							DirectX::XMMATRIX view = DirectX::XMMatrixLookToLH( cascade_centre, to, up );
-							DirectX::XMMATRIX proj = DirectX::XMMatrixOrthographicOffCenterLH( mins.x, maxs.x, mins.y, maxs.y, maxs.z, mins.z );
+							Vec3 cascade_camera_pos = cascade_centre - to * maxs.z;
+
+							DirectX::XMMATRIX view = DirectX::XMMatrixLookAtLH( cascade_camera_pos, cascade_centre, up );
+							DirectX::XMMATRIX proj = DirectX::XMMatrixOrthographicOffCenterLH( mins.x, maxs.x, mins.y, maxs.y, extents.z, 0.0f );
 							m_matLightViewProj = view * proj;
-							m_LightFrustum = Frustum( m_matLightViewProj );
+							m_bLightCull = false;
 							transforms.shadow[shadow_map_counter++] = m_matLightViewProj;
 
 							pContext->ClearDepthStencil( m_pShadowMaps.get(), CLEAR_FLAG_DEPTH, 0.0f, 0, light.GetShadowIndex() + cascade );
@@ -143,7 +145,18 @@ namespace Bat
 						DirectX::XMMATRIX view = spot_cam.GetViewMatrix();
 						DirectX::XMMATRIX proj = spot_cam.GetProjectionMatrix();
 						m_matLightViewProj = view * proj;
+
+						// View frustum culling
+						Vec3 light_corners[8];
+						Frustum::CalculateCorners( m_matLightViewProj, light_corners );
+						AABB light_aabb( light_corners, 8 );
+						if( !camera.GetFrustum().IsBoxInside( light_aabb.mins, light_aabb.maxs ) )
+						{
+							continue;
+						}
+
 						m_LightFrustum = Frustum( m_matLightViewProj );
+						m_bLightCull = true;
 
 						light.SetShadowIndex( shadow_map_counter++ );
 						transforms.shadow[light.GetShadowIndex()] = m_matLightViewProj;
@@ -208,6 +221,11 @@ namespace Bat
 						continue;
 					}
 
+					if( m_bLightCull && !MeshInLightFrustum( pMesh.get(), w ) )
+					{
+						continue;
+					}
+
 					auto pPipeline = ShaderManager::GetPipeline<ShadowPipeline>();
 					pPipeline->Render( m_pContext, *pMesh, m_matLightViewProj, w );
 				}
@@ -221,10 +239,25 @@ namespace Bat
 			auto model_pose = SkeletonPose::ToModelSpace( std::move( pose ) );
 			SkeletonPose::ToMatrixPalette( model_pose, bones, out );
 		}
+
+		bool MeshInLightFrustum( Mesh* pMesh, DirectX::XMMATRIX transform )
+		{
+			const AABB& aabb = pMesh->GetAABB();
+			AABB world_aabb = aabb.Transform( transform );
+
+			// View frustum culling on mesh level
+			if( !m_LightFrustum.IsBoxInside( world_aabb.mins, world_aabb.maxs ) )
+			{
+				return false;
+			}
+
+			return true;
+		}
 	private:
 		IGPUContext* m_pContext;
 		DirectX::XMMATRIX m_matLightViewProj;
 		Frustum m_LightFrustum;
+		bool m_bLightCull = false;
 		struct CB_Bones
 		{
 			DirectX::XMMATRIX bone_transforms[MAX_BONES];

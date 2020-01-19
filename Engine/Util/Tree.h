@@ -41,6 +41,18 @@ namespace Bat
 		{
 			m_ChildNodes.erase( m_ChildNodes.begin() + idx );
 		}
+		// Removes child node that holds given value
+		void RemoveChild( T value )
+		{
+			for( auto it = m_ChildNodes.begin(); it != m_ChildNodes.end(); ++it )
+			{
+				if( it->Get() == value )
+				{
+					m_ChildNodes.erase( it );
+					return;
+				}
+			}
+		}
 
 		T& Get() { return m_Value; }
 		const T& Get() const { return m_Value; }
