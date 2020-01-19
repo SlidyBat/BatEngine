@@ -81,7 +81,7 @@ namespace Bat
 	{
 		CB_LitGenericPipelineMaterial material_buf;
 		material_buf.material.GlobalAmbient = { 1.0f, 1.0f, 1.0f };
-		material_buf.material.AmbientColor = { 0.005f, 0.005f, 0.005f };
+		material_buf.material.AmbientColor = { 0.01f, 0.01f, 0.01f };
 		material_buf.material.DiffuseColor = material.GetDiffuseColour();
 		material_buf.material.SpecularColor = material.GetSpecularColour();
 		material_buf.material.EmissiveColor = material.GetEmissiveColour();
