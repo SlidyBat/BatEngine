@@ -31,7 +31,7 @@ namespace Bat
 			pContext->SetRenderTarget( target );
 
 			m_pContext = pContext;
-			m_pContext->SetDepthStencilEnabled( true );
+			m_pContext->SetDepthEnabled( true );
 			pContext->SetBlendingEnabled( false );
 
 			TraverseLights();

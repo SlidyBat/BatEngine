@@ -36,7 +36,7 @@ namespace Bat
 
 	static void InitDebugDrawState( IGPUContext* pContext )
 	{
-		pContext->SetDepthStencilEnabled( false );
+		pContext->SetDepthEnabled( false );
 		pContext->SetDepthWriteEnabled( false );
 		pContext->SetCullMode( CullMode::NONE );
 		pContext->SetRenderTarget( gpu->GetBackbuffer() );

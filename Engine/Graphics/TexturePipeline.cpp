@@ -20,7 +20,7 @@ namespace Bat
 
 		pContext->SetVertexShader( pVertexShader );
 		pContext->SetPixelShader( pPixelShader );
-		pContext->BindTexture( pTexture, 0 );
+		pContext->BindTexture( pTexture, PS_TEX_SLOT_0 );
 
 		mesh.Bind( pContext, pVertexShader );
 

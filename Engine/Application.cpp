@@ -26,6 +26,7 @@
 #include "Passes/OpaquePass.h"
 #include "Passes/TransparentPass.h"
 #include "Passes/DrawLightsPass.h"
+#include "Passes/ShadowPass.h"
 #include "DebugDraw.h"
 #include "ScratchRenderTarget.h"
 #include "FileDialog.h"
@@ -39,7 +40,6 @@ namespace Bat
 		camera( wnd.input, 2.0f, 1.0f ),
 		physics_system( world )
 	{
-		world.EnsureEntityCapacity( 1000005 );
 		SceneLoader loader;
 
 		camera.SetAspectRatio( (float)wnd.GetWidth() / wnd.GetHeight() );
@@ -89,9 +89,12 @@ namespace Bat
 		scene.AddChild( flashlight );
 
 		sun = world.CreateEntity();
-		sun.Add<LightComponent>()	
+		sun.Add<LightComponent>()
 			.SetType( LightType::DIRECTIONAL )
-			.SetEnabled( false );
+			.SetEnabled( false )
+			.AddFlag( LightFlags::EMIT_SHADOWS );
+		sun.Add<TransformComponent>()
+			.SetRotation( 90.0f, 0.0f, 0.0f );
 		scene.AddChild( sun );
 
 		gfx.SetActiveScene( &scene );
@@ -186,8 +189,9 @@ namespace Bat
 		}
 
 		camera.Update( deltatime );
-		flashlight.Get<TransformComponent>().SetPosition( camera.GetPosition() );
-		flashlight.Get<LightComponent>().SetDirection( camera.GetLookAtVector() );
+		flashlight.Get<TransformComponent>()
+			.SetPosition( camera.GetPosition() )
+			.SetRotation( camera.GetRotation() );
 		snd->SetListenerPosition( camera.GetPosition(), camera.GetLookAtVector() );
 
 		player.Get<TransformComponent>()
@@ -205,7 +209,7 @@ namespace Bat
 		}
 	}
 
-	static void AddNodeTree( const SceneNode& node )
+	static void AddNodeTree( SceneNode* parent_node, SceneNode& node )
 	{
 		Entity e = node.Get();
 		ImGui::PushID( std::to_string( e.GetId().Raw() ).c_str() );
@@ -225,7 +229,7 @@ namespace Bat
 			size_t num_children = node.GetNumChildren();
 			for( size_t i = 0; i < num_children; i++ )
 			{
-				AddNodeTree( node.GetChild( i ) );
+				AddNodeTree( &node, node.GetChild( i ) );
 			}
 
 			if( e.Has<ModelComponent>() )
@@ -353,6 +357,12 @@ namespace Bat
 				}
 			}
 
+			if( parent_node && ImGui::Button( "Delete" ) )
+			{
+				parent_node->RemoveChild( node.Get() );
+				world.DestroyEntity( e );
+			}
+
 			ImGui::TreePop();
 		}
 
@@ -364,6 +374,9 @@ namespace Bat
 		Vec3 pos = camera.GetPosition();
 		auto posstr = Format( "Pos: %.2f %.2f %.2f", pos.x, pos.y, pos.z );
 		DebugDraw::Text( posstr, { 10, 10 } );
+		Vec3 rot = camera.GetRotation();
+		auto rotstr = Format( "Rot: %.2f %.2f %.2f", rot.x, rot.y, rot.z );
+		DebugDraw::Text( rotstr, { 10, 20 } );
 
 		// Dockspace setup
 		{
@@ -430,7 +443,7 @@ namespace Bat
 
 				if( ImGui::CollapsingHeader( "Scene Hierarchy" ) )
 				{
-					AddNodeTree( scene );
+					AddNodeTree( nullptr, scene );
 				
 					if( ImGui::Button( "Load model" ) )
 					{
@@ -532,6 +545,23 @@ namespace Bat
 		{
 			physics_simulate = !physics_simulate;
 		}
+		else if( e.key == 'E' )
+		{
+			Entity spotlight = world.CreateEntity();
+			spotlight.Add<LightComponent>()
+				.SetType( LightType::SPOT )
+				.SetSpotlightAngle( Math::DegToRad( 45.0f ) )
+				.AddFlag( LightFlags::EMIT_SHADOWS );
+			spotlight.Add<TransformComponent>()
+				.SetPosition( camera.GetPosition() )
+				.SetRotation( camera.GetRotation() );
+			scene.AddChild( spotlight );
+		}
+		else if( e.key == 'Q' )
+		{
+			auto& t = sun.Get<TransformComponent>();
+			t.SetRotation( camera.GetRotation() );
+		}
 	}
 
 	void Application::OnEvent( const MouseButtonPressedEvent& e )
@@ -596,6 +626,8 @@ namespace Bat
 		rendergraph.AddPass( "crt", std::make_unique<ClearRenderTargetPass>() );
 		rendergraph.BindToResource( "crt.buffer", "target" );
 		rendergraph.BindToResource( "crt.depth", "depth" );
+
+		rendergraph.AddPass( "shadows", std::make_unique<ShadowPass>() );
 
 		if( opaque_pass )
 		{

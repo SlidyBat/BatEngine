@@ -31,11 +31,9 @@ namespace Bat
 			const std::vector<Entity>& light_ents,
 			const std::vector<DirectX::XMMATRIX>& light_transforms );
 	private:
-		std::vector<ShaderMacro> BuildMacrosForAnyMesh( const Mesh& mesh ) const;
-		std::vector<ShaderMacro> BuildMacrosForMesh( const Mesh& mesh ) const;
-		std::vector<ShaderMacro> BuildMacrosForInstancedMesh( const Mesh& mesh ) const;
-
-		void BindTransforms( IGPUContext* pContext, const Camera& camera, const DirectX::XMMATRIX& world_transform );
+		void BindTransforms( IGPUContext* pContext,
+			const Camera& camera,
+			const DirectX::XMMATRIX& world_transform );
 		void BindMaterial( IGPUContext* pContext, const Material& material );
 		void BindLights( IGPUContext* pContext, const std::vector<Entity>& light_ents, const std::vector<DirectX::XMMATRIX>& light_transforms );
 		void BindInstances( IGPUContext* pContext, IVertexShader* pVertexShader, const std::vector<LitGenericInstanceData>& instances );

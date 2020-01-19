@@ -42,7 +42,7 @@ namespace Bat
 	struct ShaderLight
 	{
 		Vec3  Position;
-		float _pad0;
+		int ShadowIndex;
 
 		Vec3   Direction;
 		float  SpotlightAngle;

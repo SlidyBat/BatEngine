@@ -14,11 +14,6 @@ namespace Bat
 			ImGui::DragFloat( "Intensity", &m_flIntensity, 0.1f, 0.0f, 1000.0f );
 			ImGui::ColorEdit3( "Colour", &m_colColour.x );
 
-			if( GetType() == LightType::DIRECTIONAL || GetType() == LightType::SPOT )
-			{
-				ImGui::InputFloat3( "Direction", &m_vecDirection.x );
-			}
-
 			if( GetType() == LightType::POINT || GetType() == LightType::SPOT )
 			{
 				ImGui::DragFloat( "Range", &m_flRange, 0.1f, 0.0f, 1000.0f );

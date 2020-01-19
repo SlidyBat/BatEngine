@@ -89,7 +89,7 @@ namespace Bat
 		pContext->SetVertexShader( pVertexShader );
 		pContext->SetPixelShader( pPixelShader );
 		pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, VS_CBUF_TRANSFORMS );
-		pContext->BindTexture( pTexture, 0 );
+		pContext->BindTexture( pTexture, PS_TEX_SLOT_0 );
 
 		pContext->SetPrimitiveTopology( PrimitiveTopology::TRIANGLELIST );
 		pContext->DrawIndexed( m_bufIndices->GetIndexCount() );

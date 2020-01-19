@@ -24,6 +24,9 @@ namespace Bat
 		bool IsPointInside( const Vec3& point ) const;
 		bool IsBoxInside( const Vec3& mins, const Vec3& maxs ) const;
 		bool IsSphereInside( const Vec3& centre, float radius ) const;
+
+		static Frustum Transform( const Frustum& frustum, DirectX::XMMATRIX transform );
+		static void CalculateCorners( DirectX::XMMATRIX transform, Vec3 corners_out[8] );
 	private:
 		// Does a dot product between plane and coord using SIMD magic
 		static float PlaneDotCoord( const Vec4& plane, const Vec3& point );

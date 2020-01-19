@@ -92,6 +92,41 @@ namespace Bat
 		return true;
 	}
 
+	Frustum Frustum::Transform( const Frustum& frustum, DirectX::XMMATRIX transform )
+	{
+		Frustum transformed;
+		for( int i = 0; i < TOTAL_PLANES; i++ )
+		{
+			transformed.planes[i] = DirectX::XMPlaneTransform( frustum.planes[i], transform );
+		}
+
+		return transformed;
+	}
+
+	void Frustum::CalculateCorners( DirectX::XMMATRIX viewproj, Vec3 corners_out[8] )
+	{
+		DirectX::XMMATRIX inv_vp = DirectX::XMMatrixInverse( nullptr, viewproj );
+
+		// Corners in homogeneous clip space
+		DirectX::XMVECTOR corners[8] =
+		{                                                     //                   7--------6
+			DirectX::XMVectorSet(  1.0f, -1.0f, 0.0f, 1.0f ), //                  /|       /|
+			DirectX::XMVectorSet( -1.0f, -1.0f, 0.0f, 1.0f ), //   Y ^           / |      / |
+			DirectX::XMVectorSet(  1.0f,  1.0f, 0.0f, 1.0f ), //   | _          3--------2  |
+			DirectX::XMVectorSet( -1.0f,  1.0f, 0.0f, 1.0f ), //   | /' Z       |  |     |  |
+			DirectX::XMVectorSet(  1.0f, -1.0f, 1.0f, 1.0f ), //   |/           |  5-----|--4
+			DirectX::XMVectorSet( -1.0f, -1.0f, 1.0f, 1.0f ), //   + ---> X     | /      | /
+			DirectX::XMVectorSet(  1.0f,  1.0f, 1.0f, 1.0f ), //                |/       |/
+			DirectX::XMVectorSet( -1.0f,  1.0f, 1.0f, 1.0f ), //                1--------0
+		};
+
+		// Convert to world space
+		for( int i = 0; i < 8; ++i )
+		{
+			corners_out[i] = DirectX::XMVector3TransformCoord( corners[i], inv_vp );
+		}
+	}
+
 	float Frustum::PlaneDotCoord( const Vec4& plane, const Vec3& point )
 	{
 		DirectX::XMVECTOR p = DirectX::XMLoadFloat4( &plane );

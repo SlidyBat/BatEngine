@@ -238,9 +238,9 @@ namespace Bat
 
 	enum class CullMode
 	{
-		NONE,
-		BACK,
-		FRONT
+		NONE = 1,
+		FRONT = 2,
+		BACK = 3
 	};
 
 	struct SamplerDesc
@@ -270,5 +270,25 @@ namespace Bat
 		float min_depth = 0.0f;
 		float max_depth = 0.0f;
 		Vec2 top_left = { 0.0f, 0.0f };
+	};
+
+	enum class StencilOp
+	{
+		KEEP = 1,
+		ZERO = 2,
+		REPLACE = 3,
+		INCR_SAT = 4,
+		DECR_SAT = 5,
+		INVERT = 6,
+		INCR = 7,
+		DECR = 8
+	};
+
+	struct StencilOpDesc
+	{
+		StencilOp fail_op;
+		StencilOp depth_fail_op;
+		StencilOp pass_op;
+		ComparisonFunc func;
 	};
 }

@@ -4,6 +4,12 @@ Texture2D DiffuseTexture : register(T_SLOT_0);
 Texture2D SpecularTexture : register(T_SLOT_1);
 Texture2D EmissiveTexture : register(T_SLOT_2);
 Texture2D NormalTexture : register(T_SLOT_3);
+Texture2DArray ShadowMap : register(T_SLOT_SHADOWMAPS);
+
+cbuffer ShadowMatrices : register(B_SLOT_SHADOWMATRICES)
+{
+	float4x4 ShadowMatrix[MAX_SHADOW_SOURCES];
+}
 
 cbuffer Material : register(B_SLOT_0)
 {
@@ -16,6 +22,7 @@ cbuffer LightParams : register(B_SLOT_1)
 	Light Lights[MAX_LIGHTS];
 }
 
+
 struct PixelInput
 {
 	float4 position : SV_POSITION;
@@ -27,6 +34,54 @@ struct PixelInput
 #endif
 	float2 tex : TEXCOORD;
 };
+
+float Shadow( Light light, float3 pos_ws )
+{
+	if( light.ShadowIndex == INVALID_SHADOW_MAP_INDEX )
+	{
+		return 1.0f;
+	}
+	
+	int shadow_index = light.ShadowIndex;
+	if( light.Type == LIGHT_DIRECTIONAL )
+	{
+		for (int cascade = 0; cascade < NUM_CASCADES; cascade++)
+		{
+			shadow_index = light.ShadowIndex + cascade;
+			
+			float4 proj_coords = mul(float4(pos_ws, 1.0f), ShadowMatrix[shadow_index]);
+			proj_coords.xyz /= proj_coords.w;
+			float3 shadow_uv = proj_coords.xyz * float3(0.5f, -0.5f, 0.5f) + 0.5f;
+			
+			if (IsSaturated(shadow_uv))
+			{
+				break;
+			}
+		}
+	}
+	
+	float4 proj_coords = mul( float4( pos_ws, 1.0f ), ShadowMatrix[shadow_index] );
+	proj_coords.xyz /= proj_coords.w;
+	
+	float bias = 0.0005f;
+	float current_depth = proj_coords.z + bias;
+	
+	float2 shadow_uv = proj_coords.xy * float2( 0.5f, -0.5f ) + float2( 0.5f, 0.5f );
+	
+	int range = 2;
+	float shadow = 0.0f;
+	[unroll]
+	for (int y = -range; y <= range; y++)
+	{
+		for (int x = -range; x <= range; x++)
+		{
+			shadow += ShadowMap.SampleCmpLevelZero(CompareDepthSampler, float3(shadow_uv, shadow_index), current_depth, int2(x, y)).r;
+		}
+	}
+	shadow /= (range * 2 + 1) * (range * 2 + 1);
+
+	return shadow;
+}
 
 float3 DoDiffuse( Light light, Material material, float3 light_dir, float3 n )
 {
@@ -70,7 +125,7 @@ float3 DoSpotLight( Light light, Material material, float3 world_pos, float3 n )
 	float3 diffuse = DoDiffuse( light, material, light_dir, n );
 	float3 specular = DoSpecular( light, material, world_pos, light_dir, n );
 
-	return (diffuse + specular) * attenuation * spot_intensity;
+	return (diffuse + specular) * attenuation * spot_intensity * Shadow( light, world_pos );
 }
 
 float3 DoDirectionalLight( Light light, Material material, float3 world_pos, float3 n )
@@ -80,7 +135,7 @@ float3 DoDirectionalLight( Light light, Material material, float3 world_pos, flo
 	float3 diffuse = DoDiffuse( light, material, light_dir, n );
 	float3 specular = DoSpecular( light, material, world_pos, light_dir, n );
 
-	return (diffuse + specular);
+	return (diffuse + specular) * Shadow( light, world_pos );
 }
 
 float3 DoLight( Light light, Material material, float3 world_pos, float3 normal )

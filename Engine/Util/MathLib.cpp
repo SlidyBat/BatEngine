@@ -77,6 +77,19 @@ namespace Bat
 			return quat;
 		}
 
+		float NormalizeAngle( float ang )
+		{
+			while( ang >= 180.0f )
+			{
+				ang -= 360.0f;
+			}
+			while( ang < -180.0f )
+			{
+				ang += 360.0f;
+			}
+			return ang;
+		}
+
 		__m128 Abs( __m128 m )
 		{
 			__m128 sign = _mm_castsi128_ps( _mm_set1_epi32( 0x80000000 ) );

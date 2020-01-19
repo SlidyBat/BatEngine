@@ -22,7 +22,7 @@ namespace Bat
 		const std::vector<Entity>& light_ents,
 		const std::vector<DirectX::XMMATRIX>& light_transforms )
 	{
-		auto macros = BuildMacrosForMesh( mesh );
+		auto macros = ShaderManager::BuildMacrosForMesh( mesh );
 
 		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/LitGenericVS.hlsl", macros );
 		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/LitGenericPS.hlsl", macros );
@@ -46,7 +46,7 @@ namespace Bat
 		const std::vector<Entity>& light_ents,
 		const std::vector<DirectX::XMMATRIX>& light_transforms )
 	{
-		auto macros = BuildMacrosForInstancedMesh( mesh );
+		auto macros = ShaderManager::BuildMacrosForInstancedMesh( mesh );
 
 		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/LitGenericVS.hlsl", macros );
 		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/LitGenericPS.hlsl", macros );
@@ -64,43 +64,17 @@ namespace Bat
 		pContext->DrawInstancedIndexed( mesh.GetIndexCount(), instances.size() );
 	}
 
-	std::vector<ShaderMacro> LitGenericPipeline::BuildMacrosForAnyMesh( const Mesh& mesh ) const
+	void LitGenericPipeline::BindTransforms( IGPUContext* pContext,
+		const Camera& camera,
+		const DirectX::XMMATRIX& world_transform )
 	{
-		std::vector<ShaderMacro> macros;
-		if( mesh.HasTangentsAndBitangents() )
 		{
-			macros.emplace_back( "HAS_TANGENT" );
+			CB_LitGenericPipelineMatrix transform;
+			transform.world = world_transform;
+			transform.viewproj = camera.GetViewMatrix() * camera.GetProjectionMatrix();
+			m_cbufTransform.Update( pContext, transform );
+			pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, VS_CBUF_TRANSFORMS );
 		}
-
-		return macros;
-	}
-
-	std::vector<ShaderMacro> LitGenericPipeline::BuildMacrosForMesh( const Mesh& mesh ) const
-	{
-		std::vector<ShaderMacro> macros = BuildMacrosForAnyMesh( mesh );
-		if( mesh.HasBones() )
-		{
-			macros.emplace_back( "HAS_BONES" );
-		}
-
-		return macros;
-	}
-
-	std::vector<ShaderMacro> LitGenericPipeline::BuildMacrosForInstancedMesh( const Mesh& mesh ) const
-	{
-		std::vector<ShaderMacro> macros = BuildMacrosForAnyMesh( mesh );
-		macros.emplace_back( "INSTANCED" );
-
-		return macros;
-	}
-
-	void LitGenericPipeline::BindTransforms( IGPUContext* pContext, const Camera& camera, const DirectX::XMMATRIX& world_transform )
-	{
-		CB_LitGenericPipelineMatrix transform;
-		transform.world = world_transform;
-		transform.viewproj = camera.GetViewMatrix() * camera.GetProjectionMatrix();
-		m_cbufTransform.Update( pContext, transform );
-		pContext->SetConstantBuffer( ShaderType::VERTEX, m_cbufTransform, VS_CBUF_TRANSFORMS );
 	}
 
 	void LitGenericPipeline::BindMaterial( IGPUContext* pContext, const Material& material )
@@ -142,17 +116,24 @@ namespace Bat
 				break;
 			}
 
-			auto l = light_ents[i].Get<LightComponent>();
+			const auto& l = light_ents[i].Get<LightComponent>();
+			const auto& t = light_ents[i].Get<TransformComponent>();
 
 			if( !l.IsEnabled() )
 			{
 				continue;
 			}
 
+			DirectX::XMMATRIX rot = DirectX::XMMatrixRotationRollPitchYaw(
+				Math::DegToRad( t.GetRotation().x ),
+				Math::DegToRad( t.GetRotation().y ),
+				Math::DegToRad( t.GetRotation().z ) );
+
 			DirectX::XMVECTOR vs, vr, vp;
 			DirectX::XMMatrixDecompose( &vs, &vr, &vp, light_transforms[i] );
 			lights.lights[j].Position = vp;
-			lights.lights[j].Direction = l.GetDirection(); // TODO: this should be influenced by the rotation of the transform
+			lights.lights[j].ShadowIndex = (int)l.GetShadowIndex();
+			lights.lights[j].Direction = DirectX::XMVector3TransformNormal( DirectX::XMVectorSet( 0.0f, 0.0f, 1.0f, 0.0f ), rot );
 			lights.lights[j].SpotlightAngle = l.GetSpotlightAngle();
 			lights.lights[j].Colour = l.GetColour();
 			lights.lights[j].Range = l.GetRange();

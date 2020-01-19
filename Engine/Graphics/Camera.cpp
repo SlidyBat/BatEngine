@@ -16,6 +16,7 @@ namespace Bat
 	{
 		UpdateViewMatrix();
 		UpdateProjectionMatrix();
+		UpdateFrustum();
 	}
 
 	Camera::Camera( float fov, float ar, float screen_near, float screen_far )
@@ -31,6 +32,7 @@ namespace Bat
 
 		const Viewport& vp = gpu->GetContext()->GetViewport();
 		cam.m_matProjMatrix = DirectX::XMMatrixOrthographicOffCenterLH( 0.0f, vp.width, vp.height, 0.0f, Graphics::ScreenNear, Graphics::ScreenFar );
+		cam.UpdateFrustum();
 
 		return cam;
 	}
@@ -109,6 +111,7 @@ namespace Bat
 		m_angRotation.x += dpitch;
 		m_angRotation.y += dyaw;
 		m_angRotation.z += droll;
+		WrapAngle();
 	}
 
 	void Camera::RotateBy( const Vec3& rot )
@@ -116,16 +119,19 @@ namespace Bat
 		m_angRotation.x += rot.x;
 		m_angRotation.y += rot.y;
 		m_angRotation.z += rot.z;
+		WrapAngle();
 	}
 
 	void Camera::SetRotation( const Vec3& rot )
 	{
 		m_angRotation = rot;
+		WrapAngle();
 	}
 
 	void Camera::SetRotation( const float pitch, const float yaw, const float roll )
 	{
 		m_angRotation = { pitch, yaw, roll };
+		WrapAngle();
 	}
 
 	Vec3 Camera::GetRotation() const
@@ -160,6 +166,30 @@ namespace Bat
 		return res;
 	}
 
+	void Camera::CalculateFrustumCorners( Vec3 corners_out[8] )
+	{
+		XMMATRIX inv_vp = DirectX::XMMatrixInverse( nullptr, m_matViewMatrix * m_matProjMatrix );
+
+		// Corners in homogeneous clip space
+		XMVECTOR corners[8] =
+		{                                            //                   7--------6
+			XMVectorSet(  1.0f, -1.0f, 0.0f, 1.0f ), //                  /|       /|
+			XMVectorSet( -1.0f, -1.0f, 0.0f, 1.0f ), //   Y ^           / |      / |
+			XMVectorSet(  1.0f,  1.0f, 0.0f, 1.0f ), //   | _          3--------2  |
+			XMVectorSet( -1.0f,  1.0f, 0.0f, 1.0f ), //   | /' Z       |  |     |  |
+			XMVectorSet(  1.0f, -1.0f, 1.0f, 1.0f ), //   |/           |  5-----|--4
+			XMVectorSet( -1.0f, -1.0f, 1.0f, 1.0f ), //   + ---> X     | /      | /
+			XMVectorSet(  1.0f,  1.0f, 1.0f, 1.0f ), //                |/       |/
+			XMVectorSet( -1.0f,  1.0f, 1.0f, 1.0f ), //                1--------0
+		};
+
+		// Convert to world space
+		for( int i = 0; i < 8; ++i )
+		{
+			corners_out[i] = XMVector3TransformCoord( corners[i], inv_vp );
+		}
+	}
+
 	DirectX::XMMATRIX Camera::GetViewMatrix() const
 	{
 		return m_matViewMatrix;
@@ -179,44 +209,33 @@ namespace Bat
 
 	void Camera::UpdateViewMatrix()
 	{
-		// view matrix calculations
-		static const XMFLOAT3 up = { 0.0f, 1.0f, 0.0f };
-		XMVECTOR upVec = XMLoadFloat3( &up );
-
-		XMVECTOR positionVec = XMLoadFloat3( &m_vecPosition );
-
-		static const XMFLOAT3 defaultLookAt = { 0.0f, 0.0f, 1.0f };
-		XMVECTOR lookAtVec = XMLoadFloat3( &defaultLookAt );
-
 		XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(
 			Math::DegToRad( m_angRotation.x ),
 			Math::DegToRad( m_angRotation.y ),
 			Math::DegToRad( m_angRotation.z ) );
 
-		lookAtVec = XMVector3TransformCoord( lookAtVec, rotationMatrix );
-		upVec = XMVector3TransformCoord( upVec, rotationMatrix );
+		XMVECTOR lookat = XMVector3TransformNormal( XMVectorSet( 0.0f, 0.0f, 1.0f, 0.0f ), rotationMatrix );
+		XMVECTOR up = XMVector3TransformNormal( XMVectorSet( 0.0f, 1.0f, 0.0f, 0.0f ), rotationMatrix );
 
-		lookAtVec += positionVec;
-
-		m_matViewMatrix = XMMatrixLookAtLH( positionVec, lookAtVec, upVec );
-
-		static const XMFLOAT4 forward_vector = { 0.0f, 0.0f, 1.0f, 0.0f };
-		static const XMFLOAT4 right_vector = { 1.0f, 0.0f, 0.0f, 0.0f };
-		static const XMFLOAT4 up_vector = { 0.0f, 1.0f, 0.0f, 0.0f };
+		m_matViewMatrix = XMMatrixLookToLH( m_vecPosition, lookat, up );
 
 		// direction vector calculations
 		XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw( 0.0f, Math::DegToRad( m_angRotation.y ), 0.0f );
-		auto forward = XMVector3TransformCoord( XMLoadFloat4( &forward_vector ), vecRotationMatrix );
-		auto right = XMVector3TransformCoord( XMLoadFloat4( &right_vector ), vecRotationMatrix );
-
-		XMStoreFloat3( &m_vecForward, forward );
-		XMStoreFloat3( &m_vecRight, right );
+		m_vecForward = XMVector3TransformCoord( XMVectorSet( 0.0f, 0.0f, 1.0f, 0.0f ), vecRotationMatrix );
+		m_vecRight = XMVector3TransformCoord( XMVectorSet( 1.0f, 0.0f, 0.0f, 0.0f ), vecRotationMatrix );
 	}
 
 	void Camera::UpdateFrustum()
 	{
 		auto transform = m_matViewMatrix * m_matProjMatrix;
 		m_Frustum = Frustum( transform );
+	}
+
+	void Camera::WrapAngle()
+	{
+		m_angRotation.x = Math::NormalizeAngle( m_angRotation.x );
+		m_angRotation.y = Math::NormalizeAngle( m_angRotation.y );
+		m_angRotation.z = Math::NormalizeAngle( m_angRotation.z );
 	}
 
 	void Camera::UpdateProjectionMatrix()

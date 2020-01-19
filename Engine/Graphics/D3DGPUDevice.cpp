@@ -25,9 +25,73 @@
 #include "WICTextureLoader.h"
 #include "DDSTextureLoader.h"
 
+#include "Hash.h"
+
 #pragma comment( lib, "d3d11.lib" )
 #pragma comment( lib, "dxgi.lib" )
 #pragma comment( lib, "d3dcompiler.lib" )
+
+MAKE_HASHABLE( D3D11_DEPTH_STENCILOP_DESC, t,
+	t.StencilFailOp,
+	t.StencilDepthFailOp,
+	t.StencilPassOp,
+	t.StencilFunc );
+
+inline bool operator==( const D3D11_DEPTH_STENCILOP_DESC& a, const D3D11_DEPTH_STENCILOP_DESC& b )
+{
+	return a.StencilFailOp == b.StencilFailOp &&
+		a.StencilDepthFailOp == b.StencilDepthFailOp &&
+		a.StencilPassOp == b.StencilPassOp &&
+		a.StencilFunc == b.StencilFunc;
+}
+
+MAKE_HASHABLE( D3D11_DEPTH_STENCIL_DESC, t,
+	t.DepthEnable,
+	t.DepthWriteMask,
+	t.DepthFunc,
+	t.StencilEnable,
+	t.StencilReadMask,
+	t.StencilWriteMask,
+	t.FrontFace,
+	t.BackFace );
+
+inline bool operator==( const D3D11_DEPTH_STENCIL_DESC& a, const D3D11_DEPTH_STENCIL_DESC& b )
+{
+	return a.DepthEnable == b.DepthEnable &&
+		a.DepthWriteMask == b.DepthWriteMask &&
+		a.DepthFunc == b.DepthFunc &&
+		a.StencilEnable == b.StencilEnable &&
+		a.StencilReadMask == b.StencilReadMask &&
+		a.StencilWriteMask == b.StencilWriteMask &&
+		a.FrontFace == b.FrontFace &&
+		a.BackFace == b.BackFace;
+}
+
+MAKE_HASHABLE( D3D11_RASTERIZER_DESC, t,
+	t.FillMode,
+	t.CullMode,
+	t.FrontCounterClockwise,
+	t.DepthBias,
+	t.DepthBiasClamp,
+	t.SlopeScaledDepthBias,
+	t.DepthClipEnable,
+	t.ScissorEnable,
+	t.MultisampleEnable,
+	t.AntialiasedLineEnable );
+
+inline bool operator==( const D3D11_RASTERIZER_DESC& a, const D3D11_RASTERIZER_DESC& b )
+{
+	return a.FillMode == b.FillMode &&
+		a.CullMode == b.CullMode &&
+		a.FrontCounterClockwise == b.FrontCounterClockwise &&
+		a.DepthBias == b.DepthBias &&
+		a.DepthBiasClamp == b.DepthBiasClamp &&
+		a.SlopeScaledDepthBias == b.SlopeScaledDepthBias &&
+		a.DepthClipEnable == b.DepthClipEnable &&
+		a.ScissorEnable == b.ScissorEnable &&
+		a.MultisampleEnable == b.MultisampleEnable &&
+		a.AntialiasedLineEnable == b.AntialiasedLineEnable;
+}
 
 #ifdef _DEBUG
 #define DXGI_CALL( dev, fn ) do { \
@@ -225,15 +289,29 @@ namespace Bat
 		// Pops top viewport from stack.
 		virtual void PopViewport() override;
 
-		virtual void SetDepthStencil( IDepthStencil* pDepthStencil ) override;
+		virtual void SetDepthStencil( IDepthStencil* pDepthStencil, size_t index = 0 ) override;
 		virtual IDepthStencil* GetDepthStencil() const override;
-		virtual bool IsDepthStencilEnabled() const override;
-		virtual void SetDepthStencilEnabled( bool enabled ) override;
+		virtual bool IsDepthEnabled() const override;
+		virtual void SetDepthEnabled( bool enabled ) override;
 		virtual bool IsDepthWriteEnabled() const override;
 		virtual void SetDepthWriteEnabled( bool enabled ) override;
+		virtual ComparisonFunc GetDepthComparisonFunc() const;
+		virtual void SetDepthComparisonFunc( ComparisonFunc func );
+		virtual bool IsStencilEnabled() const;
+		virtual void SetStencilEnabled( bool enabled );
+		virtual uint8_t GetStencilReadMask() const;
+		virtual void SetStencilReadMask( uint8_t mask );
+		virtual uint8_t GetStencilWriteMask() const;
+		virtual void SetStencilWriteMask( uint8_t mask );
+		virtual StencilOpDesc GetStencilFrontFaceOp() const;
+		virtual void SetStencilFrontFaceOp( const StencilOpDesc& desc );
+		virtual StencilOpDesc GetStencilBackFaceOp() const;
+		virtual void SetStencilBackFaceOp( const StencilOpDesc& desc );
 
 		virtual CullMode GetCullMode() const override;
 		virtual void SetCullMode( CullMode mode ) override;
+		virtual bool GetDepthClipEnabled() const override;
+		virtual void SetDepthClipEnabled( bool enabled ) override;
 
 		virtual bool IsBlendingEnabled() const override;
 		virtual void SetBlendingEnabled( bool enabled ) override;
@@ -256,7 +334,7 @@ namespace Bat
 		virtual void PopRenderTargetAndViewport() override;
 
 		virtual void ClearRenderTarget( IRenderTarget* pRT, float r, float g, float b, float a ) override;
-		virtual void ClearDepthStencil( IDepthStencil* pDepthStencil, int clearflag, float depth, uint8_t stencil ) override;
+		virtual void ClearDepthStencil( IDepthStencil* pDepthStencil, int clearflag, float depth, uint8_t stencil, size_t index = 0 ) override;
 
 		virtual void UpdateTexturePixels( ITexture* pTexture, const void* pPixels, size_t pitch ) override;
 		virtual void BindTexture( ITexture* pTexture, size_t slot ) override;
@@ -301,7 +379,8 @@ namespace Bat
 	private:
 		void BindViewports();
 		void BindRenderTarget();
-		void BindDepthState();
+		void BindDepthStencilState();
+		void BindRasterizerState();
 	private:
 		D3DGPUDevice* m_pDevice = nullptr;
 
@@ -310,12 +389,12 @@ namespace Bat
 		std::vector<std::vector<IRenderTarget*>> m_RenderTargetStack;
 		std::vector<std::vector<Viewport>> m_ViewportStack;
 		class D3DDepthStencil* m_pDepthStencil = nullptr;
+		size_t m_iDepthStencilIndex = 0;
 		D3DPixelShader* m_pPixelShader = nullptr;
 		D3DVertexShader* m_pVertexShader = nullptr;
 
-		CullMode m_CullMode;
-		bool m_bDepthStencilEnabled = false;
-		bool m_bDepthWriteEnabled = false;
+		D3D11_DEPTH_STENCIL_DESC m_CurrentDepthStencilState = {};
+		D3D11_RASTERIZER_DESC m_CurrentRasterizerState = {};
 		bool m_bBlendingEnabled = false;
 	};
 
@@ -342,7 +421,7 @@ namespace Bat
 			TexFormat format,
 			GPUResourceUsage usage = USAGE_DEFAULT ) override;
 
-		virtual IDepthStencil* CreateDepthStencil( size_t width, size_t height, TexFormat format ) override;
+		virtual IDepthStencil* CreateDepthStencil( size_t width, size_t height, TexFormat format, size_t array_size = 1 ) override;
 
 		virtual IRenderTarget* CreateRenderTarget( size_t width, size_t height, TexFormat format ) override;
 		virtual IRenderTarget* GetBackbuffer() override;
@@ -357,13 +436,12 @@ namespace Bat
 		virtual IGPUContext* GetContext() override { return &m_GPUContext; };
 
 		virtual void* GetImpl() override { return m_pDevice.Get(); }
+
+		ID3D11DepthStencilState* GetDepthStencilState( const D3D11_DEPTH_STENCIL_DESC& state );
+		ID3D11DepthStencilState* AddDepthStencilState( const D3D11_DEPTH_STENCIL_DESC& state );
+		ID3D11RasterizerState* GetRasterizerState( const D3D11_RASTERIZER_DESC& state );
+		ID3D11RasterizerState* AddRasterizerState( const D3D11_RASTERIZER_DESC& state );
 	public:
-		ID3D11DepthStencilState* GetDepthStencilEnabledState() { return m_pDepthStencilEnabledState.Get(); }
-		ID3D11DepthStencilState* GetDepthStencilEnabledNoWriteState() { return m_pDepthStencilEnabledNoWriteState.Get(); }
-		ID3D11DepthStencilState* GetDepthStencilDisabledState() { return m_pDepthStencilDisabledState.Get(); }
-		ID3D11RasterizerState*   GetRasterizerCullBackState() { return m_pRasterStateCullBack.Get(); }
-		ID3D11RasterizerState*   GetRasterizerCullFrontState() { return m_pRasterStateCullFront.Get(); }
-		ID3D11RasterizerState*   GetRasterizerCullNoneState() { return m_pRasterStateCullNone.Get(); }
 		ID3D11BlendState*        GetBlendEnabledState() { return m_pBlendEnabledState.Get(); }
 		ID3D11BlendState*        GetBlendDisabledState() { return m_pBlendDisabledState.Get(); }
 
@@ -382,15 +460,12 @@ namespace Bat
 #endif
 
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView>   m_pRenderTargetView;
-		Microsoft::WRL::ComPtr<ID3D11RasterizerState>    m_pRasterStateCullBack;
-		Microsoft::WRL::ComPtr<ID3D11RasterizerState>    m_pRasterStateCullFront;
-		Microsoft::WRL::ComPtr<ID3D11RasterizerState>    m_pRasterStateCullNone;
 
-		Microsoft::WRL::ComPtr<ID3D11DepthStencilState>  m_pDepthStencilEnabledState;
-		Microsoft::WRL::ComPtr<ID3D11DepthStencilState>  m_pDepthStencilEnabledNoWriteState;
-		Microsoft::WRL::ComPtr<ID3D11DepthStencilState>  m_pDepthStencilDisabledState;
 		Microsoft::WRL::ComPtr<ID3D11BlendState>         m_pBlendEnabledState;
 		Microsoft::WRL::ComPtr<ID3D11BlendState>         m_pBlendDisabledState;
+
+		std::unordered_map<D3D11_DEPTH_STENCIL_DESC, Microsoft::WRL::ComPtr<ID3D11DepthStencilState>>  m_pDepthStencilStates;
+		std::unordered_map<D3D11_RASTERIZER_DESC, Microsoft::WRL::ComPtr<ID3D11RasterizerState>>  m_pRasterizerStates;
 
 		D3DGPUContext m_GPUContext;
 		D3DRenderTarget m_Backbuffer;
@@ -482,24 +557,26 @@ namespace Bat
 	class D3DDepthStencil : public IDepthStencil
 	{
 	public:
-		D3DDepthStencil( ID3D11Device* pDevice, size_t width, size_t height, TexFormat format );
+		D3DDepthStencil( ID3D11Device* pDevice, size_t width, size_t height, TexFormat format, size_t array_size );
 
 		virtual size_t GetWidth() const override { return m_iWidth; }
 		virtual size_t GetHeight() const override { return m_iHeight; }
 		virtual TexFormat GetFormat() const override { return m_Format; }
+		virtual size_t GetArraySize() const override { return m_iArraySize; }
 
-		ID3D11DepthStencilView* GetDepthStencilView() { return m_pDepthStencilView.Get(); }
-		const ID3D11DepthStencilView* GetDepthStencilView() const { return m_pDepthStencilView.Get(); }
+		ID3D11DepthStencilView* GetDepthStencilView( size_t index ) { return m_pDepthStencilView[index].Get(); }
+		const ID3D11DepthStencilView* GetDepthStencilView( size_t index ) const { return m_pDepthStencilView[index].Get(); }
 		ID3D11ShaderResourceView* GetShaderResourceView() { return m_pDepthShaderResourceView.Get(); }
 		const ID3D11ShaderResourceView* GetShaderResourceView() const { return m_pDepthShaderResourceView.Get(); }
 	private:
-		Microsoft::WRL::ComPtr<ID3D11Texture2D>          m_pDepthStencilBuffer;
-		Microsoft::WRL::ComPtr<ID3D11DepthStencilView>   m_pDepthStencilView;
-		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_pDepthShaderResourceView;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D>                     m_pDepthStencilBuffer;
+		std::vector<Microsoft::WRL::ComPtr<ID3D11DepthStencilView>> m_pDepthStencilView;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>            m_pDepthShaderResourceView;
 
 		TexFormat m_Format;
 		size_t m_iWidth;
 		size_t m_iHeight;
+		size_t m_iArraySize;
 	};
 
 	class D3DSampler : public ISampler
@@ -520,6 +597,32 @@ namespace Bat
 	void D3DGPUContext::Init()
 	{
 		m_ViewportStack.emplace_back();
+
+		m_CurrentDepthStencilState.DepthEnable = TRUE;
+		m_CurrentDepthStencilState.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
+		m_CurrentDepthStencilState.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
+		m_CurrentDepthStencilState.StencilEnable = FALSE;
+		m_CurrentDepthStencilState.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
+		m_CurrentDepthStencilState.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
+		m_CurrentDepthStencilState.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+		m_CurrentDepthStencilState.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+		m_CurrentDepthStencilState.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		m_CurrentDepthStencilState.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		m_CurrentDepthStencilState.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+		m_CurrentDepthStencilState.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+		m_CurrentDepthStencilState.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		m_CurrentDepthStencilState.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+
+		m_CurrentRasterizerState.AntialiasedLineEnable = false;
+		m_CurrentRasterizerState.CullMode = D3D11_CULL_BACK;
+		m_CurrentRasterizerState.DepthBias = 0;
+		m_CurrentRasterizerState.DepthBiasClamp = 0.0f;
+		m_CurrentRasterizerState.DepthClipEnable = true;
+		m_CurrentRasterizerState.FillMode = D3D11_FILL_SOLID;
+		m_CurrentRasterizerState.FrontCounterClockwise = false;
+		m_CurrentRasterizerState.MultisampleEnable = false;
+		m_CurrentRasterizerState.ScissorEnable = false;
+		m_CurrentRasterizerState.SlopeScaledDepthBias = 0.0f;
 
 		m_pDeviceContext.As( &m_pAnnotation );
 	}
@@ -646,9 +749,10 @@ namespace Bat
 		BindViewports();
 	}
 
-	void D3DGPUContext::SetDepthStencil( IDepthStencil* pDepthStencil )
+	void D3DGPUContext::SetDepthStencil( IDepthStencil* pDepthStencil, size_t index )
 	{
 		m_pDepthStencil = static_cast<D3DDepthStencil*>( pDepthStencil );
+		m_iDepthStencilIndex = index;
 		BindRenderTarget();
 	}
 
@@ -657,52 +761,132 @@ namespace Bat
 		return m_pDepthStencil;
 	}
 
-	bool D3DGPUContext::IsDepthStencilEnabled() const
+	bool D3DGPUContext::IsDepthEnabled() const
 	{
-		return m_bDepthStencilEnabled;
+		return m_CurrentDepthStencilState.DepthEnable;
 	}
 
-	void D3DGPUContext::SetDepthStencilEnabled( bool enabled )
+	void D3DGPUContext::SetDepthEnabled( bool enabled )
 	{
-		m_bDepthStencilEnabled = enabled;
-		BindDepthState();
+		m_CurrentDepthStencilState.DepthEnable = enabled;
+		BindDepthStencilState();
 	}
 
 	bool D3DGPUContext::IsDepthWriteEnabled() const
 	{
-		return m_bDepthWriteEnabled;
+		return m_CurrentDepthStencilState.DepthWriteMask != D3D11_DEPTH_WRITE_MASK_ZERO;
 	}
 
 	void D3DGPUContext::SetDepthWriteEnabled( bool enabled )
 	{
-		m_bDepthWriteEnabled = enabled;
-		BindDepthState();
+		m_CurrentDepthStencilState.DepthWriteMask = enabled ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
+		BindDepthStencilState();
+	}
+
+	ComparisonFunc D3DGPUContext::GetDepthComparisonFunc() const
+	{
+		return (ComparisonFunc)m_CurrentDepthStencilState.DepthFunc;
+	}
+
+	void D3DGPUContext::SetDepthComparisonFunc( ComparisonFunc func )
+	{
+		m_CurrentDepthStencilState.DepthFunc = (D3D11_COMPARISON_FUNC)func;
+		BindDepthStencilState();
+	}
+
+	bool D3DGPUContext::IsStencilEnabled() const
+	{
+		return m_CurrentDepthStencilState.StencilEnable;
+	}
+
+	void D3DGPUContext::SetStencilEnabled( bool enabled )
+	{
+		m_CurrentDepthStencilState.StencilEnable = enabled;
+		BindDepthStencilState();
+	}
+
+	uint8_t D3DGPUContext::GetStencilReadMask() const
+	{
+		return (uint8_t)m_CurrentDepthStencilState.StencilReadMask;
+	}
+
+	void D3DGPUContext::SetStencilReadMask( uint8_t mask )
+	{
+		m_CurrentDepthStencilState.StencilReadMask = (UINT8)mask;
+		BindDepthStencilState();
+	}
+
+	uint8_t D3DGPUContext::GetStencilWriteMask() const
+	{
+		return (uint8_t)m_CurrentDepthStencilState.StencilWriteMask;
+	}
+
+	void D3DGPUContext::SetStencilWriteMask( uint8_t mask )
+	{
+		m_CurrentDepthStencilState.StencilWriteMask = (UINT8)mask;
+		BindDepthStencilState();
+	}
+
+	StencilOpDesc D3DGPUContext::GetStencilFrontFaceOp() const
+	{
+		StencilOpDesc desc;
+		desc.fail_op = (StencilOp)m_CurrentDepthStencilState.FrontFace.StencilFailOp;
+		desc.depth_fail_op = (StencilOp)m_CurrentDepthStencilState.FrontFace.StencilDepthFailOp;
+		desc.pass_op = (StencilOp)m_CurrentDepthStencilState.FrontFace.StencilPassOp;
+		desc.func = (ComparisonFunc)m_CurrentDepthStencilState.FrontFace.StencilFunc;
+
+		return desc;
+	}
+
+	void D3DGPUContext::SetStencilFrontFaceOp( const StencilOpDesc& desc )
+	{
+		m_CurrentDepthStencilState.FrontFace.StencilFailOp = (D3D11_STENCIL_OP)desc.fail_op;
+		m_CurrentDepthStencilState.FrontFace.StencilDepthFailOp = (D3D11_STENCIL_OP)desc.depth_fail_op;
+		m_CurrentDepthStencilState.FrontFace.StencilPassOp = (D3D11_STENCIL_OP)desc.pass_op;
+		m_CurrentDepthStencilState.FrontFace.StencilFunc = (D3D11_COMPARISON_FUNC)desc.func;
+		BindDepthStencilState();
+	}
+
+	StencilOpDesc D3DGPUContext::GetStencilBackFaceOp() const
+	{
+		StencilOpDesc desc;
+		desc.fail_op = (StencilOp)m_CurrentDepthStencilState.BackFace.StencilFailOp;
+		desc.depth_fail_op = (StencilOp)m_CurrentDepthStencilState.BackFace.StencilDepthFailOp;
+		desc.pass_op = (StencilOp)m_CurrentDepthStencilState.BackFace.StencilPassOp;
+		desc.func = (ComparisonFunc)m_CurrentDepthStencilState.BackFace.StencilFunc;
+
+		return desc;
+	}
+
+	void D3DGPUContext::SetStencilBackFaceOp( const StencilOpDesc& desc )
+	{
+		m_CurrentDepthStencilState.BackFace.StencilFailOp = (D3D11_STENCIL_OP)desc.fail_op;
+		m_CurrentDepthStencilState.BackFace.StencilDepthFailOp = (D3D11_STENCIL_OP)desc.depth_fail_op;
+		m_CurrentDepthStencilState.BackFace.StencilPassOp = (D3D11_STENCIL_OP)desc.pass_op;
+		m_CurrentDepthStencilState.BackFace.StencilFunc = (D3D11_COMPARISON_FUNC)desc.func;
+		BindDepthStencilState();
 	}
 
 	CullMode D3DGPUContext::GetCullMode() const
 	{
-		return m_CullMode;
+		return (CullMode)m_CurrentRasterizerState.CullMode;
 	}
 
 	void D3DGPUContext::SetCullMode( CullMode mode )
 	{
-		m_CullMode = mode;
+		m_CurrentRasterizerState.CullMode = (D3D11_CULL_MODE)mode;
+		BindRasterizerState();
+	}
 
-		switch( mode )
-		{
-		case CullMode::NONE:
-			DXGI_CONTEXT_CALL( m_pDeviceContext->RSSetState( m_pDevice->GetRasterizerCullNoneState() ) );
-			break;
-		case CullMode::BACK:
-			DXGI_CONTEXT_CALL( m_pDeviceContext->RSSetState( m_pDevice->GetRasterizerCullBackState() ) );
-			break;
-		case CullMode::FRONT:
-			DXGI_CONTEXT_CALL( m_pDeviceContext->RSSetState( m_pDevice->GetRasterizerCullFrontState() ) );
-			break;
-		default:
-			ASSERT( false, "Unhandled cull mode" );
-			break;
-		}
+	bool D3DGPUContext::GetDepthClipEnabled() const
+	{
+		return m_CurrentRasterizerState.DepthClipEnable;
+	}
+
+	void D3DGPUContext::SetDepthClipEnabled( bool enabled )
+	{
+		m_CurrentRasterizerState.DepthClipEnable = enabled;
+		BindRasterizerState();
 	}
 
 	bool D3DGPUContext::IsBlendingEnabled() const
@@ -844,9 +1028,9 @@ namespace Bat
 		PopViewport();
 	}
 
-	void D3DGPUContext::ClearDepthStencil( IDepthStencil* pDepthStencil, int clearflag, float depth, uint8_t stencil )
+	void D3DGPUContext::ClearDepthStencil( IDepthStencil* pDepthStencil, int clearflag, float depth, uint8_t stencil, size_t index )
 	{
-		ID3D11DepthStencilView* pView = static_cast<D3DDepthStencil*>( pDepthStencil )->GetDepthStencilView();
+		ID3D11DepthStencilView* pView = static_cast<D3DDepthStencil*>( pDepthStencil )->GetDepthStencilView( index );
 
 		DXGI_CONTEXT_CALL( m_pDeviceContext->ClearDepthStencilView( pView, (UINT)clearflag, (FLOAT)depth, (UINT8)stencil ) );
 	}
@@ -1113,7 +1297,7 @@ namespace Bat
 	{
 		size_t count = m_RenderTargetStack.empty() ? 0 : m_RenderTargetStack.back().size();
 
-		ID3D11DepthStencilView* pDSV = m_pDepthStencil ? m_pDepthStencil->GetDepthStencilView() : nullptr;
+		ID3D11DepthStencilView* pDSV = m_pDepthStencil ? m_pDepthStencil->GetDepthStencilView( m_iDepthStencilIndex ) : nullptr;
 
 		if( count )
 		{
@@ -1141,23 +1325,24 @@ namespace Bat
 		}
 	}
 
-	void D3DGPUContext::BindDepthState()
+	void D3DGPUContext::BindDepthStencilState()
 	{
-		if( m_bDepthStencilEnabled )
+		auto state = m_pDevice->GetDepthStencilState( m_CurrentDepthStencilState );
+		if( !state )
 		{
-			if( m_bDepthWriteEnabled )
-			{
-				DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetDepthStencilState( m_pDevice->GetDepthStencilEnabledState(), 0 ) );
-			}
-			else
-			{
-				DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetDepthStencilState( m_pDevice->GetDepthStencilEnabledNoWriteState(), 0 ) );
-			}
+			state = m_pDevice->AddDepthStencilState( m_CurrentDepthStencilState );
 		}
-		else
+		DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetDepthStencilState( state, 0 ) );
+	}
+
+	void D3DGPUContext::BindRasterizerState()
+	{
+		auto state = m_pDevice->GetRasterizerState( m_CurrentRasterizerState );
+		if( !state )
 		{
-			DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetDepthStencilState( m_pDevice->GetDepthStencilDisabledState(), 0 ) );
+			state = m_pDevice->AddRasterizerState( m_CurrentRasterizerState );
 		}
+		DXGI_CONTEXT_CALL( m_pDeviceContext->RSSetState( state ) );
 	}
 
 	D3DGPUDevice::D3DGPUDevice( Window& wnd, bool vsync_enabled, float screen_depth, float screen_near )
@@ -1288,50 +1473,6 @@ namespace Bat
 			m_Backbuffer.Reset( m_pRenderTargetView.Get(), wnd.GetWidth(), wnd.GetHeight() );
 		}
 
-		// set up raster description
-		{
-			D3D11_RASTERIZER_DESC rasterDesc;
-			rasterDesc.AntialiasedLineEnable = false;
-			rasterDesc.CullMode = D3D11_CULL_BACK;
-			rasterDesc.DepthBias = 0;
-			rasterDesc.DepthBiasClamp = 0.0f;
-			rasterDesc.DepthClipEnable = true;
-			rasterDesc.FillMode = D3D11_FILL_SOLID;
-			rasterDesc.FrontCounterClockwise = false;
-			rasterDesc.MultisampleEnable = false;
-			rasterDesc.ScissorEnable = false;
-			rasterDesc.SlopeScaledDepthBias = 0.0f;
-
-			COM_THROW_IF_FAILED( m_pDevice->CreateRasterizerState( &rasterDesc, &m_pRasterStateCullBack ) );
-
-			rasterDesc.CullMode = D3D11_CULL_FRONT;
-
-			COM_THROW_IF_FAILED( m_pDevice->CreateRasterizerState( &rasterDesc, &m_pRasterStateCullFront ) );
-
-			rasterDesc.CullMode = D3D11_CULL_NONE;
-
-			COM_THROW_IF_FAILED( m_pDevice->CreateRasterizerState( &rasterDesc, &m_pRasterStateCullNone ) );
-		}
-
-		// Create depth stencil state enabled/disabled states
-		{
-			D3D11_DEPTH_STENCIL_DESC depthstencildesc{};
-
-			depthstencildesc.DepthEnable = true;
-			depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
-			depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
-
-			COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilEnabledState ) );
-
-			depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ZERO;
-
-			COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilEnabledNoWriteState ) );
-
-			depthstencildesc.DepthEnable = false;
-
-			COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilState( &depthstencildesc, &m_pDepthStencilDisabledState ) );
-		}
-
 		// Create blending enabled/disabled states
 		{
 			D3D11_BLEND_DESC blend_desc;
@@ -1388,6 +1529,7 @@ namespace Bat
 #define CREATE_N_DESTROY_MSG( type ) D3D11_MESSAGE_ID_CREATE_##type, D3D11_MESSAGE_ID_DESTROY_##type
 				std::vector<DXGI_INFO_QUEUE_MESSAGE_ID> message_filter_list = {
 					D3D11_MESSAGE_ID_DEVICE_DRAW_SHADERRESOURCEVIEW_NOT_SET,
+					//D3D11_MESSAGE_ID_DEVICE_DRAW_RENDERTARGETVIEW_NOT_SET,
 					CREATE_N_DESTROY_MSG( AUTHENTICATEDCHANNEL ),
 					CREATE_N_DESTROY_MSG( BLENDSTATE ),
 					CREATE_N_DESTROY_MSG( BUFFER ),
@@ -1488,9 +1630,9 @@ namespace Bat
 		return new D3DTexture( m_pDevice.Get(), pPixels, pitch, width, height, format, usage );
 	}
 
-	IDepthStencil* D3DGPUDevice::CreateDepthStencil( size_t width, size_t height, TexFormat format )
+	IDepthStencil* D3DGPUDevice::CreateDepthStencil( size_t width, size_t height, TexFormat format, size_t array_size )
 	{
-		return new D3DDepthStencil( m_pDevice.Get(), width, height, format );
+		return new D3DDepthStencil( m_pDevice.Get(), width, height, format, array_size );
 	}
 
 	IRenderTarget* D3DGPUDevice::CreateRenderTarget( size_t width, size_t height, TexFormat format )
@@ -1595,6 +1737,42 @@ namespace Bat
 		COM_THROW_IF_FAILED( m_pDevice->CreateRenderTargetView( pBackBuffer.Get(), NULL, &m_pRenderTargetView ) );
 
 		m_Backbuffer.Reset( m_pRenderTargetView.Get(), width, height );
+	}
+
+	ID3D11DepthStencilState* D3DGPUDevice::GetDepthStencilState( const D3D11_DEPTH_STENCIL_DESC& state )
+	{
+		auto it = m_pDepthStencilStates.find( state );
+		if( it == m_pDepthStencilStates.end() )
+		{
+			return nullptr;
+		}
+
+		return it->second.Get();
+	}
+
+	ID3D11DepthStencilState* D3DGPUDevice::AddDepthStencilState( const D3D11_DEPTH_STENCIL_DESC& state )
+	{
+		auto& depth_stencil_state = m_pDepthStencilStates[state];
+		COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilState( &state, &depth_stencil_state ) );
+		return depth_stencil_state.Get();
+	}
+
+	ID3D11RasterizerState* D3DGPUDevice::GetRasterizerState( const D3D11_RASTERIZER_DESC& state )
+	{
+		auto it = m_pRasterizerStates.find( state );
+		if( it == m_pRasterizerStates.end() )
+		{
+			return nullptr;
+		}
+
+		return it->second.Get();
+	}
+
+	ID3D11RasterizerState* D3DGPUDevice::AddRasterizerState( const D3D11_RASTERIZER_DESC& state )
+	{
+		auto& rasterizer_state = m_pRasterizerStates[state];
+		COM_THROW_IF_FAILED( m_pDevice->CreateRasterizerState( &state, &rasterizer_state ) );
+		return rasterizer_state.Get();
 	}
 
 	static const char* FeatureLevel2String( D3D_FEATURE_LEVEL level )
@@ -2277,18 +2455,19 @@ namespace Bat
 		pDevice->CreateSamplerState( &d3dsd, &m_pSamplerState );
 	}
 
-	D3DDepthStencil::D3DDepthStencil( ID3D11Device* pDevice, size_t width, size_t height, TexFormat format )
+	D3DDepthStencil::D3DDepthStencil( ID3D11Device* pDevice, size_t width, size_t height, TexFormat format, size_t array_size )
 	{
 		m_iWidth = width;
 		m_iHeight = height;
 		m_Format = format;
+		m_iArraySize = array_size;
 
 		//Describe our Depth/Stencil Buffer
 		D3D11_TEXTURE2D_DESC depthStencilBufferDesc;
 		depthStencilBufferDesc.Width = (UINT)width;
 		depthStencilBufferDesc.Height = (UINT)height;
 		depthStencilBufferDesc.MipLevels = 1;
-		depthStencilBufferDesc.ArraySize = 1;
+		depthStencilBufferDesc.ArraySize = (UINT)array_size;
 		depthStencilBufferDesc.Format = (DXGI_FORMAT)format;
 		depthStencilBufferDesc.SampleDesc.Count = 1;
 		depthStencilBufferDesc.SampleDesc.Quality = 0;
@@ -2297,27 +2476,79 @@ namespace Bat
 		depthStencilBufferDesc.CPUAccessFlags = 0;
 		depthStencilBufferDesc.MiscFlags = 0;
 
-		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
-		depthStencilViewDesc.Flags = 0;
-		depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-		depthStencilViewDesc.Texture2D.MipSlice = 0;
-
-		D3D11_SHADER_RESOURCE_VIEW_DESC depthShaderResourceViewDesc;
-		depthShaderResourceViewDesc.Format                    = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-		depthShaderResourceViewDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
-		depthShaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-		depthShaderResourceViewDesc.Texture2D.MipLevels       = -1;
-
 		COM_THROW_IF_FAILED(
 			pDevice->CreateTexture2D( &depthStencilBufferDesc, NULL, &m_pDepthStencilBuffer )
 		);
-		COM_THROW_IF_FAILED(
-			pDevice->CreateDepthStencilView( m_pDepthStencilBuffer.Get(),
-				&depthStencilViewDesc,
-				&m_pDepthStencilView
-			)
-		);
+
+		DXGI_FORMAT depth_format;
+		switch( format )
+		{
+		case DXGI_FORMAT_R24G8_TYPELESS: depth_format = DXGI_FORMAT_D24_UNORM_S8_UINT; break;
+		case DXGI_FORMAT_R32_FLOAT:      depth_format = DXGI_FORMAT_D32_FLOAT; break;
+		case DXGI_FORMAT_R16_UNORM:      depth_format = DXGI_FORMAT_D16_UNORM; break;
+		default: ASSERT( false, "Unknown depth stencil format" );
+		}
+
+		m_pDepthStencilView.resize( array_size );
+		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
+		depthStencilViewDesc.Flags = 0;
+		depthStencilViewDesc.Format = depth_format;
+		if( array_size <= 1 )
+		{
+			depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+			depthStencilViewDesc.Texture2D.MipSlice = 0;
+
+			COM_THROW_IF_FAILED(
+				pDevice->CreateDepthStencilView( m_pDepthStencilBuffer.Get(),
+					&depthStencilViewDesc,
+					&m_pDepthStencilView[0]
+				)
+			);
+		}
+		else
+		{
+			for( size_t i = 0; i < array_size; i++ )
+			{
+				depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
+				depthStencilViewDesc.Texture2DArray.ArraySize = (UINT)1;
+				depthStencilViewDesc.Texture2DArray.FirstArraySlice = (UINT)i;
+				depthStencilViewDesc.Texture2DArray.MipSlice = 0;
+
+				COM_THROW_IF_FAILED(
+					pDevice->CreateDepthStencilView( m_pDepthStencilBuffer.Get(),
+						&depthStencilViewDesc,
+						&m_pDepthStencilView[i]
+					)
+				);
+			}
+		}
+
+		DXGI_FORMAT shader_format;
+		switch( format )
+		{
+		case DXGI_FORMAT_R24G8_TYPELESS: shader_format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS; break;
+		case DXGI_FORMAT_R32_FLOAT:      shader_format = DXGI_FORMAT_R32_FLOAT; break;
+		case DXGI_FORMAT_R16_UNORM:      shader_format = DXGI_FORMAT_R16_UNORM; break;
+		default: ASSERT( false, "Unknown depth stencil format" );
+		}
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC depthShaderResourceViewDesc;
+		depthShaderResourceViewDesc.Format                    = shader_format;
+		if( array_size <= 1 )
+		{
+			depthShaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+			depthShaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+			depthShaderResourceViewDesc.Texture2D.MipLevels = -1;
+		}
+		else
+		{
+			depthShaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+			depthShaderResourceViewDesc.Texture2DArray.ArraySize = (UINT)array_size;
+			depthShaderResourceViewDesc.Texture2DArray.FirstArraySlice = 0;
+			depthShaderResourceViewDesc.Texture2DArray.MostDetailedMip = 0;
+			depthShaderResourceViewDesc.Texture2DArray.MipLevels = -1;
+		}
+
 		COM_THROW_IF_FAILED(
 			pDevice->CreateShaderResourceView(
 				m_pDepthStencilBuffer.Get(),

@@ -28,7 +28,7 @@ namespace Bat
 			pContext->SetRenderTarget( target );
 
 			m_pContext = pContext;
-			m_pContext->SetDepthStencilEnabled( true );
+			m_pContext->SetDepthEnabled( true );
 			m_pContext->SetDepthWriteEnabled( true );
 			pContext->SetBlendingEnabled( false );
 			pContext->SetCullMode( CullMode::BACK );
@@ -50,7 +50,7 @@ namespace Bat
 
 			if( e.Has<LightComponent>() )
 			{
-				auto light = e.Get<LightComponent>();
+				const auto& light = e.Get<LightComponent>();
 				if( light.GetType() == LightType::POINT )
 				{
 					auto emissive = light.GetColour() * 3;

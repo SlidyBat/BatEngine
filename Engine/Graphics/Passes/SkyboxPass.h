@@ -26,7 +26,7 @@ namespace Bat
 
 		virtual void Execute( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data ) override
 		{
-			pContext->SetDepthStencilEnabled( true );
+			pContext->SetDepthEnabled( true );
 			pContext->SetBlendingEnabled( false );
 			pContext->SetCullMode( CullMode::BACK );
 
