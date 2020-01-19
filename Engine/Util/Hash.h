@@ -27,7 +27,7 @@ public:
 	template <typename T>
 	void Add( const T& var )
 	{
-		hash_combine( result, var );
+		HashCombine( result, var );
 	}
 
 	size_t Result() const { return result; }

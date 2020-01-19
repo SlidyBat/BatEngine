@@ -42,7 +42,25 @@ float Shadow( Light light, float3 pos_ws )
 		return 1.0f;
 	}
 	
-	float4 proj_coords = mul( float4( pos_ws, 1.0f ), ShadowMatrix[light.ShadowIndex] );
+	int shadow_index = light.ShadowIndex;
+	if( light.Type == LIGHT_DIRECTIONAL )
+	{
+		for (int cascade = 0; cascade < NUM_CASCADES; cascade++)
+		{
+			shadow_index = light.ShadowIndex + cascade;
+			
+			float4 proj_coords = mul(float4(pos_ws, 1.0f), ShadowMatrix[shadow_index]);
+			proj_coords.xyz /= proj_coords.w;
+			float3 shadow_uv = proj_coords.xyz * float3(0.5f, -0.5f, 0.5f) + 0.5f;
+			
+			if (IsSaturated(shadow_uv))
+			{
+				break;
+			}
+		}
+	}
+	
+	float4 proj_coords = mul( float4( pos_ws, 1.0f ), ShadowMatrix[shadow_index] );
 	proj_coords.xyz /= proj_coords.w;
 	
 	float bias = 0.0005f;
@@ -57,7 +75,7 @@ float Shadow( Light light, float3 pos_ws )
 	{
 		for (int x = -range; x <= range; x++)
 		{
-			shadow += ShadowMap.SampleCmpLevelZero(CompareDepthSampler, float3(shadow_uv, light.ShadowIndex), current_depth, int2(x, y)).r;
+			shadow += ShadowMap.SampleCmpLevelZero(CompareDepthSampler, float3(shadow_uv, shadow_index), current_depth, int2(x, y)).r;
 		}
 	}
 	shadow /= (range * 2 + 1) * (range * 2 + 1);

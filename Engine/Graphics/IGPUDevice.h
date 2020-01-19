@@ -132,6 +132,8 @@ namespace Bat
 
 		virtual CullMode GetCullMode() const = 0;
 		virtual void SetCullMode( CullMode mode ) = 0;
+		virtual bool GetDepthClipEnabled() const = 0;
+		virtual void SetDepthClipEnabled( bool enabled ) = 0;
 
 		virtual bool IsBlendingEnabled() const = 0;
 		virtual void SetBlendingEnabled( bool enabled ) = 0;

@@ -238,9 +238,9 @@ namespace Bat
 
 	enum class CullMode
 	{
-		NONE,
-		BACK,
-		FRONT
+		NONE = 1,
+		FRONT = 2,
+		BACK = 3
 	};
 
 	struct SamplerDesc

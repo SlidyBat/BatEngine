@@ -67,6 +67,32 @@ inline bool operator==( const D3D11_DEPTH_STENCIL_DESC& a, const D3D11_DEPTH_STE
 		a.BackFace == b.BackFace;
 }
 
+MAKE_HASHABLE( D3D11_RASTERIZER_DESC, t,
+	t.FillMode,
+	t.CullMode,
+	t.FrontCounterClockwise,
+	t.DepthBias,
+	t.DepthBiasClamp,
+	t.SlopeScaledDepthBias,
+	t.DepthClipEnable,
+	t.ScissorEnable,
+	t.MultisampleEnable,
+	t.AntialiasedLineEnable );
+
+inline bool operator==( const D3D11_RASTERIZER_DESC& a, const D3D11_RASTERIZER_DESC& b )
+{
+	return a.FillMode == b.FillMode &&
+		a.CullMode == b.CullMode &&
+		a.FrontCounterClockwise == b.FrontCounterClockwise &&
+		a.DepthBias == b.DepthBias &&
+		a.DepthBiasClamp == b.DepthBiasClamp &&
+		a.SlopeScaledDepthBias == b.SlopeScaledDepthBias &&
+		a.DepthClipEnable == b.DepthClipEnable &&
+		a.ScissorEnable == b.ScissorEnable &&
+		a.MultisampleEnable == b.MultisampleEnable &&
+		a.AntialiasedLineEnable == b.AntialiasedLineEnable;
+}
+
 #ifdef _DEBUG
 #define DXGI_CALL( dev, fn ) do { \
 		auto msg = dev->FlushMessages(); \
@@ -284,6 +310,8 @@ namespace Bat
 
 		virtual CullMode GetCullMode() const override;
 		virtual void SetCullMode( CullMode mode ) override;
+		virtual bool GetDepthClipEnabled() const override;
+		virtual void SetDepthClipEnabled( bool enabled ) override;
 
 		virtual bool IsBlendingEnabled() const override;
 		virtual void SetBlendingEnabled( bool enabled ) override;
@@ -352,6 +380,7 @@ namespace Bat
 		void BindViewports();
 		void BindRenderTarget();
 		void BindDepthStencilState();
+		void BindRasterizerState();
 	private:
 		D3DGPUDevice* m_pDevice = nullptr;
 
@@ -364,8 +393,8 @@ namespace Bat
 		D3DPixelShader* m_pPixelShader = nullptr;
 		D3DVertexShader* m_pVertexShader = nullptr;
 
-		CullMode m_CullMode;
 		D3D11_DEPTH_STENCIL_DESC m_CurrentDepthStencilState = {};
+		D3D11_RASTERIZER_DESC m_CurrentRasterizerState = {};
 		bool m_bBlendingEnabled = false;
 	};
 
@@ -410,10 +439,9 @@ namespace Bat
 
 		ID3D11DepthStencilState* GetDepthStencilState( const D3D11_DEPTH_STENCIL_DESC& state );
 		ID3D11DepthStencilState* AddDepthStencilState( const D3D11_DEPTH_STENCIL_DESC& state );
+		ID3D11RasterizerState* GetRasterizerState( const D3D11_RASTERIZER_DESC& state );
+		ID3D11RasterizerState* AddRasterizerState( const D3D11_RASTERIZER_DESC& state );
 	public:
-		ID3D11RasterizerState*   GetRasterizerCullBackState() { return m_pRasterStateCullBack.Get(); }
-		ID3D11RasterizerState*   GetRasterizerCullFrontState() { return m_pRasterStateCullFront.Get(); }
-		ID3D11RasterizerState*   GetRasterizerCullNoneState() { return m_pRasterStateCullNone.Get(); }
 		ID3D11BlendState*        GetBlendEnabledState() { return m_pBlendEnabledState.Get(); }
 		ID3D11BlendState*        GetBlendDisabledState() { return m_pBlendDisabledState.Get(); }
 
@@ -432,14 +460,12 @@ namespace Bat
 #endif
 
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView>   m_pRenderTargetView;
-		Microsoft::WRL::ComPtr<ID3D11RasterizerState>    m_pRasterStateCullBack;
-		Microsoft::WRL::ComPtr<ID3D11RasterizerState>    m_pRasterStateCullFront;
-		Microsoft::WRL::ComPtr<ID3D11RasterizerState>    m_pRasterStateCullNone;
 
 		Microsoft::WRL::ComPtr<ID3D11BlendState>         m_pBlendEnabledState;
 		Microsoft::WRL::ComPtr<ID3D11BlendState>         m_pBlendDisabledState;
 
 		std::unordered_map<D3D11_DEPTH_STENCIL_DESC, Microsoft::WRL::ComPtr<ID3D11DepthStencilState>>  m_pDepthStencilStates;
+		std::unordered_map<D3D11_RASTERIZER_DESC, Microsoft::WRL::ComPtr<ID3D11RasterizerState>>  m_pRasterizerStates;
 
 		D3DGPUContext m_GPUContext;
 		D3DRenderTarget m_Backbuffer;
@@ -586,6 +612,17 @@ namespace Bat
 		m_CurrentDepthStencilState.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
 		m_CurrentDepthStencilState.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 		m_CurrentDepthStencilState.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+
+		m_CurrentRasterizerState.AntialiasedLineEnable = false;
+		m_CurrentRasterizerState.CullMode = D3D11_CULL_BACK;
+		m_CurrentRasterizerState.DepthBias = 0;
+		m_CurrentRasterizerState.DepthBiasClamp = 0.0f;
+		m_CurrentRasterizerState.DepthClipEnable = true;
+		m_CurrentRasterizerState.FillMode = D3D11_FILL_SOLID;
+		m_CurrentRasterizerState.FrontCounterClockwise = false;
+		m_CurrentRasterizerState.MultisampleEnable = false;
+		m_CurrentRasterizerState.ScissorEnable = false;
+		m_CurrentRasterizerState.SlopeScaledDepthBias = 0.0f;
 
 		m_pDeviceContext.As( &m_pAnnotation );
 	}
@@ -832,28 +869,24 @@ namespace Bat
 
 	CullMode D3DGPUContext::GetCullMode() const
 	{
-		return m_CullMode;
+		return (CullMode)m_CurrentRasterizerState.CullMode;
 	}
 
 	void D3DGPUContext::SetCullMode( CullMode mode )
 	{
-		m_CullMode = mode;
+		m_CurrentRasterizerState.CullMode = (D3D11_CULL_MODE)mode;
+		BindRasterizerState();
+	}
 
-		switch( mode )
-		{
-		case CullMode::NONE:
-			DXGI_CONTEXT_CALL( m_pDeviceContext->RSSetState( m_pDevice->GetRasterizerCullNoneState() ) );
-			break;
-		case CullMode::BACK:
-			DXGI_CONTEXT_CALL( m_pDeviceContext->RSSetState( m_pDevice->GetRasterizerCullBackState() ) );
-			break;
-		case CullMode::FRONT:
-			DXGI_CONTEXT_CALL( m_pDeviceContext->RSSetState( m_pDevice->GetRasterizerCullFrontState() ) );
-			break;
-		default:
-			ASSERT( false, "Unhandled cull mode" );
-			break;
-		}
+	bool D3DGPUContext::GetDepthClipEnabled() const
+	{
+		return m_CurrentRasterizerState.DepthClipEnable;
+	}
+
+	void D3DGPUContext::SetDepthClipEnabled( bool enabled )
+	{
+		m_CurrentRasterizerState.DepthClipEnable = enabled;
+		BindRasterizerState();
 	}
 
 	bool D3DGPUContext::IsBlendingEnabled() const
@@ -1302,6 +1335,16 @@ namespace Bat
 		DXGI_CONTEXT_CALL( m_pDeviceContext->OMSetDepthStencilState( state, 0 ) );
 	}
 
+	void D3DGPUContext::BindRasterizerState()
+	{
+		auto state = m_pDevice->GetRasterizerState( m_CurrentRasterizerState );
+		if( !state )
+		{
+			state = m_pDevice->AddRasterizerState( m_CurrentRasterizerState );
+		}
+		DXGI_CONTEXT_CALL( m_pDeviceContext->RSSetState( state ) );
+	}
+
 	D3DGPUDevice::D3DGPUDevice( Window& wnd, bool vsync_enabled, float screen_depth, float screen_near )
 		:
 		m_GPUContext( this ),
@@ -1428,31 +1471,6 @@ namespace Bat
 			COM_THROW_IF_FAILED( m_pDevice->CreateRenderTargetView( pBackBuffer.Get(), NULL, &m_pRenderTargetView ) );
 
 			m_Backbuffer.Reset( m_pRenderTargetView.Get(), wnd.GetWidth(), wnd.GetHeight() );
-		}
-
-		// set up raster description
-		{
-			D3D11_RASTERIZER_DESC rasterDesc;
-			rasterDesc.AntialiasedLineEnable = false;
-			rasterDesc.CullMode = D3D11_CULL_BACK;
-			rasterDesc.DepthBias = 0;
-			rasterDesc.DepthBiasClamp = 0.0f;
-			rasterDesc.DepthClipEnable = true;
-			rasterDesc.FillMode = D3D11_FILL_SOLID;
-			rasterDesc.FrontCounterClockwise = false;
-			rasterDesc.MultisampleEnable = false;
-			rasterDesc.ScissorEnable = false;
-			rasterDesc.SlopeScaledDepthBias = 0.0f;
-
-			COM_THROW_IF_FAILED( m_pDevice->CreateRasterizerState( &rasterDesc, &m_pRasterStateCullBack ) );
-
-			rasterDesc.CullMode = D3D11_CULL_FRONT;
-
-			COM_THROW_IF_FAILED( m_pDevice->CreateRasterizerState( &rasterDesc, &m_pRasterStateCullFront ) );
-
-			rasterDesc.CullMode = D3D11_CULL_NONE;
-
-			COM_THROW_IF_FAILED( m_pDevice->CreateRasterizerState( &rasterDesc, &m_pRasterStateCullNone ) );
 		}
 
 		// Create blending enabled/disabled states
@@ -1737,6 +1755,24 @@ namespace Bat
 		auto& depth_stencil_state = m_pDepthStencilStates[state];
 		COM_THROW_IF_FAILED( m_pDevice->CreateDepthStencilState( &state, &depth_stencil_state ) );
 		return depth_stencil_state.Get();
+	}
+
+	ID3D11RasterizerState* D3DGPUDevice::GetRasterizerState( const D3D11_RASTERIZER_DESC& state )
+	{
+		auto it = m_pRasterizerStates.find( state );
+		if( it == m_pRasterizerStates.end() )
+		{
+			return nullptr;
+		}
+
+		return it->second.Get();
+	}
+
+	ID3D11RasterizerState* D3DGPUDevice::AddRasterizerState( const D3D11_RASTERIZER_DESC& state )
+	{
+		auto& rasterizer_state = m_pRasterizerStates[state];
+		COM_THROW_IF_FAILED( m_pDevice->CreateRasterizerState( &state, &rasterizer_state ) );
+		return rasterizer_state.Get();
 	}
 
 	static const char* FeatureLevel2String( D3D_FEATURE_LEVEL level )

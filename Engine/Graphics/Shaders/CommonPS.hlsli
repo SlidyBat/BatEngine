@@ -38,6 +38,7 @@ struct Material
 
 #define MAX_SHADOW_SOURCES 16
 #define INVALID_SHADOW_MAP_INDEX (~0)
+#define NUM_CASCADES 3
 
 #define MAX_LIGHTS 16
 struct Light
@@ -146,4 +147,24 @@ float3 ToLinearSpace(float3 colour)
 float4 ToLinearSpace(float4 colour)
 {
 	return float4(ToLinearSpace(colour.rgb), colour.a);
+}
+
+bool IsSaturated(float a)
+{
+	return saturate(a) == a;
+}
+
+bool IsSaturated(float2 a)
+{
+	return IsSaturated(a.x) && IsSaturated(a.y);
+}
+
+bool IsSaturated(float3 a)
+{
+	return IsSaturated(a.x) && IsSaturated(a.y) && IsSaturated(a.z);
+}
+
+bool IsSaturated(float4 a)
+{
+	return IsSaturated(a.x) && IsSaturated(a.y) && IsSaturated(a.z) && IsSaturated(a.w);
 }
