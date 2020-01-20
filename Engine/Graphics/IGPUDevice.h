@@ -183,7 +183,7 @@ namespace Bat
 		virtual void UpdateTexturePixels( ITexture* pTexture, const void* pPixels, size_t pitch ) = 0;
 		virtual void BindTexture( ITexture* pTexture, size_t slot ) = 0;
 		virtual void BindTexture( IRenderTarget* pRT, size_t slot ) = 0;
-		virtual void BindTexture( IDepthStencil* pDepthStencil, size_t slot, size_t index = 0 ) = 0;
+		virtual void BindTexture( IDepthStencil* pDepthStencil, size_t slot ) = 0;
 		virtual void UnbindTextureSlot( size_t slot ) = 0;
 
 		// Update the vertex buffer with the given data
