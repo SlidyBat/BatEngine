@@ -347,7 +347,7 @@ namespace Bat
 		virtual void UpdateTexturePixels( ITexture* pTexture, const void* pPixels, size_t pitch ) override;
 		virtual void BindTexture( ITexture* pTexture, size_t slot ) override;
 		virtual void BindTexture( IRenderTarget* pRT, size_t slot ) override;
-		virtual void BindTexture( IDepthStencil* pDepthStencil, size_t slot, size_t index = 0 ) override;
+		virtual void BindTexture( IDepthStencil* pDepthStencil, size_t slot ) override;
 		virtual void UnbindTextureSlot( size_t slot ) override;
 
 		virtual void UpdateBuffer( IVertexBuffer* pBuffer, const void* pData, size_t count = 0, size_t offset = 0 ) override;
@@ -594,12 +594,12 @@ namespace Bat
 
 		ID3D11DepthStencilView* GetDepthStencilView( size_t index ) { return m_pDepthStencilView[index].Get(); }
 		const ID3D11DepthStencilView* GetDepthStencilView( size_t index ) const { return m_pDepthStencilView[index].Get(); }
-		ID3D11ShaderResourceView* GetShaderResourceView( size_t index ) { return m_pDepthShaderResourceView[index].Get(); }
-		const ID3D11ShaderResourceView* GetShaderResourceView( size_t index ) const { return m_pDepthShaderResourceView[index].Get(); }
+		ID3D11ShaderResourceView* GetShaderResourceView() { return m_pDepthShaderResourceView.Get(); }
+		const ID3D11ShaderResourceView* GetShaderResourceView() const { return m_pDepthShaderResourceView.Get(); }
 	private:
-		Microsoft::WRL::ComPtr<ID3D11Texture2D>                       m_pDepthStencilBuffer;
-		std::vector<Microsoft::WRL::ComPtr<ID3D11DepthStencilView>>   m_pDepthStencilView;
-		std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> m_pDepthShaderResourceView;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D>                     m_pDepthStencilBuffer;
+		std::vector<Microsoft::WRL::ComPtr<ID3D11DepthStencilView>> m_pDepthStencilView;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>            m_pDepthShaderResourceView;
 
 		TexFormat m_Format;
 		size_t m_iWidth;
@@ -1106,9 +1106,9 @@ namespace Bat
 		DXGI_CONTEXT_CALL( m_pDeviceContext->PSSetShaderResources( (UINT)slot, 1, &srv ) );
 	}
 
-	void D3DGPUContext::BindTexture( IDepthStencil* pDepthStencil, size_t slot, size_t index )
+	void D3DGPUContext::BindTexture( IDepthStencil* pDepthStencil, size_t slot )
 	{
-		ID3D11ShaderResourceView* srv = static_cast<D3DDepthStencil*>( pDepthStencil )->GetShaderResourceView( index );
+		ID3D11ShaderResourceView* srv = static_cast<D3DDepthStencil*>( pDepthStencil )->GetShaderResourceView();
 		DXGI_CONTEXT_CALL( m_pDeviceContext->PSSetShaderResources( (UINT)slot, 1, &srv ) );
 	}
 
@@ -2685,58 +2685,30 @@ namespace Bat
 
 		if( ( flags & TexFlags::NO_SHADER_BIND ) != TexFlags::NO_SHADER_BIND )
 		{
-			m_pDepthShaderResourceView.resize( array_size );
 			D3D11_SHADER_RESOURCE_VIEW_DESC depthShaderResourceViewDesc;
 			depthShaderResourceViewDesc.Format = shader_format;
-			if( array_size <= 1 )
+			if( ms_samples <= 1 )
 			{
-				if( ms_samples <= 1 )
-				{
-					depthShaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-					depthShaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-					depthShaderResourceViewDesc.Texture2D.MipLevels = -1;
-				}
-				else
-				{
-					depthShaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
-				}
-
-				COM_THROW_IF_FAILED(
-					pDevice->CreateShaderResourceView(
-						m_pDepthStencilBuffer.Get(),
-						&depthShaderResourceViewDesc,
-						&m_pDepthShaderResourceView[0]
-					)
-				);
+				depthShaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+				depthShaderResourceViewDesc.Texture2DArray.MostDetailedMip = 0;
+				depthShaderResourceViewDesc.Texture2DArray.MipLevels = -1;
+				depthShaderResourceViewDesc.Texture2DArray.ArraySize = (UINT)array_size;
+				depthShaderResourceViewDesc.Texture2DArray.FirstArraySlice = 0;
 			}
 			else
 			{
-				for( size_t i = 0; i < array_size; i++ )
-				{
-					if( ms_samples <= 1 )
-					{
-						depthShaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-						depthShaderResourceViewDesc.Texture2DArray.ArraySize = 1;
-						depthShaderResourceViewDesc.Texture2DArray.FirstArraySlice = (UINT)i;
-						depthShaderResourceViewDesc.Texture2DArray.MostDetailedMip = 0;
-						depthShaderResourceViewDesc.Texture2DArray.MipLevels = -1;
-					}
-					else
-					{
-						depthShaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY;
-						depthShaderResourceViewDesc.Texture2DMSArray.ArraySize = 1;
-						depthShaderResourceViewDesc.Texture2DMSArray.FirstArraySlice = (UINT)i;
-					}
-
-					COM_THROW_IF_FAILED(
-						pDevice->CreateShaderResourceView(
-							m_pDepthStencilBuffer.Get(),
-							&depthShaderResourceViewDesc,
-							&m_pDepthShaderResourceView[i]
-						)
-					);
-				}
+				depthShaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY;
+				depthShaderResourceViewDesc.Texture2DMSArray.ArraySize = (UINT)array_size;
+				depthShaderResourceViewDesc.Texture2DMSArray.FirstArraySlice = 0;
 			}
+
+			COM_THROW_IF_FAILED(
+				pDevice->CreateShaderResourceView(
+					m_pDepthStencilBuffer.Get(),
+					&depthShaderResourceViewDesc,
+					&m_pDepthShaderResourceView
+				)
+			);
 		}
 	}
 }
