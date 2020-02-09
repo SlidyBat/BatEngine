@@ -687,6 +687,7 @@
     <FxCompile Include="Graphics\Shaders\DynamicSkyPS.hlsl">
       <Filter>Graphics\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Graphics\Shaders\ShadowMapPS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\mario.png">

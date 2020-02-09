@@ -66,7 +66,7 @@ namespace Bat
 				auto& meshes = model.GetMeshes();
 				for( auto& pMesh : meshes )
 				{
-					if( pMesh->GetMaterial().IsTranslucent() )
+					if( pMesh->GetMaterial().GetAlphaMode() == AlphaMode::BLEND )
 					{
 						continue;
 					}

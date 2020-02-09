@@ -40,7 +40,7 @@ namespace Bat
 		bool transparent_pass = true;
 
 		bool skybox_enabled = true;
-		bool bloom_enabled = true;
+		bool bloom_enabled = false;
 		bool motion_blur_enabled = false;
 		bool tonemapping_enabled = true;
 	private:

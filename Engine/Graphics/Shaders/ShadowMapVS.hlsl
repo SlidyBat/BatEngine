@@ -13,11 +13,17 @@ struct VertexInputType
 	uint4  boneids : BONEID;
 	float4 boneweights : BONEWEIGHT;
 #endif
+#ifdef MASK_ALPHA
+	float2 tex : TEXCOORD;
+#endif
 };
 
 struct PixelInputType
 {
 	float4 position : SV_POSITION;
+#ifdef MASK_ALPHA
+	float2 tex : TEXCOORD;
+#endif
 };
 
 PixelInputType main( VertexInputType input )
@@ -37,6 +43,9 @@ PixelInputType main( VertexInputType input )
 
 	float3 pos_ws = mul( float4( input.position, 1.0f ), final_world ).xyz;
 	output.position = mul( float4( pos_ws, 1.0f ), viewproj );
+#ifdef MASK_ALPHA
+	output.tex = input.tex;
+#endif
 	
 	return output;
 }

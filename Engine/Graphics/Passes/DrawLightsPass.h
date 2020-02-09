@@ -60,7 +60,7 @@ namespace Bat
 					auto& meshes = light_model->Get<ModelComponent>().GetMeshes();
 					for( auto& pMesh : meshes )
 					{
-						pMesh->GetMaterial().SetEmissiveColour( emissive.x, emissive.y, emissive.z );
+						pMesh->GetMaterial().SetEmissiveFactor( emissive.x, emissive.y, emissive.z );
 
 						auto pPipeline = ShaderManager::GetPipeline<LitGenericPipeline>();
 

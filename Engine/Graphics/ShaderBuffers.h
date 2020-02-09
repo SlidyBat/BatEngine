@@ -6,36 +6,20 @@ namespace Bat
 {
 	struct ShaderMaterial
 	{
-		Vec4  GlobalAmbient;
+		Vec4 BaseColourFactor;
 
-		Vec4  AmbientColor;
+		Vec3 EmissiveFactor;
+		float MetallicFactor;
 
-		Vec4  EmissiveColor;
+		float RoughnessFactor;
+		int HasBaseColourTexture;
+		int HasMetallicRoughnessTexture;
+		int HasNormalTexture;
 
-		Vec4  DiffuseColor;
-
-		Vec4  SpecularColor;
-
-		Vec4  Reflectance;
-
-		float   Opacity;
-		float   SpecularPower;
-		float   IndexOfRefraction;
-		int     HasAmbientTexture;
-
-		int     HasEmissiveTexture;
-		int     HasDiffuseTexture;
-		int     HasSpecularTexture;
-		int     HasSpecularPowerTexture;
-
-		int     HasNormalTexture;
-		int     HasBumpTexture;
-		int     HasOpacityTexture;
-		float   BumpIntensity;
-
-		float   SpecularScale;
-		float   AlphaThreshold;
-		float   _pad1[2];
+		int HasOcclusionTexture;
+		int HasEmissiveTexture;
+		float AlphaCutoff;
+		float _pad0;
 	};
 
 	constexpr size_t MAX_LIGHTS = 16;

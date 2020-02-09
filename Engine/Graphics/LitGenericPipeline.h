@@ -46,7 +46,7 @@ namespace Bat
 
 		struct CB_LitGenericPipelineMaterial
 		{
-			ShaderMaterial material;
+			ShaderMaterial mat;
 		};
 
 		struct CB_LitGenericPipelineLights

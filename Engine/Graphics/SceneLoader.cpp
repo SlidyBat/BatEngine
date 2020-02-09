@@ -10,6 +10,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <assimp/pbrmaterial.h>
 #include "Material.h"
 #include "FrameTimer.h"
 
@@ -37,7 +38,7 @@ namespace Bat
 		return it->pBatMesh;
 	}
 
-	SceneLoader::TextureStorageType SceneLoader::DetermineTextureStorageType( aiMaterial* pMat, aiTextureType type )
+	SceneLoader::TextureStorageType SceneLoader::DetermineTextureStorageType( aiMaterial* pMat, aiTextureType type, unsigned int index = 0 )
 	{
 		if( !pMat->GetTextureCount( type ) )
 		{
@@ -45,7 +46,7 @@ namespace Bat
 		}
 
 		aiString textype;
-		pMat->GetTexture( type, 0, &textype );
+		pMat->GetTexture( type, index, &textype );
 		if( textype.C_Str()[0] == '*' )
 		{
 			if( m_pAiScene->mTextures[0]->mHeight == 0 )
@@ -86,115 +87,76 @@ namespace Bat
 		return std::stoi( &pStr->C_Str()[1] );
 	}
 
-	void SceneLoader::LoadMaterialTexture( Material& mat, aiMaterial* pMaterial, aiTextureType type, TextureStorageType storetype )
+	Resource<Texture> SceneLoader::LoadMaterialTexture( aiMaterial* pMaterial, aiTextureType type, unsigned int index )
 	{
-		Resource<Texture> pTexture = nullptr;
-
-		for( unsigned int i = 0; i < pMaterial->GetTextureCount( type ) && i < 1; i++ )
-		{
-			aiString str;
-			pMaterial->GetTexture( type, i, &str );
-
-			if( storetype == TextureStorageType::IndexCompressed )
-			{
-				int idx = GetTextureIndex( &str );
-				pTexture = std::make_shared<Texture>( reinterpret_cast<char*>(m_pAiScene->mTextures[idx]->pcData),
-					m_pAiScene->mTextures[idx]->mWidth );
-			}
-			else if( storetype == TextureStorageType::IndexNonCompressed )
-			{
-				int idx = GetTextureIndex( &str );
-				pTexture = std::make_shared<Texture>( reinterpret_cast<char*>(m_pAiScene->mTextures[idx]->pcData),
-					m_pAiScene->mTextures[idx]->mWidth * m_pAiScene->mTextures[idx]->mHeight );
-			}
-			else if( storetype == TextureStorageType::EmbeddedCompressed )
-			{
-				auto pAiTex = m_pAiScene->GetEmbeddedTexture( str.C_Str() );
-				pTexture = std::make_shared<Texture>( reinterpret_cast<char*>(pAiTex->pcData), pAiTex->mWidth );
-			}
-			else if( storetype == TextureStorageType::EmbeddedNonCompressed )
-			{
-				auto pAiTex = m_pAiScene->GetEmbeddedTexture( str.C_Str() );
-				pTexture = std::make_shared<Texture>( reinterpret_cast<char*>(pAiTex->pcData), pAiTex->mWidth * pAiTex->mHeight );
-			}
-			else
-			{
-				const std::string filename = GetDirectory() + '/' + str.C_Str();
-				pTexture = ResourceManager::GetTexture( filename );
-			}
-		}
-
-		switch( type )
-		{
-			case aiTextureType_AMBIENT:
-				mat.SetAmbientTexture( std::move( pTexture ) );
-				break;
-			case aiTextureType_DIFFUSE:
-				mat.SetDiffuseTexture( std::move( pTexture ) );
-				break;
-			case aiTextureType_SPECULAR:
-				mat.SetSpecularTexture( std::move( pTexture ) );
-				break;
-			case aiTextureType_EMISSIVE:
-				mat.SetEmissiveTexture( std::move( pTexture ) );
-				break;
-			case aiTextureType_NORMALS:
-			case aiTextureType_HEIGHT:
-				mat.SetNormalTexture( std::move( pTexture ) );
-				break;
-			default:
-				ASSERT( false, "Unknown texture type" );
-		}
-	}
-
-	void LoadMaterialColour( Material& mat, aiMaterial* pMaterial, aiTextureType type )
-	{
-		aiColor3D aiColour( 0.0f, 0.0f, 0.0f );
-		switch( type )
-		{
-			case aiTextureType_AMBIENT:
-				pMaterial->Get( AI_MATKEY_COLOR_AMBIENT, aiColour );
-				mat.SetAmbientColour( aiColour.r, aiColour.g, aiColour.b );
-				break;
-			case aiTextureType_DIFFUSE:
-				pMaterial->Get( AI_MATKEY_COLOR_DIFFUSE, aiColour );
-				mat.SetDiffuseColour( aiColour.r, aiColour.g, aiColour.b );
-				break;
-			case aiTextureType_SPECULAR:
-				pMaterial->Get( AI_MATKEY_COLOR_SPECULAR, aiColour );
-				if( aiColour.IsBlack() ) // Yuck!
-				{
-					mat.SetSpecularColour( 1.0f, 1.0f, 1.0f );
-				}
-				else
-				{
-					mat.SetSpecularColour( aiColour.r, aiColour.g, aiColour.b );
-				}
-				break;
-			case aiTextureType_EMISSIVE:
-				pMaterial->Get( AI_MATKEY_COLOR_EMISSIVE, aiColour );
-				mat.SetEmissiveColour( aiColour.r, aiColour.g, aiColour.b );
-				break;
-			case aiTextureType_NORMALS:
-			case aiTextureType_HEIGHT:
-				return; // we don't create default normal colours
-			default:
-				ASSERT( false, "Unknown texture type" );
-		}
-	}
-
-	void SceneLoader::LoadMaterialTextureType( Material& mat, aiMaterial* pMaterial, aiTextureType type )
-	{
-		auto storetype = DetermineTextureStorageType( pMaterial, type );
-
+		TextureStorageType storetype = DetermineTextureStorageType( pMaterial, type, index );
 		if( storetype == TextureStorageType::None )
 		{
-			LoadMaterialColour( mat, pMaterial, type );
+			return nullptr;
+		}
+
+		Resource<Texture> pTexture = nullptr;
+
+		aiString str;
+		pMaterial->GetTexture( type, index, &str );
+
+		if( storetype == TextureStorageType::IndexCompressed )
+		{
+			int idx = GetTextureIndex( &str );
+			pTexture = std::make_shared<Texture>( reinterpret_cast<char*>(m_pAiScene->mTextures[idx]->pcData),
+				m_pAiScene->mTextures[idx]->mWidth );
+		}
+		else if( storetype == TextureStorageType::IndexNonCompressed )
+		{
+			int idx = GetTextureIndex( &str );
+			pTexture = std::make_shared<Texture>( reinterpret_cast<char*>(m_pAiScene->mTextures[idx]->pcData),
+				m_pAiScene->mTextures[idx]->mWidth * m_pAiScene->mTextures[idx]->mHeight );
+		}
+		else if( storetype == TextureStorageType::EmbeddedCompressed )
+		{
+			auto pAiTex = m_pAiScene->GetEmbeddedTexture( str.C_Str() );
+			pTexture = std::make_shared<Texture>( reinterpret_cast<char*>(pAiTex->pcData), pAiTex->mWidth );
+		}
+		else if( storetype == TextureStorageType::EmbeddedNonCompressed )
+		{
+			auto pAiTex = m_pAiScene->GetEmbeddedTexture( str.C_Str() );
+			pTexture = std::make_shared<Texture>( reinterpret_cast<char*>(pAiTex->pcData), pAiTex->mWidth * pAiTex->mHeight );
 		}
 		else
 		{
-			LoadMaterialTexture( mat, pMaterial, type, storetype );
+			const std::string filename = GetDirectory() + '/' + str.C_Str();
+			pTexture = ResourceManager::GetTexture( filename );
 		}
+
+		return std::move( pTexture );
+	}
+
+	float SceneLoader::LoadMaterialFloat( aiMaterial* pMaterial, const char* key, unsigned int type, unsigned int index )
+	{
+		ai_real value;
+		pMaterial->Get( key, type, index, value );
+		return value;
+	}
+
+	Vec3 SceneLoader::LoadMaterialColour3( aiMaterial* pMaterial, const char* key, unsigned int type, unsigned int index )
+	{
+		aiColor3D colour;
+		pMaterial->Get( key, type, index, colour );
+		return Vec3{ colour.r, colour.g, colour.b };
+	}
+
+	Vec4 SceneLoader::LoadMaterialColour4( aiMaterial* pMaterial, const char* key, unsigned int type, unsigned int index )
+	{
+		aiColor4D colour;
+		pMaterial->Get( key, type, index, colour );
+		return Vec4{ colour.r, colour.g, colour.b, colour.a };
+	}
+
+	std::string SceneLoader::LoadMaterialString( aiMaterial* pMaterial, const char* key, unsigned int type, unsigned int index )
+	{
+		aiString value;
+		pMaterial->Get( key, type, index, value );
+		return value.C_Str();
 	}
 
 	void SceneLoader::AddAiBone( aiBone* pAiBone )
@@ -431,7 +393,7 @@ namespace Bat
 			if( pAiMesh->HasTextureCoords( 0 ) )
 			{
 				texcoord.x = pAiMesh->mTextureCoords[0][i].x;
-				texcoord.y = pAiMesh->mTextureCoords[0][i].y;
+				texcoord.y = 1.0f - pAiMesh->mTextureCoords[0][i].y;
 			}
 			else
 			{
@@ -489,26 +451,70 @@ namespace Bat
 
 		if( pAiMesh->mMaterialIndex >= 0 )
 		{
-			aiMaterial* pMaterial = m_pAiScene->mMaterials[pAiMesh->mMaterialIndex];
+			aiMaterial* pAiMaterial = m_pAiScene->mMaterials[pAiMesh->mMaterialIndex];
 			Resource<Texture> pTexture = nullptr;
 
-			LoadMaterialTextureType( material, pMaterial, aiTextureType_DIFFUSE );
-			LoadMaterialTextureType( material, pMaterial, aiTextureType_SPECULAR );
-			LoadMaterialTextureType( material, pMaterial, aiTextureType_EMISSIVE );
-			LoadMaterialTextureType( material, pMaterial, aiTextureType_AMBIENT );
-			LoadMaterialTextureType( material, pMaterial, aiTextureType_NORMALS );
-			if( !material.GetNormalTexture() )
+			// Base colour
 			{
-				LoadMaterialTextureType( material, pMaterial, aiTextureType_HEIGHT );
+				Vec4 colour = LoadMaterialColour4( pAiMaterial, AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_FACTOR );
+				material.SetBaseColourFactor( colour.x, colour.y, colour.z, colour.w );
+
+				if( pTexture = LoadMaterialTexture( pAiMaterial, AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_TEXTURE ) )
+				{
+					material.SetBaseColour( std::move( pTexture ) );
+				}
+			}
+			
+			// Metallic & Roughness
+			{
+				float metallic = LoadMaterialFloat( pAiMaterial, AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLIC_FACTOR );
+				material.SetMetallicFactor( metallic );
+				float roughness = LoadMaterialFloat( pAiMaterial, AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_ROUGHNESS_FACTOR );
+				material.SetRoughnessFactor( roughness );
+
+				if( pTexture = LoadMaterialTexture( pAiMaterial, AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE ) )
+				{
+					material.SetMetallicRoughness( std::move( pTexture ) );
+				}
 			}
 
-			float shininess = 0.0f;
-			pMaterial->Get( AI_MATKEY_SHININESS, shininess );
-			if( shininess <= 1.0f )
+			// Normal map
 			{
-				shininess = 32.0f;
+				if( pTexture = LoadMaterialTexture( pAiMaterial, aiTextureType_NORMALS ) )
+				{
+					material.SetNormalMap( std::move( pTexture ) );
+				}
 			}
-			material.SetShininess( shininess );
+
+			// Occlusion map
+			{
+				if( pTexture = LoadMaterialTexture( pAiMaterial, aiTextureType_AMBIENT_OCCLUSION ) )
+				{
+					material.SetOcclusionMap( std::move( pTexture ) );
+				}
+			}
+
+			// Emissive map
+			{
+				Vec3 emissive = LoadMaterialColour3( pAiMaterial, AI_MATKEY_COLOR_EMISSIVE );
+				material.SetEmissiveFactor( emissive.x, emissive.y, emissive.z );
+
+				if( pTexture = LoadMaterialTexture( pAiMaterial, aiTextureType_EMISSIVE ) )
+				{
+					material.SetEmissiveMap( std::move( pTexture ) );
+				}
+			}
+
+			// Alpha mode/cutoff
+			{
+				std::string alphamode = LoadMaterialString( pAiMaterial, AI_MATKEY_GLTF_ALPHAMODE );
+				if( alphamode == "OPAQUE" )     material.SetAlphaMode( AlphaMode::NONE );
+				else if( alphamode == "MASK" )  material.SetAlphaMode( AlphaMode::MASK );
+				else if( alphamode == "BLEND" ) material.SetAlphaMode( AlphaMode::BLEND );
+
+				float cutoff = LoadMaterialFloat( pAiMaterial, AI_MATKEY_GLTF_ALPHACUTOFF );
+				material.SetAlphaCutoff( cutoff );
+			}
 		}
 
 		auto pBatMesh = std::make_shared<Mesh>( params, indices, material );
@@ -564,6 +570,9 @@ namespace Bat
 	{
 		Entity e = node.Get();
 		e.Add<NameComponent>( pAiNode->mName.C_Str() );
+
+		const auto transform = AiToDxMatrix( pAiNode->mTransformation );
+		e.Add<TransformComponent>( transform );
 		
 		int node_index = FindNodeByName( pAiNode->mName.C_Str() );
 		if( node_index != -1 )
@@ -585,11 +594,7 @@ namespace Bat
 
 		for( unsigned int i = 0; i < pAiNode->mNumChildren; i++ )
 		{
-			const auto transform = AiToDxMatrix( pAiNode->mTransformation );
-
 			Entity child = world.CreateEntity();
-			child.Add<TransformComponent>( transform );
-			
 			size_t new_node_idx = node.AddChild( child );
 			ProcessNode( pAiNode->mChildren[i], node.GetChild( new_node_idx ) );
 		}
@@ -640,7 +645,7 @@ namespace Bat
 		std::filesystem::path filepath( m_szFilename );
 		m_szDirectory = filepath.parent_path().string();
 
-		m_pAiScene = m_Importer.ReadFile( m_szFilename, aiProcess_ConvertToLeftHanded | aiProcessPreset_TargetRealtime_Fast | aiProcess_TransformUVCoords );
+		m_pAiScene = m_Importer.ReadFile( m_szFilename,aiProcess_MakeLeftHanded | aiProcess_FlipWindingOrder | aiProcessPreset_TargetRealtime_Fast | aiProcess_TransformUVCoords );
 
 		if( !m_pAiScene )
 		{

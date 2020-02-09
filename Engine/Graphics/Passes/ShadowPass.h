@@ -216,7 +216,7 @@ namespace Bat
 						continue;
 					}
 
-					if( pMesh->GetMaterial().IsTranslucent() )
+					if( pMesh->GetMaterial().GetAlphaMode() == AlphaMode::BLEND )
 					{
 						continue;
 					}

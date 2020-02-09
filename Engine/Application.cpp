@@ -57,9 +57,10 @@ namespace Bat
 			.AddPlaneShape();
 
 		scale_node.Get().Add<TransformComponent>()
-			.SetScale( 0.01f );
+			.SetScale( 0.5f );
 
 		// Fire
+		if( false )
 		{
 			Entity emitter_test = world.CreateEntity();
 			emitter_test.Add<TransformComponent>()
@@ -706,6 +707,8 @@ namespace Bat
 
 		if( skybox_enabled )
 		{
+			rendergraph.BindToResource( "draw_lights.dst", "target" );
+
 			rendergraph.AddPass( "skybox", std::make_unique<SkyboxPass>() );
 			rendergraph.BindToResource( "skybox.skyboxtex", "skybox" );
 		}

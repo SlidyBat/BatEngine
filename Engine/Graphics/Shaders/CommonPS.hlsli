@@ -2,36 +2,20 @@
 
 struct Material
 {
-	float4  GlobalAmbient;
+	float4 BaseColourFactor;
 
-	float4  AmbientColor;
-
-	float4  EmissiveColor;
-
-	float4  DiffuseColor;
-
-	float4  SpecularColor;
-
-	float4  Reflectance;
-
-	float   Opacity;
-	float   SpecularPower;
-	float   IndexOfRefraction;
-	bool    HasAmbientTexture;
-
-	bool    HasEmissiveTexture;
-	bool    HasDiffuseTexture;
-	bool    HasSpecularTexture;
-	bool    HasSpecularPowerTexture;
-
-	bool    HasNormalTexture;
-	bool    HasBumpTexture;
-	bool    HasOpacityTexture;
-	float   BumpIntensity;
-
-	float   SpecularScale;
-	float   AlphaThreshold;
-	float2  Padding;
+	float3 EmissiveFactor;
+	float  MetallicFactor;
+	
+	float  RoughnessFactor;
+	bool   HasBaseColourTexture;
+	bool   HasMetallicRoughnessTexture;
+	bool   HasNormalTexture;
+	
+	bool   HasOcclusionTexture;
+	bool   HasEmissiveTexture;
+	float  AlphaCutoff;
+	float  _pad0;
 };
 
 #define LIGHT_POINT       0

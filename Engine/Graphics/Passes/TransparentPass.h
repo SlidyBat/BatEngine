@@ -30,6 +30,7 @@ namespace Bat
 			IRenderTarget* target = data.GetRenderTarget( "dst" );
 			pContext->SetRenderTarget( target );
 
+			pContext->SetPrimitiveTopology( PrimitiveTopology::TRIANGLELIST );
 			pContext->SetDepthEnabled( true );
 			pContext->SetDepthWriteEnabled( false );
 			pContext->SetBlendingEnabled( true );
@@ -61,7 +62,7 @@ namespace Bat
 			auto& meshes = model.GetMeshes();
 			for( auto& pMesh : meshes )
 			{
-				if( !pMesh->GetMaterial().IsTranslucent() )
+				if( pMesh->GetMaterial().GetAlphaMode() != AlphaMode::BLEND )
 				{
 					continue;
 				}

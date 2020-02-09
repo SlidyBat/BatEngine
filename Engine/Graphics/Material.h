@@ -7,65 +7,57 @@ namespace Bat
 {
 	class IPipeline;
 
+	enum class AlphaMode
+	{
+		NONE, // Opaque
+		MASK, // Use alpha cutoff
+		BLEND // Alpha blending
+	};
+
 	class Material
 	{
 	public:
-		Resource<Texture> GetAmbientTexture() const { return m_pAmbient; }
-		void SetAmbientTexture( Resource<Texture> pTexture ) { m_pAmbient = pTexture; }
+		Resource<Texture> GetBaseColour() const { return m_pBaseColour; }
+		void SetBaseColour( Resource<Texture> pTexture ) { m_pBaseColour = pTexture; }
 
-		Resource<Texture> GetDiffuseTexture() const { return m_pDiffuse; }
-		void SetDiffuseTexture( Resource<Texture> pTexture ) { m_pDiffuse = pTexture; }
+		Resource<Texture> GetMetallicRoughness() const { return m_pMetallicRoughness; }
+		void SetMetallicRoughness( Resource<Texture> pTexture ) { m_pMetallicRoughness = pTexture; }
 
-		Resource<Texture> GetSpecularTexture() const { return m_pSpecular; }
-		void SetSpecularTexture( Resource<Texture> pTexture ) { m_pSpecular = pTexture; }
+		Resource<Texture> GetNormalMap() const { return m_pNormalMap; }
+		void SetNormalMap( Resource<Texture> pTexture ) { m_pNormalMap = pTexture; }
 
-		Resource<Texture> GetEmissiveTexture() const { return m_pEmissive; }
-		void SetEmissiveTexture( Resource<Texture> pTexture ) { m_pEmissive = pTexture; }
+		Resource<Texture> GetOcclusionMap() const { return m_pOcclusionMap; }
+		void SetOcclusionMap( Resource<Texture> pTexture ) { m_pOcclusionMap = pTexture; }
 
-		Resource<Texture> GetNormalTexture() const { return m_pNormalMap; }
-		void SetNormalTexture( Resource<Texture> pTexture ) { m_pNormalMap = pTexture; }
+		Resource<Texture> GetEmissiveMap() const { return m_pEmissiveMap; }
+		void SetEmissiveMap( Resource<Texture> pTexture ) { m_pEmissiveMap = pTexture; }
 
-		Vec3 GetAmbientColour() const { return m_colAmbient; }
-		void SetAmbientColour( float r, float g, float b ) { m_colAmbient = { r, g, b }; }
-		Vec3 GetDiffuseColour() const { return m_colDiffuse; }
-		void SetDiffuseColour( float r, float g, float b ) { m_colDiffuse = { r, g, b }; }
-		Vec3 GetSpecularColour() const { return m_colSpecular; }
-		void SetSpecularColour( float r, float g, float b ) { m_colSpecular = { r, g, b }; }
-		Vec3 GetEmissiveColour() const { return m_colEmissive; }
-		void SetEmissiveColour( float r, float g, float b ) { m_colEmissive = { r, g, b }; }
+		Vec4 GetBaseColourFactor() const { return m_vecBaseColourFactor; }
+		void SetBaseColourFactor( float r, float g, float b, float a ) { m_vecBaseColourFactor = { r, g, b, a }; }
+		float GetMetallicFactor() const { return m_flMetallicFactor; }
+		void SetMetallicFactor( float metallic ) { m_flMetallicFactor = metallic; }
+		float GetRoughnessFactor() const { return m_flRoughnessFactor; }
+		void SetRoughnessFactor( float roughness ) { m_flRoughnessFactor = roughness; }
+		Vec3 GetEmissiveFactor() const { return m_vecEmissiveFactor; }
+		void SetEmissiveFactor( float r, float g, float b ) { m_vecEmissiveFactor = { r, g, b }; }
 
-		float GetOpacity() const { return m_flOpacity; }
-		void SetOpacity( float opacity ) { m_flOpacity = opacity; }
-
-		float GetShininess() const { return m_flShininess; }
-		void SetShininess( const float shininess ) { m_flShininess = shininess; }
-
-		bool IsTranslucent() const
-		{
-			if( !Math::CloseEnough( m_flOpacity, 1.0f ) )
-			{
-				return true;
-			}
-
-			if( !m_pDiffuse )
-			{
-				return false;
-			}
-
-			return m_pDiffuse->Get()->IsTranslucent();
-		}
+		AlphaMode GetAlphaMode() const { return m_AlphaMode; }
+		void SetAlphaMode( AlphaMode mode ) { m_AlphaMode = mode; }
+		float GetAlphaCutoff() const { return m_flAlphaCutoff; }
+		void SetAlphaCutoff( float cutoff ) { m_flAlphaCutoff = cutoff; }
 	private:
-		Vec3 m_colAmbient = { 0.0f, 0.0f, 0.0f };
-		Vec3 m_colDiffuse = { 0.0f, 0.0f, 0.0f };
-		Vec3 m_colSpecular = { 0.0f, 0.0f, 0.0f };
-		Vec3 m_colEmissive = { 0.0f, 0.0f, 0.0f };
-		float m_flOpacity = 1.0f;
+		Vec4 m_vecBaseColourFactor = { 0.0f, 0.0f, 0.0f, 0.0f };
+		Vec3 m_vecEmissiveFactor = { 0.0f, 0.0f, 0.0f };
+		float m_flMetallicFactor = 0.0f;
+		float m_flRoughnessFactor = 0.0f;
 
-		Resource<Texture> m_pAmbient = nullptr;
-		Resource<Texture> m_pDiffuse = nullptr;
-		Resource<Texture> m_pSpecular = nullptr;
-		Resource<Texture> m_pEmissive = nullptr;
+		Resource<Texture> m_pBaseColour = nullptr;
+		Resource<Texture> m_pMetallicRoughness = nullptr;
 		Resource<Texture> m_pNormalMap = nullptr;
-		float m_flShininess = 32.0f;
+		Resource<Texture> m_pOcclusionMap = nullptr;
+		Resource<Texture> m_pEmissiveMap = nullptr;
+
+		AlphaMode m_AlphaMode = AlphaMode::NONE;
+		float m_flAlphaCutoff = 0.5f;
 	};
 }

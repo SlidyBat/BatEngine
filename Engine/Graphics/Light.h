@@ -57,9 +57,9 @@ namespace Bat
 		bool m_bEnabled = true;
 		float m_flSpotlightAngle = 1.0f;
 		LightType m_Type = LightType::POINT;
-		float m_flIntensity = 1.0f;
+		float m_flIntensity = 10.0f;
 		Vec3 m_colColour = { 1.0f, 1.0f, 1.0f };
-		float m_flRange = 10.0f;
+		float m_flRange = 50.0f;
 		LightFlags m_Flags;
 		size_t m_iShadowIndex = INVALID_SHADOW_MAP_INDEX;
 	};

@@ -102,6 +102,13 @@ namespace Bat
 			macros.emplace_back( "HAS_TANGENT" );
 		}
 
+		const Material& material = mesh.GetMaterial();
+
+		if( material.GetAlphaMode() == AlphaMode::MASK )
+		{
+			macros.emplace_back( "MASK_ALPHA" );
+		}
+
 		return macros;
 	}
 
