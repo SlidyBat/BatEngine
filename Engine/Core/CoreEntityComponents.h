@@ -20,9 +20,9 @@ namespace Bat
 	public:
 		TransformComponent() = default;
 		TransformComponent( DirectX::XMMATRIX transform )
-			:
-			transform( transform )
-		{}
+		{
+			SetTransform( transform );
+		}
 
 		TransformComponent& SetPosition( float x, float y, float z ) { position = { x, y, z }; dirty = true; return *this; }
 		TransformComponent& SetPosition( const Vec3& pos ) { return SetPosition( pos.x, pos.y, pos.z ); }
@@ -52,7 +52,7 @@ namespace Bat
 			return transform;
 		}
 
-		void SetTransform( const DirectX::XMMATRIX& new_transform )
+		void SetTransform( DirectX::XMMATRIX new_transform )
 		{
 			transform = new_transform;
 
