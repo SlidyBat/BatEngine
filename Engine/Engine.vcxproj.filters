@@ -2,52 +2,52 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Graphics">
-      <UniqueIdentifier>{6383d89c-36e2-4aca-b123-d2bcfd0832a9}</UniqueIdentifier>
+      <UniqueIdentifier>{261a8c93-d970-47b8-82f5-fe806ab08536}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics\UI">
-      <UniqueIdentifier>{db6dff5e-18ee-4765-9d47-312652918578}</UniqueIdentifier>
+      <UniqueIdentifier>{74840ad8-7cfc-4c14-a90a-5570586fa554}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics\UI\UltralightAdapters">
-      <UniqueIdentifier>{a80ec226-feac-46a1-b4fb-3acdb85a4c8e}</UniqueIdentifier>
+      <UniqueIdentifier>{f17143d0-5b0b-4cc7-aace-ba6f9aa4438b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Animation">
-      <UniqueIdentifier>{16afc025-7814-4d61-a5fd-2f3733c7e7b1}</UniqueIdentifier>
+      <UniqueIdentifier>{9ca15579-d8d8-46b4-a745-326a048b3c56}</UniqueIdentifier>
     </Filter>
     <Filter Include="Physics">
-      <UniqueIdentifier>{9b0c388b-6254-4ba5-8c45-a68a0338e06f}</UniqueIdentifier>
+      <UniqueIdentifier>{b48caa49-dbec-4efb-a3dc-c9545c7fde11}</UniqueIdentifier>
     </Filter>
     <Filter Include="Platform">
-      <UniqueIdentifier>{54dea376-3d03-45ca-96de-c6cf88cf56c3}</UniqueIdentifier>
+      <UniqueIdentifier>{a190ac45-2eae-4183-95cc-d6c2e26d2316}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\ImGui">
-      <UniqueIdentifier>{8cb7846f-9d04-4bda-a5cc-a625cc83d9bd}</UniqueIdentifier>
+      <UniqueIdentifier>{c317a281-2a43-4099-af07-7a5685aac9aa}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty">
-      <UniqueIdentifier>{7ebe3a1f-9344-49bd-bb62-7e482bfd3ae6}</UniqueIdentifier>
+      <UniqueIdentifier>{1e3b26bb-7fde-4363-ac45-3a1b0fa678f2}</UniqueIdentifier>
     </Filter>
     <Filter Include="Util">
-      <UniqueIdentifier>{8864f7be-4bf9-4845-bc56-d6706ddb86fe}</UniqueIdentifier>
+      <UniqueIdentifier>{6badb82f-dbff-484b-8449-9317c81068ee}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core">
-      <UniqueIdentifier>{10ac7c41-0093-461f-96f5-313ccb2e5e44}</UniqueIdentifier>
+      <UniqueIdentifier>{6fc7d832-08d9-4823-ac50-1cbb58e4f59e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Networking">
-      <UniqueIdentifier>{857ba952-8a4e-44e5-becc-982900b7ea21}</UniqueIdentifier>
+      <UniqueIdentifier>{dcbc0819-7f32-43dd-a084-eb5f5dbd7533}</UniqueIdentifier>
     </Filter>
     <Filter Include="Audio">
-      <UniqueIdentifier>{feb33f34-6abd-4658-a6b3-99ba9dce3752}</UniqueIdentifier>
+      <UniqueIdentifier>{8b9e1781-4332-41b1-8b20-bf7ecca224e2}</UniqueIdentifier>
     </Filter>
     <Filter Include="Events">
-      <UniqueIdentifier>{1531757d-0df8-4a57-bc57-d3bcb12d3c80}</UniqueIdentifier>
+      <UniqueIdentifier>{f2f44446-b480-43f8-88d8-5c6bc6fd3cd1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics\Passes">
-      <UniqueIdentifier>{74bb8e63-0f87-4e88-a1cc-caefeb0300ce}</UniqueIdentifier>
+      <UniqueIdentifier>{af4f2d8a-96be-43db-9f89-d4f3de6fede7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics\Shaders">
-      <UniqueIdentifier>{93e0127c-527b-49c8-a33c-9b3b4dc3f5b6}</UniqueIdentifier>
+      <UniqueIdentifier>{705ef6b0-f1b9-4af9-a9e4-08639dfba944}</UniqueIdentifier>
     </Filter>
     <Filter Include="Assets">
-      <UniqueIdentifier>{503a963a-9253-4ac3-b17d-175f3eda25b6}</UniqueIdentifier>
+      <UniqueIdentifier>{fd031e8a-ef15-48bc-b8ef-1bf4b387f321}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -58,9 +58,6 @@
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\ShadowPipeline.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\DDSTextureLoader.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\DebugDraw.cpp">
@@ -127,9 +124,6 @@
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\TexturePipeline.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\WICTextureLoader.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\UI\HtmlUI.cpp">
@@ -264,9 +258,6 @@
     <ClCompile Include="Events\Event.cpp">
       <Filter>Events</Filter>
     </ClCompile>
-    <ClCompile Include="Application.cpp" />
-    <ClCompile Include="PCH.cpp" />
-    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\ParticlePipeline.h">
@@ -276,9 +267,6 @@
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\ShadowPipeline.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\DDSTextureLoader.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\DebugDraw.h">
@@ -375,9 +363,6 @@
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\VertexBuffer.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\WICTextureLoader.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\UI\HtmlUI.h">
@@ -614,9 +599,6 @@
     <ClInclude Include="Events\WindowEvents.h">
       <Filter>Events</Filter>
     </ClInclude>
-    <ClInclude Include="Application.h" />
-    <ClInclude Include="PCH.h" />
-    <ClInclude Include="Resource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\RenderNodeDataTypes.def">
@@ -640,6 +622,12 @@
       <Filter>Graphics\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\BrightExtractPS.hlsl">
+      <Filter>Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\DynamicSkyPS.hlsl">
+      <Filter>Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\DynamicSkyVS.hlsl">
       <Filter>Graphics\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\GaussBlurPS.hlsl">
@@ -681,13 +669,9 @@
     <FxCompile Include="Graphics\Shaders\ToneMappingPS.hlsl">
       <Filter>Graphics\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Graphics\Shaders\DynamicSkyVS.hlsl">
+    <FxCompile Include="Graphics\Shaders\ShadowMapPS.hlsl">
       <Filter>Graphics\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Graphics\Shaders\DynamicSkyPS.hlsl">
-      <Filter>Graphics\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Graphics\Shaders\ShadowMapPS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\mario.png">
@@ -697,7 +681,5 @@
       <Filter>Assets</Filter>
     </Image>
   </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Engine.rc" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>
