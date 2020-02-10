@@ -59,7 +59,7 @@ namespace Bat
 			size_t width,
 			size_t height,
 			TexFormat format,
-			GPUResourceUsage usage = USAGE_DEFAULT,
+			GPUResourceUsage usage = GPUResourceUsage::DEFAULT,
 			TexFlags flags = TexFlags::NONE ) = 0;
 
 		virtual IDepthStencil* CreateDepthStencil( size_t width,

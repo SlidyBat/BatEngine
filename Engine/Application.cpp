@@ -41,6 +41,7 @@ namespace Bat
 		camera( wnd.input, 2.0f, 1.0f ),
 		physics_system( world )
 	{
+		Texture test_hdr( "Assets/Ignore/IBLTest.hdr" );
 		SceneLoader loader;
 
 		camera.SetAspectRatio( (float)wnd.GetWidth() / wnd.GetHeight() );
@@ -682,7 +683,7 @@ namespace Bat
 		auto depth = std::unique_ptr<IDepthStencil>( gpu->CreateDepthStencil( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R24G8_TYPELESS, 1, ms_quality, ms_samples, TexFlags::NO_SHADER_BIND ) );
 		rendergraph.AddDepthStencilResource( "depth", std::move( depth ) );
 
-		rendergraph.AddTextureResource( "skybox", std::unique_ptr<ITexture>( gpu->CreateTexture( skybox_tex ) ) );
+		rendergraph.AddTextureResource( "skybox", std::unique_ptr<ITexture>( gpu->CreateTexture( skybox_tex, TexFlags::NO_GEN_MIPS ) ) );
 
 		// add passes
 		rendergraph.AddPass( "crt", std::make_unique<ClearRenderTargetPass>() );

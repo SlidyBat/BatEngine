@@ -212,12 +212,12 @@ namespace Bat
 		COMPUTE
 	};
 
-	enum GPUResourceUsage
+	enum class GPUResourceUsage
 	{
-		USAGE_DEFAULT	= 0,
-		USAGE_IMMUTABLE	= 1,
-		USAGE_DYNAMIC	= 2,
-		USAGE_STAGING	= 3
+		DEFAULT	= 0,
+		IMMUTABLE	= 1,
+		DYNAMIC	= 2,
+		STAGING	= 3
 	};
 
 	enum class PrimitiveTopology
@@ -302,7 +302,8 @@ namespace Bat
 	enum class TexFlags
 	{
 		NONE = 0,
-		NO_SHADER_BIND = (1 << 0) // This resource won't be bound to a shader
+		NO_SHADER_BIND = (1 << 0), // This resource won't be bound to a shader
+		NO_GEN_MIPS = (1 << 1) // Won't generate mipmaps for this texture
 	};
 	BAT_ENUM_OPERATORS( TexFlags );
 }

@@ -1,7 +1,7 @@
 #include "PCH.h"
 #include "D3DGPUDevice.h"
 
-#include <d3d11.h>
+#include <d3d11_1.h>
 #include <d3dcompiler.h>
 
 #ifdef _DEBUG
@@ -22,8 +22,7 @@
 #include "FileWatchdog.h"
 #include "MemoryStream.h"
 #include <wrl.h>
-#include "WICTextureLoader.h"
-#include "DDSTextureLoader.h"
+#include <DirectXTex/DirectXTex.h>
 
 #include "Hash.h"
 
@@ -427,7 +426,7 @@ namespace Bat
 			size_t width,
 			size_t height,
 			TexFormat format,
-			GPUResourceUsage usage = USAGE_DEFAULT,
+			GPUResourceUsage usage = GPUResourceUsage::DEFAULT,
 			TexFlags flags = TexFlags::NONE ) override;
 
 		virtual IDepthStencil* CreateDepthStencil( size_t width,
@@ -565,6 +564,8 @@ namespace Bat
 
 		void UpdatePixels( ID3D11DeviceContext* pDeviceContext, const void* pPixels, size_t pitch );
 		ID3D11ShaderResourceView* GetShaderResourceView() const { return m_pTextureView.Get(); }
+	private:
+		void InitializeTex( ID3D11Device* pDevice, const DirectX::Image& image, const DirectX::TexMetadata& metadata, GPUResourceUsage usage, TexFlags flags );
 	private:
 		Microsoft::WRL::ComPtr<ID3D11Resource>				m_pTexture = nullptr;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_pTextureView = nullptr;
@@ -2177,144 +2178,86 @@ namespace Bat
 	{
 		std::wstring wfilename = Bat::StringToWide( filename );
 
-		Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext;
-		pDevice->GetImmediateContext( &pContext );
-
+		DirectX::ScratchImage scratch;
+		DirectX::TexMetadata metadata;
+		std::string_view ext = Bat::GetFileExtension( filename );
 
 		if( !std::ifstream( filename ) )
 		{
-			BAT_WARN( "Could not open texture '%s', defaulting to 'error.png'", filename );
 			COM_THROW_IF_FAILED(
-				CreateWICTextureFromFile( pDevice, nullptr, L"Assets/error.png", &m_pTexture, &m_pTextureView )
+				DirectX::LoadFromWICFile( L"Assets/error.png", DirectX::WIC_FLAGS_IGNORE_SRGB, &metadata, scratch )
 			);
 		}
-		else if( Bat::GetFileExtension( filename ) != "dds" )
+		else if( ext == "dds" )
 		{
-			int bind_flags = 0;
-			if( ( flags & TexFlags::NO_SHADER_BIND ) != TexFlags::NO_SHADER_BIND )
-			{
-				bind_flags |= D3D11_BIND_SHADER_RESOURCE;
-			}
-			WIC_TEXTURE_FLAGS wic_flags;
-
 			COM_THROW_IF_FAILED(
-				CreateWICTextureFromFileEx( pDevice,
-					pContext.Get(),
-					wfilename.c_str(),
-					0,
-					D3D11_USAGE_DEFAULT,
-					bind_flags,
-					0,
-					0,
-					WIC_LOADER_IGNORE_SRGB,
-					&m_pTexture,
-					&m_pTextureView,
-					&wic_flags )
+				DirectX::LoadFromDDSFile( wfilename.c_str(), DirectX::DDS_FLAGS_NONE, &metadata, scratch )
 			);
-
-			m_bIsTranslucent = (wic_flags & WIC_TEXTURE_HAS_ALPHA);
+		}
+		else if( ext == "tga" )
+		{
+			COM_THROW_IF_FAILED(
+				DirectX::LoadFromTGAFile( wfilename.c_str(), &metadata, scratch )
+			);
+		}
+		else if( ext == "hdr" )
+		{
+			COM_THROW_IF_FAILED(
+				DirectX::LoadFromHDRFile( wfilename.c_str(), &metadata, scratch )
+			);
 		}
 		else
 		{
-			DDS_ALPHA_MODE alpha_mode;
-
 			COM_THROW_IF_FAILED(
-				CreateDDSTextureFromFile(
-					pDevice,
-					pContext.Get(),
-					wfilename.c_str(),
-					&m_pTexture,
-					&m_pTextureView,
-					0,
-					&alpha_mode )
+				DirectX::LoadFromWICFile( wfilename.c_str(), DirectX::WIC_FLAGS_IGNORE_SRGB, &metadata, scratch )
 			);
-
-			m_bIsTranslucent = (alpha_mode == DDS_ALPHA_MODE_UNKNOWN || alpha_mode == DDS_ALPHA_MODE_STRAIGHT);
 		}
 
-		// get width/height
-		Microsoft::WRL::ComPtr<ID3D11Resource> pResource;
-		m_pTextureView->GetResource( &pResource );
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> pTexture2D;
-		pResource.As( &pTexture2D );
-		D3D11_TEXTURE2D_DESC desc;
-		pTexture2D->GetDesc( &desc );
-		m_Format = (TexFormat)desc.Format;
-		m_iWidth = desc.Width;
-		m_iHeight = desc.Height;
+		const DirectX::Image* image = scratch.GetImage( 0, 0, 0 );
+		ASSERT( image, "Failed to load image" );
+
+		InitializeTex( pDevice, *image, metadata, GPUResourceUsage::DEFAULT, flags );
 	}
 
 	D3DTexture::D3DTexture( ID3D11Device* pDevice, const char* pData, size_t size, TexFlags flags )
 	{
-		WIC_TEXTURE_FLAGS tex_flags;
-
+		DirectX::ScratchImage scratch;
+		DirectX::TexMetadata metadata;
 		COM_THROW_IF_FAILED(
-			CreateWICTextureFromMemory( pDevice,
-				nullptr,
-				reinterpret_cast<const uint8_t*>( pData ),
-				size,
-				&m_pTexture,
-				&m_pTextureView,
-				0,
-				&tex_flags )
+			DirectX::LoadFromWICMemory( pData, size, DirectX::WIC_FLAGS_IGNORE_SRGB, &metadata, scratch )
 		);
 
-		// get width/height
-		Microsoft::WRL::ComPtr<ID3D11Resource> pResource;
-		m_pTextureView->GetResource( &pResource );
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> pTexture2D;
-		pResource.As( &pTexture2D );
+		const DirectX::Image* image = scratch.GetImage( 0, 0, 0 );
+		ASSERT( image, "Failed to load image" );
 
-		D3D11_TEXTURE2D_DESC desc;
-		pTexture2D->GetDesc( &desc );
-		m_iWidth = desc.Width;
-		m_iHeight = desc.Height;
-		m_Format = (TexFormat)desc.Format;
-
-		m_bIsTranslucent = (tex_flags & WIC_TEXTURE_HAS_ALPHA);
+		InitializeTex( pDevice, *image, metadata, GPUResourceUsage::DEFAULT, flags );
 	}
 
 	D3DTexture::D3DTexture( ID3D11Device* pDevice, const void* pPixels, size_t pitch, size_t width, size_t height, TexFormat format, GPUResourceUsage usage, TexFlags flags )
 	{
-		UINT usage_flags = 0;
-		if( usage == USAGE_DYNAMIC )
+		DirectX::Image image;
+		image.width = width;
+		image.height = height;
+		image.format = (DXGI_FORMAT)format;
+		image.rowPitch = pitch;
+		image.pixels = (uint8_t*)pPixels;
+		
+		DirectX::TexMetadata metadata;
+		metadata.width = image.width;
+		metadata.height = image.height;
+		metadata.depth = 1;
+		metadata.format = image.format;
+		metadata.arraySize = 1;
+		metadata.mipLevels = 1;
+		metadata.dimension = DirectX::TEX_DIMENSION_TEXTURE2D;
+		metadata.miscFlags = 0;
+		metadata.miscFlags2 = 0;
+		if( TexFormatInfo( format ).num_alpha_bits == 0 )
 		{
-			usage_flags = D3D11_CPU_ACCESS_WRITE;
+			metadata.SetAlphaMode( DirectX::TEX_ALPHA_MODE_OPAQUE );
 		}
 
-		int bind_flags = 0;
-		if( ( flags & TexFlags::NO_SHADER_BIND ) != TexFlags::NO_SHADER_BIND )
-		{
-			bind_flags |= D3D11_BIND_SHADER_RESOURCE;
-		}
-
-		CD3D11_TEXTURE2D_DESC textureDesc( (DXGI_FORMAT)format, (UINT)width, (UINT)height, 1, 1, bind_flags, (D3D11_USAGE)usage, usage_flags );
-		ID3D11Texture2D* p2DTexture;
-
-		if( pPixels )
-		{
-			D3D11_SUBRESOURCE_DATA initialData{};
-			initialData.pSysMem = pPixels;
-			initialData.SysMemPitch = (UINT)pitch;
-			COM_THROW_IF_FAILED( pDevice->CreateTexture2D( &textureDesc, &initialData, &p2DTexture ) );
-		}
-		else
-		{
-			COM_THROW_IF_FAILED( pDevice->CreateTexture2D( &textureDesc, nullptr, &p2DTexture ) );
-		}
-
-		m_pTexture = static_cast<ID3D11Resource*>( p2DTexture );
-
-		CD3D11_SHADER_RESOURCE_VIEW_DESC srvDesc( D3D11_SRV_DIMENSION_TEXTURE2D, textureDesc.Format );
-		COM_THROW_IF_FAILED(
-			pDevice->CreateShaderResourceView( m_pTexture.Get(), &srvDesc, &m_pTextureView )
-		);
-
-		m_iWidth = width;
-		m_iHeight = height;
-		m_Format = format;
-
-		m_bIsTranslucent = (TexFormatInfo( m_Format ).num_alpha_bits > 0);
+		InitializeTex( pDevice, image, metadata, usage, flags );
 	}
 
 	void D3DTexture::UpdatePixels( ID3D11DeviceContext* pDeviceContext, const void* pPixels, size_t pitch )
@@ -2333,6 +2276,98 @@ namespace Bat
 		}
 
 		pDeviceContext->Unmap( m_pTexture.Get(), 0 );
+	}
+
+	void D3DTexture::InitializeTex( ID3D11Device* pDevice, const DirectX::Image& image, const DirectX::TexMetadata& metadata, GPUResourceUsage usage, TexFlags flags )
+	{
+		bool bindable = ( flags & TexFlags::NO_SHADER_BIND ) != TexFlags::NO_SHADER_BIND;
+		bool gen_mips = ( flags & TexFlags::NO_GEN_MIPS ) != TexFlags::NO_GEN_MIPS;
+
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext> pDeviceContext;
+		if( gen_mips )
+		{
+			pDevice->GetImmediateContext( &pDeviceContext );
+		}
+
+		UINT access_flags = 0;
+		if( usage == GPUResourceUsage::DYNAMIC )
+		{
+			access_flags = D3D11_CPU_ACCESS_WRITE;
+		}
+
+		UINT bind_flags = 0;
+		if( bindable )
+		{
+			bind_flags |= D3D11_BIND_SHADER_RESOURCE;
+		}
+
+		UINT misc_flags = 0;
+		if( gen_mips )
+		{
+			ASSERT( bind_flags & D3D11_BIND_SHADER_RESOURCE, "Cannot generate mips for non-bindable textures" )
+			misc_flags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
+			bind_flags |= D3D11_BIND_RENDER_TARGET;
+		}
+
+		if( metadata.IsCubemap() )
+		{
+			misc_flags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
+		}
+
+		D3D11_TEXTURE2D_DESC desc;
+		desc.Width = (UINT)image.width;
+		desc.Height = (UINT)image.height;
+		desc.ArraySize = (UINT)metadata.arraySize;
+		desc.MipLevels = gen_mips ? 0 : 1;
+		desc.Format = image.format;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.Usage = (D3D11_USAGE)usage;
+		desc.BindFlags = bind_flags;
+		desc.CPUAccessFlags = access_flags;
+		desc.MiscFlags = misc_flags;
+
+		ID3D11Texture2D* p2DTexture;
+		if( image.pixels && !gen_mips )
+		{
+			std::vector<D3D11_SUBRESOURCE_DATA> initialData;
+			initialData.resize( desc.ArraySize );
+			for( UINT i = 0; i < desc.ArraySize; i++ )
+			{
+				initialData[i].pSysMem = image.pixels + i * image.slicePitch;
+				initialData[i].SysMemPitch = (UINT)image.rowPitch;
+				initialData[i].SysMemSlicePitch = (UINT)image.slicePitch;
+			}
+			COM_THROW_IF_FAILED( pDevice->CreateTexture2D( &desc, initialData.data(), &p2DTexture ) );
+		}
+		else
+		{
+			COM_THROW_IF_FAILED( pDevice->CreateTexture2D( &desc, nullptr, &p2DTexture ) );
+		}
+
+		m_pTexture = static_cast<ID3D11Resource*>( p2DTexture );
+
+		if( image.pixels && gen_mips )
+		{
+			ASSERT( desc.ArraySize == 1, "Mip generation for array textures is unsupported" );
+			pDeviceContext->UpdateSubresource( m_pTexture.Get(), 0, nullptr, image.pixels, (UINT)image.rowPitch, (UINT)image.slicePitch );
+		}
+
+		CD3D11_SHADER_RESOURCE_VIEW_DESC srvDesc( metadata.IsCubemap() ? D3D11_SRV_DIMENSION_TEXTURECUBE : D3D11_SRV_DIMENSION_TEXTURE2D, desc.Format );
+		COM_THROW_IF_FAILED(
+			pDevice->CreateShaderResourceView( m_pTexture.Get(), &srvDesc, &m_pTextureView )
+		);
+
+		if( ( flags & TexFlags::NO_GEN_MIPS ) != TexFlags::NO_GEN_MIPS )
+		{
+			pDeviceContext->GenerateMips( m_pTextureView.Get() );
+		}
+
+		m_iWidth = image.width;
+		m_iHeight = image.height;
+		m_Format = (TexFormat)image.format;
+
+		m_bIsTranslucent = ( TexFormatInfo( m_Format ).num_alpha_bits > 0 );
 	}
 
 	D3DRenderTarget::D3DRenderTarget( ID3D11Device* pDevice,
