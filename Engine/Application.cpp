@@ -18,6 +18,7 @@
 #include "ShaderManager.h"
 #include "RenderData.h"
 #include "EntityTrace.h"
+#include "GraphicsConvert.h"
 #include "Passes/ClearRenderTargetPass.h"
 #include "Passes/SkyboxPass.h"
 #include "Passes/BloomPass.h"
@@ -48,7 +49,7 @@ namespace Bat
 		scene.Set( world.CreateEntity() ); // Root entity
 		scale_index = scene.AddChild( world.CreateEntity() );
 		SceneNode& scale_node = scene.GetChild( scale_index );
-		scale_node.AddChild( loader.Load( "Assets/Ignore/Sponza/sponza.gltf" ) );
+		scale_node.AddChild( loader.Load( "Assets/Ignore/MetalRoughSpheres.glb" ) );
 		Entity floor = world.CreateEntity();
 		floor.Add<TransformComponent>()
 			.SetPosition( { 0.0f, -2.0f, 0.0f } )
@@ -57,9 +58,10 @@ namespace Bat
 			.AddPlaneShape();
 
 		scale_node.Get().Add<TransformComponent>()
-			.SetScale( 0.01f );
+			.SetScale( 0.5f );
 
 		// Fire
+		if( false )
 		{
 			Entity emitter_test = world.CreateEntity();
 			emitter_test.Add<TransformComponent>()
@@ -631,7 +633,10 @@ namespace Bat
 
 	void Application::BuildRenderGraph()
 	{
+		IGPUContext* pContext = gpu->GetContext();
+
 		ScratchRenderTarget::Clear();
+		ShaderManager::BindShaderGlobals( gfx.GetActiveCamera(), { (float)wnd.GetWidth(), (float)wnd.GetHeight() }, pContext );
 
 		rendergraph.Reset();
 
@@ -681,7 +686,24 @@ namespace Bat
 		auto depth = std::unique_ptr<IDepthStencil>( gpu->CreateDepthStencil( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R24G8_TYPELESS, 1, ms_quality, ms_samples, TexFlags::NO_SHADER_BIND ) );
 		rendergraph.AddDepthStencilResource( "depth", std::move( depth ) );
 
-		rendergraph.AddTextureResource( "skybox", std::unique_ptr<ITexture>( gpu->CreateTexture( skybox_tex ) ) );
+		std::unique_ptr<ITexture> envmap;
+		if( Bat::GetFileExtension( skybox_tex ) == "hdr" )
+		{
+			auto hdrmap = std::unique_ptr<ITexture>( gpu->CreateTexture( skybox_tex, TexFlags::NO_GEN_MIPS ) );
+			envmap = std::unique_ptr<ITexture>( GraphicsConvert::EquirectangularToCubemap( pContext, hdrmap.get(), 512, 512 ) );
+		}
+		else
+		{
+			envmap = std::unique_ptr<ITexture>( gpu->CreateTexture( skybox_tex, TexFlags::NO_GEN_MIPS ) );
+		}
+		auto irradiance = std::unique_ptr<ITexture>( GraphicsConvert::MakeIrradianceMap( pContext, envmap.get(), 32, 32 ) );
+		auto prefilter = std::unique_ptr<ITexture>( GraphicsConvert::MakePreFilteredEnvMap( pContext, envmap.get(), 128, 128 ) );
+		auto brdf_integration = std::unique_ptr<ITexture>( GraphicsConvert::MakeBrdfIntegrationMap( pContext, 512, 512 ) );
+
+		rendergraph.AddTextureResource( "skybox", std::move( envmap ) );
+		rendergraph.AddTextureResource( "irradiance", std::move( irradiance ) );
+		rendergraph.AddTextureResource( "prefilter", std::move( prefilter ) );
+		rendergraph.AddTextureResource( "brdf", std::move( brdf_integration ) );
 
 		// add passes
 		rendergraph.AddPass( "crt", std::make_unique<ClearRenderTargetPass>() );
@@ -694,18 +716,26 @@ namespace Bat
 		{
 			rendergraph.AddPass( "opaque", std::make_unique<OpaquePass>() );
 			rendergraph.BindToResource( "opaque.dst", "target" );
+			rendergraph.BindToResource( "opaque.irradiance", "irradiance" );
+			rendergraph.BindToResource( "opaque.prefilter", "prefilter" );
+			rendergraph.BindToResource( "opaque.brdf", "brdf" );
 		}
 
 		if( transparent_pass )
 		{
 			rendergraph.AddPass( "transparent", std::make_unique<TransparentPass>() );
 			rendergraph.BindToResource( "transparent.dst", "target" );
+			rendergraph.BindToResource( "transparent.irradiance", "irradiance" );
+			rendergraph.BindToResource( "transparent.prefilter", "prefilter" );
+			rendergraph.BindToResource( "transparent.brdf", "brdf" );
 		}
 
 		rendergraph.AddPass( "draw_lights", std::make_unique<DrawLightsPass>() );
 
 		if( skybox_enabled )
 		{
+			rendergraph.BindToResource( "draw_lights.dst", "target" );
+
 			rendergraph.AddPass( "skybox", std::make_unique<SkyboxPass>() );
 			rendergraph.BindToResource( "skybox.skyboxtex", "skybox" );
 		}

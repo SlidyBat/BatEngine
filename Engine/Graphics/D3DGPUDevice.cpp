@@ -1,7 +1,7 @@
 #include "PCH.h"
 #include "D3DGPUDevice.h"
 
-#include <d3d11.h>
+#include <d3d11_1.h>
 #include <d3dcompiler.h>
 
 #ifdef _DEBUG
@@ -22,8 +22,7 @@
 #include "FileWatchdog.h"
 #include "MemoryStream.h"
 #include <wrl.h>
-#include "WICTextureLoader.h"
-#include "DDSTextureLoader.h"
+#include <DirectXTex/DirectXTex.h>
 
 #include "Hash.h"
 
@@ -188,28 +187,39 @@ namespace Bat
 			size_t ms_samples,
 			TexFlags flags );
 
+		static D3DRenderTarget* Cubemap( ID3D11Device* pDevice,
+			size_t width,
+			size_t height,
+			TexFormat format,
+			size_t mip_levels,
+			TexFlags flags );
+
 		virtual size_t GetWidth() const override { return m_iWidth; }
 		virtual size_t GetHeight() const override { return m_iHeight; }
 		virtual TexFormat GetFormat() const override { return m_Format; }
+		virtual ITexture* AsTexture() const override;
 
-		ID3D11RenderTargetView*   GetRenderTargetView() const { return m_pRenderTargetView.Get(); }
+		ID3D11RenderTargetView*   GetRenderTargetView( size_t array_index, size_t mip_index ) const { return m_pRenderTargetViews[array_index * m_iMipLevels + mip_index].Get(); }
 		ID3D11ShaderResourceView* GetShaderResourceView() const { return m_pShaderResourceView.Get(); }
 		ID3D11Texture2D*          GetResource() const { return m_pRenderTargetTexture.Get(); }
 		void Reset( ID3D11RenderTargetView* pRenderTargetView, size_t width, size_t height )
 		{
-			m_pRenderTargetView = pRenderTargetView;
+			m_pRenderTargetViews.resize( 1 );
+			m_pRenderTargetViews[0] = pRenderTargetView;
 
 			m_iWidth = width;
 			m_iHeight = height;
 		}
 	private:
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> m_pRenderTargetTexture = nullptr;
-		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_pRenderTargetView = nullptr;
+		std::vector<Microsoft::WRL::ComPtr<ID3D11RenderTargetView>> m_pRenderTargetViews;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_pShaderResourceView = nullptr;
 
 		TexFormat m_Format = TEX_FORMAT_UNKNOWN;
 		size_t m_iWidth = 0;
 		size_t m_iHeight = 0;
+		size_t m_iMipLevels = 1;
+		D3D_SRV_DIMENSION m_Dimension;
 	};
 
 	class D3DPixelShader : public IPixelShader
@@ -325,9 +335,9 @@ namespace Bat
 
 		virtual size_t GetRenderTargetCount() const override;
 		// Get's currently bound render target, or nullptr if no render target is bound
-		virtual IRenderTarget* GetRenderTarget(size_t slot = 0) const override;
+		virtual IRenderTarget* GetRenderTarget( size_t slot = 0 ) const override;
 		// Sets current render target. Pass nullptr to bind backbuffer
-		virtual void SetRenderTarget( IRenderTarget* pRT ) override;
+		virtual void SetRenderTarget( IRenderTarget* pRT, size_t array_index = 0, size_t mip_index = 0 ) override;
 		virtual void SetRenderTargets( const std::vector<IRenderTarget*>& pRTs ) override;
 		virtual void PushRenderTarget() override;
 		virtual void PushRenderTarget( IRenderTarget* pRT ) override;
@@ -340,7 +350,7 @@ namespace Bat
 		virtual void PushRenderTargetAndViewport( IRenderTarget* pRT ) override;
 		virtual void PopRenderTargetAndViewport() override;
 
-		virtual void ClearRenderTarget( IRenderTarget* pRT, float r, float g, float b, float a ) override;
+		virtual void ClearRenderTarget( IRenderTarget* pRT, float r, float g, float b, float a, size_t array_index = 0, size_t mip_index = 0 ) override;
 		virtual void ClearDepthStencil( IDepthStencil* pDepthStencil, int clearflag, float depth, uint8_t stencil, size_t index = 0 ) override;
 		virtual void Resolve( IRenderTarget* pDst, IRenderTarget* pSrc ) override;
 
@@ -360,13 +370,9 @@ namespace Bat
 		virtual void* Lock( IConstantBuffer* pBuffer ) override;
 		virtual void Unlock( IConstantBuffer* pBuffer ) override;
 
-		// Gets currently bound pixel shader, or nullptr if none are bound
 		virtual IPixelShader* GetPixelShader() const override;
-		// Binds a pixel shader. Pass nullptr to unbind pixel shader.
 		virtual void SetPixelShader( IPixelShader* pShader ) override;
-		// Gets currently bound vertex shader, or nullptr if none are bound
 		virtual IVertexShader* GetVertexShader() const override;
-		// Binds a vertex shader. Pass nullptr to unbind pixel shader.
 		virtual void SetVertexShader( IVertexShader* pShader ) override;
 
 		virtual void SetVertexBuffer( IVertexBuffer* pBuffer, size_t slot = 0 ) override;
@@ -395,6 +401,8 @@ namespace Bat
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_pDeviceContext;
 		Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation> m_pAnnotation;
 		std::vector<std::vector<IRenderTarget*>> m_RenderTargetStack;
+		size_t m_iRenderTargetArrayIndex = 0;
+		size_t m_iRenderTargetMipIndex = 0;
 		std::vector<std::vector<Viewport>> m_ViewportStack;
 		class D3DDepthStencil* m_pDepthStencil = nullptr;
 		size_t m_iDepthStencilIndex = 0;
@@ -427,7 +435,7 @@ namespace Bat
 			size_t width,
 			size_t height,
 			TexFormat format,
-			GPUResourceUsage usage = USAGE_DEFAULT,
+			GPUResourceUsage usage = GPUResourceUsage::DEFAULT,
 			TexFlags flags = TexFlags::NONE ) override;
 
 		virtual IDepthStencil* CreateDepthStencil( size_t width,
@@ -443,6 +451,11 @@ namespace Bat
 			TexFormat format,
 			MsaaQuality ms_quality = MsaaQuality::NONE,
 			size_t ms_samples = 1,
+			TexFlags flags = TexFlags::NONE ) override;
+		virtual IRenderTarget* CreateCubemapRenderTarget( size_t width,
+			size_t height,
+			TexFormat format,
+			size_t mip_levels = 1,
 			TexFlags flags = TexFlags::NONE ) override;
 		virtual IRenderTarget* GetBackbuffer() override;
 		virtual const IRenderTarget* GetBackbuffer() const override;
@@ -546,16 +559,14 @@ namespace Bat
 	class D3DTexture : public ITexture
 	{
 	public:
+		D3DTexture( ID3D11Resource* texture,
+			ID3D11ShaderResourceView* texture_view,
+			TexFormat format,
+			size_t width,
+			size_t height );
 		D3DTexture( ID3D11Device* pDevice, const std::string& filename, TexFlags flags );
 		D3DTexture( ID3D11Device* pDevice, const char* pData, size_t size, TexFlags flags );
-		D3DTexture( ID3D11Device* pDevice,
-			const void* pPixels,
-			size_t pitch,
-			size_t width,
-			size_t height,
-			TexFormat format,
-			GPUResourceUsage usage,
-			TexFlags flags );
+		D3DTexture( ID3D11Device* pDevice, const DirectX::Image& image, const DirectX::TexMetadata& metadata, GPUResourceUsage usage, TexFlags flags );
 
 		virtual size_t GetWidth() const override { return m_iWidth; }
 		virtual size_t GetHeight() const override { return m_iHeight; }
@@ -565,6 +576,8 @@ namespace Bat
 
 		void UpdatePixels( ID3D11DeviceContext* pDeviceContext, const void* pPixels, size_t pitch );
 		ID3D11ShaderResourceView* GetShaderResourceView() const { return m_pTextureView.Get(); }
+	private:
+		void InitializeTex( ID3D11Device* pDevice, const DirectX::Image& image, const DirectX::TexMetadata& metadata, GPUResourceUsage usage, TexFlags flags );
 	private:
 		Microsoft::WRL::ComPtr<ID3D11Resource>				m_pTexture = nullptr;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_pTextureView = nullptr;
@@ -958,8 +971,10 @@ namespace Bat
 		return m_RenderTargetStack.back()[slot];
 	}
 
-	void D3DGPUContext::SetRenderTarget( IRenderTarget* pRT )
+	void D3DGPUContext::SetRenderTarget( IRenderTarget* pRT, size_t array_index, size_t mip_index )
 	{
+		m_iRenderTargetArrayIndex = array_index;
+		m_iRenderTargetMipIndex = mip_index;
 		if( m_RenderTargetStack.empty() )
 		{
 			m_RenderTargetStack.push_back( { pRT } );
@@ -1073,14 +1088,14 @@ namespace Bat
 		m_pDeviceContext->ResolveSubresource( pDstResource, 0, pSrcResource, 0, format );
 	}
 
-	void D3DGPUContext::ClearRenderTarget( IRenderTarget* pRT, float r, float g, float b, float a )
+	void D3DGPUContext::ClearRenderTarget( IRenderTarget* pRT, float r, float g, float b, float a, size_t array_index, size_t mip_index )
 	{
 		if( !pRT )
 		{
 			pRT = m_pDevice->GetBackbuffer();
 		}
 
-		ID3D11RenderTargetView* pView = static_cast<D3DRenderTarget*>( pRT )->GetRenderTargetView();
+		ID3D11RenderTargetView* pView = static_cast<D3DRenderTarget*>( pRT )->GetRenderTargetView( array_index, mip_index );
 		float colour[4];
 		colour[0] = r;
 		colour[1] = g;
@@ -1347,7 +1362,7 @@ namespace Bat
 				const IRenderTarget* rt = m_RenderTargetStack.back()[i];
 				if( rt )
 				{
-					d3d11rts.push_back( static_cast<const D3DRenderTarget*>(rt)->GetRenderTargetView() );
+					d3d11rts.push_back( static_cast<const D3DRenderTarget*>(rt)->GetRenderTargetView( m_iRenderTargetArrayIndex, m_iRenderTargetMipIndex ) );
 				}
 				else
 				{
@@ -1567,7 +1582,7 @@ namespace Bat
 #define CREATE_N_DESTROY_MSG( type ) D3D11_MESSAGE_ID_CREATE_##type, D3D11_MESSAGE_ID_DESTROY_##type
 				std::vector<DXGI_INFO_QUEUE_MESSAGE_ID> message_filter_list = {
 					D3D11_MESSAGE_ID_DEVICE_DRAW_SHADERRESOURCEVIEW_NOT_SET,
-					//D3D11_MESSAGE_ID_DEVICE_DRAW_RENDERTARGETVIEW_NOT_SET,
+					D3D11_MESSAGE_ID_DEVICE_DRAW_RENDERTARGETVIEW_NOT_SET,
 					CREATE_N_DESTROY_MSG( AUTHENTICATEDCHANNEL ),
 					CREATE_N_DESTROY_MSG( BLENDSTATE ),
 					CREATE_N_DESTROY_MSG( BUFFER ),
@@ -1671,7 +1686,29 @@ namespace Bat
 		GPUResourceUsage usage,
 		TexFlags flags )
 	{
-		return new D3DTexture( m_pDevice.Get(), pPixels, pitch, width, height, format, usage, flags );
+		DirectX::Image image;
+		image.width = width;
+		image.height = height;
+		image.format = (DXGI_FORMAT)format;
+		image.rowPitch = pitch;
+		image.pixels = (uint8_t*)pPixels;
+
+		DirectX::TexMetadata metadata;
+		metadata.width = image.width;
+		metadata.height = image.height;
+		metadata.depth = 1;
+		metadata.format = image.format;
+		metadata.arraySize = 1;
+		metadata.mipLevels = 1;
+		metadata.dimension = DirectX::TEX_DIMENSION_TEXTURE2D;
+		metadata.miscFlags = 0;
+		metadata.miscFlags2 = 0;
+		if( TexFormatInfo( format ).num_alpha_bits == 0 )
+		{
+			metadata.SetAlphaMode( DirectX::TEX_ALPHA_MODE_OPAQUE );
+		}
+
+		return new D3DTexture( m_pDevice.Get(), image, metadata, usage, flags );
 	}
 
 	IDepthStencil* D3DGPUDevice::CreateDepthStencil( size_t width,
@@ -1693,6 +1730,15 @@ namespace Bat
 		TexFlags flags )
 	{
 		return new D3DRenderTarget( m_pDevice.Get(), width, height, format, ms_quality, ms_samples, flags );
+	}
+
+	IRenderTarget* D3DGPUDevice::CreateCubemapRenderTarget( size_t width,
+		size_t height,
+		TexFormat format,
+		size_t mip_levels,
+		TexFlags flags )
+	{
+		return D3DRenderTarget::Cubemap( m_pDevice.Get(), width, height, format, mip_levels, flags );
 	}
 
 	IRenderTarget* D3DGPUDevice::GetBackbuffer()
@@ -2173,148 +2219,79 @@ namespace Bat
 		SetDirty( true );
 	}
 
+	D3DTexture::D3DTexture( ID3D11Resource* texture, ID3D11ShaderResourceView* texture_view, TexFormat format, size_t width, size_t height )
+	{
+		m_pTexture = texture;
+		m_pTextureView = texture_view;
+		
+		m_Format = format;
+		m_iWidth = width;
+		m_iHeight = height;
+		m_bIsTranslucent = TexFormatInfo( format ).num_alpha_bits > 0;
+	}
+
 	D3DTexture::D3DTexture( ID3D11Device* pDevice, const std::string& filename, TexFlags flags )
 	{
 		std::wstring wfilename = Bat::StringToWide( filename );
 
-		Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext;
-		pDevice->GetImmediateContext( &pContext );
-
+		DirectX::ScratchImage scratch;
+		DirectX::TexMetadata metadata;
+		std::string_view ext = Bat::GetFileExtension( filename );
 
 		if( !std::ifstream( filename ) )
 		{
-			BAT_WARN( "Could not open texture '%s', defaulting to 'error.png'", filename );
 			COM_THROW_IF_FAILED(
-				CreateWICTextureFromFile( pDevice, nullptr, L"Assets/error.png", &m_pTexture, &m_pTextureView )
+				DirectX::LoadFromWICFile( L"Assets/error.png", DirectX::WIC_FLAGS_IGNORE_SRGB, &metadata, scratch )
 			);
 		}
-		else if( Bat::GetFileExtension( filename ) != "dds" )
+		else if( ext == "dds" )
 		{
-			int bind_flags = 0;
-			if( ( flags & TexFlags::NO_SHADER_BIND ) != TexFlags::NO_SHADER_BIND )
-			{
-				bind_flags |= D3D11_BIND_SHADER_RESOURCE;
-			}
-			WIC_TEXTURE_FLAGS wic_flags;
-
 			COM_THROW_IF_FAILED(
-				CreateWICTextureFromFileEx( pDevice,
-					pContext.Get(),
-					wfilename.c_str(),
-					0,
-					D3D11_USAGE_DEFAULT,
-					bind_flags,
-					0,
-					0,
-					WIC_LOADER_IGNORE_SRGB,
-					&m_pTexture,
-					&m_pTextureView,
-					&wic_flags )
+				DirectX::LoadFromDDSFile( wfilename.c_str(), DirectX::DDS_FLAGS_NONE, &metadata, scratch )
 			);
-
-			m_bIsTranslucent = (wic_flags & WIC_TEXTURE_HAS_ALPHA);
+		}
+		else if( ext == "tga" )
+		{
+			COM_THROW_IF_FAILED(
+				DirectX::LoadFromTGAFile( wfilename.c_str(), &metadata, scratch )
+			);
+		}
+		else if( ext == "hdr" )
+		{
+			COM_THROW_IF_FAILED(
+				DirectX::LoadFromHDRFile( wfilename.c_str(), &metadata, scratch )
+			);
 		}
 		else
 		{
-			DDS_ALPHA_MODE alpha_mode;
-
 			COM_THROW_IF_FAILED(
-				CreateDDSTextureFromFile(
-					pDevice,
-					pContext.Get(),
-					wfilename.c_str(),
-					&m_pTexture,
-					&m_pTextureView,
-					0,
-					&alpha_mode )
+				DirectX::LoadFromWICFile( wfilename.c_str(), DirectX::WIC_FLAGS_IGNORE_SRGB, &metadata, scratch )
 			);
-
-			m_bIsTranslucent = (alpha_mode == DDS_ALPHA_MODE_UNKNOWN || alpha_mode == DDS_ALPHA_MODE_STRAIGHT);
 		}
 
-		// get width/height
-		Microsoft::WRL::ComPtr<ID3D11Resource> pResource;
-		m_pTextureView->GetResource( &pResource );
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> pTexture2D;
-		pResource.As( &pTexture2D );
-		D3D11_TEXTURE2D_DESC desc;
-		pTexture2D->GetDesc( &desc );
-		m_Format = (TexFormat)desc.Format;
-		m_iWidth = desc.Width;
-		m_iHeight = desc.Height;
+		const DirectX::Image* image = scratch.GetImage( 0, 0, 0 );
+		ASSERT( image, "Failed to load image" );
+
+		InitializeTex( pDevice, *image, metadata, GPUResourceUsage::DEFAULT, flags );
 	}
 
 	D3DTexture::D3DTexture( ID3D11Device* pDevice, const char* pData, size_t size, TexFlags flags )
 	{
-		WIC_TEXTURE_FLAGS tex_flags;
-
+		DirectX::ScratchImage scratch;
+		DirectX::TexMetadata metadata;
 		COM_THROW_IF_FAILED(
-			CreateWICTextureFromMemory( pDevice,
-				nullptr,
-				reinterpret_cast<const uint8_t*>( pData ),
-				size,
-				&m_pTexture,
-				&m_pTextureView,
-				0,
-				&tex_flags )
+			DirectX::LoadFromWICMemory( pData, size, DirectX::WIC_FLAGS_IGNORE_SRGB, &metadata, scratch )
 		);
 
-		// get width/height
-		Microsoft::WRL::ComPtr<ID3D11Resource> pResource;
-		m_pTextureView->GetResource( &pResource );
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> pTexture2D;
-		pResource.As( &pTexture2D );
+		const DirectX::Image* image = scratch.GetImage( 0, 0, 0 );
+		ASSERT( image, "Failed to load image" );
 
-		D3D11_TEXTURE2D_DESC desc;
-		pTexture2D->GetDesc( &desc );
-		m_iWidth = desc.Width;
-		m_iHeight = desc.Height;
-		m_Format = (TexFormat)desc.Format;
-
-		m_bIsTranslucent = (tex_flags & WIC_TEXTURE_HAS_ALPHA);
+		InitializeTex( pDevice, *image, metadata, GPUResourceUsage::DEFAULT, flags );
 	}
 
-	D3DTexture::D3DTexture( ID3D11Device* pDevice, const void* pPixels, size_t pitch, size_t width, size_t height, TexFormat format, GPUResourceUsage usage, TexFlags flags )
+	D3DTexture::D3DTexture( ID3D11Device* pDevice, const DirectX::Image& image, const DirectX::TexMetadata& metadata, GPUResourceUsage usage, TexFlags flags )
 	{
-		UINT usage_flags = 0;
-		if( usage == USAGE_DYNAMIC )
-		{
-			usage_flags = D3D11_CPU_ACCESS_WRITE;
-		}
-
-		int bind_flags = 0;
-		if( ( flags & TexFlags::NO_SHADER_BIND ) != TexFlags::NO_SHADER_BIND )
-		{
-			bind_flags |= D3D11_BIND_SHADER_RESOURCE;
-		}
-
-		CD3D11_TEXTURE2D_DESC textureDesc( (DXGI_FORMAT)format, (UINT)width, (UINT)height, 1, 1, bind_flags, (D3D11_USAGE)usage, usage_flags );
-		ID3D11Texture2D* p2DTexture;
-
-		if( pPixels )
-		{
-			D3D11_SUBRESOURCE_DATA initialData{};
-			initialData.pSysMem = pPixels;
-			initialData.SysMemPitch = (UINT)pitch;
-			COM_THROW_IF_FAILED( pDevice->CreateTexture2D( &textureDesc, &initialData, &p2DTexture ) );
-		}
-		else
-		{
-			COM_THROW_IF_FAILED( pDevice->CreateTexture2D( &textureDesc, nullptr, &p2DTexture ) );
-		}
-
-		m_pTexture = static_cast<ID3D11Resource*>( p2DTexture );
-
-		CD3D11_SHADER_RESOURCE_VIEW_DESC srvDesc( D3D11_SRV_DIMENSION_TEXTURE2D, textureDesc.Format );
-		COM_THROW_IF_FAILED(
-			pDevice->CreateShaderResourceView( m_pTexture.Get(), &srvDesc, &m_pTextureView )
-		);
-
-		m_iWidth = width;
-		m_iHeight = height;
-		m_Format = format;
-
-		m_bIsTranslucent = (TexFormatInfo( m_Format ).num_alpha_bits > 0);
+		InitializeTex( pDevice, image, metadata, usage, flags );
 	}
 
 	void D3DTexture::UpdatePixels( ID3D11DeviceContext* pDeviceContext, const void* pPixels, size_t pitch )
@@ -2335,6 +2312,98 @@ namespace Bat
 		pDeviceContext->Unmap( m_pTexture.Get(), 0 );
 	}
 
+	void D3DTexture::InitializeTex( ID3D11Device* pDevice, const DirectX::Image& image, const DirectX::TexMetadata& metadata, GPUResourceUsage usage, TexFlags flags )
+	{
+		bool bindable = ( flags & TexFlags::NO_SHADER_BIND ) != TexFlags::NO_SHADER_BIND;
+		bool gen_mips = ( flags & TexFlags::NO_GEN_MIPS ) != TexFlags::NO_GEN_MIPS;
+
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext> pDeviceContext;
+		if( gen_mips )
+		{
+			pDevice->GetImmediateContext( &pDeviceContext );
+		}
+
+		UINT access_flags = 0;
+		if( usage == GPUResourceUsage::DYNAMIC )
+		{
+			access_flags = D3D11_CPU_ACCESS_WRITE;
+		}
+
+		UINT bind_flags = 0;
+		if( bindable )
+		{
+			bind_flags |= D3D11_BIND_SHADER_RESOURCE;
+		}
+
+		UINT misc_flags = 0;
+		if( gen_mips )
+		{
+			ASSERT( bind_flags & D3D11_BIND_SHADER_RESOURCE, "Cannot generate mips for non-bindable textures" )
+			misc_flags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
+			bind_flags |= D3D11_BIND_RENDER_TARGET;
+		}
+
+		if( metadata.IsCubemap() )
+		{
+			misc_flags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
+		}
+
+		D3D11_TEXTURE2D_DESC desc;
+		desc.Width = (UINT)image.width;
+		desc.Height = (UINT)image.height;
+		desc.ArraySize = (UINT)metadata.arraySize;
+		desc.MipLevels = gen_mips ? 0 : (UINT)metadata.mipLevels;
+		desc.Format = image.format;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.Usage = (D3D11_USAGE)usage;
+		desc.BindFlags = bind_flags;
+		desc.CPUAccessFlags = access_flags;
+		desc.MiscFlags = misc_flags;
+
+		ID3D11Texture2D* p2DTexture;
+		if( image.pixels && !gen_mips )
+		{
+			std::vector<D3D11_SUBRESOURCE_DATA> initialData;
+			initialData.resize( desc.ArraySize );
+			for( UINT i = 0; i < desc.ArraySize; i++ )
+			{
+				initialData[i].pSysMem = image.pixels + i * image.slicePitch;
+				initialData[i].SysMemPitch = (UINT)image.rowPitch;
+				initialData[i].SysMemSlicePitch = (UINT)image.slicePitch;
+			}
+			COM_THROW_IF_FAILED( pDevice->CreateTexture2D( &desc, initialData.data(), &p2DTexture ) );
+		}
+		else
+		{
+			COM_THROW_IF_FAILED( pDevice->CreateTexture2D( &desc, nullptr, &p2DTexture ) );
+		}
+
+		m_pTexture = static_cast<ID3D11Resource*>( p2DTexture );
+
+		if( image.pixels && gen_mips )
+		{
+			ASSERT( desc.ArraySize == 1, "Mip generation for array textures is unsupported" );
+			pDeviceContext->UpdateSubresource( m_pTexture.Get(), 0, nullptr, image.pixels, (UINT)image.rowPitch, (UINT)image.slicePitch );
+		}
+
+		CD3D11_SHADER_RESOURCE_VIEW_DESC srvDesc( metadata.IsCubemap() ? D3D11_SRV_DIMENSION_TEXTURECUBE : D3D11_SRV_DIMENSION_TEXTURE2D, desc.Format );
+		COM_THROW_IF_FAILED(
+			pDevice->CreateShaderResourceView( m_pTexture.Get(), &srvDesc, &m_pTextureView )
+		);
+
+		if( gen_mips )
+		{
+			pDeviceContext->GenerateMips( m_pTextureView.Get() );
+		}
+
+		m_iWidth = image.width;
+		m_iHeight = image.height;
+		m_Format = (TexFormat)image.format;
+
+		m_bIsTranslucent = ( TexFormatInfo( m_Format ).num_alpha_bits > 0 );
+	}
+
 	D3DRenderTarget::D3DRenderTarget( ID3D11Device* pDevice,
 		size_t width,
 		size_t height,
@@ -2346,6 +2415,7 @@ namespace Bat
 		m_Format = format;
 		m_iWidth = width;
 		m_iHeight = height;
+		m_Dimension = D3D_SRV_DIMENSION_TEXTURE2D;
 
 		UINT bind_flags = D3D11_BIND_RENDER_TARGET;
 		if( ( flags & TexFlags::NO_SHADER_BIND ) != TexFlags::NO_SHADER_BIND )
@@ -2379,10 +2449,11 @@ namespace Bat
 			renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
 		}
 
+		m_pRenderTargetViews.resize( 1 );
 		COM_THROW_IF_FAILED(
 			pDevice->CreateRenderTargetView( m_pRenderTargetTexture.Get(),
 				&renderTargetViewDesc,
-				&m_pRenderTargetView
+				&m_pRenderTargetViews[0]
 			)
 		);
 
@@ -2403,6 +2474,75 @@ namespace Bat
 
 			COM_THROW_IF_FAILED( pDevice->CreateShaderResourceView( m_pRenderTargetTexture.Get(), &shaderResourceViewDesc, &m_pShaderResourceView ) );
 		}
+	}
+
+	D3DRenderTarget* D3DRenderTarget::Cubemap( ID3D11Device* pDevice, size_t width, size_t height, TexFormat format, size_t mip_levels, TexFlags flags )
+	{
+		auto rt = new D3DRenderTarget;
+		rt->m_Format = format;
+		rt->m_iWidth = width;
+		rt->m_iHeight = height;
+		rt->m_Dimension = D3D_SRV_DIMENSION_TEXTURECUBE;
+		rt->m_iMipLevels = mip_levels;
+
+		UINT bind_flags = D3D11_BIND_RENDER_TARGET;
+		if( ( flags & TexFlags::NO_SHADER_BIND ) != TexFlags::NO_SHADER_BIND )
+		{
+			bind_flags |= D3D11_BIND_SHADER_RESOURCE;
+		}
+
+		D3D11_TEXTURE2D_DESC textureDesc{};
+		textureDesc.Width = (UINT)width;
+		textureDesc.Height = (UINT)height;
+		textureDesc.MipLevels = (UINT)mip_levels;
+		textureDesc.ArraySize = 6;
+		textureDesc.Format = (DXGI_FORMAT)format;
+		textureDesc.SampleDesc.Count = 1;
+		textureDesc.SampleDesc.Quality = 0;
+		textureDesc.Usage = D3D11_USAGE_DEFAULT;
+		textureDesc.BindFlags = bind_flags;
+		textureDesc.CPUAccessFlags = 0;
+		textureDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+		COM_THROW_IF_FAILED( pDevice->CreateTexture2D( &textureDesc, NULL, &rt->m_pRenderTargetTexture ) );
+
+		rt->m_pRenderTargetViews.resize( 6 * mip_levels );
+		for( size_t mip_index = 0; mip_index < mip_levels; mip_index++ )
+		{
+			for( size_t array_index = 0; array_index < 6; array_index++ )
+			{
+				D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc{};
+				renderTargetViewDesc.Format = textureDesc.Format;
+				renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
+				renderTargetViewDesc.Texture2DArray.ArraySize = 1;
+				renderTargetViewDesc.Texture2DArray.FirstArraySlice = (UINT)array_index;
+				renderTargetViewDesc.Texture2DArray.MipSlice = (UINT)mip_index;
+
+				COM_THROW_IF_FAILED(
+					pDevice->CreateRenderTargetView( rt->m_pRenderTargetTexture.Get(),
+						&renderTargetViewDesc,
+						&rt->m_pRenderTargetViews[array_index * mip_levels + mip_index]
+					)
+				);
+			}
+		}
+
+		if( ( flags & TexFlags::NO_SHADER_BIND ) != TexFlags::NO_SHADER_BIND )
+		{
+			D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+			shaderResourceViewDesc.Format = textureDesc.Format;
+			shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+			shaderResourceViewDesc.TextureCube.MostDetailedMip = 0;
+			shaderResourceViewDesc.TextureCube.MipLevels = (UINT)mip_levels;
+
+			COM_THROW_IF_FAILED( pDevice->CreateShaderResourceView( rt->m_pRenderTargetTexture.Get(), &shaderResourceViewDesc, &rt->m_pShaderResourceView ) );
+		}
+
+		return rt;
+	}
+
+	ITexture* D3DRenderTarget::AsTexture() const
+	{
+		return new D3DTexture( m_pRenderTargetTexture.Get(), m_pShaderResourceView.Get(), m_Format, m_iWidth, m_iHeight );
 	}
 
 	D3DVertexBuffer::D3DVertexBuffer( ID3D11Device* pDevice, const void* pData, size_t elem_size, size_t size )

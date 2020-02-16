@@ -56,6 +56,6 @@ namespace Bat
 			}
 		}
 	private:
-		bool m_bDynamicSky = true;
+		bool m_bDynamicSky = false;
 	};
 }

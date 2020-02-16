@@ -17,7 +17,7 @@ namespace Bat
 			Texture( Bat::WideToString( filename ) )
 		{}
 		Texture( const char* pData, size_t size );
-		Texture( const void* pPixels, size_t pitch, size_t width, size_t height, TexFormat format, GPUResourceUsage usage = USAGE_DEFAULT );
+		Texture( const void* pPixels, size_t pitch, size_t width, size_t height, TexFormat format, GPUResourceUsage usage = GPUResourceUsage::DEFAULT );
 
 		ITexture* Get() { return m_pTexture.get(); }
 		const ITexture* Get() const { return m_pTexture.get(); }
@@ -26,7 +26,7 @@ namespace Bat
 		ITexture* operator->();
 		const ITexture* operator->() const;
 
-		static Texture FromColour( const Colour* pPixels, int width, int height, GPUResourceUsage usage = USAGE_DEFAULT );
+		static Texture FromColour( const Colour* pPixels, int width, int height, GPUResourceUsage usage = GPUResourceUsage::DEFAULT );
 
 		static size_t GetBPPForFormat( TexFormat fmt );
 

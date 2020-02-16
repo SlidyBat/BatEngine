@@ -75,6 +75,32 @@ namespace Bat
 			sampler_desc.comparison_func = ComparisonFunc::GREATER_EQUAL;
 			samplers.emplace_back( gpu->CreateSampler( sampler_desc ) );
 
+			// point sampler
+			sampler_desc.filter = SampleFilter::MIN_MAG_MIP_POINT;
+			sampler_desc.address_u = TextureAddressMode::WRAP;
+			sampler_desc.address_v = TextureAddressMode::WRAP;
+			sampler_desc.address_w = TextureAddressMode::WRAP;
+			sampler_desc.mip_lod_bias = 0.0f;
+			sampler_desc.max_anisotropy = 0;
+			sampler_desc.comparison_func = ComparisonFunc::ALWAYS;
+			samplers.emplace_back( gpu->CreateSampler( sampler_desc ) );
+
+			// linear sampler
+			sampler_desc.filter = SampleFilter::MIN_MAG_MIP_LINEAR;
+			sampler_desc.address_u = TextureAddressMode::WRAP;
+			sampler_desc.address_v = TextureAddressMode::WRAP;
+			sampler_desc.address_w = TextureAddressMode::WRAP;
+			sampler_desc.mip_lod_bias = 0.0f;
+			sampler_desc.max_anisotropy = 0;
+			sampler_desc.comparison_func = ComparisonFunc::ALWAYS;
+			samplers.emplace_back( gpu->CreateSampler( sampler_desc ) );
+
+			// linear sampler
+			sampler_desc.address_u = TextureAddressMode::CLAMP;
+			sampler_desc.address_v = TextureAddressMode::CLAMP;
+			sampler_desc.address_w = TextureAddressMode::CLAMP;
+			samplers.emplace_back( gpu->CreateSampler( sampler_desc ) );
+
 			initialized = true;
 		}
 
@@ -100,6 +126,13 @@ namespace Bat
 		if( mesh.HasTangentsAndBitangents() )
 		{
 			macros.emplace_back( "HAS_TANGENT" );
+		}
+
+		const Material& material = mesh.GetMaterial();
+
+		if( material.GetAlphaMode() == AlphaMode::MASK )
+		{
+			macros.emplace_back( "MASK_ALPHA" );
 		}
 
 		return macros;

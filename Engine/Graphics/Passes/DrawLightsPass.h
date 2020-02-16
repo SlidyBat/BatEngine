@@ -60,13 +60,17 @@ namespace Bat
 					auto& meshes = light_model->Get<ModelComponent>().GetMeshes();
 					for( auto& pMesh : meshes )
 					{
-						pMesh->GetMaterial().SetEmissiveColour( emissive.x, emissive.y, emissive.z );
+						pMesh->GetMaterial().SetEmissiveFactor( emissive.x, emissive.y, emissive.z );
 
 						auto pPipeline = ShaderManager::GetPipeline<LitGenericPipeline>();
 
 						std::vector<Entity> empty;
 						std::vector<DirectX::XMMATRIX> empty2;
-						pPipeline->Render( m_pContext, *pMesh, *m_pCamera, w, empty, empty2 );
+						PbrGlobalMaps pbr_maps;
+						pbr_maps.irradiance_map = nullptr;
+						pbr_maps.prefilter_map = nullptr;
+						pbr_maps.brdf_integration_map = nullptr;
+						pPipeline->Render( m_pContext, *pMesh, *m_pCamera, w, empty, empty2, pbr_maps );
 					}
 				}
 			}

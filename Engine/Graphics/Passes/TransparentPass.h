@@ -23,6 +23,9 @@ namespace Bat
 		TransparentPass()
 		{
 			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TARGET );
+			AddRenderNode( "irradiance", NodeType::INPUT, NodeDataType::TEXTURE );
+			AddRenderNode( "prefilter", NodeType::INPUT, NodeDataType::TEXTURE );
+			AddRenderNode( "brdf", NodeType::INPUT, NodeDataType::TEXTURE );
 		}
 	private:
 		virtual void PreRender( IGPUContext* pContext, Camera& camera, RenderData& data ) override
@@ -30,12 +33,17 @@ namespace Bat
 			IRenderTarget* target = data.GetRenderTarget( "dst" );
 			pContext->SetRenderTarget( target );
 
+			pContext->SetPrimitiveTopology( PrimitiveTopology::TRIANGLELIST );
 			pContext->SetDepthEnabled( true );
 			pContext->SetDepthWriteEnabled( false );
 			pContext->SetBlendingEnabled( true );
 			pContext->SetCullMode( CullMode::NONE );
 
 			m_TranslucentMeshes.clear();
+
+			m_PbrMaps.irradiance_map = data.GetTexture( "irradiance" );
+			m_PbrMaps.prefilter_map = data.GetTexture( "prefilter" );
+			m_PbrMaps.brdf_integration_map = data.GetTexture( "brdf" );
 		}
 
 		virtual void Render( const DirectX::XMMATRIX& transform, Entity e ) override
@@ -61,7 +69,7 @@ namespace Bat
 			auto& meshes = model.GetMeshes();
 			for( auto& pMesh : meshes )
 			{
-				if( !pMesh->GetMaterial().IsTranslucent() )
+				if( pMesh->GetMaterial().GetAlphaMode() != AlphaMode::BLEND )
 				{
 					continue;
 				}
@@ -133,7 +141,7 @@ namespace Bat
 
 			for( const TranslucentMesh& translucent_mesh : m_TranslucentMeshes )
 			{
-				pPipeline->Render( pContext, *translucent_mesh.mesh, camera, translucent_mesh.world_transform, light_list.entities, light_list.transforms );
+				pPipeline->Render( pContext, *translucent_mesh.mesh, camera, translucent_mesh.world_transform, light_list.entities, light_list.transforms, m_PbrMaps );
 			}
 		}
 	private:
@@ -143,6 +151,7 @@ namespace Bat
 			DirectX::XMMATRIX world_transform;
 		};
 
+		PbrGlobalMaps m_PbrMaps;
 		std::vector<TranslucentMesh> m_TranslucentMeshes;
 	};
 }

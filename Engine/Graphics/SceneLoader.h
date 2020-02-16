@@ -40,9 +40,12 @@ namespace Bat
 		Resource<Mesh> ProcessMesh( aiMesh* pAiMesh );
 		Resource<Mesh> GetLoadedMesh( const aiMesh* pTarget );
 
-		TextureStorageType DetermineTextureStorageType( aiMaterial* pMat, aiTextureType type );
-		void LoadMaterialTexture( Material& mat, aiMaterial* pMaterial, aiTextureType type, TextureStorageType storetype );
-		void LoadMaterialTextureType( Material& mat, aiMaterial* pMaterial, aiTextureType type );
+		TextureStorageType DetermineTextureStorageType( aiMaterial* pMat, aiTextureType type, unsigned int index );
+		Resource<Texture> LoadMaterialTexture( aiMaterial* pMaterial, aiTextureType type, unsigned int index = 0 );
+		float LoadMaterialFloat( aiMaterial* pMaterial, const char* key, unsigned int type, unsigned int index );
+		Vec3 LoadMaterialColour3( aiMaterial* pMaterial, const char* key, unsigned int type, unsigned int index );
+		Vec4 LoadMaterialColour4( aiMaterial* pMaterial, const char* key, unsigned int type, unsigned int index );
+		std::string LoadMaterialString( aiMaterial* pMaterial, const char* key, unsigned int type, unsigned int index );
 	
 		void AddAiBone( aiBone* pAiBone );
 		aiBone* GetAiBoneByName( const std::string& name );

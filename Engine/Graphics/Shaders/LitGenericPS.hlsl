@@ -1,9 +1,25 @@
 #include "CommonPS.hlsli"
 
-Texture2D DiffuseTexture : register(T_SLOT_0);
-Texture2D SpecularTexture : register(T_SLOT_1);
-Texture2D EmissiveTexture : register(T_SLOT_2);
-Texture2D NormalTexture : register(T_SLOT_3);
+static const float3 GlobalAmbient = float3(0.03f, 0.03f, 0.03f);
+
+struct MaterialInfo
+{
+	float4 Albedo;
+	float Metallic;
+	float Roughness;
+	float3 F0;
+};
+
+Texture2D BaseColourTexture : register(T_SLOT_0);
+Texture2D MetallicRoughnessTexture : register(T_SLOT_1);
+Texture2D NormalTexture : register(T_SLOT_2);
+Texture2D OcclusionTexture : register(T_SLOT_3);
+Texture2D EmissiveTexture : register(T_SLOT_4);
+
+TextureCube IrradianceMap : register(T_SLOT_5);
+TextureCube PrefilteredMap : register(T_SLOT_6);
+Texture2D BrdfIntegrationMap : register(T_SLOT_7);
+
 Texture2DArray ShadowMap : register(T_SLOT_SHADOWMAPS);
 
 cbuffer ShadowMatrices : register(B_SLOT_SHADOWMATRICES)
@@ -21,7 +37,6 @@ cbuffer LightParams : register(B_SLOT_1)
 	uint NumLights;
 	Light Lights[MAX_LIGHTS];
 }
-
 
 struct PixelInput
 {
@@ -83,62 +98,121 @@ float Shadow( Light light, float3 pos_ws )
 	return shadow;
 }
 
-float3 DoDiffuse( Light light, Material material, float3 light_dir, float3 n )
+float3 FresnelSchlick(float3 H, float3 V, float3 F0)
 {
-	return material.DiffuseColor.rgb * light.Colour * light.Intensity * max( 0.0f, dot( light_dir, n ) );
+	float cos_theta = max(dot(H, V), 0.0f);
+	return F0 + (1.0 - F0) * pow(1.0 - cos_theta, 5.0);
 }
 
-float3 DoSpecular( Light light, Material material, float3 world_pos, float3 light_dir, float3 n )
+float3 FresnelSchlickRoughness(float3 H, float3 V, float3 F0, float roughness)
 {
-	float3 r = reflect( light_dir, n );
-	float3 v = Globals.CameraPos - world_pos;
-	return material.SpecularColor.rgb * light.Colour * light.Intensity * pow( max( 0.0f, dot( normalize( -r ), normalize( v ) ) ), material.SpecularPower );
+	float cos_theta = max(dot(H, V), 0.0f);
+	return F0 + (max(1.0f - roughness, F0) - F0) * pow(1.0 - cos_theta, 5.0);
 }
 
-float3 DoPointLight( Light light, Material material, float3 world_pos, float3 n )
+float DistributionGGX(float3 N, float3 H, float roughness)
 {
-	float3 light_dir = light.Position - world_pos;
-	float light_distance = length( light_dir );
-	light_dir /= light_distance;
-
-	float attenuation = 1.0f - smoothstep( light.Range * 0.75f, light.Range, light_distance );
-
-	float3 diffuse = DoDiffuse( light, material, light_dir, n );
-	float3 specular = DoSpecular( light, material, world_pos, light_dir, n );
-
-	return (diffuse + specular) * attenuation;
+	float a = roughness * roughness;
+	float a2 = a * a;
+	float NdotH = max(dot(N, H), 0.0);
+	float NdotH2 = NdotH * NdotH;
+	
+	float num = a2;
+	float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+	denom = PI * denom * denom;
+	
+	return num / denom;
 }
 
-float3 DoSpotLight( Light light, Material material, float3 world_pos, float3 n )
+float GeometrySchlickGGX(float NdotV, float roughness)
 {
-	float3 light_dir = light.Position - world_pos;
-	float light_distance = length( light_dir );
-	light_dir /= light_distance;
+	float r = (roughness + 1.0);
+	float k = (r * r) / 8.0;
+
+	float num = NdotV;
+	float denom = NdotV * (1.0 - k) + k;
+	
+	return num / denom;
+}
+
+float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
+{
+	float NdotV = max(dot(N, V), 0.0);
+	float NdotL = max(dot(N, L), 0.0);
+	float ggx2 = GeometrySchlickGGX(NdotV, roughness);
+	float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+	
+	return ggx1 * ggx2;
+}
+
+float3 Radiance(MaterialInfo material, float3 L, float3 P, float3 N)
+{
+	float3 V = normalize(Globals.CameraPos - P);
+	float3 H = normalize(L + V);
+	
+	float NDF = DistributionGGX(N, H, material.Roughness);
+	float G   = GeometrySmith(N, V, L, material.Roughness);
+	float3 F  = FresnelSchlick(H, V, material.F0);
+	
+	float3 kS = F;
+	float3 kD = (1.0f - kS) * (1.0f - material.Metallic);
+	
+	float NdotV = max(dot(N, V), 0.0f);
+	float NdotL = max(dot(N, L), 0.0f);
+	
+	float3 numerator = NDF * G * F;
+	float denominator = 4.0f * NdotL * NdotV;
+	float3 specular = numerator / max(denominator, 0.001f);
+	
+	float3 diffuse = kD * material.Albedo.rgb / PI;
+	
+	return (diffuse + specular) * NdotL;
+}
+
+float Attenuation(Light light, float distance)
+{
+	return pow(saturate(1.0 - pow(distance / light.Range, 4.0f)), 2.0f) / (distance * distance + 1);
+}
+
+
+float3 DoPointLight( Light light, MaterialInfo material, float3 P, float3 N )
+{
+	float3 Lunnormalized = light.Position - P;
+	float distance = length( Lunnormalized );
+	float3 L = Lunnormalized / distance;
+
+	float attenuation = Attenuation(light, distance);
+	float3 radiance = Radiance(material, L, P, N);
+
+	return radiance * attenuation * light.Intensity * light.Colour;
+}
+
+float3 DoSpotLight( Light light, MaterialInfo material, float3 P, float3 N )
+{
+	float3 L = light.Position - P;
+	float light_distance = length( L );
+	L /= light_distance;
 
 	float min_theta = cos( light.SpotlightAngle );
 	float max_theta = lerp( min_theta, 1, 0.5f );
-	float theta = dot( light.Direction.xyz, -light_dir );
+	float theta = dot( light.Direction.xyz, -L );
 	float spot_intensity = smoothstep( min_theta, max_theta, theta );
+	
+	float attenuation = Attenuation(light, light_distance);
+	float3 radiance = Radiance(material, L, P, N);
 
-	float attenuation = 1.0f - smoothstep( light.Range * 0.75f, light.Range, light_distance );
-
-	float3 diffuse = DoDiffuse( light, material, light_dir, n );
-	float3 specular = DoSpecular( light, material, world_pos, light_dir, n );
-
-	return (diffuse + specular) * attenuation * spot_intensity * Shadow( light, world_pos );
+	return radiance * attenuation * spot_intensity * Shadow(light, P);
 }
 
-float3 DoDirectionalLight( Light light, Material material, float3 world_pos, float3 n )
+float3 DoDirectionalLight( Light light, MaterialInfo material, float3 P, float3 N )
 {
-	float3 light_dir = normalize( -light.Direction ).xyz;
-
-	float3 diffuse = DoDiffuse( light, material, light_dir, n );
-	float3 specular = DoSpecular( light, material, world_pos, light_dir, n );
-
-	return (diffuse + specular) * Shadow( light, world_pos );
+	float3 L = light.Direction;
+	float3 radiance = Radiance(material, L, P, N);
+	
+	return radiance * light.Intensity * light.Colour * Shadow(light, P);
 }
 
-float3 DoLight( Light light, Material material, float3 world_pos, float3 normal )
+float3 DoLight( Light light, MaterialInfo material, float3 world_pos, float3 normal )
 {
 	switch( light.Type )
 	{
@@ -155,11 +229,21 @@ float3 DoLight( Light light, Material material, float3 world_pos, float3 normal 
 
 float4 main( PixelInput input ) : SV_TARGET
 {
-	Material material = Mat;
+	MaterialInfo material;
 
-	float3 normal = input.normal;
+	material.Albedo = Mat.BaseColourFactor;
+	if (Mat.HasBaseColourTexture)
+	{
+		material.Albedo *= ToLinearSpace(BaseColourTexture.Sample(WrapSampler, input.tex));
+	}
+	
+#ifdef MASK_ALPHA
+	clip(material.Albedo.a - Mat.AlphaCutoff);
+#endif
+	
+	float3 normal = normalize(input.normal);
 #ifdef HAS_TANGENT
-	if( material.HasNormalTexture )
+	if( Mat.HasNormalTexture )
 	{
 		float3 normal_sample = NormalTexture.Sample( WrapSampler, input.tex ).xyz;
 		normal = normal_sample * 2.0f - 1.0f;
@@ -170,56 +254,31 @@ float4 main( PixelInput input ) : SV_TARGET
 	}
 #endif
 
-	normal = normalize( normal );
-
 	float3 world_pos = input.world_pos.xyz;
-	float3 view_dir = normalize( Globals.CameraPos - world_pos );
-
-	// get specular colour of material
-	if( material.HasSpecularTexture )
-	{
-		material.SpecularColor = SpecularTexture.Sample( WrapSampler, input.tex );
-	}
-
-	if( material.HasDiffuseTexture )
-	{
-		material.DiffuseColor = DiffuseTexture.Sample(WrapSampler, input.tex);
-		material.DiffuseColor = ToLinearSpace(material.DiffuseColor);
-	}
 	
-
-	// ambient
-	float3 ambient = material.AmbientColor.rgb;
-	if( material.HasAmbientTexture )
+	material.Metallic = Mat.MetallicFactor;
+	material.Roughness = Mat.RoughnessFactor;
+	if( Mat.HasMetallicRoughnessTexture )
 	{
-		if( any( ambient ) )
-		{
-			ambient *= material.AmbientColor.rgb;
-		}
-		else
-		{
-			ambient = material.AmbientColor.rgb;
-		}
+		float4 mr_colour = MetallicRoughnessTexture.Sample(WrapSampler, input.tex);
+		material.Metallic *= mr_colour.b;
+		material.Roughness *= mr_colour.g;
+	}
+	material.Roughness = max(0.025f, material.Roughness);
+
+	const float3 dielectric_specular = float3(0.04f, 0.04f, 0.04f);
+	material.F0 = lerp(dielectric_specular, material.Albedo.rgb, material.Metallic);
+	
+	float occlusion = 1.0f;
+	if( Mat.HasOcclusionTexture )
+	{
+		occlusion = OcclusionTexture.Sample(WrapSampler, input.tex).r;
 	}
 
-	ambient *= material.GlobalAmbient.rgb;
-	ambient *= material.DiffuseColor.rgb;
-
-	// emissive
-	float3 emissive = material.EmissiveColor.rgb;
-	if( material.HasEmissiveTexture )
+	float3 emissive = Mat.EmissiveFactor;
+	if( Mat.HasEmissiveTexture )
 	{
-		float3 sample = EmissiveTexture.Sample(WrapSampler, input.tex).rgb;
-		sample = ToLinearSpace(sample);
-		
-		if( any( emissive ) )
-		{
-			emissive *= EmissiveTexture.Sample( WrapSampler, input.tex ).rgb;
-		}
-		else
-		{
-			emissive = EmissiveTexture.Sample( WrapSampler, input.tex ).rgb;
-		}
+		emissive *= ToLinearSpace(EmissiveTexture.Sample(WrapSampler, input.tex).rgb);
 	}
 
 	float3 colour = 0.0f;
@@ -227,8 +286,25 @@ float4 main( PixelInput input ) : SV_TARGET
 	{
 		colour += DoLight( Lights[i], material, world_pos, normal );
 	}
+	
+	float3 view_dir = normalize(Globals.CameraPos - world_pos);
+	float3 kS = FresnelSchlickRoughness(normal, view_dir, material.F0, material.Roughness);
+	float3 kD = (1.0f - kS) * (1.0f - material.Metallic);
+	float3 irradiance = IrradianceMap.Sample(LinearWrapSampler, normal).rgb;
+	float3 diffuse = irradiance;
+	
+	float3 reflect_dir = reflect(-view_dir, normal);
+	float NdotV = max(dot(normal, view_dir), 0.0f);
+	
+	const float MAX_REFLECTION_LOD = 4.0f;
+	float3 prefiltered = PrefilteredMap.SampleLevel(LinearWrapSampler, reflect_dir, material.Roughness * MAX_REFLECTION_LOD).rgb;
+	float2 env_brdf = BrdfIntegrationMap.Sample(LinearClampSampler, float2(NdotV, material.Roughness)).rg;
+	float3 specular = prefiltered * (kS * env_brdf.x + env_brdf.y);
+	
+	float3 ambient = kD * diffuse + specular;
 
-	colour += ambient + emissive;
+	colour += ambient * occlusion * material.Albedo.rgb;
+	colour += emissive;
 
-	return float4( colour, material.DiffuseColor.a * material.Opacity );
+	return float4( colour, material.Albedo.a );
 }

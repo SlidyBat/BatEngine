@@ -30,7 +30,7 @@ namespace Bat
 
 		virtual void Execute( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data )
 		{
-			IVertexShader* pTextureVS = ResourceManager::GetVertexShader( "Graphics/Shaders/TextureVS.hlsl" );
+			IVertexShader* pTextureVS = ResourceManager::GetVertexShader( "Graphics/Shaders/PostProcessVS.hlsl" );
 			IPixelShader* pMotionBlurPS = ResourceManager::GetPixelShader( "Graphics/Shaders/MotionBlurPS.hlsl" );
 
 			pContext->SetDepthEnabled( false );

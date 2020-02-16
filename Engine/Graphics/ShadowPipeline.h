@@ -18,13 +18,22 @@ namespace Bat
 			const DirectX::XMMATRIX& world_transform );
 	private:
 		void BindTransforms( IGPUContext* pContext, const DirectX::XMMATRIX& viewproj, const DirectX::XMMATRIX& world_transform );
+		void BindMaterial( IGPUContext* pContext, const Material& material );
 	private:
 		struct CB_ShadowPipelineMatrix
 		{
 			DirectX::XMMATRIX world;
 			DirectX::XMMATRIX viewproj;
 		};
+		struct CB_ShadowPipelineMaterial
+		{
+			Vec4 BaseColourFactor;
+			int HasBaseColourTexture;
+			float AlphaCutoff;
+			float _pad0[2];
+		};
 	private:
 		ConstantBuffer<CB_ShadowPipelineMatrix> m_cbufTransform;
+		ConstantBuffer<CB_ShadowPipelineMaterial> m_cbufMaterial;
 	};
 }

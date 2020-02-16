@@ -20,7 +20,8 @@ namespace Bat
 		const Camera& camera,
 		const DirectX::XMMATRIX& world_transform,
 		const std::vector<Entity>& light_ents,
-		const std::vector<DirectX::XMMATRIX>& light_transforms )
+		const std::vector<DirectX::XMMATRIX>& light_transforms,
+		const PbrGlobalMaps& maps )
 	{
 		auto macros = ShaderManager::BuildMacrosForMesh( mesh );
 
@@ -36,6 +37,19 @@ namespace Bat
 		BindMaterial( pContext, mesh.GetMaterial() );
 		BindLights( pContext, light_ents, light_transforms );
 
+		if( maps.irradiance_map )
+		{
+			pContext->BindTexture( maps.irradiance_map, PS_TEX_SLOT_5 );
+		}
+		if( maps.prefilter_map )
+		{
+			pContext->BindTexture( maps.prefilter_map, PS_TEX_SLOT_6 );
+		}
+		if( maps.brdf_integration_map )
+		{
+			pContext->BindTexture( maps.brdf_integration_map, PS_TEX_SLOT_7 );
+		}
+
 		pContext->DrawIndexed( mesh.GetIndexCount() );
 	}
 
@@ -44,7 +58,8 @@ namespace Bat
 		const std::vector<LitGenericInstanceData>& instances,
 		const Camera& camera,
 		const std::vector<Entity>& light_ents,
-		const std::vector<DirectX::XMMATRIX>& light_transforms )
+		const std::vector<DirectX::XMMATRIX>& light_transforms,
+		const PbrGlobalMaps& maps )
 	{
 		auto macros = ShaderManager::BuildMacrosForInstancedMesh( mesh );
 
@@ -60,6 +75,8 @@ namespace Bat
 		BindMaterial( pContext, mesh.GetMaterial() );
 		BindLights( pContext, light_ents, light_transforms );
 		BindInstances( pContext, pVertexShader, instances );
+
+		pContext->BindTexture( maps.irradiance_map, PS_TEX_SLOT_5 );
 
 		pContext->DrawInstancedIndexed( mesh.GetIndexCount(), instances.size() );
 	}
@@ -79,30 +96,35 @@ namespace Bat
 
 	void LitGenericPipeline::BindMaterial( IGPUContext* pContext, const Material& material )
 	{
-		CB_LitGenericPipelineMaterial material_buf;
-		material_buf.material.GlobalAmbient = { 1.0f, 1.0f, 1.0f };
-		material_buf.material.AmbientColor = { 0.01f, 0.01f, 0.01f };
-		material_buf.material.DiffuseColor = material.GetDiffuseColour();
-		material_buf.material.SpecularColor = material.GetSpecularColour();
-		material_buf.material.EmissiveColor = material.GetEmissiveColour();
-		material_buf.material.Opacity = material.GetOpacity();
+		// Bind material cbuffer
+		{
+			CB_LitGenericPipelineMaterial cbuf;
 
-		material_buf.material.HasAmbientTexture = (material.GetAmbientTexture() != nullptr);
-		material_buf.material.HasDiffuseTexture = (material.GetDiffuseTexture() != nullptr);
-		material_buf.material.HasSpecularTexture = (material.GetSpecularTexture() != nullptr);
-		material_buf.material.HasEmissiveTexture = (material.GetEmissiveTexture() != nullptr);
-		material_buf.material.HasNormalTexture = (material.GetNormalTexture() != nullptr);
-		material_buf.material.HasBumpTexture = false;
-		material_buf.material.SpecularPower = material.GetShininess();
-		m_cbufMaterial.Update( pContext, material_buf );
-		pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufMaterial, PS_CBUF_SLOT_0 );
+			cbuf.mat.BaseColourFactor = material.GetBaseColourFactor();
+			cbuf.mat.EmissiveFactor   = material.GetEmissiveFactor();
+			cbuf.mat.MetallicFactor   = material.GetMetallicFactor();
+			cbuf.mat.RoughnessFactor  = material.GetRoughnessFactor();
 
+			cbuf.mat.HasBaseColourTexture        = ( material.GetBaseColour() != nullptr );
+			cbuf.mat.HasMetallicRoughnessTexture = ( material.GetMetallicRoughness() != nullptr );
+			cbuf.mat.HasNormalTexture            = ( material.GetNormalMap() != nullptr );
+			cbuf.mat.HasOcclusionTexture         = ( material.GetOcclusionMap() != nullptr );
+			cbuf.mat.HasEmissiveTexture          = ( material.GetEmissiveMap() != nullptr );
 
-		if( auto tex = material.GetDiffuseTexture() )  pContext->BindTexture( *tex, PS_TEX_SLOT_0 );
-		if( auto tex = material.GetSpecularTexture() ) pContext->BindTexture( *tex, PS_TEX_SLOT_1 );
-		if( auto tex = material.GetEmissiveTexture() ) pContext->BindTexture( *tex, PS_TEX_SLOT_2 );
-		if( auto tex = material.GetNormalTexture() )   pContext->BindTexture( *tex, PS_TEX_SLOT_3 );
-		if( auto tex = material.GetAmbientTexture() )  pContext->BindTexture( *tex, PS_TEX_SLOT_4 );
+			cbuf.mat.AlphaCutoff = material.GetAlphaCutoff();
+
+			m_cbufMaterial.Update( pContext, cbuf );
+			pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufMaterial, PS_CBUF_SLOT_0 );
+		}
+
+		// Bind material textures
+		{
+			if( auto tex = material.GetBaseColour() )        pContext->BindTexture( *tex, PS_TEX_SLOT_0 );
+			if( auto tex = material.GetMetallicRoughness() ) pContext->BindTexture( *tex, PS_TEX_SLOT_1 );
+			if( auto tex = material.GetNormalMap() )         pContext->BindTexture( *tex, PS_TEX_SLOT_2 );
+			if( auto tex = material.GetOcclusionMap() )      pContext->BindTexture( *tex, PS_TEX_SLOT_3 );
+			if( auto tex = material.GetEmissiveMap() )       pContext->BindTexture( *tex, PS_TEX_SLOT_4 );
+		}
 	}
 
 	void LitGenericPipeline::BindLights( IGPUContext* pContext, const std::vector<Entity>& light_ents, const std::vector<DirectX::XMMATRIX>& light_transforms )
