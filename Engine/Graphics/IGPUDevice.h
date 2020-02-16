@@ -76,6 +76,11 @@ namespace Bat
 			MsaaQuality ms_quality = MsaaQuality::NONE,
 			size_t ms_samples = 1,
 			TexFlags flags = TexFlags::NONE ) = 0;
+		virtual IRenderTarget* CreateCubemapRenderTarget( size_t width,
+			size_t height,
+			TexFormat format,
+			size_t mip_levels = 1,
+			TexFlags flags = TexFlags::NONE ) = 0;
 
 		// Gets backbuffer as render target
 		virtual IRenderTarget* GetBackbuffer() = 0;
@@ -155,7 +160,7 @@ namespace Bat
 		// Get's currently bound render target, or nullptr if no render target is bound
 		virtual IRenderTarget* GetRenderTarget( size_t slot = 0 ) const = 0;
 		// Sets current render target.
-		virtual void SetRenderTarget( IRenderTarget* pRT ) = 0;
+		virtual void SetRenderTarget( IRenderTarget* pRT, size_t index = 0 ) = 0;
 		virtual void SetRenderTargets( const std::vector<IRenderTarget*>& pRTs ) = 0;
 		// Pushes a new layer in RT stack, but doesn't add any render targets to it. Use this to push a layer without any render targets bound.
 		virtual void PushRenderTarget() = 0;
@@ -211,7 +216,7 @@ namespace Bat
 		virtual void SetPixelShader( IPixelShader* pShader ) = 0;
 		// Gets currently bound vertex shader, or nullptr if none are bound
 		virtual IVertexShader* GetVertexShader() const = 0;
-		// Binds a vertex shader. Pass nullptr to unbind pixel shader.
+		// Binds a vertex shader. Pass nullptr to unbind vertex shader.
 		virtual void SetVertexShader( IVertexShader* pShader ) = 0;
 
 		virtual void SetVertexBuffer( IVertexBuffer* pBuffer, size_t slot = 0 ) = 0;
@@ -311,6 +316,7 @@ namespace Bat
 		virtual size_t GetWidth() const = 0;
 		virtual size_t GetHeight() const = 0;
 		virtual TexFormat GetFormat() const = 0;
+		virtual ITexture* AsTexture() const = 0;
 	};
 
 	class ISampler
