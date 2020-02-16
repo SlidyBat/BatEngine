@@ -154,3 +154,12 @@ bool IsSaturated(float4 a)
 {
 	return IsSaturated(a.x) && IsSaturated(a.y) && IsSaturated(a.z) && IsSaturated(a.w);
 }
+
+static const float2 inv_atan = float2(0.1591f, -0.3183f);
+float4 SampleSphericalMap(Texture2D tex, float3 v)
+{
+	float2 uv = float2(atan2(v.z, v.x), asin(v.y));
+	uv *= inv_atan;
+	uv += 0.5;
+	return tex.Sample(WrapSampler, uv);
+}

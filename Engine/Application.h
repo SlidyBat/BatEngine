@@ -66,7 +66,7 @@ namespace Bat
 		AnimationSystem anim_system;
 		ParticleSystem particle_system;
 
-		std::string skybox_tex = "Assets\\skybox.dds";
+		std::string skybox_tex = "Assets/Ignore/IBLTest.hdr";
 
 		float bloom_threshold = 1.0f;
 		float exposure = 2.0f;

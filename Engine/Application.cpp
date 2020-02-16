@@ -18,6 +18,7 @@
 #include "ShaderManager.h"
 #include "RenderData.h"
 #include "EntityTrace.h"
+#include "GraphicsConvert.h"
 #include "Passes/ClearRenderTargetPass.h"
 #include "Passes/SkyboxPass.h"
 #include "Passes/BloomPass.h"
@@ -41,7 +42,6 @@ namespace Bat
 		camera( wnd.input, 2.0f, 1.0f ),
 		physics_system( world )
 	{
-		Texture test_hdr( "Assets/Ignore/IBLTest.hdr" );
 		SceneLoader loader;
 
 		camera.SetAspectRatio( (float)wnd.GetWidth() / wnd.GetHeight() );
@@ -633,7 +633,10 @@ namespace Bat
 
 	void Application::BuildRenderGraph()
 	{
+		IGPUContext* pContext = gpu->GetContext();
+
 		ScratchRenderTarget::Clear();
+		ShaderManager::BindShaderGlobals( gfx.GetActiveCamera(), { (float)wnd.GetWidth(), (float)wnd.GetHeight() }, pContext );
 
 		rendergraph.Reset();
 
@@ -683,7 +686,9 @@ namespace Bat
 		auto depth = std::unique_ptr<IDepthStencil>( gpu->CreateDepthStencil( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R24G8_TYPELESS, 1, ms_quality, ms_samples, TexFlags::NO_SHADER_BIND ) );
 		rendergraph.AddDepthStencilResource( "depth", std::move( depth ) );
 
-		rendergraph.AddTextureResource( "skybox", std::unique_ptr<ITexture>( gpu->CreateTexture( skybox_tex, TexFlags::NO_GEN_MIPS ) ) );
+		auto hdrmap = std::unique_ptr<ITexture>( gpu->CreateTexture( skybox_tex, TexFlags::NO_GEN_MIPS ) );
+		auto cubemap = std::unique_ptr<IRenderTarget>( GraphicsConvert::EquirectangularToCubemap( pContext, hdrmap.get(), 512, 512 ) );
+		rendergraph.AddTextureResource( "skybox", std::unique_ptr<ITexture>( cubemap->AsTexture() ) );
 
 		// add passes
 		rendergraph.AddPass( "crt", std::make_unique<ClearRenderTargetPass>() );
