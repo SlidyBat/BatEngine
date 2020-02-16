@@ -261,6 +261,9 @@
     <ClCompile Include="Graphics\GraphicsConvert.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="PCH.cpp" />
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\ParticlePipeline.h">
@@ -605,9 +608,9 @@
     <ClInclude Include="Graphics\GraphicsConvert.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\PBRConvolution.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="PCH.h" />
+    <ClInclude Include="Resource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\RenderNodeDataTypes.def">
@@ -693,5 +696,7 @@
       <Filter>Assets</Filter>
     </Image>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ResourceCompile Include="Engine.rc" />
+  </ItemGroup>
 </Project>

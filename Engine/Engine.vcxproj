@@ -378,7 +378,6 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Graphics\Particles.h" />
     <ClInclude Include="Graphics\Passes\MsaaResolvePass.h" />
     <ClInclude Include="Graphics\Passes\ShadowPass.h" />
-    <ClInclude Include="Graphics\PBRConvolution.h" />
     <ClInclude Include="Graphics\ShadowPipeline.h" />
     <ClInclude Include="Platform\FileDialog.h" />
     <ClInclude Include="Events\PhysicsEvents.h" />

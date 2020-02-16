@@ -85,14 +85,15 @@ cbuffer GlobalsBuf : register(B_SLOT_GLOBALS)
 #define S_SLOT_MIRROR s2
 #define S_SLOT_BORDER s3
 #define S_SLOT_CMP_DEPTH s4
-#define S_SLOT_0 s5
-#define S_SLOT_1 s6
-#define S_SLOT_2 s7
-#define S_SLOT_3 s8
-#define S_SLOT_4 s9
-#define S_SLOT_5 s10
-#define S_SLOT_6 s11
-#define S_SLOT_7 s12
+#define S_SLOT_POINT  s5
+#define S_SLOT_LINEAR s6
+#define S_SLOT_0 s7
+#define S_SLOT_1 s8
+#define S_SLOT_2 s9
+#define S_SLOT_3 s10
+#define S_SLOT_4 s11
+#define S_SLOT_5 s12
+#define S_SLOT_6 s13
 
 // Global samplers
 SamplerState WrapSampler : register(S_SLOT_WRAP);
@@ -100,6 +101,8 @@ SamplerState ClampSampler : register(S_SLOT_CLAMP);
 SamplerState MirrorSampler : register(S_SLOT_MIRROR);
 SamplerState BorderSampler : register(S_SLOT_BORDER);
 SamplerComparisonState CompareDepthSampler : register(S_SLOT_CMP_DEPTH);
+SamplerState PointSampler : register(S_SLOT_POINT);
+SamplerState LinearSampler : register(S_SLOT_LINEAR);
 
 // Defines for texture slots
 // Use these instead of normal slots to ensure that you don't overwrite slots for global textures
@@ -161,5 +164,5 @@ float4 SampleSphericalMap(Texture2D tex, float3 v)
 	float2 uv = float2(atan2(v.z, v.x), asin(v.y));
 	uv *= inv_atan;
 	uv += 0.5;
-	return tex.Sample(WrapSampler, uv);
+	return tex.Sample(LinearSampler, uv);
 }
