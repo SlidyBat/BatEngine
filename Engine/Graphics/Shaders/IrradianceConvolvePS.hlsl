@@ -27,7 +27,7 @@ float4 main(PixelInputType input) : SV_TARGET
 			float3 tangent = float3(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
 			float3 dir = tangent.x * right + tangent.y * up + tangent.z * normal;
 			
-			irradiance += EnvironmentMap.Sample(LinearSampler, dir).rgb * cos(theta) * sin(theta);
+			irradiance += ToLinearSpace(EnvironmentMap.Sample(LinearWrapSampler, dir).rgb * cos(theta) * sin(theta));
 			num_samples++;
 		}
 	}
