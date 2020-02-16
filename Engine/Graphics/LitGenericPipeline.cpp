@@ -41,6 +41,14 @@ namespace Bat
 		{
 			pContext->BindTexture( maps.irradiance_map, PS_TEX_SLOT_5 );
 		}
+		if( maps.prefilter_map )
+		{
+			pContext->BindTexture( maps.prefilter_map, PS_TEX_SLOT_6 );
+		}
+		if( maps.brdf_integration_map )
+		{
+			pContext->BindTexture( maps.brdf_integration_map, PS_TEX_SLOT_7 );
+		}
 
 		pContext->DrawIndexed( mesh.GetIndexCount() );
 	}

@@ -22,6 +22,8 @@ namespace Bat
 		{
 			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TARGET );
 			AddRenderNode( "irradiance", NodeType::INPUT, NodeDataType::TEXTURE );
+			AddRenderNode( "prefilter", NodeType::INPUT, NodeDataType::TEXTURE );
+			AddRenderNode( "brdf", NodeType::INPUT, NodeDataType::TEXTURE );
 		}
 	private:
 		virtual void PreRender( IGPUContext* pContext, Camera& camera, RenderData& data ) override
@@ -35,6 +37,8 @@ namespace Bat
 			pContext->SetCullMode( CullMode::BACK );
 
 			m_PbrMaps.irradiance_map = data.GetTexture( "irradiance" );
+			m_PbrMaps.prefilter_map = data.GetTexture( "prefilter" );
+			m_PbrMaps.brdf_integration_map = data.GetTexture( "brdf" );
 		}
 
 		virtual void Render( const DirectX::XMMATRIX& transform, Entity e ) override
@@ -135,5 +139,6 @@ namespace Bat
 
 		PbrGlobalMaps m_PbrMaps;
 		std::unordered_map<Mesh*, std::vector<LitGenericInstanceData>> m_mapInstancedMeshes;
+		std::unique_ptr<ITexture> brdf_tex;
 	};
 }

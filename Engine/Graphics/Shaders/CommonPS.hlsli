@@ -86,14 +86,14 @@ cbuffer GlobalsBuf : register(B_SLOT_GLOBALS)
 #define S_SLOT_BORDER s3
 #define S_SLOT_CMP_DEPTH s4
 #define S_SLOT_POINT  s5
-#define S_SLOT_LINEAR s6
-#define S_SLOT_0 s7
-#define S_SLOT_1 s8
-#define S_SLOT_2 s9
-#define S_SLOT_3 s10
-#define S_SLOT_4 s11
-#define S_SLOT_5 s12
-#define S_SLOT_6 s13
+#define S_SLOT_LINEAR_WRAP s6
+#define S_SLOT_LINEAR_CLAMP s7
+#define S_SLOT_0 s8
+#define S_SLOT_1 s9
+#define S_SLOT_2 s10
+#define S_SLOT_3 s11
+#define S_SLOT_4 s12
+#define S_SLOT_5 s13
 
 // Global samplers
 SamplerState WrapSampler : register(S_SLOT_WRAP);
@@ -102,7 +102,8 @@ SamplerState MirrorSampler : register(S_SLOT_MIRROR);
 SamplerState BorderSampler : register(S_SLOT_BORDER);
 SamplerComparisonState CompareDepthSampler : register(S_SLOT_CMP_DEPTH);
 SamplerState PointSampler : register(S_SLOT_POINT);
-SamplerState LinearSampler : register(S_SLOT_LINEAR);
+SamplerState LinearWrapSampler : register(S_SLOT_LINEAR_WRAP);
+SamplerState LinearClampSampler : register(S_SLOT_LINEAR_CLAMP);
 
 // Defines for texture slots
 // Use these instead of normal slots to ensure that you don't overwrite slots for global textures
@@ -164,5 +165,40 @@ float4 SampleSphericalMap(Texture2D tex, float3 v)
 	float2 uv = float2(atan2(v.z, v.x), asin(v.y));
 	uv *= inv_atan;
 	uv += 0.5;
-	return tex.Sample(LinearSampler, uv);
+	return tex.Sample(LinearWrapSampler, uv);
+}
+
+float RadicalInverse_VdC(uint bits)
+{
+	bits = (bits << 16u) | (bits >> 16u);
+	bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
+	bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
+	bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
+	bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
+	return float(bits) * 2.3283064365386963e-10; // / 0x100000000
+}
+
+float2 Hammersley(uint i, uint N)
+{
+	return float2((float) i / (float) N, RadicalInverse_VdC(i));
+}
+
+float3 ImportanceSampleGGX(float2 Xi, float3 N, float roughness)
+{
+	float a = roughness * roughness;
+	float phi = 2.0f * PI * Xi.x;
+	float cos_theta = sqrt((1.0f - Xi.y) / (1.0f + (a * a - 1.0f) * Xi.y));
+	float sin_theta = sqrt(1.0f - cos_theta * cos_theta);
+
+	float3 H;
+	H.x = cos(phi) * sin_theta;
+	H.y = sin(phi) * sin_theta;
+	H.z = cos_theta;
+
+	float3 up = abs(N.z) < 0.999f ? float3(0.0f, 0.0f, 1.0f) : float3(1.0f, 0.0f, 0.0f);
+	float3 tangent = normalize(cross(up, N));
+	float3 bitangent = cross(N, tangent);
+
+	float3 dir = tangent * H.x + bitangent * H.y + N * H.z;
+	return normalize(dir);
 }

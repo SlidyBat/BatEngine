@@ -17,6 +17,8 @@ Texture2D OcclusionTexture : register(T_SLOT_3);
 Texture2D EmissiveTexture : register(T_SLOT_4);
 
 TextureCube IrradianceMap : register(T_SLOT_5);
+TextureCube PrefilteredMap : register(T_SLOT_6);
+Texture2D BrdfIntegrationMap : register(T_SLOT_7);
 
 Texture2DArray ShadowMap : register(T_SLOT_SHADOWMAPS);
 
@@ -264,19 +266,19 @@ float4 main( PixelInput input ) : SV_TARGET
 	}
 	material.Roughness = max(0.025f, material.Roughness);
 
-	const float dielectric_specular = float3(0.04f, 0.04f, 0.04f);
+	const float3 dielectric_specular = float3(0.04f, 0.04f, 0.04f);
 	material.F0 = lerp(dielectric_specular, material.Albedo.rgb, material.Metallic);
 	
 	float occlusion = 1.0f;
 	if( Mat.HasOcclusionTexture )
 	{
-		occlusion = OcclusionTexture.Sample(WrapSampler, input.tex);
+		occlusion = OcclusionTexture.Sample(WrapSampler, input.tex).r;
 	}
 
 	float3 emissive = Mat.EmissiveFactor;
 	if( Mat.HasEmissiveTexture )
 	{
-		emissive *= ToLinearSpace(EmissiveTexture.Sample(WrapSampler, input.tex));
+		emissive *= ToLinearSpace(EmissiveTexture.Sample(WrapSampler, input.tex).rgb);
 	}
 
 	float3 colour = 0.0f;
@@ -288,10 +290,18 @@ float4 main( PixelInput input ) : SV_TARGET
 	float3 view_dir = normalize(Globals.CameraPos - world_pos);
 	float3 kS = FresnelSchlickRoughness(normal, view_dir, material.F0, material.Roughness);
 	float3 kD = (1.0f - kS) * (1.0f - material.Metallic);
-	float3 irradiance = IrradianceMap.Sample(LinearSampler, normal).rgb;
+	float3 irradiance = IrradianceMap.Sample(LinearWrapSampler, normal).rgb;
 	float3 diffuse = irradiance;
-
-	float3 ambient = (kD * diffuse);
+	
+	float3 reflect_dir = reflect(-view_dir, normal);
+	float NdotV = max(dot(normal, view_dir), 0.0f);
+	
+	const float MAX_REFLECTION_LOD = 4.0f;
+	float3 prefiltered = PrefilteredMap.SampleLevel(LinearWrapSampler, reflect_dir, material.Roughness * MAX_REFLECTION_LOD).rgb;
+	float2 env_brdf = BrdfIntegrationMap.Sample(LinearClampSampler, float2(NdotV, material.Roughness)).rg;
+	float3 specular = prefiltered * (kS * env_brdf.x + env_brdf.y);
+	
+	float3 ambient = kD * diffuse + specular;
 
 	colour += ambient * occlusion * material.Albedo.rgb;
 	colour += emissive;

@@ -10,5 +10,5 @@ struct PixelInputType
 
 float4 main(PixelInputType input) : SV_TARGET
 {
-    return ToLinearSpace(SkyboxTexture.Sample(WrapSampler, input.tex));
+    return ToLinearSpace(SkyboxTexture.SampleLevel(WrapSampler, input.tex, 5.0f));
 }

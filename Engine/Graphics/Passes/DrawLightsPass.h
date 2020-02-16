@@ -68,6 +68,8 @@ namespace Bat
 						std::vector<DirectX::XMMATRIX> empty2;
 						PbrGlobalMaps pbr_maps;
 						pbr_maps.irradiance_map = nullptr;
+						pbr_maps.prefilter_map = nullptr;
+						pbr_maps.brdf_integration_map = nullptr;
 						pPipeline->Render( m_pContext, *pMesh, *m_pCamera, w, empty, empty2, pbr_maps );
 					}
 				}

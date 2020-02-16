@@ -686,12 +686,24 @@ namespace Bat
 		auto depth = std::unique_ptr<IDepthStencil>( gpu->CreateDepthStencil( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R24G8_TYPELESS, 1, ms_quality, ms_samples, TexFlags::NO_SHADER_BIND ) );
 		rendergraph.AddDepthStencilResource( "depth", std::move( depth ) );
 
-		auto hdrmap = std::unique_ptr<ITexture>( gpu->CreateTexture( skybox_tex, TexFlags::NO_GEN_MIPS ) );
-		auto envmap = std::unique_ptr<ITexture>( GraphicsConvert::EquirectangularToCubemap( pContext, hdrmap.get(), 512, 512 ) );
+		std::unique_ptr<ITexture> envmap;
+		if( Bat::GetFileExtension( skybox_tex ) == "hdr" )
+		{
+			auto hdrmap = std::unique_ptr<ITexture>( gpu->CreateTexture( skybox_tex, TexFlags::NO_GEN_MIPS ) );
+			envmap = std::unique_ptr<ITexture>( GraphicsConvert::EquirectangularToCubemap( pContext, hdrmap.get(), 512, 512 ) );
+		}
+		else
+		{
+			envmap = std::unique_ptr<ITexture>( gpu->CreateTexture( skybox_tex, TexFlags::NO_GEN_MIPS ) );
+		}
 		auto irradiance = std::unique_ptr<ITexture>( GraphicsConvert::MakeIrradianceMap( pContext, envmap.get(), 32, 32 ) );
+		auto prefilter = std::unique_ptr<ITexture>( GraphicsConvert::MakePreFilteredEnvMap( pContext, envmap.get(), 128, 128 ) );
+		auto brdf_integration = std::unique_ptr<ITexture>( GraphicsConvert::MakeBrdfIntegrationMap( pContext, 512, 512 ) );
 
 		rendergraph.AddTextureResource( "skybox", std::move( envmap ) );
 		rendergraph.AddTextureResource( "irradiance", std::move( irradiance ) );
+		rendergraph.AddTextureResource( "prefilter", std::move( prefilter ) );
+		rendergraph.AddTextureResource( "brdf", std::move( brdf_integration ) );
 
 		// add passes
 		rendergraph.AddPass( "crt", std::make_unique<ClearRenderTargetPass>() );
@@ -705,6 +717,8 @@ namespace Bat
 			rendergraph.AddPass( "opaque", std::make_unique<OpaquePass>() );
 			rendergraph.BindToResource( "opaque.dst", "target" );
 			rendergraph.BindToResource( "opaque.irradiance", "irradiance" );
+			rendergraph.BindToResource( "opaque.prefilter", "prefilter" );
+			rendergraph.BindToResource( "opaque.brdf", "brdf" );
 		}
 
 		if( transparent_pass )
@@ -712,6 +726,8 @@ namespace Bat
 			rendergraph.AddPass( "transparent", std::make_unique<TransparentPass>() );
 			rendergraph.BindToResource( "transparent.dst", "target" );
 			rendergraph.BindToResource( "transparent.irradiance", "irradiance" );
+			rendergraph.BindToResource( "transparent.prefilter", "prefilter" );
+			rendergraph.BindToResource( "transparent.brdf", "brdf" );
 		}
 
 		rendergraph.AddPass( "draw_lights", std::make_unique<DrawLightsPass>() );

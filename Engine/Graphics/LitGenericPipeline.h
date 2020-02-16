@@ -17,6 +17,8 @@ namespace Bat
 	struct PbrGlobalMaps
 	{
 		ITexture* irradiance_map;
+		ITexture* prefilter_map;
+		ITexture* brdf_integration_map;
 	};
 
 	class LitGenericPipeline : public IPipeline

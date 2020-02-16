@@ -2,55 +2,58 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Graphics">
-      <UniqueIdentifier>{bbb476b2-6bea-45b8-a2ea-f08363ba7134}</UniqueIdentifier>
+      <UniqueIdentifier>{1a3bbb64-30ec-479c-9481-96c80fddef94}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics\UI">
-      <UniqueIdentifier>{8d16c601-34d2-4506-a3fe-a476cdfc94b6}</UniqueIdentifier>
+      <UniqueIdentifier>{dc116b3d-584e-4dc6-9397-aa24193b2883}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics\UI\UltralightAdapters">
-      <UniqueIdentifier>{82130ea3-28b3-4c17-8169-7f5e6c7de500}</UniqueIdentifier>
+      <UniqueIdentifier>{d621604a-dfd2-4a77-a9cb-29b8ae53adbf}</UniqueIdentifier>
     </Filter>
     <Filter Include="Animation">
-      <UniqueIdentifier>{7f0c4493-ff6e-416f-bde3-657edb18eeb2}</UniqueIdentifier>
+      <UniqueIdentifier>{bae2051a-67e9-42bf-9bd6-983cdd855eb0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Physics">
-      <UniqueIdentifier>{16226267-e70d-4070-bb67-31a4b1c9baee}</UniqueIdentifier>
+      <UniqueIdentifier>{d7488ca3-b6fc-4f29-a75f-6f7e42605c08}</UniqueIdentifier>
     </Filter>
     <Filter Include="Platform">
-      <UniqueIdentifier>{1103baea-928b-4d64-b602-d7d0317bdaba}</UniqueIdentifier>
+      <UniqueIdentifier>{15b765c9-92a0-4a43-8369-b004c4550eef}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\ImGui">
-      <UniqueIdentifier>{f2798cb0-b889-41b6-a9f9-7e8514aaa739}</UniqueIdentifier>
+      <UniqueIdentifier>{4af1268a-ed0b-4a7b-80c6-661099ab92fe}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty">
-      <UniqueIdentifier>{265cfeb7-1bd3-4f42-971c-992c3e4a8ca5}</UniqueIdentifier>
+      <UniqueIdentifier>{91855df1-277c-4258-a28b-9cb171d07003}</UniqueIdentifier>
     </Filter>
     <Filter Include="Util">
-      <UniqueIdentifier>{6d0e970e-4292-4d31-b118-44357039d1e9}</UniqueIdentifier>
+      <UniqueIdentifier>{3123ba46-ac5e-4203-99fb-d30532abd151}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core">
-      <UniqueIdentifier>{d7c675ec-46f1-4705-ab38-e4ed0ed8b677}</UniqueIdentifier>
+      <UniqueIdentifier>{73aa9e83-ab09-456d-adc1-4cb56fc3a6cd}</UniqueIdentifier>
     </Filter>
     <Filter Include="Networking">
-      <UniqueIdentifier>{a9bf02ea-6268-4a18-81ad-750e8baa7739}</UniqueIdentifier>
+      <UniqueIdentifier>{65f866f2-1475-4058-a05c-03a6b678d8b3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Audio">
-      <UniqueIdentifier>{c6500607-31f2-4a2f-9a7d-7ad2433e7d1b}</UniqueIdentifier>
+      <UniqueIdentifier>{d4e299d4-9615-4b1b-9a38-8f407946086e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Events">
-      <UniqueIdentifier>{5cc1437a-47ac-4552-85b3-1d535aba87f8}</UniqueIdentifier>
+      <UniqueIdentifier>{848d100d-da5d-4101-a067-000d842fa5c7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics\Passes">
-      <UniqueIdentifier>{8392a2d7-9185-4f9b-91f8-1c453d2aa3c6}</UniqueIdentifier>
+      <UniqueIdentifier>{42358aa6-da32-41bf-a5f0-da8c0062c7ae}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics\Shaders">
-      <UniqueIdentifier>{4ec5d2e5-4248-4cc9-832e-b996d41aaeee}</UniqueIdentifier>
+      <UniqueIdentifier>{136394ca-6895-4c67-8d4d-51fd96af58b9}</UniqueIdentifier>
     </Filter>
     <Filter Include="Assets">
-      <UniqueIdentifier>{d27e90df-fb7c-4153-89d8-f0c05eff9f2d}</UniqueIdentifier>
+      <UniqueIdentifier>{0b3934c2-3218-46ae-b664-ec7703b96712}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Graphics\GraphicsConvert.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
     <ClCompile Include="Graphics\ParticlePipeline.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
@@ -258,14 +261,11 @@
     <ClCompile Include="Events\Event.cpp">
       <Filter>Events</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\GraphicsConvert.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Application.cpp" />
-    <ClCompile Include="PCH.cpp" />
-    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Graphics\GraphicsConvert.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
     <ClInclude Include="Graphics\ParticlePipeline.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -605,12 +605,6 @@
     <ClInclude Include="Events\WindowEvents.h">
       <Filter>Events</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\GraphicsConvert.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Application.h" />
-    <ClInclude Include="PCH.h" />
-    <ClInclude Include="Resource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\RenderNodeDataTypes.def">
@@ -640,6 +634,9 @@
       <Filter>Graphics\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\DynamicSkyVS.hlsl">
+      <Filter>Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\EquirectangularToCubemapPS.hlsl">
       <Filter>Graphics\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Graphics\Shaders\GaussBlurPS.hlsl">
@@ -684,10 +681,15 @@
     <FxCompile Include="Graphics\Shaders\ToneMappingPS.hlsl">
       <Filter>Graphics\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Graphics\Shaders\EquirectangularToCubemapPS.hlsl">
+    <FxCompile Include="Graphics\Shaders\IntegrateBrdfPS.hlsl">
       <Filter>Graphics\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Graphics\Shaders\IrradianceConvolvePS.hlsl" />
+    <FxCompile Include="Graphics\Shaders\IrradianceConvolvePS.hlsl">
+      <Filter>Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\Shaders\PreFilterConvolvePS.hlsl">
+      <Filter>Graphics\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\mario.png">
@@ -697,7 +699,5 @@
       <Filter>Assets</Filter>
     </Image>
   </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Engine.rc" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>

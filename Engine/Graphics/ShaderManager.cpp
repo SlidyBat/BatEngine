@@ -95,6 +95,12 @@ namespace Bat
 			sampler_desc.comparison_func = ComparisonFunc::ALWAYS;
 			samplers.emplace_back( gpu->CreateSampler( sampler_desc ) );
 
+			// linear sampler
+			sampler_desc.address_u = TextureAddressMode::CLAMP;
+			sampler_desc.address_v = TextureAddressMode::CLAMP;
+			sampler_desc.address_w = TextureAddressMode::CLAMP;
+			samplers.emplace_back( gpu->CreateSampler( sampler_desc ) );
+
 			initialized = true;
 		}
 
