@@ -199,7 +199,7 @@ namespace Bat
 		virtual TexFormat GetFormat() const override { return m_Format; }
 		virtual ITexture* AsTexture() const override;
 
-		ID3D11RenderTargetView*   GetRenderTargetView( size_t index ) const { return m_pRenderTargetViews[index].Get(); }
+		ID3D11RenderTargetView*   GetRenderTargetView( size_t array_index, size_t mip_index ) const { return m_pRenderTargetViews[array_index * m_iMipLevels + mip_index].Get(); }
 		ID3D11ShaderResourceView* GetShaderResourceView() const { return m_pShaderResourceView.Get(); }
 		ID3D11Texture2D*          GetResource() const { return m_pRenderTargetTexture.Get(); }
 		void Reset( ID3D11RenderTargetView* pRenderTargetView, size_t width, size_t height )
@@ -218,6 +218,7 @@ namespace Bat
 		TexFormat m_Format = TEX_FORMAT_UNKNOWN;
 		size_t m_iWidth = 0;
 		size_t m_iHeight = 0;
+		size_t m_iMipLevels = 1;
 		D3D_SRV_DIMENSION m_Dimension;
 	};
 
@@ -336,7 +337,7 @@ namespace Bat
 		// Get's currently bound render target, or nullptr if no render target is bound
 		virtual IRenderTarget* GetRenderTarget( size_t slot = 0 ) const override;
 		// Sets current render target. Pass nullptr to bind backbuffer
-		virtual void SetRenderTarget( IRenderTarget* pRT, size_t index = 0 ) override;
+		virtual void SetRenderTarget( IRenderTarget* pRT, size_t array_index = 0, size_t mip_index = 0 ) override;
 		virtual void SetRenderTargets( const std::vector<IRenderTarget*>& pRTs ) override;
 		virtual void PushRenderTarget() override;
 		virtual void PushRenderTarget( IRenderTarget* pRT ) override;
@@ -349,7 +350,7 @@ namespace Bat
 		virtual void PushRenderTargetAndViewport( IRenderTarget* pRT ) override;
 		virtual void PopRenderTargetAndViewport() override;
 
-		virtual void ClearRenderTarget( IRenderTarget* pRT, float r, float g, float b, float a ) override;
+		virtual void ClearRenderTarget( IRenderTarget* pRT, float r, float g, float b, float a, size_t array_index = 0, size_t mip_index = 0 ) override;
 		virtual void ClearDepthStencil( IDepthStencil* pDepthStencil, int clearflag, float depth, uint8_t stencil, size_t index = 0 ) override;
 		virtual void Resolve( IRenderTarget* pDst, IRenderTarget* pSrc ) override;
 
@@ -400,7 +401,8 @@ namespace Bat
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_pDeviceContext;
 		Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation> m_pAnnotation;
 		std::vector<std::vector<IRenderTarget*>> m_RenderTargetStack;
-		size_t m_iRenderTargetIndex = 0;
+		size_t m_iRenderTargetArrayIndex = 0;
+		size_t m_iRenderTargetMipIndex = 0;
 		std::vector<std::vector<Viewport>> m_ViewportStack;
 		class D3DDepthStencil* m_pDepthStencil = nullptr;
 		size_t m_iDepthStencilIndex = 0;
@@ -969,9 +971,10 @@ namespace Bat
 		return m_RenderTargetStack.back()[slot];
 	}
 
-	void D3DGPUContext::SetRenderTarget( IRenderTarget* pRT, size_t index )
+	void D3DGPUContext::SetRenderTarget( IRenderTarget* pRT, size_t array_index, size_t mip_index )
 	{
-		m_iRenderTargetIndex = index;
+		m_iRenderTargetArrayIndex = array_index;
+		m_iRenderTargetMipIndex = mip_index;
 		if( m_RenderTargetStack.empty() )
 		{
 			m_RenderTargetStack.push_back( { pRT } );
@@ -1085,14 +1088,14 @@ namespace Bat
 		m_pDeviceContext->ResolveSubresource( pDstResource, 0, pSrcResource, 0, format );
 	}
 
-	void D3DGPUContext::ClearRenderTarget( IRenderTarget* pRT, float r, float g, float b, float a )
+	void D3DGPUContext::ClearRenderTarget( IRenderTarget* pRT, float r, float g, float b, float a, size_t array_index, size_t mip_index )
 	{
 		if( !pRT )
 		{
 			pRT = m_pDevice->GetBackbuffer();
 		}
 
-		ID3D11RenderTargetView* pView = static_cast<D3DRenderTarget*>( pRT )->GetRenderTargetView( 0 );
+		ID3D11RenderTargetView* pView = static_cast<D3DRenderTarget*>( pRT )->GetRenderTargetView( array_index, mip_index );
 		float colour[4];
 		colour[0] = r;
 		colour[1] = g;
@@ -1359,7 +1362,7 @@ namespace Bat
 				const IRenderTarget* rt = m_RenderTargetStack.back()[i];
 				if( rt )
 				{
-					d3d11rts.push_back( static_cast<const D3DRenderTarget*>(rt)->GetRenderTargetView( m_iRenderTargetIndex ) );
+					d3d11rts.push_back( static_cast<const D3DRenderTarget*>(rt)->GetRenderTargetView( m_iRenderTargetArrayIndex, m_iRenderTargetMipIndex ) );
 				}
 				else
 				{
@@ -2480,6 +2483,7 @@ namespace Bat
 		rt->m_iWidth = width;
 		rt->m_iHeight = height;
 		rt->m_Dimension = D3D_SRV_DIMENSION_TEXTURECUBE;
+		rt->m_iMipLevels = mip_levels;
 
 		UINT bind_flags = D3D11_BIND_RENDER_TARGET;
 		if( ( flags & TexFlags::NO_SHADER_BIND ) != TexFlags::NO_SHADER_BIND )
@@ -2501,22 +2505,25 @@ namespace Bat
 		textureDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 		COM_THROW_IF_FAILED( pDevice->CreateTexture2D( &textureDesc, NULL, &rt->m_pRenderTargetTexture ) );
 
-		rt->m_pRenderTargetViews.resize( 6 );
-		for( int i = 0; i < 6; i++ )
+		rt->m_pRenderTargetViews.resize( 6 * mip_levels );
+		for( size_t mip_index = 0; mip_index < mip_levels; mip_index++ )
 		{
-			D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc{};
-			renderTargetViewDesc.Format = textureDesc.Format;
-			renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
-			renderTargetViewDesc.Texture2DArray.ArraySize = 1;
-			renderTargetViewDesc.Texture2DArray.FirstArraySlice = (UINT)i;
-			renderTargetViewDesc.Texture2DArray.MipSlice = 0;
+			for( size_t array_index = 0; array_index < 6; array_index++ )
+			{
+				D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc{};
+				renderTargetViewDesc.Format = textureDesc.Format;
+				renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
+				renderTargetViewDesc.Texture2DArray.ArraySize = 1;
+				renderTargetViewDesc.Texture2DArray.FirstArraySlice = (UINT)array_index;
+				renderTargetViewDesc.Texture2DArray.MipSlice = (UINT)mip_index;
 
-			COM_THROW_IF_FAILED(
-				pDevice->CreateRenderTargetView( rt->m_pRenderTargetTexture.Get(),
-					&renderTargetViewDesc,
-					&rt->m_pRenderTargetViews[i]
-				)
-			);
+				COM_THROW_IF_FAILED(
+					pDevice->CreateRenderTargetView( rt->m_pRenderTargetTexture.Get(),
+						&renderTargetViewDesc,
+						&rt->m_pRenderTargetViews[array_index * mip_levels + mip_index]
+					)
+				);
+			}
 		}
 
 		if( ( flags & TexFlags::NO_SHADER_BIND ) != TexFlags::NO_SHADER_BIND )
