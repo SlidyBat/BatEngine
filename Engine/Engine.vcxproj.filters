@@ -687,6 +687,7 @@
     <FxCompile Include="Graphics\Shaders\EquirectangularToCubemapPS.hlsl">
       <Filter>Graphics\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Graphics\Shaders\IrradianceConvolvePS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\mario.png">

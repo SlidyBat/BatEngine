@@ -14,6 +14,11 @@ namespace Bat
 		DirectX::XMMATRIX world;
 	};
 
+	struct PbrGlobalMaps
+	{
+		ITexture* irradiance_map;
+	};
+
 	class LitGenericPipeline : public IPipeline
 	{
 	public:
@@ -22,14 +27,16 @@ namespace Bat
 			const Camera& camera,
 			const DirectX::XMMATRIX& world_transform,
 			const std::vector<Entity>& light_ents,
-			const std::vector<DirectX::XMMATRIX>& light_transforms );
+			const std::vector<DirectX::XMMATRIX>& light_transforms,
+			const PbrGlobalMaps& maps );
 
 		void RenderInstanced( IGPUContext* pContext,
 			const Mesh& mesh,
 			const std::vector<LitGenericInstanceData>& instances,
 			const Camera& camera,
 			const std::vector<Entity>& light_ents,
-			const std::vector<DirectX::XMMATRIX>& light_transforms );
+			const std::vector<DirectX::XMMATRIX>& light_transforms,
+			const PbrGlobalMaps& maps );
 	private:
 		void BindTransforms( IGPUContext* pContext,
 			const Camera& camera,

@@ -15,6 +15,9 @@ Texture2D MetallicRoughnessTexture : register(T_SLOT_1);
 Texture2D NormalTexture : register(T_SLOT_2);
 Texture2D OcclusionTexture : register(T_SLOT_3);
 Texture2D EmissiveTexture : register(T_SLOT_4);
+
+TextureCube IrradianceMap : register(T_SLOT_5);
+
 Texture2DArray ShadowMap : register(T_SLOT_SHADOWMAPS);
 
 cbuffer ShadowMatrices : register(B_SLOT_SHADOWMATRICES)
@@ -99,6 +102,12 @@ float3 FresnelSchlick(float3 H, float3 V, float3 F0)
 	return F0 + (1.0 - F0) * pow(1.0 - cos_theta, 5.0);
 }
 
+float3 FresnelSchlickRoughness(float3 H, float3 V, float3 F0, float roughness)
+{
+	float cos_theta = max(dot(H, V), 0.0f);
+	return F0 + (max(1.0f - roughness, F0) - F0) * pow(1.0 - cos_theta, 5.0);
+}
+
 float DistributionGGX(float3 N, float3 H, float roughness)
 {
 	float a = roughness * roughness;
@@ -134,7 +143,7 @@ float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
 	return ggx1 * ggx2;
 }
 
-float3 Shade(MaterialInfo material, float3 L, float3 P, float3 N)
+float3 Radiance(MaterialInfo material, float3 L, float3 P, float3 N)
 {
 	float3 V = normalize(Globals.CameraPos - P);
 	float3 H = normalize(L + V);
@@ -171,9 +180,9 @@ float3 DoPointLight( Light light, MaterialInfo material, float3 P, float3 N )
 	float3 L = Lunnormalized / distance;
 
 	float attenuation = Attenuation(light, distance);
-	float3 shade = Shade(material, L, P, N);
+	float3 radiance = Radiance(material, L, P, N);
 
-	return shade * attenuation * light.Intensity * light.Colour;
+	return radiance * attenuation * light.Intensity * light.Colour;
 }
 
 float3 DoSpotLight( Light light, MaterialInfo material, float3 P, float3 N )
@@ -188,17 +197,17 @@ float3 DoSpotLight( Light light, MaterialInfo material, float3 P, float3 N )
 	float spot_intensity = smoothstep( min_theta, max_theta, theta );
 	
 	float attenuation = Attenuation(light, light_distance);
-	float3 shade = Shade(material, L, P, N);
+	float3 radiance = Radiance(material, L, P, N);
 
-	return shade * attenuation * spot_intensity * Shadow( light, P );
+	return radiance * attenuation * spot_intensity * Shadow(light, P);
 }
 
 float3 DoDirectionalLight( Light light, MaterialInfo material, float3 P, float3 N )
 {
 	float3 L = light.Direction;
-	float3 shade = Shade(material, L, P, N);
+	float3 radiance = Radiance(material, L, P, N);
 	
-	return shade * light.Intensity * light.Colour * Shadow(light, P);
+	return radiance * light.Intensity * light.Colour * Shadow(light, P);
 }
 
 float3 DoLight( Light light, MaterialInfo material, float3 world_pos, float3 normal )
@@ -263,8 +272,6 @@ float4 main( PixelInput input ) : SV_TARGET
 	{
 		occlusion = OcclusionTexture.Sample(WrapSampler, input.tex);
 	}
-	
-	float3 ambient = GlobalAmbient;
 
 	float3 emissive = Mat.EmissiveFactor;
 	if( Mat.HasEmissiveTexture )
@@ -277,6 +284,14 @@ float4 main( PixelInput input ) : SV_TARGET
 	{
 		colour += DoLight( Lights[i], material, world_pos, normal );
 	}
+	
+	float3 view_dir = normalize(Globals.CameraPos - world_pos);
+	float3 kS = FresnelSchlickRoughness(normal, view_dir, material.F0, material.Roughness);
+	float3 kD = (1.0f - kS) * (1.0f - material.Metallic);
+	float3 irradiance = IrradianceMap.Sample(LinearSampler, normal).rgb;
+	float3 diffuse = irradiance;
+
+	float3 ambient = (kD * diffuse);
 
 	colour += ambient * occlusion * material.Albedo.rgb;
 	colour += emissive;

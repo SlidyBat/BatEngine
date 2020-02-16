@@ -49,7 +49,7 @@ namespace Bat
 		scene.Set( world.CreateEntity() ); // Root entity
 		scale_index = scene.AddChild( world.CreateEntity() );
 		SceneNode& scale_node = scene.GetChild( scale_index );
-		scale_node.AddChild( loader.Load( "Assets/Ignore/Sponza/sponza.gltf" ) );
+		scale_node.AddChild( loader.Load( "Assets/Ignore/MetalRoughSpheres.glb" ) );
 		Entity floor = world.CreateEntity();
 		floor.Add<TransformComponent>()
 			.SetPosition( { 0.0f, -2.0f, 0.0f } )
@@ -687,8 +687,11 @@ namespace Bat
 		rendergraph.AddDepthStencilResource( "depth", std::move( depth ) );
 
 		auto hdrmap = std::unique_ptr<ITexture>( gpu->CreateTexture( skybox_tex, TexFlags::NO_GEN_MIPS ) );
-		auto cubemap = std::unique_ptr<IRenderTarget>( GraphicsConvert::EquirectangularToCubemap( pContext, hdrmap.get(), 512, 512 ) );
-		rendergraph.AddTextureResource( "skybox", std::unique_ptr<ITexture>( cubemap->AsTexture() ) );
+		auto envmap = std::unique_ptr<ITexture>( GraphicsConvert::EquirectangularToCubemap( pContext, hdrmap.get(), 512, 512 ) );
+		auto irradiance = std::unique_ptr<ITexture>( GraphicsConvert::MakeIrradianceMap( pContext, envmap.get(), 32, 32 ) );
+
+		rendergraph.AddTextureResource( "skybox", std::move( envmap ) );
+		rendergraph.AddTextureResource( "irradiance", std::move( irradiance ) );
 
 		// add passes
 		rendergraph.AddPass( "crt", std::make_unique<ClearRenderTargetPass>() );
@@ -701,12 +704,14 @@ namespace Bat
 		{
 			rendergraph.AddPass( "opaque", std::make_unique<OpaquePass>() );
 			rendergraph.BindToResource( "opaque.dst", "target" );
+			rendergraph.BindToResource( "opaque.irradiance", "irradiance" );
 		}
 
 		if( transparent_pass )
 		{
 			rendergraph.AddPass( "transparent", std::make_unique<TransparentPass>() );
 			rendergraph.BindToResource( "transparent.dst", "target" );
+			rendergraph.BindToResource( "transparent.irradiance", "irradiance" );
 		}
 
 		rendergraph.AddPass( "draw_lights", std::make_unique<DrawLightsPass>() );

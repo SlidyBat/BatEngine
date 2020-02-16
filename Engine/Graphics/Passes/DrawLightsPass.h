@@ -66,7 +66,9 @@ namespace Bat
 
 						std::vector<Entity> empty;
 						std::vector<DirectX::XMMATRIX> empty2;
-						pPipeline->Render( m_pContext, *pMesh, *m_pCamera, w, empty, empty2 );
+						PbrGlobalMaps pbr_maps;
+						pbr_maps.irradiance_map = nullptr;
+						pPipeline->Render( m_pContext, *pMesh, *m_pCamera, w, empty, empty2, pbr_maps );
 					}
 				}
 			}

@@ -20,7 +20,8 @@ namespace Bat
 		const Camera& camera,
 		const DirectX::XMMATRIX& world_transform,
 		const std::vector<Entity>& light_ents,
-		const std::vector<DirectX::XMMATRIX>& light_transforms )
+		const std::vector<DirectX::XMMATRIX>& light_transforms,
+		const PbrGlobalMaps& maps )
 	{
 		auto macros = ShaderManager::BuildMacrosForMesh( mesh );
 
@@ -36,6 +37,11 @@ namespace Bat
 		BindMaterial( pContext, mesh.GetMaterial() );
 		BindLights( pContext, light_ents, light_transforms );
 
+		if( maps.irradiance_map )
+		{
+			pContext->BindTexture( maps.irradiance_map, PS_TEX_SLOT_5 );
+		}
+
 		pContext->DrawIndexed( mesh.GetIndexCount() );
 	}
 
@@ -44,7 +50,8 @@ namespace Bat
 		const std::vector<LitGenericInstanceData>& instances,
 		const Camera& camera,
 		const std::vector<Entity>& light_ents,
-		const std::vector<DirectX::XMMATRIX>& light_transforms )
+		const std::vector<DirectX::XMMATRIX>& light_transforms,
+		const PbrGlobalMaps& maps )
 	{
 		auto macros = ShaderManager::BuildMacrosForInstancedMesh( mesh );
 
@@ -60,6 +67,8 @@ namespace Bat
 		BindMaterial( pContext, mesh.GetMaterial() );
 		BindLights( pContext, light_ents, light_transforms );
 		BindInstances( pContext, pVertexShader, instances );
+
+		pContext->BindTexture( maps.irradiance_map, PS_TEX_SLOT_5 );
 
 		pContext->DrawInstancedIndexed( mesh.GetIndexCount(), instances.size() );
 	}

@@ -21,6 +21,7 @@ namespace Bat
 		OpaquePass()
 		{
 			AddRenderNode( "dst", NodeType::OUTPUT, NodeDataType::RENDER_TARGET );
+			AddRenderNode( "irradiance", NodeType::INPUT, NodeDataType::TEXTURE );
 		}
 	private:
 		virtual void PreRender( IGPUContext* pContext, Camera& camera, RenderData& data ) override
@@ -32,6 +33,8 @@ namespace Bat
 			pContext->SetDepthWriteEnabled( true );
 			pContext->SetBlendingEnabled( false );
 			pContext->SetCullMode( CullMode::BACK );
+
+			m_PbrMaps.irradiance_map = data.GetTexture( "irradiance" );
 		}
 
 		virtual void Render( const DirectX::XMMATRIX& transform, Entity e ) override
@@ -93,7 +96,7 @@ namespace Bat
 					}
 
 					auto pPipeline = ShaderManager::GetPipeline<LitGenericPipeline>();
-					pPipeline->Render( pContext, *pMesh, *pCamera, w, light_list.entities, light_list.transforms );
+					pPipeline->Render( pContext, *pMesh, *pCamera, w, light_list.entities, light_list.transforms, m_PbrMaps );
 				}
 			}
 		}
@@ -105,7 +108,7 @@ namespace Bat
 			
 			for( auto& [pMesh, instances] : m_mapInstancedMeshes )
 			{
-				pPipeline->RenderInstanced( pContext, *pMesh, instances, camera, light_list.entities, light_list.transforms );
+				pPipeline->RenderInstanced( pContext, *pMesh, instances, camera, light_list.entities, light_list.transforms, m_PbrMaps );
 				instances.clear();
 			}
 		}
@@ -130,7 +133,7 @@ namespace Bat
 		};
 		ConstantBuffer<CB_Bones> m_cbufBones;
 
-		
+		PbrGlobalMaps m_PbrMaps;
 		std::unordered_map<Mesh*, std::vector<LitGenericInstanceData>> m_mapInstancedMeshes;
 	};
 }
