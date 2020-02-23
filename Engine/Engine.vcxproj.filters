@@ -261,6 +261,9 @@
     <ClCompile Include="Events\Event.cpp">
       <Filter>Events</Filter>
     </ClCompile>
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="PCH.cpp" />
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\GraphicsConvert.h">
@@ -605,6 +608,9 @@
     <ClInclude Include="Events\WindowEvents.h">
       <Filter>Events</Filter>
     </ClInclude>
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="PCH.h" />
+    <ClInclude Include="Resource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\RenderNodeDataTypes.def">
@@ -699,5 +705,7 @@
       <Filter>Assets</Filter>
     </Image>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ResourceCompile Include="Engine.rc" />
+  </ItemGroup>
 </Project>
