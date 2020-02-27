@@ -257,6 +257,10 @@ namespace Bat
 			DirectX::XMStoreFloat3( this, v );
 		}
 
+		bool operator==( const Vec3& rhs ) const
+		{
+			return x == rhs.x && y == rhs.y && z == rhs.z;
+		}
 		Vec3& operator=( const DirectX::XMFLOAT3& src )
 		{
 			x = src.x;
@@ -333,10 +337,6 @@ namespace Bat
 
 			return *this;
 		}
-		bool operator==( const Vec3& rhs )
-		{
-			return x == rhs.x && y == rhs.y && z == rhs.z;
-		}
 
 		float LengthSq() const
 		{
@@ -398,6 +398,11 @@ namespace Bat
 				floorf( v.y ),
 				floorf( v.z )
 			};
+		}
+
+		static bool CloseEnough( const Vec3& a, const Vec3& b, float epsilon = 0.001f )
+		{
+			return Math::CloseEnough( a.x, b.x ) && Math::CloseEnough( a.y, b.y ) && Math::CloseEnough( a.z, b.z );
 		}
 	};
 

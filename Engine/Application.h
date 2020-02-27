@@ -54,7 +54,6 @@ namespace Bat
 		RenderGraph rendergraph;
 		Entity flashlight;
 		Entity sun;
-		Entity player;
 
 		bool physics_simulate = false;
 

@@ -35,6 +35,112 @@
 
 namespace Bat
 {
+	class Character
+	{
+	public:
+		Character()
+		{
+		}
+
+		void Initialize()
+		{
+			controller = Physics::CreateCharacterController();
+		}
+
+		void Update( const Input& input, float dt )
+		{
+			Vec3 disp = { 0.0f, 0.0f, 0.0f };
+
+			Vec3 forward, right;
+			Math::AngleVectors( rotation, &forward, &right, nullptr );
+
+			if( input.IsKeyDown( 'A' ) )
+			{
+				disp += -right;
+			}
+			if( input.IsKeyDown( 'D' ) )
+			{
+				disp += right;
+			}
+			if( input.IsKeyDown( 'W' ) )
+			{
+				disp += forward;
+			}
+			if( input.IsKeyDown( 'S' ) )
+			{
+				disp += -forward;
+			}
+			if( disp.LengthSq() > 0.01f )
+			{
+				disp = disp.Normalized() * speed;
+			}
+
+			if( input.IsKeyDown( VK_SPACE ) )
+			{
+				Jump();
+			}
+
+			if( input.IsMouseButtonDown( Input::MouseButton::Left ) )
+			{
+				const Vei2& delta = input.GetMouseDelta();
+				const float deltayaw = (float)delta.x;
+				const float deltapitch = (float)delta.y;
+
+				RotateBy( Vec3{ deltapitch, deltayaw, 0.0f } * 0.5f );
+			}
+
+			velocity += Vec3{ 0.0f, -9.8f, 0.0f } * dt;
+
+			PhysicsControllerCollisionFlags flags = controller->Move( (velocity + disp) * dt, dt );
+			if( ( flags & CONTROLLER_COLLISION_DOWN ) != CONTROLLER_COLLISION_NONE )
+			{
+				on_ground = true;
+				velocity.y = 0.0f;
+			}
+			else
+			{
+				on_ground = false;
+			}
+
+			if( ( flags & CONTROLLER_COLLISION_UP ) != CONTROLLER_COLLISION_NONE )
+			{
+				velocity.y = 0.0f;
+			}
+			if( ( flags & CONTROLLER_COLLISION_SIDES ) != CONTROLLER_COLLISION_NONE )
+			{
+				velocity.x = 0.0f;
+				velocity.z = 0.0f;
+			}
+		}
+		void MoveBy( const Vec3& dvel )
+		{
+			velocity += dvel;
+		}
+		void RotateBy( const Vec3& drot )
+		{
+			rotation = Math::NormalizeAngle( rotation + drot );
+		}
+		void Jump()
+		{
+			if( on_ground )
+			{
+				velocity.y += 5.0f;
+				on_ground = false;
+			}
+		}
+
+		void SetPosition( const Vec3& pos ) { controller->SetPosition( pos ); }
+		Vec3 GetPosition() const { return controller->GetPosition(); }
+		Vec3 GetRotation() const { return rotation; }
+	private:
+		ICharacterController* controller;
+		Vec3 velocity = { 0.0f, 0.0f, 0.0f };
+		Vec3 rotation = { 0.0f, 0.0f, 0.0f };
+		float speed = 5.0f;
+		bool on_ground = true;
+	};
+	static Character player;
+
 	Application::Application( Graphics& gfx, Window& wnd )
 		:
 		gfx( gfx ),
@@ -42,6 +148,8 @@ namespace Bat
 		camera( wnd.input, 2.0f, 1.0f ),
 		physics_system( world )
 	{
+		player.Initialize();
+		player.SetPosition( { 0.0f, 1.0f, 0.0f } );
 		SceneLoader loader;
 
 		camera.SetAspectRatio( (float)wnd.GetWidth() / wnd.GetHeight() );
@@ -111,16 +219,8 @@ namespace Bat
 		{
 			Physics::EnableFixedTimestep( 1.0f / 60.0f );
 
-			player = world.CreateEntity();
-			player.Add<TransformComponent>()
-				.SetPosition( camera.GetPosition() )
-				.SetRotation( camera.GetRotation() );
-			player.Add<PhysicsComponent>( PhysicsObjectType::DYNAMIC )
-				.SetKinematic( true )
-				.AddSphereShape( 0.05f );
-
-			//scene_ent.Add<PhysicsComponent>( PhysicsObjectType::STATIC )
-			//	.AddMeshShape();
+			scale_node->GetFirstChild()->Get().Add<PhysicsComponent>( PhysicsObjectType::STATIC )
+				.AddMeshShape();
 		}
 
 		wnd.input.AddEventListener<KeyPressedEvent>( *this );
@@ -188,11 +288,10 @@ namespace Bat
 			elapsed_time -= 1.0f;
 		}
 
-		camera.Update( deltatime );
+		player.Update( wnd.input, deltatime );
+		camera.SetPosition( player.GetPosition() );
+		camera.SetRotation( player.GetRotation() );
 
-		player.Get<TransformComponent>()
-			.SetPosition( camera.GetPosition() )
-			.SetRotation( camera.GetRotation() );
 		flashlight.Get<HierarchyComponent>()
 			.SetAbsPosition( camera.GetPosition() )
 			.SetAbsRotation( camera.GetRotation() );

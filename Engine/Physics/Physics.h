@@ -5,6 +5,7 @@ namespace Bat
 	class IPhysicsObject;
 	class IStaticObject;
 	class IDynamicObject;
+	class ICharacterController;
 
 	struct PhysicsMaterial
 	{
@@ -64,6 +65,8 @@ namespace Bat
 		// Creates a new dynamic object (body with mass, inertia, velocity) with the given world position/rotation
 		// NOTE: must be freed using `delete`
 		static IDynamicObject* CreateDynamicObject( const Vec3& pos, const Vec3& ang, void* userdata = nullptr );
+
+		static ICharacterController* CreateCharacterController();
 
 		// See TraceFilterFlags for possible filter flags
 		static PhysicsRayCastResult RayCast( const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter = (HIT_STATICS|HIT_DYNAMICS) );
@@ -178,5 +181,26 @@ namespace Bat
 		virtual void AddAngularImpulse( const Vec3& ang_impulse ) = 0;
 
 		virtual PhysicsObjectType GetType() const override { return PhysicsObjectType::DYNAMIC; }
+	};
+
+	enum PhysicsControllerCollisionFlags
+	{
+		CONTROLLER_COLLISION_NONE = 0,
+		CONTROLLER_COLLISION_SIDES = ( 1 << 0 ),
+		CONTROLLER_COLLISION_UP = ( 1 << 1 ),
+		CONTROLLER_COLLISION_DOWN = ( 1 << 2 )
+	};
+	BAT_ENUM_OPERATORS( PhysicsControllerCollisionFlags );
+
+	class ICharacterController
+	{
+	public:
+		// Moves the character by the given displacement vector
+		virtual PhysicsControllerCollisionFlags Move( const Vec3& disp, float dt ) = 0;
+
+		// Teleports the character to the given position.
+		// Unlike Move() no collision checks are done here, the character's position is simply set.
+		virtual void SetPosition( const Vec3& pos ) = 0;
+		virtual Vec3 GetPosition() const = 0;
 	};
 }
