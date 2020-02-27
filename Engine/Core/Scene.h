@@ -25,9 +25,9 @@ namespace Bat
 		const SceneNode* GetNextChild() const;
 
 		SceneNode* AddChild( SceneNode&& node );
-		// Creates a child node with the given value and returns it's index
+		// Creates a child node with the given value and returns it
 		SceneNode* AddChild( Entity value );
-		// Removes the child node at the given index
+		// Removes the given child node
 		void RemoveChild( SceneNode* child );
 		// Removes child node that holds given value
 		void RemoveChild( Entity value );
