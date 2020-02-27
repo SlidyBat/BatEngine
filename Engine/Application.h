@@ -12,6 +12,7 @@
 #include "MouseEvents.h"
 #include "PhysicsSystem.h"
 #include "AnimationSystem.h"
+#include "NavMesh.h"
 #include "Particles.h"
 #include "Scene.h"
 
@@ -65,6 +66,9 @@ namespace Bat
 		PhysicsSystem physics_system;
 		AnimationSystem anim_system;
 		ParticleSystem particle_system;
+		NavMeshSystem navmesh_system;
+
+		Entity agent = Entity::INVALID;
 
 		std::string skybox_tex = "Assets/Ignore/IBLTest.hdr";
 

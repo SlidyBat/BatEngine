@@ -305,6 +305,8 @@ namespace Bat
 		{
 			Physics::Simulate( deltatime );
 		}
+
+		navmesh_system.Update( deltatime );
 	}
 
 	static void AddNodeTree( SceneNode* parent_node, SceneNode& node )
@@ -592,6 +594,12 @@ namespace Bat
 				ImGui::End();
 			}
 		}
+
+		if( agent != Entity::INVALID )
+		{
+			Vec3 agent_pos = agent.Get<TransformComponent>().GetPosition();
+			DebugDraw::Box( agent_pos - Vec3{ 1.0f, 1.0f, 1.0f } * 0.1f, agent_pos + Vec3{ 1.0f, 1.0f, 1.0f } * 0.1f, Colours::Red );
+		}
 	}
 
 	void Application::OnEvent( const WindowResizeEvent& e )
@@ -665,14 +673,27 @@ namespace Bat
 		}
 		else if( e.key == 'R' )
 		{
-			auto result = EntityTrace::RayCast( camera.GetPosition() + camera.GetLookAtVector() * 0.5f, camera.GetLookAtVector(), 500.0f, HIT_DYNAMICS );
+			auto result = EntityTrace::RayCast( camera.GetPosition() + camera.GetLookAtVector() * 0.5f, camera.GetLookAtVector(), 500.0f, HIT_STATICS );
 			if( result.hit )
 			{
-				Entity hit_ent = result.entity;
-				BAT_LOG( "HIT! Entity: %i", hit_ent.GetId().GetIndex() );
-				const auto& t = hit_ent.Get<TransformComponent>();
-				auto& phys = hit_ent.Get<PhysicsComponent>();
-				phys.AddLinearImpulse( (t.GetPosition() - camera.GetPosition()).Normalize() * 10.0f );
+				if( agent == Entity::INVALID )
+				{
+					navmesh_system.Bake();
+
+					agent = world.CreateEntity();
+					scene.AddChild( agent );
+					agent.Add<TransformComponent>()
+						.SetPosition( result.position );
+					agent.Add<NavMeshAgent>();
+				}
+				else
+				{
+					auto& navmesh_agent = agent.Get<NavMeshAgent>();
+					navmesh_agent.target = result.position;
+					navmesh_agent.go_to_target = true;
+					navmesh_agent.path.clear();
+					navmesh_agent.next_path_point = 0;
+				}
 			}
 		}
 		else if( e.key == 'X' )
