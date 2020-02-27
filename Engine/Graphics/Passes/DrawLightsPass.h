@@ -38,29 +38,23 @@ namespace Bat
 	public:
 		virtual void Visit( const Mat4& transform, Entity e ) override
 		{
-			static Entity* light_model = nullptr;
-			static Material light_material;
-
-			if( !light_model )
-			{
-				static SceneNode light_model_node = SceneLoader().Load( "Assets/sphere.gltf" );
-				light_model = &light_model_node.GetChild( 2 ).Get();
-				light_model->Get<TransformComponent>().SetScale( 0.05f );
-			}
+			static Resource<Mesh> sphere_mesh = ResourceManager::GetMesh( "Assets/sphere.gltf" );
 
 			if( e.Has<LightComponent>() )
 			{
-				const auto& light = e.Get<LightComponent>();
-				if( light.GetType() == LightType::POINT )
-				{
-					auto emissive = light.GetColour() * 3;
-					
-					Mat4 w = light_model->Get<TransformComponent>().GetTransform() * transform;
+				static Resource<Mesh> sphere_mesh = ResourceManager::GetMesh( "Assets/sphere.gltf" );
 
-					auto& meshes = light_model->Get<ModelComponent>().GetMeshes();
-					for( auto& pMesh : meshes )
+				if( e.Has<LightComponent>() )
+				{
+					const auto& light = e.Get<LightComponent>();
+					if( light.GetType() == LightType::POINT )
 					{
-						pMesh->GetMaterial().SetEmissiveFactor( emissive.x, emissive.y, emissive.z );
+						auto emissive = light.GetColour() * 3;
+
+						sphere_mesh->GetMaterial().SetEmissiveFactor( emissive.x, emissive.y, emissive.z );
+
+						const float scale = 0.05f;
+						Mat4 w = Mat4::Scale( scale ) * transform;
 
 						auto pPipeline = ShaderManager::GetPipeline<LitGenericPipeline>();
 
@@ -70,7 +64,7 @@ namespace Bat
 						pbr_maps.irradiance_map = nullptr;
 						pbr_maps.prefilter_map = nullptr;
 						pbr_maps.brdf_integration_map = nullptr;
-						pPipeline->Render( m_pContext, *pMesh, *m_pCamera, w, empty, empty2, pbr_maps );
+						pPipeline->Render( m_pContext, *sphere_mesh, *m_pCamera, w, empty, empty2, pbr_maps );
 					}
 				}
 			}

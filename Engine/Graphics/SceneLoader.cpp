@@ -7,6 +7,7 @@
 #include "Mesh.h"
 #include "Model.h"
 #include "Colour.h"
+#include "ResourceManager.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -34,6 +35,26 @@ namespace Bat
 		}
 
 		return it->pBatMesh;
+	}
+
+	std::shared_ptr<Mesh> SceneLoader::ExtractMesh( aiNode* pAiNode )
+	{
+		if( pAiNode->mNumMeshes > 0 )
+		{
+			aiMesh* pMesh = m_pAiScene->mMeshes[pAiNode->mMeshes[0]];
+			return ProcessMesh( pMesh );
+		}
+
+		for( unsigned int i = 0; i < pAiNode->mNumChildren; i++ )
+		{
+			std::shared_ptr<Mesh> mesh = ExtractMesh( pAiNode->mChildren[i] );
+			if( mesh )
+			{
+				return mesh;
+			}
+		}
+
+		return nullptr;
 	}
 
 	SceneLoader::TextureStorageType SceneLoader::DetermineTextureStorageType( aiMaterial* pMat, aiTextureType type, unsigned int index = 0 )
@@ -593,9 +614,17 @@ namespace Bat
 		for( unsigned int i = 0; i < pAiNode->mNumChildren; i++ )
 		{
 			Entity child = world.CreateEntity();
-			size_t new_node_idx = node.AddChild( child );
-			ProcessNode( pAiNode->mChildren[i], node.GetChild( new_node_idx ) );
+			SceneNode* child_node = node.AddChild( child );
+			ProcessNode( pAiNode->mChildren[i], *child_node );
 		}
+	}
+
+	SceneLoader::SceneLoader()
+	{
+	}
+
+	SceneLoader::~SceneLoader()
+	{
 	}
 
 	SceneNode SceneLoader::Load( const std::string& filename )
@@ -628,6 +657,16 @@ namespace Bat
 		m_LoadedMeshes.clear();
 
 		return root_node;
+	}
+
+	std::shared_ptr<Mesh> SceneLoader::LoadMesh( const std::string& filename )
+	{
+		if( !this->ReadFile( filename ) )
+		{
+			return {};
+		}
+
+		return ExtractMesh( m_pAiScene->mRootNode );
 	}
 
 	bool SceneLoader::ReadFile( const std::string& filename )
