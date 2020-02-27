@@ -2,6 +2,7 @@
 
 #include "MathLib.h"
 #include "Entity.h"
+#include "SceneEvents.h"
 
 namespace Bat
 {
@@ -32,7 +33,7 @@ namespace Bat
 
 			transform = mat;
 			position = vpos;
-			rotation = Math::QuaternionToEuler( vrot );
+			rotation = Math::QuaternionToEulerDeg( vrot );
 			DirectX::XMStoreFloat( &scale, vscale );
 			dirty = false;
 		}
@@ -72,15 +73,53 @@ namespace Bat
 		mutable bool dirty = true;
 	};
 
-	struct HierarchyComponent : Component<HierarchyComponent>
+	enum class HierarchyCache
 	{
-		Mat4 abs_transform;
+		NONE = 0,
+		POS = ( 1 << 0 ),
+		ROT = ( 1 << 1 ),
+		SCALE = ( 1 << 2 ),
+		ALL = ( POS | ROT | SCALE )
+	};
+	BAT_ENUM_OPERATORS( HierarchyCache );
+
+	class HierarchyComponent : public Component<HierarchyComponent>
+	{
+	public:
+		HierarchyComponent( SceneNode* node );
+
+		Vec3 GetAbsPosition();
+		HierarchyComponent& SetAbsPosition( const Vec3& pos );
+		Vec3 GetAbsRotation();
+		HierarchyComponent& SetAbsRotation( const Vec3& rot );
+		float GetAbsScale();
+		HierarchyComponent& SetAbsScale( float scale );
+		const Mat4& GetAbsTransform();
+	private:
+		bool IsDirty( HierarchyCache cache_type ) const;
+		void MarkChildrenDirty( HierarchyCache cache_type );
+		void ClearDirty( HierarchyCache cache_type );
+		void CalculateCache();
+	private:
+		SceneNode* m_pNode = nullptr;
+		Vec3 m_vecAbsPosition = { 0.0f, 0.0f, 0.0f };
+		HierarchyCache m_Dirty = HierarchyCache::ALL;
+		Vec3 m_vecAbsRotation = { 0.0f, 0.0f, 0.0f };
+		float m_flAbsScale = 1.0f;
+		Mat4 m_matAbsTransform = Mat4::Identity();
 	};
 
 	class HierarchySystem
 	{
 	public:
-		void Update( SceneNode& root_node );
+		HierarchySystem();
+		~HierarchySystem();
+		HierarchySystem( const HierarchySystem& ) = delete;
+		HierarchySystem& operator=( const HierarchySystem& ) = delete;
+		HierarchySystem( HierarchySystem&& ) = delete;
+		HierarchySystem& operator=( HierarchySystem&& ) = delete;
+
+		void OnEvent( const SceneNodeAddedEvent& e );
 	private:
 		std::vector<SceneNode*> m_NodeStack;
 		std::vector<Mat4> m_Transforms;

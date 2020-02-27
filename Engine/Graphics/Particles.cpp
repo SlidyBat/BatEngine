@@ -33,7 +33,7 @@ namespace Bat
 
 			auto& hier = e.Get<HierarchyComponent>();
 
-			Vec3 emitter_pos = hier.abs_transform.GetTranslation();
+			Vec3 emitter_pos = hier.GetAbsPosition();
 
 			auto& emitter = e.Get<ParticleEmitterComponent>();
 			emitter.particles.resize( MAX_PARTICLES );

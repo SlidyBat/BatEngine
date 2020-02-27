@@ -49,7 +49,7 @@ namespace Bat
 				{
 					auto& hier = e.Get<HierarchyComponent>();
 					m_Lights.push_back( e );
-					m_LightTransforms.push_back( hier.abs_transform );
+					m_LightTransforms.push_back( hier.GetAbsTransform() );
 				}
 			}
 		}

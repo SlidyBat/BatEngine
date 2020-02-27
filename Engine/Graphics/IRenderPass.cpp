@@ -53,7 +53,7 @@ namespace Bat
 			if( e.Has<HierarchyComponent>() )
 			{
 				auto& hier = e.Get<HierarchyComponent>();
-				Visit( hier.abs_transform, e );
+				Visit( hier.GetAbsTransform(), e );
 			}
 		}
 	}

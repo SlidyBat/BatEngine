@@ -333,6 +333,10 @@ namespace Bat
 
 			return *this;
 		}
+		bool operator==( const Vec3& rhs )
+		{
+			return x == rhs.x && y == rhs.y && z == rhs.z;
+		}
 
 		float LengthSq() const
 		{

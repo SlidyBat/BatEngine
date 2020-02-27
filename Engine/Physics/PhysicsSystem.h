@@ -17,14 +17,14 @@ namespace Bat
 
 		void OnEvent( const ComponentAddedEvent<PhysicsComponent>& e )
 		{
-			const auto& t = e.entity.Get<TransformComponent>();
+			auto& hier = e.entity.Get<HierarchyComponent>();
 			if( e.component.GetType() == PhysicsObjectType::STATIC )
 			{
-				e.component.m_pObject = std::unique_ptr<IPhysicsObject>( Physics::CreateStaticObject( t.GetPosition(), t.GetRotation(), (void*)e.entity.GetId().Raw() ) );
+				e.component.m_pObject = std::unique_ptr<IPhysicsObject>( Physics::CreateStaticObject( hier.GetAbsPosition(), hier.GetAbsRotation(), (void*)e.entity.GetId().Raw() ) );
 			}
 			else if( e.component.GetType() == PhysicsObjectType::DYNAMIC )
 			{
-				e.component.m_pObject = std::unique_ptr<IPhysicsObject>( Physics::CreateDynamicObject( t.GetPosition(), t.GetRotation(), (void*)e.entity.GetId().Raw() ) );
+				e.component.m_pObject = std::unique_ptr<IPhysicsObject>( Physics::CreateDynamicObject( hier.GetAbsPosition(), hier.GetAbsRotation(), (void*)e.entity.GetId().Raw() ) );
 			}
 		}
 
@@ -35,7 +35,8 @@ namespace Bat
 				if( ent.Has<PhysicsComponent>() )
 				{
 					auto& phys = ent.Get<PhysicsComponent>();
-					auto& t = ent.Get<TransformComponent>();
+					auto& hier = ent.Get<HierarchyComponent>();
+
 					IPhysicsObject* obj = phys.m_pObject.get();
 
 					if( phys.m_AddMeshShape != PhysicsComponent::AddMeshType::NONE )
@@ -48,7 +49,7 @@ namespace Bat
 								obj->AddMeshShape(
 									mesh->GetVertexData(), mesh->GetVertexCount(),
 									mesh->GetIndexData(), mesh->GetIndexCount(),
-									t.GetScale(),
+									hier.GetAbsScale(),
 									phys.m_Material );
 							}
 						}
@@ -60,23 +61,25 @@ namespace Bat
 								obj->AddMeshTrigger(
 									mesh->GetVertexData(), mesh->GetVertexCount(),
 									mesh->GetIndexData(), mesh->GetIndexCount(),
-									t.GetScale() );
+									hier.GetAbsScale() );
 							}
 						}
 						phys.m_AddMeshShape = PhysicsComponent::AddMeshType::NONE;
 					}
 
 					// Kinematic objects update physics system, non-kinematic objects are updated by physics system
-					if( phys.GetType() == PhysicsObjectType::DYNAMIC && phys.IsKinematic() )
+					if( phys.GetType() == PhysicsObjectType::DYNAMIC )
 					{
-						static_cast<IDynamicObject*>(obj)->MoveTo( t.GetPosition(), t.GetRotation() );
+						if( phys.IsKinematic() )
+						{
+							static_cast<IDynamicObject*>( obj )->MoveTo( hier.GetAbsPosition(), hier.GetAbsRotation() );
+						}
+						else
+						{
+							hier.SetAbsPosition( obj->GetPosition() );
+							hier.SetAbsRotation( obj->GetRotation() );
+						}
 ;					}
-					else
-					{
-						t.SetPosition( obj->GetPosition() );
-						t.SetRotation( obj->GetRotation() );
-					}
-
 				}
 			}
 		}

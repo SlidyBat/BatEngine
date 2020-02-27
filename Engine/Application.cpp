@@ -64,7 +64,6 @@ namespace Bat
 			Entity emitter_test = world.CreateEntity();
 			emitter_test.Add<TransformComponent>()
 				.SetPosition( { 0.0f, 0.0f, 0.0f } );
-			emitter_test.Add<HierarchyComponent>();
 			auto& emitter = emitter_test.Add<ParticleEmitterComponent>( ResourceManager::GetTexture( "Assets/Ignore/particles/fire_02.png" ) );
 			emitter.particles_per_sec = 50.0f;
 			emitter.lifetime = 2.0f;
@@ -190,18 +189,17 @@ namespace Bat
 		}
 
 		camera.Update( deltatime );
-		flashlight.Get<TransformComponent>()
-			.SetPosition( camera.GetPosition() )
-			.SetRotation( camera.GetRotation() );
-		snd->SetListenerPosition( camera.GetPosition(), camera.GetLookAtVector() );
 
 		player.Get<TransformComponent>()
 			.SetPosition( camera.GetPosition() )
 			.SetRotation( camera.GetRotation() );
+		flashlight.Get<HierarchyComponent>()
+			.SetAbsPosition( camera.GetPosition() )
+			.SetAbsRotation( camera.GetRotation() );
+		snd->SetListenerPosition( camera.GetPosition(), camera.GetLookAtVector() );
 
 		physics_system.Update( world, deltatime );
 		anim_system.Update( world, deltatime );
-		hier_system.Update( scene );
 		particle_system.Update( world, deltatime );
 
 		if( physics_simulate )
