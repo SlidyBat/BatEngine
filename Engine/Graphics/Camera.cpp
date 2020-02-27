@@ -85,9 +85,7 @@ namespace Bat
 
 	void Camera::MoveBy( const Vec3& pos )
 	{
-		m_vecPosition.x += pos.x;
-		m_vecPosition.y += pos.y;
-		m_vecPosition.z += pos.z;
+		m_vecPosition += pos;
 	}
 
 	void Camera::SetPosition( const Vec3& pos )
@@ -115,9 +113,7 @@ namespace Bat
 
 	void Camera::RotateBy( const Vec3& rot )
 	{
-		m_angRotation.x += rot.x;
-		m_angRotation.y += rot.y;
-		m_angRotation.z += rot.z;
+		m_angRotation += rot;
 		WrapAngle();
 	}
 
@@ -221,9 +217,7 @@ namespace Bat
 
 	void Camera::WrapAngle()
 	{
-		m_angRotation.x = Math::NormalizeAngle( m_angRotation.x );
-		m_angRotation.y = Math::NormalizeAngle( m_angRotation.y );
-		m_angRotation.z = Math::NormalizeAngle( m_angRotation.z );
+		m_angRotation = Math::NormalizeAngle( m_angRotation );
 	}
 
 	void Camera::UpdateProjectionMatrix()

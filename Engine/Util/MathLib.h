@@ -29,6 +29,7 @@ namespace Bat
 		Vec4 EulerToQuaternionDeg( const Vec3& euler );
 		// Normalizes an angle so that it becomes in the range [-180.0f, 180.0f)
 		float NormalizeAngle( float ang );
+		Vec3 NormalizeAngle( const Vec3& ang );
 
 		__m128 Abs( __m128 m );
 		__m128 Sin( __m128 m_x );
@@ -36,7 +37,8 @@ namespace Bat
 		float Cos( float x );
 		void SinCos( float x, float* s, float* c );
 
-		void AngleVectors( const Vec3& angles, Vec3* forward = nullptr, Vec3* right = nullptr, Vec3* up = nullptr );
+		void AngleVectors( const Vec3& angles, Vec3* forward );
+		void AngleVectors( const Vec3& angles, Vec3* forward, Vec3* right, Vec3* up );
 
 		// Returns a random int in the range [min, max]
 		int GetRandomInt( int min, int max );

@@ -110,6 +110,15 @@ namespace Bat
 			return ang;
 		}
 
+		Vec3 NormalizeAngle( const Vec3& ang )
+		{
+			return {
+				Math::NormalizeAngle( ang.x ),
+				Math::NormalizeAngle( ang.y ),
+				Math::NormalizeAngle( ang.z )
+			};
+		}
+
 		__m128 Abs( __m128 m )
 		{
 			__m128 sign = _mm_castsi128_ps( _mm_set1_epi32( 0x80000000 ) );
@@ -170,33 +179,46 @@ namespace Bat
 			*c = _mm_cvtss_f32( m_cos );
 		}
 
+		void AngleVectors( const Vec3& angles, Vec3* forward )
+		{
+			float sp, sy, cp, cy;
+
+			SinCos( DegToRad( angles.x ), &sp, &cp );
+			SinCos( DegToRad( angles.y ), &sy, &cy );
+
+			forward->x = sy * cp;
+			forward->y = sp;
+			forward->z = cy * cp;
+		}
+
 		void AngleVectors( const Vec3& angles, Vec3* forward, Vec3* right, Vec3* up )
 		{
-			float sr, sp, sy, cr, cp, cy;
+			float sp, sy, cp, cy;
+			float syr, cyr;
 
-			SinCos( DegToRad( angles.x ), &sy, &cy );
-			SinCos( DegToRad( angles.y ), &sp, &cp );
-			SinCos( DegToRad( angles.z ), &sr, &cr );
+			SinCos( DegToRad( angles.x ), &sp, &cp );
+			SinCos( DegToRad( angles.y ), &sy, &cy );
+			SinCos( DegToRad( angles.y + 90.0f ), &syr, &cyr );
 
 			if( forward )
 			{
-				forward->x = cp * cy;
-				forward->y = cp * sy;
-				forward->z = -sp;
+				forward->x = sy * cp;
+				forward->y = 0.0f;
+				forward->z = cy * cp;
 			}
 
 			if( right )
 			{
-				right->x = (-1 * sr * sp * cy + -1 * cr * -sy);
-				right->y = (-1 * sr * sp * sy + -1 * cr * cy);
-				right->z = -1 * sr * cp;
+				right->x = syr * cp;
+				right->y = 0.0f;
+				right->z = cyr * cp;
 			}
 
 			if( up )
 			{
-				up->x = (cr * sp * cy + -sr * -sy);
-				up->y = (cr * sp * sy + -sr * cy);
-				up->z = cr * cp;
+				up->x = 0.0f;
+				up->y = sp;
+				up->z = 0.0f;
 			}
 		}
 
