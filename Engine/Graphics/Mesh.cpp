@@ -14,6 +14,13 @@ namespace Bat
 		SetData( params );
 	}
 
+	Mesh::Mesh( const MeshParameters& params, const Material& material )
+		:
+		m_Material( material )
+	{
+		SetData( params );
+	}
+
 	void Mesh::Bind( IGPUContext* pContext, IVertexShader* pVertexShader ) const
 	{
 		pContext->SetPrimitiveTopology( m_Topology );

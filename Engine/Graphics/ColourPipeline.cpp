@@ -24,6 +24,13 @@ namespace Bat
 
 		mesh.Bind( pContext, pVertexShader );
 
-		pContext->DrawIndexed( mesh.GetIndexCount() );
+		if( mesh.GetIndexCount() == 0 )
+		{
+			pContext->Draw( mesh.GetVertexCount() );
+		}
+		else
+		{
+			pContext->DrawIndexed( mesh.GetIndexCount() );
+		}
 	}
 }
