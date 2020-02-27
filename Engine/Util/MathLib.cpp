@@ -34,47 +34,67 @@ namespace Bat
 
 		static Random rng;
 
-		Vec3 QuaternionToEuler( const Vec4& quat )
+		Vec3 QuaternionToEulerRad( const Vec4& quat )
 		{
-			Vec3 angle;
+			Vec3 output;
 
-			float sinr_cosp = +2.0f * (quat.w * quat.x + quat.y * quat.z);
-			float cosr_cosp = +1.0f - 2.0f * (quat.x * quat.x + quat.y * quat.y);
-			angle.z = atan2( sinr_cosp, cosr_cosp );
+			float sqw;
+			float sqx;
+			float sqy;
+			float sqz;
 
-			float sinp = +2.0f * (quat.w * quat.y - quat.z * quat.x);
-			if( fabs( sinp ) >= 1.0f )
+			sqw = quat.w * quat.w;
+			sqx = quat.x * quat.x;
+			sqy = quat.y * quat.y;
+			sqz = quat.z * quat.z;
+
+			float unit = sqw + sqx + sqy + sqz;
+			float test = quat.x * quat.w - quat.y * quat.z;
+
+			if( test > 0.4995f * unit )
 			{
-				angle.x = copysign( Math::PI / 2, sinp );
+				output.y = ( 2.0f * atan2( quat.y, quat.x ) );
+				output.x = ( DirectX::XM_PIDIV2 );
+
+				return output;
 			}
-			else
+			if( test < -0.4995f * unit )
 			{
-				angle.x = asin( sinp );
+				output.y = ( -2.0f * atan2( quat.y, quat.x ) );
+				output.x = ( -DirectX::XM_PIDIV2 );
+
+				return output;
 			}
 
-			float siny_cosp = +2.0f * (quat.w * quat.z + quat.x * quat.y);
-			float cosy_cosp = +1.0f - 2.0f * (quat.y * quat.y + quat.z * quat.z);
-			angle.y = atan2( siny_cosp, cosy_cosp );
+			output.x = ( asin( 2.0f * ( quat.w * quat.x - quat.z * quat.y ) ) );
+			output.y = ( atan2( 2.0f * quat.w * quat.y + 2.0f * quat.z * quat.x, 1 - 2.0f * ( sqx + sqy ) ) );
+			output.z = ( atan2( 2.0f * quat.w * quat.z + 2.0f * quat.x * quat.y, 1 - 2.0f * ( sqz + sqx ) ) );
 
-			return angle;
+			return output;
 		}
 
-		Vec4 EulerToQuaternion( const Vec3& euler )
+		Vec4 EulerToQuaternionRad( const Vec3& euler )
 		{
-			float cp = cosf( euler.x * 0.5f );
-			float sp = sinf( euler.x * 0.5f );
-			float cy = cosf( euler.y * 0.5f );
-			float sy = sinf( euler.y * 0.5f );
-			float cr = cosf( euler.z * 0.5f );
-			float sr = sinf( euler.z * 0.5f );
+			return DirectX::XMQuaternionRotationRollPitchYaw( euler.x, euler.y, euler.z );
+		}
+		Vec3 QuaternionToEulerDeg( const Vec4& quat )
+		{
+			Vec3 rad = QuaternionToEulerRad( quat );
+			return {
+				Math::RadToDeg( rad.x ),
+				Math::RadToDeg( rad.y ),
+				Math::RadToDeg( rad.z )
+			};
+		}
 
-			Vec4 quat;
-			quat.w = cy * cp * cr + sy * sp * sr;
-			quat.x = cy * cp * sr - sy * sp * cr;
-			quat.y = sy * cp * sr + cy * sp * cr;
-			quat.z = sy * cp * cr - cy * sp * sr;
-
-			return quat;
+		Vec4 EulerToQuaternionDeg( const Vec3& euler )
+		{
+			Vec3 rad = {
+				Math::DegToRad( euler.x ),
+				Math::DegToRad( euler.y ),
+				Math::DegToRad( euler.z )
+			};
+			return EulerToQuaternionRad( rad );
 		}
 
 		float NormalizeAngle( float ang )

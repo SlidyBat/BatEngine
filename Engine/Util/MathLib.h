@@ -23,8 +23,10 @@ namespace Bat
 			return rad * (180.0f / PI);
 		}
 
-		Vec3 QuaternionToEuler( const Vec4& quat );
-		Vec4 EulerToQuaternion( const Vec3& euler );
+		Vec3 QuaternionToEulerRad( const Vec4& quat );
+		Vec4 EulerToQuaternionRad( const Vec3& euler );
+		Vec3 QuaternionToEulerDeg( const Vec4& quat );
+		Vec4 EulerToQuaternionDeg( const Vec3& euler );
 		// Normalizes an angle so that it becomes in the range [-180.0f, 180.0f)
 		float NormalizeAngle( float ang );
 

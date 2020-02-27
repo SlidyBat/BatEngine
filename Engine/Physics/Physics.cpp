@@ -127,13 +127,13 @@ namespace Bat
 	
 	static PxQuat Bat2PxAng( const Vec3& ang )
 	{
-		Vec4 q = Math::EulerToQuaternion( ang );
+		Vec4 q = Math::EulerToQuaternionDeg( ang );
 		return { q.x, q.y, q.z, q.w };
 	}
 	
 	static Vec3 Px2BatAng( const PxQuat& q )
 	{
-		Vec3 ang = Math::QuaternionToEuler( { q.x, q.y, q.z, q.w } );
+		Vec3 ang = Math::QuaternionToEulerDeg( { q.x, q.y, q.z, q.w } );
 		return ang;
 	}
 
