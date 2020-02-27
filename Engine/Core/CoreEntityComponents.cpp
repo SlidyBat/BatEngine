@@ -2,6 +2,7 @@
 #include "CoreEntityComponents.h"
 
 void Bat::HierarchySystem::Update( SceneNode& root_node )
+#include "Scene.h"
 {
 	m_NodeStack.clear();
 	m_Transforms.clear();

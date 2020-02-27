@@ -5,6 +5,8 @@
 
 namespace Bat
 {
+	class SceneNode;
+
 	struct NameComponent : public Component<NameComponent>
 	{
 		NameComponent( std::string name )

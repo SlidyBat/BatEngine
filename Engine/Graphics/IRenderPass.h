@@ -12,6 +12,7 @@ namespace Bat
 	class RenderData;
 	class IGPUContext;
 	class Camera;
+	class SceneNode;
 
 	class IRenderPass
 	{

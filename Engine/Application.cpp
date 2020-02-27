@@ -47,18 +47,16 @@ namespace Bat
 		camera.SetAspectRatio( (float)wnd.GetWidth() / wnd.GetHeight() );
 
 		scene.Set( world.CreateEntity() ); // Root entity
-		scale_index = scene.AddChild( world.CreateEntity() );
-		SceneNode& scale_node = scene.GetChild( scale_index );
-		scale_node.AddChild( loader.Load( "Assets/Ignore/MetalRoughSpheres.glb" ) );
-		Entity floor = world.CreateEntity();
-		floor.Add<TransformComponent>()
+		scale_node = scene.AddChild( world.CreateEntity() );
+		scale_node->Get().Get<TransformComponent>()
+			.SetScale( 0.5f );
+		scale_node->AddChild( loader.Load( "Assets/Ignore/Sponza/sponza.gltf" ) );
+		Entity floor = scene.AddChild( world.CreateEntity() )->Get();
+		floor.Get<TransformComponent>()
 			.SetPosition( { 0.0f, -2.0f, 0.0f } )
-			.SetRotation( { 0.0f, 90.0f, 0.0f } );
+			.SetRotation( { 0.0f, 0.0f, 90.0f } );
 		floor.Add<PhysicsComponent>( PhysicsObjectType::STATIC )
 			.AddPlaneShape();
-
-		scale_node.Get().Add<TransformComponent>()
-			.SetScale( 0.5f );
 
 		// Fire
 		if( false )
@@ -229,10 +227,9 @@ namespace Bat
 
 		if( ImGui::TreeNode( name.c_str() ) )
 		{
-			size_t num_children = node.GetNumChildren();
-			for( size_t i = 0; i < num_children; i++ )
+			for( SceneNode& child : node )
 			{
-				AddNodeTree( &node, node.GetChild( i ) );
+				AddNodeTree( &node, child );
 			}
 
 			if( e.Has<ModelComponent>() )
@@ -623,12 +620,10 @@ namespace Bat
 		SceneNode new_node = loader.Load( filepath );
 
 		const Vec3& pos = camera.GetPosition();
-		SceneNode pos_node( world.CreateEntity() );
-		pos_node.AddChild( new_node );
-		pos_node.Get().Add<TransformComponent>()
+		SceneNode* pos_node = scale_node->AddChild( world.CreateEntity() );
+		pos_node->AddChild( std::move( new_node ) );
+		pos_node->Get().Add<TransformComponent>()
 			.SetPosition( pos );
-
-		scene.GetChild( scale_index ).AddChild( pos_node );
 	}
 
 	void Application::BuildRenderGraph()

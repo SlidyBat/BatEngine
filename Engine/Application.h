@@ -13,6 +13,7 @@
 #include "PhysicsSystem.h"
 #include "AnimationSystem.h"
 #include "Particles.h"
+#include "Scene.h"
 
 namespace Bat
 {
@@ -49,7 +50,7 @@ namespace Bat
 		ISoundEngine* snd;
 		MoveableCamera camera;
 		SceneNode scene;
-		size_t scale_index;
+		SceneNode* scale_node;
 		RenderGraph rendergraph;
 		Entity flashlight;
 		Entity sun;

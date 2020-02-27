@@ -14,6 +14,7 @@
 #include "ShaderManager.h"
 #include "WindowEvents.h"
 #include "DebugDraw.h"
+#include "Scene.h"
 
 #include "imgui.h"
 #include "imgui_impl_dx11.h"

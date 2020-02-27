@@ -17,6 +17,7 @@ namespace Bat
 	class SceneGraph;
 	class Camera;
 	class RenderGraph;
+	class SceneNode;
 
 	class Graphics
 	{

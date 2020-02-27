@@ -4,6 +4,7 @@
 #include "Entity.h"
 #include "Mesh.h"
 #include "ResourceManager.h"
+#include "Scene.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>

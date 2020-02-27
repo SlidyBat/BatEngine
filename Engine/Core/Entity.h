@@ -324,6 +324,5 @@ namespace Bat
 		return Add<C>( std::forward<Args>( args )... );
 	}
 
-	using SceneNode = TreeNode<Entity>;
 	extern EntityManager world;
 }
