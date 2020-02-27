@@ -12,6 +12,7 @@
 #include "MouseEvents.h"
 #include "PhysicsSystem.h"
 #include "AnimationSystem.h"
+#include "CharacterControllerSystem.h"
 #include "NavMesh.h"
 #include "Particles.h"
 #include "Scene.h"
@@ -67,6 +68,7 @@ namespace Bat
 		AnimationSystem anim_system;
 		ParticleSystem particle_system;
 		NavMeshSystem navmesh_system;
+		CharacterControllerSystem controller_system;
 
 		Entity agent = Entity::INVALID;
 

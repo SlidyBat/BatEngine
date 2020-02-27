@@ -230,6 +230,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClCompile Include="Graphics\ParticlePipeline.cpp" />
     <ClCompile Include="Graphics\Particles.cpp" />
     <ClCompile Include="Graphics\ShadowPipeline.cpp" />
+    <ClCompile Include="Physics\CharacterControllerComponent.cpp" />
     <ClCompile Include="Platform\FileDialog.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -384,6 +385,8 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Graphics\Passes\MsaaResolvePass.h" />
     <ClInclude Include="Graphics\Passes\ShadowPass.h" />
     <ClInclude Include="Graphics\ShadowPipeline.h" />
+    <ClInclude Include="Physics\CharacterControllerComponent.h" />
+    <ClInclude Include="Physics\CharacterControllerSystem.h" />
     <ClInclude Include="Platform\FileDialog.h" />
     <ClInclude Include="Events\PhysicsEvents.h" />
     <ClInclude Include="Animation\AnimationState.h" />

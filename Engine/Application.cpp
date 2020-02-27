@@ -8,6 +8,7 @@
 #include "FileWatchdog.h"
 
 #include "CoreEntityComponents.h"
+#include "CharacterControllerComponent.h"
 #include "WindowEvents.h"
 #include "MouseEvents.h"
 #include "NetworkEvents.h"
@@ -42,13 +43,24 @@ namespace Bat
 		{
 		}
 
-		void Initialize()
+		void Initialize( SceneNode& scene )
 		{
-			controller = Physics::CreateCharacterController();
+			character = world.CreateEntity();
+			scene.AddChild( character );
+
+			CharacterControllerBoxDesc box;
+			character.Get<HierarchyComponent>()
+				.SetAbsPosition( { 0.0f, 1.0f, 0.0f } );
+			character.Add<CharacterControllerComponent>( box );
 		}
 
 		void Update( const Input& input, float dt )
 		{
+			auto& hier = character.Get<HierarchyComponent>();
+			auto& controller = character.Get<CharacterControllerComponent>();
+
+			Vec3 rotation = hier.GetAbsRotation();
+
 			Vec3 disp = { 0.0f, 0.0f, 0.0f };
 
 			Vec3 forward, right;
@@ -91,7 +103,7 @@ namespace Bat
 
 			velocity += Vec3{ 0.0f, -9.8f, 0.0f } * dt;
 
-			PhysicsControllerCollisionFlags flags = controller->Move( (velocity + disp) * dt, dt );
+			PhysicsControllerCollisionFlags flags = controller.Move( (velocity + disp) * dt, dt );
 			if( ( flags & CONTROLLER_COLLISION_DOWN ) != CONTROLLER_COLLISION_NONE )
 			{
 				on_ground = true;
@@ -118,7 +130,18 @@ namespace Bat
 		}
 		void RotateBy( const Vec3& drot )
 		{
-			rotation = Math::NormalizeAngle( rotation + drot );
+			auto& hier = character.Get<HierarchyComponent>();
+			hier.SetAbsRotation( Math::NormalizeAngle( hier.GetAbsRotation() + drot ) );
+		}
+		Vec3 GetPosition()
+		{
+			auto& hier = character.Get<HierarchyComponent>();
+			return hier.GetAbsPosition();
+		}
+		Vec3 GetRotation()
+		{
+			auto& hier = character.Get<HierarchyComponent>();
+			return hier.GetAbsRotation();
 		}
 		void Jump()
 		{
@@ -128,14 +151,9 @@ namespace Bat
 				on_ground = false;
 			}
 		}
-
-		void SetPosition( const Vec3& pos ) { controller->SetPosition( pos ); }
-		Vec3 GetPosition() const { return controller->GetPosition(); }
-		Vec3 GetRotation() const { return rotation; }
 	private:
-		ICharacterController* controller;
+		Entity character;
 		Vec3 velocity = { 0.0f, 0.0f, 0.0f };
-		Vec3 rotation = { 0.0f, 0.0f, 0.0f };
 		float speed = 5.0f;
 		bool on_ground = true;
 	};
@@ -146,10 +164,9 @@ namespace Bat
 		gfx( gfx ),
 		wnd( wnd ),
 		camera( wnd.input, 2.0f, 1.0f ),
-		physics_system( world )
+		physics_system( world ),
+		controller_system( world )
 	{
-		player.Initialize();
-		player.SetPosition( { 0.0f, 1.0f, 0.0f } );
 		SceneLoader loader;
 
 		camera.SetAspectRatio( (float)wnd.GetWidth() / wnd.GetHeight() );
@@ -165,6 +182,8 @@ namespace Bat
 			.SetRotation( { 0.0f, 0.0f, 90.0f } );
 		floor.Add<PhysicsComponent>( PhysicsObjectType::STATIC )
 			.AddPlaneShape();
+
+		player.Initialize( scene );
 
 		// Fire
 		if( false )
@@ -300,6 +319,7 @@ namespace Bat
 		physics_system.Update( world, deltatime );
 		anim_system.Update( world, deltatime );
 		particle_system.Update( world, deltatime );
+		controller_system.Update( world, deltatime );
 
 		if( physics_simulate )
 		{

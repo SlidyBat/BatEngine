@@ -679,17 +679,36 @@ namespace Bat
 		return new PxDynamicObject( dynamic_actor, userdata );
 	}
 
-	ICharacterController* Physics::CreateCharacterController()
+	ICharacterController* Physics::CreateCharacterController( const PhysicsBoxControllerDesc& desc )
 	{
 		PxBoxControllerDesc box_desc;
-		box_desc.halfHeight = 0.35f;
-		box_desc.halfForwardExtent = 0.1f;
-		box_desc.halfSideExtent = 0.1f;
-		box_desc.stepOffset = 0.1f;
-		box_desc.nonWalkableMode = PxControllerNonWalkableMode::ePREVENT_CLIMBING_AND_FORCE_SLIDING;
-		box_desc.material = GetPxMaterial( Physics::DEFAULT_MATERIAL );
+		box_desc.position = Bat2PxVecExt( desc.position );
+		box_desc.halfHeight = desc.height / 2.0f;
+		box_desc.halfForwardExtent = desc.forward_extent / 2.0f;
+		box_desc.halfSideExtent = desc.side_extent / 2.0f;
+		box_desc.slopeLimit = cosf( Math::DegToRad( desc.slope_limit ) );
+		box_desc.stepOffset = desc.step_offset;
+		box_desc.material = GetPxMaterial( desc.material );
+		box_desc.userData = desc.user_data;
+
 		PxController* controller = g_pPxControllerManager->createController( box_desc );
 		
+		return new PxCharacterController( controller );
+	}
+
+	ICharacterController* Physics::CreateCharacterController( const PhysicsCapsuleControllerDesc& desc )
+	{
+		PxCapsuleControllerDesc cap_desc;
+		cap_desc.position = Bat2PxVecExt( desc.position );
+		cap_desc.height = desc.height;
+		cap_desc.radius = desc.radius;
+		cap_desc.slopeLimit = cosf( Math::DegToRad( desc.slope_limit ) );
+		cap_desc.stepOffset = desc.step_offset;
+		cap_desc.material = GetPxMaterial( desc.material );
+		cap_desc.userData = desc.user_data;
+
+		PxController* controller = g_pPxControllerManager->createController( cap_desc );
+
 		return new PxCharacterController( controller );
 	}
 

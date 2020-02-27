@@ -6,6 +6,8 @@ namespace Bat
 	class IStaticObject;
 	class IDynamicObject;
 	class ICharacterController;
+	struct PhysicsBoxControllerDesc;
+	struct PhysicsCapsuleControllerDesc;
 
 	struct PhysicsMaterial
 	{
@@ -66,7 +68,8 @@ namespace Bat
 		// NOTE: must be freed using `delete`
 		static IDynamicObject* CreateDynamicObject( const Vec3& pos, const Vec3& ang, void* userdata = nullptr );
 
-		static ICharacterController* CreateCharacterController();
+		static ICharacterController* CreateCharacterController( const PhysicsBoxControllerDesc& desc );
+		static ICharacterController* CreateCharacterController( const PhysicsCapsuleControllerDesc& desc );
 
 		// See TraceFilterFlags for possible filter flags
 		static PhysicsRayCastResult RayCast( const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter = (HIT_STATICS|HIT_DYNAMICS) );
@@ -191,6 +194,26 @@ namespace Bat
 		CONTROLLER_COLLISION_DOWN = ( 1 << 2 )
 	};
 	BAT_ENUM_OPERATORS( PhysicsControllerCollisionFlags );
+
+	struct PhysicsBoxControllerDesc
+	{
+		Vec3 position = { 0.0f, 0.0f, 0.0f };
+		float height = 0.5f, forward_extent = 0.1f, side_extent = 0.1f;
+		float slope_limit = 45.0f; // Maximum walkable slop angle in degrees
+		float step_offset = 0.1f;
+		PhysicsMaterial material = Physics::DEFAULT_MATERIAL;
+		void* user_data = nullptr;
+	};
+
+	struct PhysicsCapsuleControllerDesc
+	{
+		Vec3 position = { 0.0f, 0.0f, 0.0f };
+		float height = 0.5f, radius = 0.1f;
+		float slope_limit = 45.0f; // Maximum walkable slop angle in degrees
+		float step_offset = 0.1f;
+		PhysicsMaterial material = Physics::DEFAULT_MATERIAL;
+		void* user_data = nullptr;
+	};
 
 	class ICharacterController
 	{
