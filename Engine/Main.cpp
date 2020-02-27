@@ -62,6 +62,8 @@ int WINAPI WinMain(
 			g_Console.Draw("Bat Engine Console");
 
 			gfx.EndFrame();
+
+			wnd.input.SaveState();
 		}
 	}
 	catch( const std::exception& e )
