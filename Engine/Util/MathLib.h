@@ -367,11 +367,29 @@ namespace Bat
 			return a.x * b.x + a.y * b.y + a.z * b.z;
 		}
 
+		static Vec3 Cross( const Vec3& a, const Vec3& b )
+		{
+			return {
+				a.y * b.z - a.z * b.y,
+				a.z * b.x - a.x * b.z,
+				a.x * b.y - a.y * b.x
+			};
+		}
+
 		static Vec3 Lerp( const Vec3& a, const Vec3& b, float t )
 		{
 			return Vec3( Math::Lerp( a.x, b.x, t ),
 				Math::Lerp( a.y, b.y, t ),
 				Math::Lerp( a.z, b.z, t ) );
+		}
+
+		static Vec3 Floor( const Vec3& v )
+		{
+			return {
+				floorf( v.x ),
+				floorf( v.y ),
+				floorf( v.z )
+			};
 		}
 	};
 
@@ -471,6 +489,34 @@ namespace Bat
 			return *this;
 		}
 
+		float LengthSq() const
+		{
+			return x * x + y * y + z * z + w * w;
+		}
+
+		float Length() const
+		{
+			return sqrt( LengthSq() );
+		}
+
+		Vec4& Normalize()
+		{
+			float length = Length();
+			x /= length;
+			y /= length;
+			z /= length;
+			w /= length;
+
+			return *this;
+		}
+
+		Vec4 Normalized() const
+		{
+			float length = Length();
+
+			return { x / length, y / length, z / length, w / length };
+		}
+
 		operator DirectX::XMVECTOR() const
 		{
 			return DirectX::XMLoadFloat4( this );
@@ -494,6 +540,87 @@ namespace Bat
 	{
 		Vec3 n; // Plane normal
 		float d; // Distance from origin
+
+		Plane() = default;
+		explicit Plane( const Vec4& v )
+			:
+			n( v.x, v.y, v.z ),
+			d( v.w )
+		{}
+
+		static Plane Normalize( const Plane& plane )
+		{
+			Plane normalized;
+
+			float inv_l = 1.0f / plane.n.Length();
+			normalized.n = plane.n * inv_l;
+			normalized.d = plane.d * inv_l;
+
+			return normalized;
+		}
+		static Plane Normalize( const Vec4& plane )
+		{
+			return Normalize( Plane( plane ) );
+		}
+	};
+
+	class Mat4
+	{
+	public:
+		Mat4();
+		Mat4( const float values[4 * 4] );
+		Mat4( float _00, float _01, float _02, float _03,
+			float _10, float _11, float _12, float _13,
+			float _20, float _21, float _22, float _23,
+			float _30, float _31, float _32, float _33 );
+		Mat4( const Mat4& copy );
+		Mat4& operator=( const Mat4& rhs );
+
+		Vec4 GetCol( size_t col ) const;
+		void SetCol( size_t col, const Vec4& val );
+		Vec4 GetRow( size_t row ) const;
+		void SetRow( size_t row, const Vec4& val );
+		Vec3 GetTranslation() const;
+		void SetTranslation( const Vec3& val );
+		Vec3 GetRotationRad() const;
+		Vec3 GetRotationDeg() const;
+		Vec4 GetRotationQuat() const;
+
+		static Mat4 Identity();
+		static Mat4 Transpose( const Mat4& mat );
+
+		// Fast inverse for matrices with only translation/rotation
+		static Mat4 InverseTransRot( const Mat4& mat );
+		static Mat4 Inverse( const Mat4& mat );
+
+		static Mat4 RotateDeg( const Vec3& euler_deg );
+		static Mat4 RotateDeg( float pitch, float yaw, float roll );
+		static Mat4 RotateRad( const Vec3& euler_rad );
+		static Mat4 RotateRad( float pitch, float yaw, float roll );
+		static Mat4 RotateQuat( const Vec4& q );
+		static Mat4 Translate( const Vec3& translation ) { return Translate( translation.x, translation.y, translation.z ); }
+		static Mat4 Translate( float x, float y, float z );
+		static Mat4 Scale( float uniform_scale );
+		static Mat4 Scale( const Vec3& scale );
+		static Mat4 Scale( float x, float y, float z );
+
+		static Mat4 Ortho( float width, float height, float near_z, float far_z );
+		static Mat4 OrthoOffCentre( float left, float right, float bottom, float top, float near_z, float far_z );
+		static Mat4 Perspective( float width, float height, float near_z, float far_z );
+		static Mat4 PerspectiveOffCentre( float left, float right, float bottom, float top, float near_z, float far_z );
+		static Mat4 PerspectiveFov( float fov, float ar, float near_z, float far_z );
+		static Mat4 LookTo( const Vec3& eye_pos, const Vec3& eye_dir, const Vec3& up );
+		static Mat4 LookAt( const Vec3& eye_pos, const Vec3& target, const Vec3& up );
+
+		static Vec3 Transform( const Mat4& mat, const Vec3& vec );
+		static Vec3 TransformNormal( const Mat4& mat, const Vec3& vec );
+
+		Mat4 operator*( const Mat4& r ) const;
+		Vec4 operator*( const Vec4& rhs ) const;
+		Vec3 operator*( const Vec3& rhs ) const;
+		Plane operator*( const Plane& rhs ) const;
+	private:
+		float m[4][4];
 	};
 
 	// Axis-aligned bounding box
@@ -508,7 +635,7 @@ namespace Bat
 		// Re-aligned transformed mins/maxs
 		// This just gets the AABB of the rotated AABB of the mesh
 		// Will have lots of empty space, but better than recalculating AABB for rotated mesh vertices
-		AABB Transform( DirectX::XMMATRIX transform ) const;
+		AABB Transform( const Mat4& transform ) const;
 		void GetPoints( Vec3 out[8] ) const;
 	public:
 		Vec3 mins;
