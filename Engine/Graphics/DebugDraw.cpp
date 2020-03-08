@@ -133,7 +133,7 @@ namespace Bat
 
 		IGPUContext* pContext = gpu->GetContext();
 		auto pPipeline = ShaderManager::GetPipeline<ColourPipeline>();
-		pPipeline->Render( pContext, builder.Build(), camera, DirectX::XMMatrixIdentity() );
+		pPipeline->Render( pContext, builder.Build(), camera, Mat4::Identity() );
 	}
 
 	void DebugDraw::Rectangle( const Vei2& a, const Vei2& b, const Colour& col, float thickness )

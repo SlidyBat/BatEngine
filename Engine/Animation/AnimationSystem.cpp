@@ -63,7 +63,7 @@ namespace Bat
 				{
 					auto& transform = node.entity.Get<TransformComponent>();
 					transform.SetPosition( node.transform.translation )
-						.SetRotation( Math::QuaternionToEuler( node.transform.rotation ) );
+						.SetRotation( Math::QuaternionToEulerDeg( node.transform.rotation ) );
 				}
 			}
 		}

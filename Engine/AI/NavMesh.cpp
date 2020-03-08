@@ -55,7 +55,7 @@ namespace Bat
 		NavMesh()
 		{
 			std::vector<Mesh*> meshes;
-			std::vector<DirectX::XMMATRIX> transforms;
+			std::vector<Mat4> transforms;
 			for( Entity e : world )
 			{
 				if( e.Has<ModelComponent>() && e.Has<HierarchyComponent>() )
@@ -109,7 +109,7 @@ namespace Bat
 			for( size_t mesh_index = 0; mesh_index < meshes.size(); mesh_index++ )
 			{
 				Mesh* mesh = meshes[mesh_index];
-				DirectX::XMMATRIX transform = transforms[mesh_index];
+				const Mat4& transform = transforms[mesh_index];
 
 				const auto* orig_verts = mesh->GetVertexData();
 				const auto* orig_tris = mesh->GetIndexData();
@@ -120,7 +120,7 @@ namespace Bat
 				verts.reserve( nv * 3 );
 				for( int i = 0; i < nv; i++ )
 				{
-					Vec3 vert = DirectX::XMVector3Transform( orig_verts[i], transform );
+					Vec3 vert = transform * orig_verts[i];
 					verts.push_back( vert.x );
 					verts.push_back( vert.y );
 					verts.push_back( vert.z );

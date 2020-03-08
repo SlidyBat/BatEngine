@@ -346,7 +346,7 @@ namespace Bat
 	}
 	Vec4 Mat4::GetRotationQuat() const
 	{
-		return Math::EulerToQuaternion( GetRotationRad() );
+		return Math::EulerToQuaternionRad( GetRotationRad() );
 	}
 	Mat4 Mat4::Identity()
 	{
