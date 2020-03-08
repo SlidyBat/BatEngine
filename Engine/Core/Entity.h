@@ -202,7 +202,7 @@ namespace Bat
 
 		using ComponentMask = std::bitset<MAX_COMPONENTS>;
 		std::vector<ComponentMask> m_EntityComponentMasks;
-		std::array<std::unique_ptr<ChunkedAllocator>, MAX_COMPONENTS> m_pComponentAllocators;
+		std::array<std::unique_ptr<ChunkedAllocator<8192>>, MAX_COMPONENTS> m_pComponentAllocators;
 		std::array<std::unique_ptr<BaseComponentHelper>, MAX_COMPONENTS> m_pComponentHelpers;
 	};
 
@@ -243,16 +243,10 @@ namespace Bat
 	inline C& EntityManager::GetComponent( Entity entity )
 	{
 		ASSERT( HasComponent<C>( entity ), "Tried to get component we don't have" );
-		const size_t component_idx = C::GetIndex();
 		const size_t entity_idx = entity.GetId().GetIndex();
 		ObjectChunkedAllocator<C>& allocator = GetComponentAllocator<C>();
 
-		const size_t elements_per_chunk = allocator.m_iChunkSize / allocator.m_iObjectSize;
-		const size_t chunk_index = entity_idx / elements_per_chunk;
-		char* chunk = allocator.m_pChunks[chunk_index];
-		const size_t offset = (entity_idx % elements_per_chunk) * allocator.m_iObjectSize;
-		char* ptr = chunk + offset;
-		C* pComponent = reinterpret_cast<C*>(ptr);
+		C* pComponent = allocator.Get( entity_idx );
 		return *pComponent;
 	}
 
@@ -260,16 +254,10 @@ namespace Bat
 	inline const C& EntityManager::GetComponent( Entity entity ) const
 	{
 		ASSERT( HasComponent<C>( entity ), "Tried to get component we don't have" );
-		const size_t component_idx = C::GetIndex();
 		const size_t entity_idx = entity.GetId().GetIndex();
 		ObjectChunkedAllocator<C>& allocator = GetComponentAllocator<C>();
 
-		const size_t elements_per_chunk = allocator.m_iChunkSize / allocator.m_iObjectSize;
-		const size_t chunk_index = entity_idx / elements_per_chunk;
-		const char* chunk = allocator.m_pChunks[chunk_index];
-		const size_t offset = (entity_idx % elements_per_chunk) * allocator.m_iObjectSize;
-		const char* ptr = chunk + offset;
-		const C* pComponent = reinterpret_cast<const C*>( ptr );
+		const C* pComponent = allocator.Get( entity_idx );
 		return *pComponent;
 	}
 
