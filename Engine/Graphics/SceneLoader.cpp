@@ -16,11 +16,9 @@
 
 namespace Bat
 {
-	static DirectX::XMMATRIX AiToDxMatrix( const aiMatrix4x4& aimat )
+	static Mat4 AiToBatMatrix( const aiMatrix4x4& aimat )
 	{
-		return DirectX::XMMatrixTranspose(
-			DirectX::XMMATRIX( &aimat.a1 )
-		);
+		return Mat4( &aimat.a1 );
 	}
 
 	Resource<Mesh> SceneLoader::GetLoadedMesh( const aiMesh* pTarget )
@@ -181,7 +179,7 @@ namespace Bat
 		m_mapNodeNameToIndex[pAiNode->mName.C_Str()] = index;
 		
 		BoneNode node;
-		node.transform = BoneTransform::FromMatrix( AiToDxMatrix( pAiNode->mTransformation ) );
+		node.transform = BoneTransform::FromMatrix( AiToBatMatrix( pAiNode->mTransformation ) );
 		node.parent_index = parent_index;
 
 		m_OriginalSkeleton.bones.push_back( node );
@@ -196,7 +194,7 @@ namespace Bat
 		BoneData bone;
 		bone.index = node_index;
 		bone.name = pAiBone->mName.C_Str();
-		bone.inverse_bind_transform = AiToDxMatrix( pAiBone->mOffsetMatrix );
+		bone.inverse_bind_transform = AiToBatMatrix( pAiBone->mOffsetMatrix );
 
 		m_mapBoneNameToIndex[bone.name] = (int)m_Bones.size();
 
@@ -571,7 +569,7 @@ namespace Bat
 		Entity e = node.Get();
 		e.Add<NameComponent>( pAiNode->mName.C_Str() );
 
-		const auto transform = AiToDxMatrix( pAiNode->mTransformation );
+		const auto transform = AiToBatMatrix( pAiNode->mTransformation );
 		e.Add<TransformComponent>( transform );
 		
 		int node_index = FindNodeByName( pAiNode->mName.C_Str() );

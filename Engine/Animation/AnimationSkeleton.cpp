@@ -24,19 +24,15 @@ namespace Bat
 		weighted.rotation = rotation * weight;
 		return weighted;
 	}
-	DirectX::XMMATRIX BoneTransform::ToMatrix( const BoneTransform& transform )
+	Mat4 BoneTransform::ToMatrix( const BoneTransform& transform )
 	{
-		return DirectX::XMMatrixRotationQuaternion( transform.rotation ) *
-			DirectX::XMMatrixTranslation( transform.translation.x, transform.translation.y, transform.translation.z );
+		return Mat4::RotateQuat( transform.rotation ) * Mat4::Translate( transform.translation );
 	}
-	BoneTransform BoneTransform::FromMatrix( DirectX::XMMATRIX matrix )
+	BoneTransform BoneTransform::FromMatrix( const Mat4& matrix )
 	{
-		DirectX::XMVECTOR translation, rotation, scale;
-		DirectX::XMMatrixDecompose( &scale, &rotation, &translation, matrix );
-
 		BoneTransform transform;
-		transform.translation = translation;
-		transform.rotation = rotation;
+		transform.translation = matrix.GetTranslation();
+		transform.rotation = matrix.GetRotationQuat();
 
 		return transform;
 	}
@@ -50,11 +46,11 @@ namespace Bat
 
 		return pose;
 	}
-	void SkeletonPose::ToMatrixPalette( const SkeletonPose& model_pose, const std::vector<BoneData>& bones, DirectX::XMMATRIX* out )
+	void SkeletonPose::ToMatrixPalette( const SkeletonPose& model_pose, const std::vector<BoneData>& bones, Mat4* out )
 	{
 		for( size_t i = 0; i < bones.size(); i++ )
 		{
-			DirectX::XMMATRIX bone_transform = BoneTransform::ToMatrix( model_pose.bones[bones[i].index].transform );
+			Mat4 bone_transform = BoneTransform::ToMatrix( model_pose.bones[bones[i].index].transform );
 			out[i] = bones[i].inverse_bind_transform * bone_transform;
 		}
 	}
@@ -124,7 +120,7 @@ namespace Bat
 
 		for( BoneNode& bone : blended.bones )
 		{
-			bone.transform.rotation = DirectX::XMQuaternionNormalize( bone.transform.rotation );
+			bone.transform.rotation.Normalize();
 		}
 
 		return blended;

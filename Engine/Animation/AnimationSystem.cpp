@@ -62,7 +62,8 @@ namespace Bat
 				for( BoneNode& node : anim.current_pose.bones )
 				{
 					auto& transform = node.entity.Get<TransformComponent>();
-					transform.SetTransform( BoneTransform::ToMatrix( node.transform ) );
+					transform.SetPosition( node.transform.translation )
+						.SetRotation( Math::QuaternionToEuler( node.transform.rotation ) );
 				}
 			}
 		}

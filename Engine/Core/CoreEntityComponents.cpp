@@ -8,7 +8,7 @@ void Bat::HierarchySystem::Update( SceneNode& root_node )
 
 	m_NodeStack.push_back( &root_node );
 
-	DirectX::XMMATRIX transform = DirectX::XMMatrixIdentity();
+	Mat4 transform = Mat4::Identity();
 	if( root_node.Get().Has<TransformComponent>() )
 	{
 		transform = root_node.Get().Get<TransformComponent>().GetTransform();

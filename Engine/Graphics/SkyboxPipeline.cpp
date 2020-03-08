@@ -78,7 +78,7 @@ namespace Bat
 		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/SkyboxPS.hlsl" );
 
 		auto pos = camera.GetPosition();
-		auto w = DirectX::XMMatrixTranslation( pos.x, pos.y, pos.z );
+		auto w = Mat4::Translate( pos );
 
 		CB_SkyboxPipelineMatrix transform;
 		transform.viewproj = w * camera.GetViewMatrix() * camera.GetProjectionMatrix();

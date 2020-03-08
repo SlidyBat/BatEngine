@@ -33,7 +33,7 @@ namespace Bat
 		virtual NodeType GetNodeType( const std::string& name ) const override;
 		virtual NodeDataType GetNodeDataType( const std::string& name ) const override;
 
-		virtual void Visit( const DirectX::XMMATRIX& transform, Entity e ) {};
+		virtual void Visit( const Mat4& transform, Entity e ) {};
 	protected:
 		void AddRenderNode( std::string name, NodeType type, NodeDataType datatype );
 
@@ -42,6 +42,6 @@ namespace Bat
 		std::vector<RenderNode> m_vNodes;
 
 		std::vector<const SceneNode*> m_NodeStack;
-		std::vector<DirectX::XMMATRIX> m_Transforms;
+		std::vector<Mat4> m_Transforms;
 	};
 }

@@ -9,14 +9,14 @@ namespace Bat
 {
 	struct CB_TexturePipelineMatrix
 	{
-		DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
-		DirectX::XMMATRIX viewproj = DirectX::XMMatrixIdentity();
+		Mat4 world = Mat4::Identity();
+		Mat4 viewproj = Mat4::Identity();
 	};
 
 	class TexturePipeline : public IPipeline
 	{
 	public:
-		void Render( IGPUContext* pContext, const Mesh& mesh, const Camera& camera, ITexture* pTexture, const DirectX::XMMATRIX& world_transform );
+		void Render( IGPUContext* pContext, const Mesh& mesh, const Camera& camera, ITexture* pTexture, const Mat4& world_transform );
 	private:
 		ConstantBuffer<CB_TexturePipelineMatrix> m_cbufTransform;
 	};

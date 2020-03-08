@@ -14,16 +14,16 @@ namespace Bat
 	public:
 		void Render( IGPUContext* pContext,
 			const Mesh& mesh,
-			const DirectX::XMMATRIX& viewproj,
-			const DirectX::XMMATRIX& world_transform );
+			const Mat4& viewproj,
+			const Mat4& world_transform );
 	private:
-		void BindTransforms( IGPUContext* pContext, const DirectX::XMMATRIX& viewproj, const DirectX::XMMATRIX& world_transform );
+		void BindTransforms( IGPUContext* pContext, const Mat4& viewproj, const Mat4& world_transform );
 		void BindMaterial( IGPUContext* pContext, const Material& material );
 	private:
 		struct CB_ShadowPipelineMatrix
 		{
-			DirectX::XMMATRIX world;
-			DirectX::XMMATRIX viewproj;
+			Mat4 world;
+			Mat4 viewproj;
 		};
 		struct CB_ShadowPipelineMaterial
 		{

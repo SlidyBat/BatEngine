@@ -6,7 +6,7 @@
 
 namespace Bat
 {
-	void ColourPipeline::Render( IGPUContext* pContext, const Mesh& mesh, const Camera& camera, const DirectX::XMMATRIX& world_transform )
+	void ColourPipeline::Render( IGPUContext* pContext, const Mesh& mesh, const Camera& camera, const Mat4& world_transform )
 	{
 		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/ColourVS.hlsl" );
 		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/ColourPS.hlsl" );

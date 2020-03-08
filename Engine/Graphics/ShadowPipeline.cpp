@@ -6,7 +6,7 @@
 
 namespace Bat
 {
-	void ShadowPipeline::Render( IGPUContext* pContext, const Mesh& mesh, const DirectX::XMMATRIX& viewproj, const DirectX::XMMATRIX& world_transform )
+	void ShadowPipeline::Render( IGPUContext* pContext, const Mesh& mesh, const Mat4& viewproj, const Mat4& world_transform )
 	{
 		auto macros = ShaderManager::BuildMacrosForMesh( mesh );
 
@@ -33,7 +33,7 @@ namespace Bat
 		pContext->DrawIndexed( mesh.GetIndexCount() );
 	}
 
-	void ShadowPipeline::BindTransforms( IGPUContext* pContext, const DirectX::XMMATRIX& viewproj, const DirectX::XMMATRIX& world_transform )
+	void ShadowPipeline::BindTransforms( IGPUContext* pContext, const Mat4& viewproj, const Mat4& world_transform )
 	{
 		CB_ShadowPipelineMatrix transform;
 		transform.world = world_transform;

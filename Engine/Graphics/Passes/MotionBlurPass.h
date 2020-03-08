@@ -14,8 +14,8 @@ namespace Bat
 	private:
 		struct CB_Globals
 		{
-			DirectX::XMMATRIX inv_viewproj = DirectX::XMMatrixIdentity();
-			DirectX::XMMATRIX prev_viewproj = DirectX::XMMatrixIdentity();
+			Mat4 inv_viewproj = Mat4::Identity();
+			Mat4 prev_viewproj = Mat4::Identity();
 		};
 	public:
 		MotionBlurPass()
@@ -46,8 +46,8 @@ namespace Bat
 			size_t height = src->GetHeight();
 
 			CB_Globals ps_globals;
-			DirectX::XMMATRIX viewproj = camera.GetViewMatrix() * camera.GetProjectionMatrix();
-			ps_globals.inv_viewproj = DirectX::XMMatrixInverse( nullptr, viewproj );
+			Mat4 viewproj = camera.GetViewMatrix() * camera.GetProjectionMatrix();
+			ps_globals.inv_viewproj = Mat4::Inverse( viewproj );
 			ps_globals.prev_viewproj = m_matPrevViewProj;
 			m_cbufGlobals.Update( pContext, ps_globals );
 			pContext->SetConstantBuffer( ShaderType::PIXEL, m_cbufGlobals, PS_CBUF_SLOT_0 );
@@ -68,7 +68,7 @@ namespace Bat
 			m_matPrevViewProj = viewproj;
 		}
 	private:
-		DirectX::XMMATRIX m_matPrevViewProj = DirectX::XMMatrixIdentity();
+		Mat4 m_matPrevViewProj = Mat4::Identity();
 
 		ConstantBuffer<CB_Globals> m_cbufGlobals;
 	};

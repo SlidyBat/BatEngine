@@ -36,7 +36,7 @@ namespace Bat
 			Traverse();
 		}
 	public:
-		virtual void Visit( const DirectX::XMMATRIX& transform, Entity e ) override
+		virtual void Visit( const Mat4& transform, Entity e ) override
 		{
 			static Entity* light_model = nullptr;
 			static Material light_material;
@@ -55,7 +55,7 @@ namespace Bat
 				{
 					auto emissive = light.GetColour() * 3;
 					
-					DirectX::XMMATRIX w = light_model->Get<TransformComponent>().GetTransform() * transform;
+					Mat4 w = light_model->Get<TransformComponent>().GetTransform() * transform;
 
 					auto& meshes = light_model->Get<ModelComponent>().GetMeshes();
 					for( auto& pMesh : meshes )
@@ -65,7 +65,7 @@ namespace Bat
 						auto pPipeline = ShaderManager::GetPipeline<LitGenericPipeline>();
 
 						std::vector<Entity> empty;
-						std::vector<DirectX::XMMATRIX> empty2;
+						std::vector<Mat4> empty2;
 						PbrGlobalMaps pbr_maps;
 						pbr_maps.irradiance_map = nullptr;
 						pbr_maps.prefilter_map = nullptr;

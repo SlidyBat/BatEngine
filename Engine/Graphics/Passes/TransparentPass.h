@@ -46,7 +46,7 @@ namespace Bat
 			m_PbrMaps.brdf_integration_map = data.GetTexture( "brdf" );
 		}
 
-		virtual void Render( const DirectX::XMMATRIX& transform, Entity e ) override
+		virtual void Render( const Mat4& transform, Entity e ) override
 		{
 			if( e.Has<ModelComponent>() )
 			{
@@ -60,11 +60,11 @@ namespace Bat
 			}
 		}
 
-		void RenderModel( const ModelComponent& model, const DirectX::XMMATRIX& transform )
+		void RenderModel( const ModelComponent& model, const Mat4& transform )
 		{
 			Camera* pCamera = GetCamera();
 
-			DirectX::XMMATRIX w = transform;
+			const Mat4& w = transform;
 
 			auto& meshes = model.GetMeshes();
 			for( auto& pMesh : meshes )
@@ -86,7 +86,7 @@ namespace Bat
 			}
 		}
 
-		void RenderParticles( ParticleEmitterComponent& emitter, const DirectX::XMMATRIX& transform )
+		void RenderParticles( ParticleEmitterComponent& emitter, const Mat4& transform )
 		{
 			IGPUContext* pContext = GetContext();
 			Camera* pCamera = GetCamera();
@@ -126,8 +126,8 @@ namespace Bat
 			std::sort( m_TranslucentMeshes.begin(), m_TranslucentMeshes.end(), [camera]( const TranslucentMesh& a, const TranslucentMesh& b )
 			{
 				const Vec3& cam_pos = camera.GetPosition();
-				const Vec3 a_pos = DirectX::XMVector3Transform( a.mesh->GetAABB().GetCenter(), a.world_transform );
-				const Vec3 b_pos = DirectX::XMVector3Transform( b.mesh->GetAABB().GetCenter(), b.world_transform );
+				const Vec3 a_pos = a.world_transform * a.mesh->GetAABB().GetCenter();
+				const Vec3 b_pos = b.world_transform * b.mesh->GetAABB().GetCenter();
 
 				const float a_distance_sq = (a_pos - cam_pos).LengthSq();
 				const float b_distance_sq = (b_pos - cam_pos).LengthSq();
@@ -148,7 +148,7 @@ namespace Bat
 		struct TranslucentMesh
 		{
 			Mesh* mesh;
-			DirectX::XMMATRIX world_transform;
+			Mat4 world_transform;
 		};
 
 		PbrGlobalMaps m_PbrMaps;

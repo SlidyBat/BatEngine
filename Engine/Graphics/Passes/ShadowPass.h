@@ -66,12 +66,9 @@ namespace Bat
 					{
 					case LightType::DIRECTIONAL:
 					{
-						DirectX::XMMATRIX rot = DirectX::XMMatrixRotationRollPitchYaw(
-							Math::DegToRad( t.GetRotation().x ),
-							Math::DegToRad( t.GetRotation().y ),
-							Math::DegToRad( t.GetRotation().z ) );
-						Vec3 up = DirectX::XMVector3TransformNormal( { 0.0f, 1.0f, 0.0f }, rot );
-						Vec3 to = DirectX::XMVector3TransformNormal( { 0.0f, 0.0f, 1.0f }, rot );
+						Mat4 rot = Mat4::RotateDeg( t.GetRotation() );
+						Vec3 up = Mat4::TransformNormal( rot, { 0.0f, 1.0f, 0.0f } );
+						Vec3 to = Mat4::TransformNormal( rot, { 0.0f, 0.0f, 1.0f } );
 
 						Vec3 frustum_corners[8];
 						camera.CalculateFrustumCorners( frustum_corners );
@@ -97,7 +94,7 @@ namespace Bat
 								Vec3 near_corner = frustum_corners[i % 4];
 								Vec3 far_corner = frustum_corners[(i % 4) + 4];
 
-								cascade_corners[i] = DirectX::XMVectorLerp( near_corner, far_corner, splits[cascade + i/4] );
+								cascade_corners[i] = Vec3::Lerp( near_corner, far_corner, splits[cascade + i/4] );
 								cascade_centre += cascade_corners[i];
 							}
 							cascade_centre /= 8.0f;
@@ -115,12 +112,13 @@ namespace Bat
 							// Snap to texel grid
 							Vec3 extents = maxs - mins;
 							Vec3 texel_size = extents / SHADOW_MAP_SIZE;
-							mins = DirectX::XMVectorFloor( mins / texel_size ) * texel_size;
+							mins = Vec3::Floor( mins / texel_size ) * texel_size;
 
 							Vec3 cascade_camera_pos = cascade_centre - to * maxs.z;
 
-							DirectX::XMMATRIX view = DirectX::XMMatrixLookAtLH( cascade_camera_pos, cascade_centre, up );
-							DirectX::XMMATRIX proj = DirectX::XMMatrixOrthographicOffCenterLH( mins.x, maxs.x, mins.y, maxs.y, extents.z, 0.0f );
+							Mat4 view = Mat4::LookAt( cascade_camera_pos, cascade_centre, up );
+							Mat4 proj = Mat4::OrthoOffCentre( mins.x, maxs.x, mins.y, maxs.y, extents.z, 0.0f );
+
 							m_matLightViewProj = view * proj;
 							m_bLightCull = false;
 							transforms.shadow[shadow_map_counter++] = m_matLightViewProj;
@@ -142,8 +140,8 @@ namespace Bat
 							light.GetRange(),
 							0.1f);
 
-						DirectX::XMMATRIX view = spot_cam.GetViewMatrix();
-						DirectX::XMMATRIX proj = spot_cam.GetProjectionMatrix();
+						Mat4 view = spot_cam.GetViewMatrix();
+						Mat4 proj = spot_cam.GetProjectionMatrix();
 						m_matLightViewProj = view * proj;
 
 						// View frustum culling
@@ -183,13 +181,13 @@ namespace Bat
 			pContext->BindTexture( m_pShadowMaps.get(), PS_TEX_SHADOWMAPS );
 		}
 	private:
-		virtual void Visit( const DirectX::XMMATRIX& transform, Entity e ) override
+		virtual void Visit( const Mat4& transform, Entity e ) override
 		{
 			if( e.Has<AnimationComponent>() )
 			{
 				auto& anim = e.Get<AnimationComponent>();
 
-				DirectX::XMMATRIX* cbuf = m_cbufBones.Lock( m_pContext )->bone_transforms;
+				Mat4* cbuf = m_cbufBones.Lock( m_pContext )->bone_transforms;
 
 				GetMatrixPalette( cbuf, anim.bones, anim.current_pose );
 
@@ -206,7 +204,7 @@ namespace Bat
 					return;
 				}
 
-				DirectX::XMMATRIX w = transform;
+				Mat4 w = transform;
 
 				auto& meshes = model.GetMeshes();
 				for( auto& pMesh : meshes )
@@ -232,7 +230,7 @@ namespace Bat
 			}
 		}
 
-		void GetMatrixPalette( DirectX::XMMATRIX* out, const std::vector<BoneData>& bones, SkeletonPose pose ) const
+		void GetMatrixPalette( Mat4* out, const std::vector<BoneData>& bones, SkeletonPose pose ) const
 		{
 			ASSERT( bones.size() <= MAX_BONES, "Too many bones!" );
 
@@ -240,7 +238,7 @@ namespace Bat
 			SkeletonPose::ToMatrixPalette( model_pose, bones, out );
 		}
 
-		bool MeshInLightFrustum( Mesh* pMesh, DirectX::XMMATRIX transform )
+		bool MeshInLightFrustum( Mesh* pMesh, Mat4 transform )
 		{
 			const AABB& aabb = pMesh->GetAABB();
 			AABB world_aabb = aabb.Transform( transform );
@@ -255,17 +253,17 @@ namespace Bat
 		}
 	private:
 		IGPUContext* m_pContext;
-		DirectX::XMMATRIX m_matLightViewProj;
+		Mat4 m_matLightViewProj;
 		Frustum m_LightFrustum;
 		bool m_bLightCull = false;
 		struct CB_Bones
 		{
-			DirectX::XMMATRIX bone_transforms[MAX_BONES];
+			Mat4 bone_transforms[MAX_BONES];
 		};
 		ConstantBuffer<CB_Bones> m_cbufBones;
 		struct CB_ShadowMatrices
 		{
-			DirectX::XMMATRIX shadow[MAX_SHADOW_SOURCES];
+			Mat4 shadow[MAX_SHADOW_SOURCES];
 		};
 		ConstantBuffer<CB_ShadowMatrices> m_cbufShadowMatrices;
 		std::unique_ptr<IDepthStencil> m_pShadowMaps;

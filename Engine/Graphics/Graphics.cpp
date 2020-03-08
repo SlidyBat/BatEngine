@@ -116,7 +116,7 @@ namespace Bat
 		gpu->SwapBuffers();
 	}
 
-	DirectX::XMMATRIX Graphics::GetOrthoMatrix() const
+	Mat4 Graphics::GetOrthoMatrix() const
 	{
 		return m_matOrtho;
 	}
@@ -125,7 +125,7 @@ namespace Bat
 	{
 		m_iScreenWidth = (int)width;
 		m_iScreenHeight = (int)height;
-		m_matOrtho = DirectX::XMMatrixOrthographicLH(
+		m_matOrtho = Mat4::Ortho(
 			(float)width,
 			(float)height,
 			Graphics::ScreenNear,

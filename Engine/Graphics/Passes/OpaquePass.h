@@ -41,7 +41,7 @@ namespace Bat
 			m_PbrMaps.brdf_integration_map = data.GetTexture( "brdf" );
 		}
 
-		virtual void Render( const DirectX::XMMATRIX& transform, Entity e ) override
+		virtual void Render( const Mat4& transform, Entity e ) override
 		{
 			IGPUContext* pContext = SceneRenderPass::GetContext();
 			Camera* pCamera = SceneRenderPass::GetCamera();
@@ -51,7 +51,7 @@ namespace Bat
 			{
 				auto& anim = e.Get<AnimationComponent>();
 
-				DirectX::XMMATRIX* cbuf = m_cbufBones.Lock( pContext )->bone_transforms;
+				Mat4* cbuf = m_cbufBones.Lock( pContext )->bone_transforms;
 
 				GetMatrixPalette( cbuf, anim.bones, anim.current_pose );
 
@@ -63,7 +63,7 @@ namespace Bat
 			{
 				auto& model = e.Get<ModelComponent>();
 
-				DirectX::XMMATRIX w = transform;
+				Mat4 w = transform;
 
 				if( model.HasRenderFlag( RenderFlags::DRAW_BBOX ) )
 				{
@@ -117,13 +117,13 @@ namespace Bat
 			}
 		}
 
-		void DrawOutlineBox( IGPUContext* pContext, const Camera& cam, const AABB& aabb, DirectX::XMMATRIX world_transform )
+		void DrawOutlineBox( IGPUContext* pContext, const Camera& cam, const AABB& aabb, Mat4 world_transform )
 		{
 			AABB transformed_aabb = aabb.Transform( world_transform );
 			DebugDraw::Box( transformed_aabb.mins, transformed_aabb.maxs );
 		}
 
-		void GetMatrixPalette( DirectX::XMMATRIX* out, const std::vector<BoneData>& bones, SkeletonPose pose ) const
+		void GetMatrixPalette( Mat4* out, const std::vector<BoneData>& bones, SkeletonPose pose ) const
 		{
 			ASSERT( bones.size() <= MAX_BONES, "Too many bones!" );
 
@@ -133,7 +133,7 @@ namespace Bat
 	private:
 		struct CB_Bones
 		{
-			DirectX::XMMATRIX bone_transforms[MAX_BONES];
+			Mat4 bone_transforms[MAX_BONES];
 		};
 		ConstantBuffer<CB_Bones> m_cbufBones;
 

@@ -11,7 +11,7 @@ namespace Bat
 {
 	struct LitGenericInstanceData
 	{
-		DirectX::XMMATRIX world;
+		Mat4 world;
 	};
 
 	struct PbrGlobalMaps
@@ -27,9 +27,9 @@ namespace Bat
 		void Render( IGPUContext* pContext,
 			const Mesh& mesh,
 			const Camera& camera,
-			const DirectX::XMMATRIX& world_transform,
+			const Mat4& world_transform,
 			const std::vector<Entity>& light_ents,
-			const std::vector<DirectX::XMMATRIX>& light_transforms,
+			const std::vector<Mat4>& light_transforms,
 			const PbrGlobalMaps& maps );
 
 		void RenderInstanced( IGPUContext* pContext,
@@ -37,20 +37,20 @@ namespace Bat
 			const std::vector<LitGenericInstanceData>& instances,
 			const Camera& camera,
 			const std::vector<Entity>& light_ents,
-			const std::vector<DirectX::XMMATRIX>& light_transforms,
+			const std::vector<Mat4>& light_transforms,
 			const PbrGlobalMaps& maps );
 	private:
 		void BindTransforms( IGPUContext* pContext,
 			const Camera& camera,
-			const DirectX::XMMATRIX& world_transform );
+			const Mat4& world_transform );
 		void BindMaterial( IGPUContext* pContext, const Material& material );
-		void BindLights( IGPUContext* pContext, const std::vector<Entity>& light_ents, const std::vector<DirectX::XMMATRIX>& light_transforms );
+		void BindLights( IGPUContext* pContext, const std::vector<Entity>& light_ents, const std::vector<Mat4>& light_transforms );
 		void BindInstances( IGPUContext* pContext, IVertexShader* pVertexShader, const std::vector<LitGenericInstanceData>& instances );
 	private:
 		struct CB_LitGenericPipelineMatrix
 		{
-			DirectX::XMMATRIX world;
-			DirectX::XMMATRIX viewproj;
+			Mat4 world;
+			Mat4 viewproj;
 		};
 
 		struct CB_LitGenericPipelineMaterial

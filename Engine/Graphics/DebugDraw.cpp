@@ -76,7 +76,7 @@ namespace Bat
 		builder.Triangle( 3, 4, 0 );
 
 		auto pPipeline = ShaderManager::GetPipeline<ColourPipeline>();
-		pPipeline->Render( pContext, builder.Build(), Camera::ScreenOrtho(), DirectX::XMMatrixIdentity() );
+		pPipeline->Render( pContext, builder.Build(), Camera::ScreenOrtho(), Mat4::Identity() );
 	}
 	static void DrawBox( const Camera& camera, const DebugBox& box )
 	{
@@ -109,7 +109,7 @@ namespace Bat
 
 		IGPUContext* pContext = gpu->GetContext();
 		auto pPipeline = ShaderManager::GetPipeline<ColourPipeline>();
-		pPipeline->Render( pContext, builder.Build(), camera, DirectX::XMMatrixIdentity() );
+		pPipeline->Render( pContext, builder.Build(), camera, Mat4::Identity() );
 	}
 
 	void DebugDraw::Rectangle( const Vei2& a, const Vei2& b, const Colour& col, float thickness )

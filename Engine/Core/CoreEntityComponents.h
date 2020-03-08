@@ -19,9 +19,20 @@ namespace Bat
 	{
 	public:
 		TransformComponent() = default;
-		TransformComponent( DirectX::XMMATRIX transform )
+		TransformComponent( const Mat4& mat )
 		{
-			SetTransform( transform );
+			auto vtransform = DirectX::XMMatrixTranspose(
+				DirectX::XMLoadFloat4x4( reinterpret_cast<const DirectX::XMFLOAT4X4*>( &mat ) )
+			);
+
+			DirectX::XMVECTOR vscale, vrot, vpos;
+			DirectX::XMMatrixDecompose( &vscale, &vrot, &vpos, vtransform );
+
+			transform = mat;
+			position = vpos;
+			rotation = Math::QuaternionToEuler( vrot );
+			DirectX::XMStoreFloat( &scale, vscale );
+			dirty = false;
 		}
 
 		TransformComponent& SetPosition( float x, float y, float z ) { position = { x, y, z }; dirty = true; return *this; }
@@ -39,34 +50,20 @@ namespace Bat
 		TransformComponent& SetScale( float uniform_scale ) { scale = uniform_scale; dirty = true; return *this; }
 		float GetScale() const { return scale; }
 
-		const DirectX::XMMATRIX& GetTransform() const
+		const Mat4& GetTransform() const
 		{
 			if( dirty )
 			{
-				transform = DirectX::XMMatrixScaling( scale, scale, scale ) *
-					DirectX::XMMatrixRotationRollPitchYaw( rotation.x, rotation.y, rotation.z ) *
-					DirectX::XMMatrixTranslation( position.x, position.y, position.z );
+				transform = Mat4::Scale( scale ) *
+					Mat4::RotateDeg( rotation.x, rotation.y, rotation.z ) *
+					Mat4::Translate( position.x, position.y, position.z );
 				dirty = false;
 			}
 
 			return transform;
 		}
-
-		void SetTransform( DirectX::XMMATRIX new_transform )
-		{
-			transform = new_transform;
-
-			DirectX::XMVECTOR tran, qrot, vscale;
-			DirectX::XMMatrixDecompose( &vscale, &qrot, &tran, transform );
-
-			position = tran;
-			rotation = Math::QuaternionToEuler( qrot );
-			DirectX::XMStoreFloat( &scale, vscale );
-
-			dirty = false;
-		}
 	private:
-		mutable DirectX::XMMATRIX transform = DirectX::XMMatrixIdentity();
+		mutable Mat4 transform = Mat4::Identity();
 		Vec3 position = { 0.0f, 0.0f, 0.0f };
 		float scale = 1.0f;
 		Vec3 rotation = { 0.0f, 0.0f, 0.0f };
@@ -75,7 +72,7 @@ namespace Bat
 
 	struct HierarchyComponent : Component<HierarchyComponent>
 	{
-		DirectX::XMMATRIX abs_transform;
+		Mat4 abs_transform;
 	};
 
 	class HierarchySystem
@@ -84,6 +81,6 @@ namespace Bat
 		void Update( SceneNode& root_node );
 	private:
 		std::vector<SceneNode*> m_NodeStack;
-		std::vector<DirectX::XMMATRIX> m_Transforms;
+		std::vector<Mat4> m_Transforms;
 	};
 }
