@@ -34,6 +34,16 @@ namespace Bat
 
 		static Random rng;
 
+		Vec3 DegToRad( const Vec3& deg )
+		{
+			return { DegToRad( deg.x ), DegToRad( deg.y ), DegToRad( deg.z ) };
+		}
+
+		Vec3 RadToDeg( const Vec3& rad )
+		{
+			return { RadToDeg( rad.x ), RadToDeg( rad.y ), RadToDeg( rad.z ) };
+		}
+
 		Vec3 QuaternionToEulerRad( const Vec4& quat )
 		{
 			Vec3 output;
@@ -80,11 +90,7 @@ namespace Bat
 		Vec3 QuaternionToEulerDeg( const Vec4& quat )
 		{
 			Vec3 rad = QuaternionToEulerRad( quat );
-			return {
-				Math::RadToDeg( rad.x ),
-				Math::RadToDeg( rad.y ),
-				Math::RadToDeg( rad.z )
-			};
+			return Math::RadToDeg( rad );
 		}
 
 		Vec4 EulerToQuaternionDeg( const Vec3& euler )
@@ -97,7 +103,7 @@ namespace Bat
 			return EulerToQuaternionRad( rad );
 		}
 
-		float NormalizeAngle( float ang )
+		float NormalizeAngleDeg( float ang )
 		{
 			while( ang >= 180.0f )
 			{
@@ -110,12 +116,34 @@ namespace Bat
 			return ang;
 		}
 
-		Vec3 NormalizeAngle( const Vec3& ang )
+		float NormalizeAngleRad( float ang )
+		{
+			while( ang >= Math::PI )
+			{
+				ang -= Math::PI * 2.0f;
+			}
+			while( ang < -Math::PI )
+			{
+				ang += Math::PI * 2.0f;
+			}
+			return ang;
+		}
+
+		Vec3 NormalizeAngleDeg( const Vec3& ang )
 		{
 			return {
-				Math::NormalizeAngle( ang.x ),
-				Math::NormalizeAngle( ang.y ),
-				Math::NormalizeAngle( ang.z )
+				Math::NormalizeAngleDeg( ang.x ),
+				Math::NormalizeAngleDeg( ang.y ),
+				Math::NormalizeAngleDeg( ang.z )
+			};
+		}
+
+		Vec3 NormalizeAngleRad( const Vec3& ang )
+		{
+			return {
+				Math::NormalizeAngleRad( ang.x ),
+				Math::NormalizeAngleRad( ang.y ),
+				Math::NormalizeAngleRad( ang.z )
 			};
 		}
 
@@ -306,6 +334,18 @@ namespace Bat
 		m[row][2] = val.z;
 		m[row][3] = val.w;
 	}
+	Vec3 Mat4::GetForwardVector() const
+	{
+		return Vec3{ m[0][2], m[1][2], m[2][2] };
+	}
+	Vec3 Mat4::GetRightVector() const
+	{
+		return Vec3{ m[0][0], m[1][0], m[2][0] };
+	}
+	Vec3 Mat4::GetUpVector()
+	{
+		return Vec3{ m[0][1], m[1][1], m[2][1] };
+	}
 	Vec3 Mat4::GetTranslation() const
 	{
 		return {
@@ -324,16 +364,22 @@ namespace Bat
 	{
 		Vec3 euler;
 
-		if( !Math::CloseEnough( abs( m[1][2] ), 1.0f ) )
+		const Vec3 forward = Vec3{ m[0][2], m[1][2], m[2][2] };
+		const Vec3 right = Vec3{ m[0][0], m[1][0], m[2][0] };
+		const float up_y = m[1][1];
+
+		float xz_dist = sqrtf( forward.x * forward.x + forward.z * forward.z );
+
+		if( xz_dist > 0.001f )
 		{
-			euler.x = -asin( m[1][2] );
-			euler.y = atan2( m[0][2] / euler.x, m[2][2] / euler.x );
-			euler.z = atan2( m[1][0] / euler.x, m[1][1] / euler.x );
+			euler.x = atan2f( -forward.y, xz_dist );
+			euler.y = atan2f( forward.x, forward.z );
+			euler.z = atan2f( right.y, up_y );
 		}
 		else
 		{
-			euler.x = ( Math::PI / 2.0f ) * -m[1][2];
-			euler.y = atan2( m[2][0] * -m[1][2], m[0][0] * -m[1][2] );
+			euler.x = atan2f( -forward.y, xz_dist );
+			euler.y = atan2f( right.x, right.z );
 			euler.z = 0.0f;
 		}
 
@@ -342,11 +388,98 @@ namespace Bat
 	Vec3 Mat4::GetRotationDeg() const
 	{
 		Vec3 euler_rad = GetRotationRad();
-		return { Math::RadToDeg( euler_rad.x ), Math::RadToDeg( euler_rad.y ), Math::RadToDeg( euler_rad.z ) };
+		return Math::RadToDeg( euler_rad );
 	}
 	Vec4 Mat4::GetRotationQuat() const
 	{
 		return Math::EulerToQuaternionRad( GetRotationRad() );
+	}
+	Vec3 Mat4::GetScale() const
+	{
+		const Vec3 c0 = { m[0][0], m[1][0], m[2][0] };
+		const Vec3 c1 = { m[0][1], m[1][1], m[2][1] };
+		const Vec3 c2 = { m[0][2], m[1][2], m[2][2] };
+
+		return { c0.Length(), c1.Length(), c2.Length() };
+	}
+	void Mat4::DecomposeNonUniformScaleDeg( Vec3* out_pos, Vec3* out_rot, Vec3* out_scale ) const
+	{
+		if( out_pos )
+		{
+			*out_pos = GetTranslation();
+		}
+
+		const Vec3 scale = GetScale();
+		if( out_scale )
+		{
+			*out_scale = scale;
+		}
+
+		if( out_rot )
+		{
+			const Vec3 inv_scale = Vec3::Reciprocal( scale );
+			Vec3 euler;
+
+			const Vec3 forward = Vec3{ m[0][2], m[1][2], m[2][2] } * inv_scale;
+			const Vec3 right = Vec3{ m[0][0], m[1][0], m[2][0] } * inv_scale;
+			const float up_y = m[1][1] * inv_scale.y;
+
+			float xz_dist = sqrtf( forward.x * forward.x + forward.z * forward.z );
+
+			if( xz_dist > 0.001f )
+			{
+				euler.x = atan2f( -forward.y, xz_dist );
+				euler.y = atan2f( forward.x, forward.z );
+				euler.z = atan2f( right.y, up_y );
+			}
+			else
+			{
+				euler.x = atan2f( -forward.y, xz_dist );
+				euler.y = atan2f( right.x, right.z );
+				euler.z = 0.0f;
+			}
+
+			*out_rot = Math::RadToDeg( euler );
+		}
+	}
+	void Mat4::DecomposeDeg( Vec3* out_pos, Vec3* out_rot, float* out_uniform_scale ) const
+	{
+		if( out_pos )
+		{
+			*out_pos = GetTranslation();
+		}
+
+		const float uniform_scale = GetCol( 0 ).Length();
+		if( out_uniform_scale )
+		{
+			*out_uniform_scale = uniform_scale;
+		}
+
+		if( out_rot )
+		{
+			Vec3 euler;
+
+			const Vec3 forward = Vec3{ m[0][2] / uniform_scale, m[1][2] / uniform_scale, m[2][2] / uniform_scale };
+			const Vec3 right   = Vec3{ m[0][0] / uniform_scale, m[1][0] / uniform_scale, m[2][0] / uniform_scale };
+			const float up_y   = m[1][1] / uniform_scale;
+
+			float xz_dist = sqrtf( forward.x * forward.x + forward.z * forward.z );
+
+			if( xz_dist > 0.001f )
+			{
+				euler.x = atan2f( -forward.y, xz_dist );
+				euler.y = atan2f( forward.x, forward.z );
+				euler.z = atan2f( right.y, up_y );
+			}
+			else
+			{
+				euler.x = atan2f( -forward.y, xz_dist );
+				euler.y = atan2f( right.x, right.z );
+				euler.z = 0.0f;
+			}
+
+			*out_rot = Math::RadToDeg( euler );
+		}
 	}
 	Mat4 Mat4::Identity()
 	{

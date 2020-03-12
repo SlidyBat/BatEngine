@@ -58,14 +58,14 @@ namespace Bat
 			std::vector<Mat4> transforms;
 			for( Entity e : world )
 			{
-				if( e.Has<ModelComponent>() && e.Has<HierarchyComponent>() )
+				if( e.Has<ModelComponent>() )
 				{
 					auto model = e.Get<ModelComponent>();
-					auto hier = e.Get<HierarchyComponent>();
+					auto t = e.Get<TransformComponent>();
 					for( auto& mesh : model.GetMeshes() )
 					{
 						meshes.push_back( mesh.get() );
-						transforms.push_back( hier.GetAbsTransform() );
+						transforms.push_back( t.LocalToWorldMatrix() );
 					}
 				}
 			}
@@ -391,7 +391,7 @@ namespace Bat
 			if( e.Has<NavMeshAgent>() )
 			{
 				auto& agent = e.Get<NavMeshAgent>();
-				auto& hier = e.Get<HierarchyComponent>();
+				auto& t = e.Get<TransformComponent>();
 
 				NavMesh& navmesh = m_NavMeshes[agent.navmesh];
 
@@ -399,7 +399,7 @@ namespace Bat
 				{
 					if( agent.path.empty() )
 					{
-						agent.path = navmesh.GetPath( hier.GetAbsPosition(), agent.target );
+						agent.path = navmesh.GetPath( t.GetPosition(), agent.target );
 					}
 
 					if( agent.path.empty() )
@@ -407,7 +407,7 @@ namespace Bat
 						continue;
 					}
 
-					Vec3 start = hier.GetAbsPosition();
+					Vec3 start = t.GetPosition();
 					Vec3 end = agent.path[agent.next_path_point];
 					Vec3 delta = end - start;
 					float len = delta.Length();
@@ -427,7 +427,7 @@ namespace Bat
 					}
 
 					Vec3 result = navmesh.MoveAlongSurface( start, start + delta * std::min( len, 0.05f ) );
-					hier.SetAbsPosition( result );
+					t.SetPosition( result );
 				}
 			}
 		}

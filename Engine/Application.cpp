@@ -49,17 +49,17 @@ namespace Bat
 			scene.AddChild( character );
 
 			CharacterControllerBoxDesc box;
-			character.Get<HierarchyComponent>()
-				.SetAbsPosition( { 0.0f, 1.0f, 0.0f } );
+			character.Get<TransformComponent>()
+				.SetPosition( { 0.0f, 1.0f, 0.0f } );
 			character.Add<CharacterControllerComponent>( box );
 		}
 
 		void Update( const Input& input, float dt )
 		{
-			auto& hier = character.Get<HierarchyComponent>();
+			auto& t = character.Get<TransformComponent>();
 			auto& controller = character.Get<CharacterControllerComponent>();
 
-			Vec3 rotation = hier.GetAbsRotation();
+			Vec3 rotation = t.GetRotation();
 
 			Vec3 disp = { 0.0f, 0.0f, 0.0f };
 
@@ -130,18 +130,18 @@ namespace Bat
 		}
 		void RotateBy( const Vec3& drot )
 		{
-			auto& hier = character.Get<HierarchyComponent>();
-			hier.SetAbsRotation( Math::NormalizeAngle( hier.GetAbsRotation() + drot ) );
+			auto& t = character.Get<TransformComponent>();
+			t.SetRotation( Math::NormalizeAngleDeg( t.GetRotation() + drot ) );
 		}
 		Vec3 GetPosition()
 		{
-			auto& hier = character.Get<HierarchyComponent>();
-			return hier.GetAbsPosition();
+			auto& t = character.Get<TransformComponent>();
+			return t.GetPosition();
 		}
 		Vec3 GetRotation()
 		{
-			auto& hier = character.Get<HierarchyComponent>();
-			return hier.GetAbsRotation();
+			auto& t = character.Get<TransformComponent>();
+			return t.GetRotation();
 		}
 		void Jump()
 		{
@@ -189,7 +189,8 @@ namespace Bat
 		if( false )
 		{
 			Entity emitter_test = world.CreateEntity();
-			emitter_test.Add<TransformComponent>()
+			scene.AddChild( emitter_test );
+			emitter_test.Get<TransformComponent>()
 				.SetPosition( { 0.0f, 0.0f, 0.0f } );
 			auto& emitter = emitter_test.Add<ParticleEmitterComponent>( ResourceManager::GetTexture( "Assets/Ignore/particles/fire_02.png" ) );
 			emitter.particles_per_sec = 50.0f;
@@ -204,25 +205,22 @@ namespace Bat
 			emitter.motion_blur = 8.0f;
 			emitter.normal = { 0.0f, 0.3f, 0.0f };
 			emitter.rand_velocity_range = { 0.0f, 0.0f, 0.0f };
-
-			scene.AddChild( emitter_test );
 		}
 
 		flashlight = world.CreateEntity();
+		scene.AddChild( flashlight );
 		flashlight.Add<LightComponent>()
 			.SetType( LightType::SPOT )
 			.SetSpotlightAngle( 0.5f );
-		flashlight.Add<TransformComponent>();
-		scene.AddChild( flashlight );
 
 		sun = world.CreateEntity();
+		scene.AddChild( sun );
+		sun.Get<TransformComponent>()
+			.SetRotation( 90.0f, 0.0f, 0.0f );
 		sun.Add<LightComponent>()
 			.SetType( LightType::DIRECTIONAL )
 			.SetEnabled( false )
 			.AddFlag( LightFlags::EMIT_SHADOWS );
-		sun.Add<TransformComponent>()
-			.SetRotation( 90.0f, 0.0f, 0.0f );
-		scene.AddChild( sun );
 
 		gfx.SetActiveScene( &scene );
 		gfx.SetActiveCamera( &camera );
@@ -311,9 +309,9 @@ namespace Bat
 		camera.SetPosition( player.GetPosition() );
 		camera.SetRotation( player.GetRotation() );
 
-		flashlight.Get<HierarchyComponent>()
-			.SetAbsPosition( camera.GetPosition() )
-			.SetAbsRotation( camera.GetRotation() );
+		flashlight.Get<TransformComponent>()
+			.SetPosition( camera.GetPosition() )
+			.SetRotation( camera.GetRotation() );
 		snd->SetListenerPosition( camera.GetPosition(), camera.GetLookAtVector() );
 
 		physics_system.Update( world, deltatime );
@@ -426,9 +424,9 @@ namespace Bat
 			if( e.Has<TransformComponent>() )
 			{
 				const auto& t = e.Get<TransformComponent>();
-				Vec3 pos = t.GetPosition();
-				Vec3 rot = t.GetRotation();
-				float scale = t.GetScale();
+				Vec3 pos = t.GetLocalPosition();
+				Vec3 rot = t.GetLocalRotation();
+				float scale = t.GetLocalScale();
 
 				std::string pos_text = Format( "Local Pos: (%.2f, %.2f, %.2f)", pos.x, pos.y, pos.z );
 				std::string rot_text = Format( "Local Rot: (%.2f, %.2f, %.2f)", rot.x, rot.y, rot.z );
@@ -654,22 +652,22 @@ namespace Bat
 		else if( e.key == 'C' )
 		{
 			Entity light = world.CreateEntity();
+			scene.AddChild( light );
+			light.Get<TransformComponent>()
+				.SetPosition( camera.GetPosition() );
 			light.Add<LightComponent>()
 				.SetRange( 2.5f );
-			light.Add<TransformComponent>()
-				.SetPosition( camera.GetPosition() );
 			//light.Add<PhysicsComponent>( PhysicsObjectType::DYNAMIC )
 			//	.AddSphereShape( 0.05f );
-			scene.AddChild( light );
 		}
 		else if( e.key == 'V' )
 		{
 			Entity light = world.CreateEntity();
+			scene.AddChild( light );
+			light.Get<TransformComponent>()
+				.SetPosition( camera.GetPosition() );
 			light.Add<LightComponent>()
 				.SetRange( 2.5f );
-			light.Add<TransformComponent>()
-				.SetPosition( camera.GetPosition() );
-			scene.AddChild( light );
 		}
 		else if( e.key == 'F' )
 		{
@@ -702,7 +700,7 @@ namespace Bat
 
 					agent = world.CreateEntity();
 					scene.AddChild( agent );
-					agent.Add<TransformComponent>()
+					agent.Get<TransformComponent>()
 						.SetPosition( result.position );
 					agent.Add<NavMeshAgent>();
 				}
@@ -723,14 +721,14 @@ namespace Bat
 		else if( e.key == 'E' )
 		{
 			Entity spotlight = world.CreateEntity();
+			spotlight.Get<TransformComponent>()
+				.SetPosition( camera.GetPosition() )
+				.SetRotation( camera.GetRotation() );
+			scene.AddChild( spotlight );
 			spotlight.Add<LightComponent>()
 				.SetType( LightType::SPOT )
 				.SetSpotlightAngle( Math::DegToRad( 45.0f ) )
 				.AddFlag( LightFlags::EMIT_SHADOWS );
-			spotlight.Add<TransformComponent>()
-				.SetPosition( camera.GetPosition() )
-				.SetRotation( camera.GetRotation() );
-			scene.AddChild( spotlight );
 		}
 		else if( e.key == 'Q' )
 		{
@@ -760,7 +758,7 @@ namespace Bat
 		const Vec3& pos = camera.GetPosition();
 		SceneNode* pos_node = scale_node->AddChild( world.CreateEntity() );
 		pos_node->AddChild( std::move( new_node ) );
-		pos_node->Get().Add<TransformComponent>()
+		pos_node->Get().Get<TransformComponent>()
 			.SetPosition( pos );
 	}
 

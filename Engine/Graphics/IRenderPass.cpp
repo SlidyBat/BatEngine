@@ -50,11 +50,8 @@ namespace Bat
 	{
 		for( Entity e : world )
 		{
-			if( e.Has<HierarchyComponent>() )
-			{
-				auto& hier = e.Get<HierarchyComponent>();
-				Visit( hier.GetAbsTransform(), e );
-			}
+			auto& t = e.Get<TransformComponent>();
+			Visit( t.LocalToWorldMatrix(), e );
 		}
 	}
 }

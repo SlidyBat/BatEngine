@@ -591,7 +591,8 @@ namespace Bat
 		e.Add<NameComponent>( pAiNode->mName.C_Str() );
 
 		const auto transform = AiToBatMatrix( pAiNode->mTransformation );
-		e.Add<TransformComponent>( transform );
+		e.Get<TransformComponent>()
+			.SetLocalMatrix( transform );
 		
 		int node_index = FindNodeByName( pAiNode->mName.C_Str() );
 		if( node_index != -1 )
@@ -647,7 +648,6 @@ namespace Bat
 		if( m_pAiScene->HasAnimations() )
 		{
 			auto& anim = e.Add<AnimationComponent>();
-			e.Ensure<TransformComponent>(); // Animations rely on transform component, so ensure it exists
 			LoadAnimations( &anim );
 		}
 

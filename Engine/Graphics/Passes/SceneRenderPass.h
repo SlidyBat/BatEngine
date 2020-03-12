@@ -47,9 +47,9 @@ namespace Bat
 			{
 				if( e.Has<LightComponent>() )
 				{
-					auto& hier = e.Get<HierarchyComponent>();
+					auto& t = e.Get<TransformComponent>();
 					m_Lights.push_back( e );
-					m_LightTransforms.push_back( hier.GetAbsTransform() );
+					m_LightTransforms.push_back( t.LocalToWorldMatrix() );
 				}
 			}
 		}

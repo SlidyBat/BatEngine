@@ -16,13 +16,13 @@ namespace Bat
 
 		void OnEvent( const ComponentAddedEvent<CharacterControllerComponent>& e )
 		{
-			auto& hier = e.entity.Get<HierarchyComponent>();
+			auto& t = e.entity.Get<TransformComponent>();
 			if( e.component.m_Type == CharacterControllerComponent::ControllerType::BOX )
 			{
 				auto& desc = e.component.m_Desc.box;
 
 				PhysicsBoxControllerDesc box_desc;
-				box_desc.position = hier.GetAbsPosition();
+				box_desc.position = t.GetPosition();
 				box_desc.height = desc.height;
 				box_desc.forward_extent = desc.forward_extent;
 				box_desc.side_extent = desc.side_extent;
@@ -37,7 +37,7 @@ namespace Bat
 				auto& desc = e.component.m_Desc.cap;
 
 				PhysicsCapsuleControllerDesc cap_desc;
-				cap_desc.position = hier.GetAbsPosition();
+				cap_desc.position = t.GetPosition();
 				cap_desc.height = desc.height;
 				cap_desc.radius = desc.radius;
 				cap_desc.slope_limit = desc.slope_limit;
@@ -55,9 +55,9 @@ namespace Bat
 				if( ent.Has<CharacterControllerComponent>() )
 				{
 					auto& cont = ent.Get<CharacterControllerComponent>();
-					auto& hier = ent.Get<HierarchyComponent>();
+					auto& t = ent.Get<TransformComponent>();
 
-					hier.SetAbsPosition( cont.m_pController->GetPosition() );
+					t.SetPosition( cont.m_pController->GetPosition() );
 				}
 			}
 		}

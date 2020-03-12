@@ -22,14 +22,18 @@ namespace Bat
 		{
 			return rad * (180.0f / PI);
 		}
+		Vec3 DegToRad( const Vec3& deg );
+		Vec3 RadToDeg( const Vec3& rad );
 
 		Vec3 QuaternionToEulerRad( const Vec4& quat );
 		Vec4 EulerToQuaternionRad( const Vec3& euler );
 		Vec3 QuaternionToEulerDeg( const Vec4& quat );
 		Vec4 EulerToQuaternionDeg( const Vec3& euler );
 		// Normalizes an angle so that it becomes in the range [-180.0f, 180.0f)
-		float NormalizeAngle( float ang );
-		Vec3 NormalizeAngle( const Vec3& ang );
+		float NormalizeAngleDeg( float ang );
+		float NormalizeAngleRad( float ang );
+		Vec3 NormalizeAngleDeg( const Vec3& ang );
+		Vec3 NormalizeAngleRad( const Vec3& ang );
 
 		__m128 Abs( __m128 m );
 		__m128 Sin( __m128 m_x );
@@ -400,6 +404,11 @@ namespace Bat
 			};
 		}
 
+		static Vec3 Reciprocal( const Vec3& v )
+		{
+			return { 1.0f / v.x, 1.0f / v.y, 1.0f / v.z };
+		}
+
 		static bool CloseEnough( const Vec3& a, const Vec3& b, float epsilon = 0.001f )
 		{
 			return Math::CloseEnough( a.x, b.x ) && Math::CloseEnough( a.y, b.y ) && Math::CloseEnough( a.z, b.z );
@@ -593,11 +602,20 @@ namespace Bat
 		void SetCol( size_t col, const Vec4& val );
 		Vec4 GetRow( size_t row ) const;
 		void SetRow( size_t row, const Vec4& val );
+
+		// Basis vectors
+		Vec3 GetForwardVector() const;
+		Vec3 GetRightVector() const;
+		Vec3 GetUpVector();
+
 		Vec3 GetTranslation() const;
 		void SetTranslation( const Vec3& val );
 		Vec3 GetRotationRad() const;
 		Vec3 GetRotationDeg() const;
 		Vec4 GetRotationQuat() const;
+		Vec3 GetScale() const;
+		void DecomposeDeg( Vec3* out_pos, Vec3* out_rot, float* out_uniform_scale ) const;
+		void DecomposeNonUniformScaleDeg( Vec3* out_pos, Vec3* out_rot, Vec3* out_scale ) const;
 
 		static Mat4 Identity();
 		static Mat4 Transpose( const Mat4& mat );

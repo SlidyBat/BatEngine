@@ -217,7 +217,7 @@ namespace Bat
 
 	void Camera::WrapAngle()
 	{
-		m_angRotation = Math::NormalizeAngle( m_angRotation );
+		m_angRotation = Math::NormalizeAngleDeg( m_angRotation );
 	}
 
 	void Camera::UpdateProjectionMatrix()

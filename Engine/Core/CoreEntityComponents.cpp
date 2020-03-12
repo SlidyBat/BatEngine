@@ -5,204 +5,271 @@
 
 namespace Bat
 {
-	HierarchyComponent::HierarchyComponent( SceneNode* node )
+	TransformComponent::TransformComponent( SceneNode* node )
 		:
 		m_pNode( node )
 	{
 	}
-	Vec3 HierarchyComponent::GetAbsPosition()
+	const Vec3& TransformComponent::GetPosition() const
 	{
 		if( IsDirty( HierarchyCache::POS ) )
 		{
 			CalculateCache();
 		}
-		return m_vecAbsPosition;
+		return m_vecPosition;
 	}
 
-	HierarchyComponent& HierarchyComponent::SetAbsPosition( const Vec3& pos )
+	TransformComponent& TransformComponent::SetPosition( float x, float y, float z )
 	{
-		if( !IsDirty( HierarchyCache::POS ) && m_vecAbsPosition == pos )
+		return SetPosition( { x, y, z } );
+	}
+
+	TransformComponent& TransformComponent::SetPosition( const Vec3& pos )
+	{
+		if( !IsDirty( HierarchyCache::POS ) && m_vecPosition == pos )
 		{
 			return *this;
 		}
 
+		MarkSelfAndChildrenDirty( HierarchyCache::POS );
 		ClearDirty( HierarchyCache::POS );
-		MarkChildrenDirty( HierarchyCache::POS );
 
-		Entity ent = m_pNode->Get();
-		auto& t = ent.Get<TransformComponent>();
-
-		m_vecAbsPosition = pos;
-		m_matAbsTransform = Mat4::Scale( m_flAbsScale ) *
-			Mat4::RotateDeg( m_vecAbsRotation ) *
-			Mat4::Translate( m_vecAbsPosition );
+		m_vecPosition = pos;
+		m_matLocalToWorld.SetTranslation( pos );
 
 		SceneNode* parent = m_pNode->GetParent();
 		if( !parent )
 		{
-			t.SetPosition( pos );
+			m_vecLocalPosition = pos;
 		}
 		else
 		{
 			Entity parent_ent = parent->Get();
-			auto& parent_hier = parent_ent.Get<HierarchyComponent>();
-			Mat4 world_to_parent = Mat4::Inverse( parent_hier.GetAbsTransform() );
-			t.SetPosition( world_to_parent * m_vecAbsPosition );
+			auto& parent_transform = parent_ent.Get<TransformComponent>();
+			Mat4 world_to_parent = Mat4::Inverse( parent_transform.LocalToWorldMatrix() );
+			m_vecLocalPosition = world_to_parent * m_vecPosition;
 		}
 
 		return *this;
 	}
 
-	Vec3 HierarchyComponent::GetAbsRotation()
+	const Vec3& TransformComponent::GetRotation() const
 	{
 		if( IsDirty( HierarchyCache::ROT ) )
 		{
 			CalculateCache();
 		}
-		return m_vecAbsRotation;
+		return m_vecRotation;
 	}
 
-	HierarchyComponent& HierarchyComponent::SetAbsRotation( const Vec3& rot )
+	TransformComponent& TransformComponent::SetRotation( float pitch, float yaw, float roll )
 	{
-		if( !IsDirty( HierarchyCache::ROT ) && m_vecAbsRotation == rot )
+		return SetRotation( { pitch, yaw, roll } );
+	}
+
+	TransformComponent& TransformComponent::SetRotation( const Vec3& rot )
+	{
+		if( !IsDirty( HierarchyCache::ROT ) && m_vecRotation == rot )
 		{
 			return *this;
 		}
 
+		MarkSelfAndChildrenDirty( HierarchyCache::ROT );
 		ClearDirty( HierarchyCache::ROT );
-		MarkChildrenDirty( HierarchyCache::ROT );
 
-		Entity ent = m_pNode->Get();
-		auto& t = ent.Get<TransformComponent>();
-
-		m_vecAbsRotation = rot;
-		m_matAbsTransform = Mat4::Scale( m_flAbsScale ) *
-			Mat4::RotateDeg( m_vecAbsRotation ) *
-			Mat4::Translate( m_vecAbsPosition );
+		m_vecRotation = rot;
+		m_matLocalToWorld = Mat4::Scale( m_flScale ) * Mat4::RotateDeg( m_vecRotation );
+		m_matLocalToWorld.SetTranslation( m_vecPosition );
 
 		SceneNode* parent = m_pNode->GetParent();
 		if( !parent )
 		{
-			t.SetRotation( rot );
+			m_vecLocalRotation = rot;
 		}
 		else
 		{
 			Entity parent_ent = parent->Get();
-			auto& parent_hier = parent_ent.Get<HierarchyComponent>();
-			Mat4 world_to_parent = Mat4::Inverse( parent_hier.GetAbsTransform() );
-			Mat4 local = world_to_parent * m_matAbsTransform;
-			t = TransformComponent( local );
+			auto& parent_transform = parent_ent.Get<TransformComponent>();
+			Mat4 world_to_parent = Mat4::Inverse( parent_transform.LocalToWorldMatrix() );
+			Mat4 local = world_to_parent * m_matLocalToWorld;
+			local.DecomposeDeg( nullptr, &m_vecLocalRotation, nullptr );
 		}
 
 		return *this;
 	}
 
-	float HierarchyComponent::GetAbsScale()
+	float TransformComponent::GetScale() const
 	{
 		if( IsDirty( HierarchyCache::SCALE ) )
 		{
 			CalculateCache();
 		}
-		return m_flAbsScale;
+		return m_flScale;
 	}
 
-	HierarchyComponent& HierarchyComponent::SetAbsScale( float scale )
+	TransformComponent& TransformComponent::SetLocalPosition( float x, float y, float z )
 	{
-		if( !IsDirty( HierarchyCache::SCALE ) && m_flAbsScale == scale )
+		return SetLocalPosition( { x, y, z } );
+	}
+
+	TransformComponent& TransformComponent::SetLocalPosition( const Vec3& pos )
+	{
+		if( m_vecLocalPosition == pos )
 		{
 			return *this;
 		}
 
+		MarkSelfAndChildrenDirty( HierarchyCache::POS );
+		m_vecLocalPosition = pos;
+
+		return *this;
+	}
+
+	TransformComponent& TransformComponent::SetScale( float scale )
+	{
+		if( !IsDirty( HierarchyCache::SCALE ) && m_flScale == scale )
+		{
+			return *this;
+		}
+
+		MarkSelfAndChildrenDirty( HierarchyCache::SCALE );
 		ClearDirty( HierarchyCache::SCALE );
-		MarkChildrenDirty( HierarchyCache::SCALE );
 
-		Entity ent = m_pNode->Get();
-		auto& t = ent.Get<TransformComponent>();
-
-		m_flAbsScale = scale;
-		m_matAbsTransform = Mat4::Scale( m_flAbsScale ) *
-			Mat4::RotateDeg( m_vecAbsRotation ) *
-			Mat4::Translate( m_vecAbsPosition );
+		m_flScale = scale;
+		m_matLocalToWorld = Mat4::Scale( m_flScale ) * Mat4::RotateDeg( m_vecRotation );
+		m_matLocalToWorld.SetTranslation( m_vecPosition );
 
 		SceneNode* parent = m_pNode->GetParent();
 		if( !parent )
 		{
-			t.SetScale( scale );
+			m_flLocalScale = scale;
 		}
 		else
 		{
 			Entity parent_ent = parent->Get();
-			auto& parent_hier = parent_ent.Get<HierarchyComponent>();
-			Mat4 world_to_parent = Mat4::Inverse( parent_hier.GetAbsTransform() );
-			Mat4 local = world_to_parent * m_matAbsTransform;
-			t = TransformComponent( local );
+			auto& parent_transform = parent_ent.Get<TransformComponent>();
+			Mat4 world_to_parent = Mat4::Inverse( parent_transform.LocalToWorldMatrix() );
+			Mat4 local = world_to_parent * m_matLocalToWorld;
+			local.DecomposeDeg( nullptr, nullptr, &m_flLocalScale );
 		}
 
 		return *this;
 	}
 
-	const Mat4& HierarchyComponent::GetAbsTransform()
+	const Vec3& TransformComponent::GetLocalPosition() const
+	{
+		return m_vecLocalPosition;
+	}
+
+	TransformComponent& TransformComponent::SetLocalRotation( float pitch, float yaw, float roll )
+	{
+		return SetLocalRotation( { pitch, yaw, roll } );
+	}
+
+	TransformComponent& TransformComponent::SetLocalRotation( const Vec3& rot )
+	{
+		if( m_vecLocalRotation == rot )
+		{
+			return *this;
+		}
+
+		m_vecLocalRotation = rot;
+		MarkSelfAndChildrenDirty( HierarchyCache::ROT );
+
+		return *this;
+	}
+
+	const Vec3& TransformComponent::GetLocalRotation() const
+	{
+		return m_vecLocalRotation;
+	}
+
+	TransformComponent& TransformComponent::SetLocalScale( float uniform_scale )
+	{
+		if( m_flLocalScale == uniform_scale )
+		{
+			return *this;
+		}
+
+		m_flLocalScale = uniform_scale;
+		MarkSelfAndChildrenDirty( HierarchyCache::SCALE );
+
+		return *this;
+	}
+
+	float TransformComponent::GetLocalScale() const
+	{
+		return m_flLocalScale;
+	}
+
+	void TransformComponent::SetLocalMatrix( const Mat4& local_matrix )
+	{
+		MarkSelfAndChildrenDirty( HierarchyCache::ALL );
+		local_matrix.DecomposeDeg( &m_vecLocalPosition, &m_vecLocalRotation, &m_flLocalScale );
+	}
+
+	const Mat4& TransformComponent::LocalToWorldMatrix() const
 	{
 		if( IsDirty( HierarchyCache::ALL ) )
 		{
 			CalculateCache();
 		}
-		return m_matAbsTransform;
+		return m_matLocalToWorld;
 	}
 
-	void HierarchyComponent::MarkChildrenDirty( HierarchyCache cache_type )
+	Mat4 TransformComponent::WorldToLocalMatrix() const
+	{
+		return Mat4::Inverse( m_matLocalToWorld );
+	}
+
+	void TransformComponent::MarkSelfAndChildrenDirty( HierarchyCache cache_type )
 	{
 		ASSERT( m_pNode, "No associated scene node" );
 
+		m_Dirty |= cache_type;
 		for( SceneNode& child_node : *m_pNode )
 		{
 			Entity child = child_node.Get();
-			child.Get<HierarchyComponent>().MarkChildrenDirty( cache_type );
+			child.Get<TransformComponent>().MarkSelfAndChildrenDirty( cache_type );
 		}
 	}
 
-	void HierarchyComponent::ClearDirty( HierarchyCache cache_type )
+	void TransformComponent::ClearDirty( HierarchyCache cache_type ) const
 	{
 		m_Dirty &= ~cache_type;
 	}
 
-	bool HierarchyComponent::IsDirty( HierarchyCache cache_type ) const
+	bool TransformComponent::IsDirty( HierarchyCache cache_type ) const
 	{
 		return ( m_Dirty & cache_type ) != HierarchyCache::NONE;
 	}
 
-	void HierarchyComponent::CalculateCache()
+	void TransformComponent::CalculateCache() const
 	{
 		ClearDirty( HierarchyCache::ALL );
 
 		Entity ent = m_pNode->Get();
 		auto& t = ent.Get<TransformComponent>();
 
+		Mat4 local = Mat4::Scale( m_flLocalScale ) *
+			Mat4::RotateDeg( m_vecLocalRotation ) *
+			Mat4::Translate( m_vecLocalPosition );
+
 		SceneNode* parent = m_pNode->GetParent();
 		if( !parent )
 		{
-			m_matAbsTransform = t.GetTransform();
-			m_vecAbsPosition = t.GetPosition();
-			m_vecAbsRotation = t.GetRotation();
-			m_flAbsScale = t.GetScale();
+			m_vecPosition = m_vecLocalPosition;
+			m_vecRotation = m_vecLocalRotation;
+			m_flScale = m_flLocalScale;
+			m_matLocalToWorld = local;
 		}
 		else
 		{
 			Entity parent_ent = parent->Get();
-			auto& parent_hier = parent_ent.Get<HierarchyComponent>();
+			auto& parent_transform = parent_ent.Get<TransformComponent>();
 
-			m_matAbsTransform = parent_hier.GetAbsTransform() * t.GetTransform();
-
-			DirectX::XMMATRIX transform = DirectX::XMMatrixTranspose(
-				DirectX::XMLoadFloat4x4( reinterpret_cast<DirectX::XMFLOAT4X4*>( &m_matAbsTransform ) )
-			);
-
-			DirectX::XMVECTOR vscale, vrot, vpos;
-			DirectX::XMMatrixDecompose( &vscale, &vrot, &vpos, transform );
-
-			m_vecAbsPosition = vpos;
-			m_vecAbsRotation = Math::QuaternionToEulerDeg( vrot );
-			DirectX::XMStoreFloat( &m_flAbsScale, vscale );
+			m_matLocalToWorld = parent_transform.LocalToWorldMatrix() * local;
+			m_matLocalToWorld.DecomposeDeg( &m_vecPosition, &m_vecRotation, &m_flScale );
 		}
 	}
 
@@ -219,11 +286,8 @@ namespace Bat
 	void HierarchySystem::OnEvent( const SceneNodeAddedEvent& e )
 	{
 		Entity node = e.node->Get();
-		auto& t = node.Ensure<TransformComponent>();
-		if( node.Has<HierarchyComponent>() )
-		{
-			node.Remove<HierarchyComponent>();
-		}
-		node.Add<HierarchyComponent>( e.node );
+		auto& t = node.Ensure<TransformComponent>( nullptr );
+		t.m_pNode = e.node;
+		t.MarkSelfAndChildrenDirty( HierarchyCache::ALL );
 	}
 }

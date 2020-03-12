@@ -17,14 +17,14 @@ namespace Bat
 
 		void OnEvent( const ComponentAddedEvent<PhysicsComponent>& e )
 		{
-			auto& hier = e.entity.Get<HierarchyComponent>();
+			auto& t = e.entity.Get<TransformComponent>();
 			if( e.component.GetType() == PhysicsObjectType::STATIC )
 			{
-				e.component.m_pObject = std::unique_ptr<IPhysicsObject>( Physics::CreateStaticObject( hier.GetAbsPosition(), hier.GetAbsRotation(), (void*)e.entity.GetId().Raw() ) );
+				e.component.m_pObject = std::unique_ptr<IPhysicsObject>( Physics::CreateStaticObject( t.GetPosition(), t.GetRotation(), (void*)e.entity.GetId().Raw() ) );
 			}
 			else if( e.component.GetType() == PhysicsObjectType::DYNAMIC )
 			{
-				e.component.m_pObject = std::unique_ptr<IPhysicsObject>( Physics::CreateDynamicObject( hier.GetAbsPosition(), hier.GetAbsRotation(), (void*)e.entity.GetId().Raw() ) );
+				e.component.m_pObject = std::unique_ptr<IPhysicsObject>( Physics::CreateDynamicObject( t.GetPosition(), t.GetRotation(), (void*)e.entity.GetId().Raw() ) );
 			}
 		}
 
@@ -35,7 +35,7 @@ namespace Bat
 				if( ent.Has<PhysicsComponent>() )
 				{
 					auto& phys = ent.Get<PhysicsComponent>();
-					auto& hier = ent.Get<HierarchyComponent>();
+					auto& t = ent.Get<TransformComponent>();
 
 					IPhysicsObject* obj = phys.m_pObject.get();
 
@@ -49,7 +49,7 @@ namespace Bat
 								obj->AddMeshShape(
 									mesh->GetVertexData(), mesh->GetVertexCount(),
 									mesh->GetIndexData(), mesh->GetIndexCount(),
-									hier.GetAbsScale(),
+									t.GetScale(),
 									phys.m_Material );
 							}
 						}
@@ -61,7 +61,7 @@ namespace Bat
 								obj->AddMeshTrigger(
 									mesh->GetVertexData(), mesh->GetVertexCount(),
 									mesh->GetIndexData(), mesh->GetIndexCount(),
-									hier.GetAbsScale() );
+									t.GetScale() );
 							}
 						}
 						phys.m_AddMeshShape = PhysicsComponent::AddMeshType::NONE;
@@ -72,12 +72,12 @@ namespace Bat
 					{
 						if( phys.IsKinematic() )
 						{
-							static_cast<IDynamicObject*>( obj )->MoveTo( hier.GetAbsPosition(), hier.GetAbsRotation() );
+							static_cast<IDynamicObject*>( obj )->MoveTo( t.GetPosition(), t.GetRotation() );
 						}
 						else
 						{
-							hier.SetAbsPosition( obj->GetPosition() );
-							hier.SetAbsRotation( obj->GetRotation() );
+							t.SetPosition( obj->GetPosition() );
+							t.SetRotation( obj->GetRotation() );
 						}
 ;					}
 				}
