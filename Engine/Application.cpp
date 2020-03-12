@@ -114,7 +114,7 @@ namespace Bat
 				on_ground = false;
 			}
 
-			if( ( flags & CONTROLLER_COLLISION_UP ) != CONTROLLER_COLLISION_NONE )
+			if( ( flags & CONTROLLER_COLLISION_UP ) != CONTROLLER_COLLISION_NONE && velocity.y > 0.0f )
 			{
 				velocity.y = 0.0f;
 			}
