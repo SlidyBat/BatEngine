@@ -39,71 +39,24 @@ namespace Bat
 	class Character
 	{
 	public:
-		Character()
-		{
-		}
-
-		void Initialize( SceneNode& scene )
+		void Initialize( SceneNode& scene, const Vec3& pos )
 		{
 			character = world.CreateEntity();
 			scene.AddChild( character );
 
 			CharacterControllerBoxDesc box;
 			character.Get<TransformComponent>()
-				.SetPosition( { 0.0f, 1.0f, 0.0f } );
+				.SetPosition( pos );
 			character.Add<CharacterControllerComponent>( box );
 		}
 
-		void Update( const Input& input, float dt )
+		void Update( float dt )
 		{
-			auto& t = character.Get<TransformComponent>();
 			auto& controller = character.Get<CharacterControllerComponent>();
-
-			Vec3 rotation = t.GetRotation();
-
-			Vec3 disp = { 0.0f, 0.0f, 0.0f };
-
-			Vec3 forward, right;
-			Math::AngleVectors( rotation, &forward, &right, nullptr );
-
-			if( input.IsKeyDown( 'A' ) )
-			{
-				disp += -right;
-			}
-			if( input.IsKeyDown( 'D' ) )
-			{
-				disp += right;
-			}
-			if( input.IsKeyDown( 'W' ) )
-			{
-				disp += forward;
-			}
-			if( input.IsKeyDown( 'S' ) )
-			{
-				disp += -forward;
-			}
-			if( disp.LengthSq() > 0.01f )
-			{
-				disp = disp.Normalized() * speed;
-			}
-
-			if( input.IsKeyDown( VK_SPACE ) )
-			{
-				Jump();
-			}
-
-			if( input.IsMouseButtonDown( Input::MouseButton::Left ) )
-			{
-				const Vei2& delta = input.GetMouseDelta();
-				const float deltayaw = (float)delta.x;
-				const float deltapitch = (float)delta.y;
-
-				RotateBy( Vec3{ deltapitch, deltayaw, 0.0f } * 0.5f );
-			}
 
 			velocity += Vec3{ 0.0f, -9.8f, 0.0f } * dt;
 
-			PhysicsControllerCollisionFlags flags = controller.Move( (velocity + disp) * dt, dt );
+			PhysicsControllerCollisionFlags flags = controller.Move( velocity * dt + disp, dt );
 			if( ( flags & CONTROLLER_COLLISION_DOWN ) != CONTROLLER_COLLISION_NONE )
 			{
 				on_ground = true;
@@ -123,10 +76,12 @@ namespace Bat
 				velocity.x = 0.0f;
 				velocity.z = 0.0f;
 			}
+
+			disp = { 0.0f, 0.0f, 0.0f };
 		}
-		void MoveBy( const Vec3& dvel )
+		void MoveBy( const Vec3& dpos )
 		{
-			velocity += dvel;
+			disp += dpos;
 		}
 		void RotateBy( const Vec3& drot )
 		{
@@ -153,11 +108,124 @@ namespace Bat
 		}
 	private:
 		Entity character;
+		Vec3 disp = { 0.0f, 0.0f, 0.0f };
 		Vec3 velocity = { 0.0f, 0.0f, 0.0f };
-		float speed = 5.0f;
 		bool on_ground = true;
 	};
-	static Character player;
+	class MoveableCharacter
+	{
+	public:
+		void Initialize( SceneNode& scene, const Vec3& pos )
+		{
+			character.Initialize( scene, pos );
+		}
+		void Update( const Input& input, float dt )
+		{
+			Vec3 rotation = character.GetRotation();
+
+			Vec3 forward, right;
+			Math::AngleVectors( rotation, &forward, &right, nullptr );
+
+			Vec3 disp = { 0.0f, 0.0f, 0.0f };
+			if( input.IsKeyDown( 'A' ) )
+			{
+				disp += -right;
+			}
+			if( input.IsKeyDown( 'D' ) )
+			{
+				disp += right;
+			}
+			if( input.IsKeyDown( 'W' ) )
+			{
+				disp += forward;
+			}
+			if( input.IsKeyDown( 'S' ) )
+			{
+				disp += -forward;
+			}
+			if( disp.LengthSq() > 0.01f )
+			{
+				disp = disp.Normalized() * speed;
+			}
+			character.MoveBy( disp * dt );
+
+			if( input.IsKeyDown( VK_SPACE ) )
+			{
+				character.Jump();
+			}
+
+			if( input.IsMouseButtonDown( Input::MouseButton::Left ) )
+			{
+				const Vei2& delta = input.GetMouseDelta();
+				const float deltayaw = (float)delta.x;
+				const float deltapitch = (float)delta.y;
+
+				character.RotateBy( Vec3{ deltapitch, deltayaw, 0.0f } *0.5f );
+			}
+
+			character.Update( dt );
+		}
+		Vec3 GetPosition() { return character.GetPosition(); }
+		Vec3 GetRotation() { return character.GetRotation(); }
+	private:
+		float speed = 5.0f;
+		Character character;
+	};
+	class AiCharacter
+	{
+	public:
+		void Initialize( SceneNode& scene, const Vec3& pos )
+		{
+			character.Initialize( scene, pos );
+		}
+		void GoTo( const Vec3& target )
+		{
+			target_pos = target;
+			going = true;
+		}
+		void Update( const NavMeshSystem& navmesh, float dt )
+		{
+			if( going )
+			{
+				Vec3 pos = character.GetPosition();
+
+				if( ( target_pos - pos ).LengthSq() < 1.0f )
+				{
+					going = false;
+				}
+				else
+				{
+					Vec3 floor_pos = { pos.x, pos.y - 0.35f, pos.z };
+					std::vector<Vec3> path = navmesh.GetPath( 0, floor_pos, target_pos );
+					Vec3 delta = path[1] - path[0];
+					float len = delta.Length();
+
+					delta /= len;
+
+					DebugDraw::Line( pos, pos + delta, Colours::Green );
+					for( size_t i = 0; i < path.size() - 1; i++ )
+					{
+						DebugDraw::Line( path[i], path[i + 1], Colours::White );
+					}
+
+					float dist = std::min( len, speed * dt );
+					character.MoveBy( delta * dist );
+				}
+			}
+
+			character.Update( dt );
+		}
+		Vec3 GetPosition() { return character.GetPosition(); }
+		Vec3 GetRotation() { return character.GetRotation(); }
+	private:
+		float speed = 5.0f;
+		Character character;
+		Vec3 target_pos;
+		bool going = false;
+	};
+
+	static MoveableCharacter player;
+	static AiCharacter ai;
 
 	Application::Application( Graphics& gfx, Window& wnd )
 		:
@@ -183,7 +251,10 @@ namespace Bat
 		floor.Add<PhysicsComponent>( PhysicsObjectType::STATIC )
 			.AddPlaneShape();
 
-		player.Initialize( scene );
+		navmesh_system.Bake();
+
+		player.Initialize( scene, { 0.0f, 1.0f, 0.0f } );
+		ai.Initialize( scene, { 1.0f, 1.0f, 0.0f } );
 
 		// Fire
 		if( false )
@@ -306,6 +377,8 @@ namespace Bat
 		}
 
 		player.Update( wnd.input, deltatime );
+		ai.GoTo( player.GetPosition() );
+		ai.Update( navmesh_system, deltatime );
 		camera.SetPosition( player.GetPosition() );
 		camera.SetRotation( player.GetRotation() );
 
@@ -323,8 +396,6 @@ namespace Bat
 		{
 			Physics::Simulate( deltatime );
 		}
-
-		navmesh_system.Update( deltatime );
 	}
 
 	static void AddNodeTree( SceneNode* parent_node, SceneNode& node )
@@ -613,10 +684,12 @@ namespace Bat
 			}
 		}
 
-		if( agent != Entity::INVALID )
+		Vec3 ai_pos = ai.GetPosition();
+		DebugDraw::Box( ai_pos - Vec3{ 1.0f, 1.0f, 1.0f } * 0.1f, ai_pos + Vec3{ 1.0f, 1.0f, 1.0f } * 0.1f, Colours::Red );
+
+		if( draw_navmesh )
 		{
-			Vec3 agent_pos = agent.Get<TransformComponent>().GetPosition();
-			DebugDraw::Box( agent_pos - Vec3{ 1.0f, 1.0f, 1.0f } * 0.1f, agent_pos + Vec3{ 1.0f, 1.0f, 1.0f } * 0.1f, Colours::Red );
+			navmesh_system.Draw( 0 );
 		}
 	}
 
@@ -691,28 +764,7 @@ namespace Bat
 		}
 		else if( e.key == 'R' )
 		{
-			auto result = EntityTrace::RayCast( camera.GetPosition() + camera.GetLookAtVector() * 0.5f, camera.GetLookAtVector(), 500.0f, HIT_STATICS );
-			if( result.hit )
-			{
-				if( agent == Entity::INVALID )
-				{
-					navmesh_system.Bake();
-
-					agent = world.CreateEntity();
-					scene.AddChild( agent );
-					agent.Get<TransformComponent>()
-						.SetPosition( result.position );
-					agent.Add<NavMeshAgent>();
-				}
-				else
-				{
-					auto& navmesh_agent = agent.Get<NavMeshAgent>();
-					navmesh_agent.target = result.position;
-					navmesh_agent.go_to_target = true;
-					navmesh_agent.path.clear();
-					navmesh_agent.next_path_point = 0;
-				}
-			}
+			draw_navmesh = !draw_navmesh;
 		}
 		else if( e.key == 'X' )
 		{

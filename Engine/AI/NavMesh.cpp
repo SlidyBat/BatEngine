@@ -20,7 +20,7 @@ namespace Bat
 		type##Auto( type* p ) : std::unique_ptr<type, decltype(&free_func)>( p, free_func ) {} \
 	}; \
 	type##Auto type##Make() { return type##Auto( alloc_func() ); }
-	
+
 	MAKE_AUTO_TYPE( rcHeightfield, rcAllocHeightfield, rcFreeHeightField );
 	MAKE_AUTO_TYPE( rcCompactHeightfield, rcAllocCompactHeightfield, rcFreeCompactHeightfield );
 	MAKE_AUTO_TYPE( rcContourSet, rcAllocContourSet, rcFreeContourSet );
@@ -58,7 +58,7 @@ namespace Bat
 			std::vector<Mat3x4> transforms;
 			for( Entity e : world )
 			{
-				if( e.Has<ModelComponent>() )
+				if( e.Has<ModelComponent>() && e.Has<TransformComponent>() )
 				{
 					auto model = e.Get<ModelComponent>();
 					auto t = e.Get<TransformComponent>();
@@ -255,7 +255,7 @@ namespace Bat
 			m_Query->init( m_NavMesh.get(), 4096 );
 		}
 
-		std::vector<Vec3> GetPath( const Vec3& start, const Vec3& end )
+		std::vector<Vec3> GetPath( const Vec3& start, const Vec3& end ) const
 		{
 			auto* s = reinterpret_cast<const float*>( &start );
 			auto* e = reinterpret_cast<const float*>( &end );
@@ -310,7 +310,7 @@ namespace Bat
 			return { result[0], result[1], result[2] };
 		}
 
-		void Draw()
+		void Draw() const
 		{
 			rcPolyMesh& mesh = *m_PolyMesh;
 
@@ -384,58 +384,12 @@ namespace Bat
 		return handle;
 	}
 
-	void NavMeshSystem::Update( float dt )
+	std::vector<Vec3> NavMeshSystem::GetPath( NavMeshHandle_t navmesh, const Vec3& start, const Vec3& end ) const
 	{
-		for( Entity e : world )
-		{
-			if( e.Has<NavMeshAgent>() )
-			{
-				auto& agent = e.Get<NavMeshAgent>();
-				auto& t = e.Get<TransformComponent>();
-
-				NavMesh& navmesh = m_NavMeshes[agent.navmesh];
-
-				if( agent.go_to_target )
-				{
-					if( agent.path.empty() )
-					{
-						agent.path = navmesh.GetPath( t.GetPosition(), agent.target );
-					}
-
-					if( agent.path.empty() )
-					{
-						continue;
-					}
-
-					Vec3 start = t.GetPosition();
-					Vec3 end = agent.path[agent.next_path_point];
-					Vec3 delta = end - start;
-					float len = delta.Length();
-
-					if( len <= 0.01f )
-					{
-						agent.next_path_point++;
-						if( agent.next_path_point == agent.path.size() )
-						{
-							agent.go_to_target = false;
-							agent.path.clear();
-						}
-					}
-					else
-					{
-						delta /= len;
-					}
-
-					Vec3 result = navmesh.MoveAlongSurface( start, start + delta * std::min( len, 0.05f ) );
-					t.SetPosition( result );
-				}
-			}
-		}
-
-		if( !m_NavMeshes.empty() )
-		{
-			NavMesh& navmesh = m_NavMeshes.back();
-			//navmesh.Draw();
-		}
+		return m_NavMeshes[navmesh].GetPath( start, end );
+	}
+	void NavMeshSystem::Draw( NavMeshHandle_t navmesh ) const
+	{
+		m_NavMeshes[navmesh].Draw();
 	}
 }

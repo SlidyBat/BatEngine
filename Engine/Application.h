@@ -58,6 +58,7 @@ namespace Bat
 		Entity sun;
 
 		bool physics_simulate = false;
+		bool draw_navmesh = false;
 
 		float timestamp = 0.0f;
 		float anim_timescale = 1.0f;
@@ -69,8 +70,6 @@ namespace Bat
 		ParticleSystem particle_system;
 		NavMeshSystem navmesh_system;
 		CharacterControllerSystem controller_system;
-
-		Entity agent = Entity::INVALID;
 
 		std::string skybox_tex = "Assets/Ignore/IBLTest.hdr";
 

@@ -8,15 +8,6 @@ namespace Bat
 
 	class NavMesh;
 
-	struct NavMeshAgent : public Component<NavMeshAgent>
-	{
-		Vec3 target = { 0.0f, 0.0f, 0.0f };
-		bool go_to_target = false;
-		std::vector<Vec3> path;
-		size_t next_path_point = 0;
-		NavMeshHandle_t navmesh;
-	};
-
 	class NavMeshSystem
 	{
 	public:
@@ -24,7 +15,8 @@ namespace Bat
 		~NavMeshSystem();
 		NavMeshHandle_t Bake();
 
-		void Update( float dt );
+		std::vector<Vec3> GetPath( NavMeshHandle_t navmesh, const Vec3& start, const Vec3& end ) const;
+		void Draw( NavMeshHandle_t navmesh ) const;
 	private:
 		std::vector<NavMesh> m_NavMeshes;
 	};
