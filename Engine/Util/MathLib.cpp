@@ -271,6 +271,525 @@ namespace Bat
 		}
 	}
 
+	Mat3x4::Mat3x4()
+	{
+		memset( m, 0, sizeof( m ) );
+	}
+	Mat3x4::Mat3x4( const float values[3 * 4] )
+	{
+		memcpy( m, values, sizeof( m ) );
+	}
+	Mat3x4::Mat3x4( float _00, float _01, float _02, float _03,
+		float _10, float _11, float _12, float _13,
+		float _20, float _21, float _22, float _23 )
+	{
+		m[0][0] = _00; m[0][1] = _01; m[0][2] = _02; m[0][3] = _03;
+		m[1][0] = _10; m[1][1] = _11; m[1][2] = _12; m[1][3] = _13;
+		m[2][0] = _20; m[2][1] = _21; m[2][2] = _22; m[2][3] = _23;
+	}
+	Mat3x4::Mat3x4( const Mat3x4& copy )
+	{
+		*this = copy;
+	}
+	Mat3x4& Mat3x4::operator=( const Mat3x4& rhs )
+	{
+		memcpy( m, rhs.m, sizeof( m ) );
+		return *this;
+	}
+	Vec3 Mat3x4::GetCol( size_t col ) const
+	{
+		ASSERT( col <= 3, "Invalid column index" );
+		return { m[0][col], m[1][col], m[2][col] };
+	}
+	void Mat3x4::SetCol( size_t col, const Vec3& val )
+	{
+		ASSERT( col <= 3, "Invalid column index" );
+		m[0][col] = val.x;
+		m[1][col] = val.y;
+		m[2][col] = val.z;
+	}
+	Vec4 Mat3x4::GetRow( size_t row ) const
+	{
+		ASSERT( row <= 3, "Invalid row index" );
+		return {
+			m[row][0],
+			m[row][1],
+			m[row][2],
+			m[row][3]
+		};
+	}
+	void Mat3x4::SetRow( size_t row, const Vec4& val )
+	{
+		ASSERT( row <= 3, "Invalid row index" );
+		m[row][0] = val.x;
+		m[row][1] = val.y;
+		m[row][2] = val.z;
+		m[row][3] = val.w;
+	}
+	Vec3 Mat3x4::GetForwardVector() const
+	{
+		return GetCol( 2 );
+	}
+	Vec3 Mat3x4::GetRightVector() const
+	{
+		return GetCol( 0 );
+	}
+	Vec3 Mat3x4::GetUpVector()
+	{
+		return GetCol( 1 );
+	}
+	Vec3 Mat3x4::GetTranslation() const
+	{
+		return GetCol( 3 );
+	}
+	void Mat3x4::SetTranslation( const Vec3& val )
+	{
+		SetCol( 3, val );
+	}
+	Vec3 Mat3x4::GetRotationRad() const
+	{
+		Vec3 euler;
+
+		const Vec3 forward = Vec3{ m[0][2], m[1][2], m[2][2] };
+		const Vec3 right = Vec3{ m[0][0], m[1][0], m[2][0] };
+		const float up_y = m[1][1];
+
+		float xz_dist = sqrtf( forward.x * forward.x + forward.z * forward.z );
+
+		if( xz_dist > 0.001f )
+		{
+			euler.x = atan2f( -forward.y, xz_dist );
+			euler.y = atan2f( forward.x, forward.z );
+			euler.z = atan2f( right.y, up_y );
+		}
+		else
+		{
+			euler.x = atan2f( -forward.y, xz_dist );
+			euler.y = atan2f( right.x, right.z );
+			euler.z = 0.0f;
+		}
+
+		return euler;
+	}
+	Vec3 Mat3x4::GetRotationDeg() const
+	{
+		Vec3 euler_rad = GetRotationRad();
+		return Math::RadToDeg( euler_rad );
+	}
+	Vec4 Mat3x4::GetRotationQuat() const
+	{
+		return Math::EulerToQuaternionRad( GetRotationRad() );
+	}
+	Vec3 Mat3x4::GetScale() const
+	{
+		const Vec3 c0 = GetCol( 0 );
+		const Vec3 c1 = GetCol( 1 );
+		const Vec3 c2 = GetCol( 2 );
+
+		return { c0.Length(), c1.Length(), c2.Length() };
+	}
+	void Mat3x4::DecomposeDeg( Vec3* out_pos, Vec3* out_rot, float* out_uniform_scale ) const
+	{
+		if( out_pos )
+		{
+			*out_pos = GetTranslation();
+		}
+
+		const float uniform_scale = GetCol( 0 ).Length();
+		if( out_uniform_scale )
+		{
+			*out_uniform_scale = uniform_scale;
+		}
+
+		if( out_rot )
+		{
+			Vec3 euler;
+
+			const Vec3 forward = Vec3{ m[0][2] / uniform_scale, m[1][2] / uniform_scale, m[2][2] / uniform_scale };
+			const Vec3 right = Vec3{ m[0][0] / uniform_scale, m[1][0] / uniform_scale, m[2][0] / uniform_scale };
+			const float up_y = m[1][1] / uniform_scale;
+
+			float xz_dist = sqrtf( forward.x * forward.x + forward.z * forward.z );
+
+			if( xz_dist > 0.001f )
+			{
+				euler.x = atan2f( -forward.y, xz_dist );
+				euler.y = atan2f( forward.x, forward.z );
+				euler.z = atan2f( right.y, up_y );
+			}
+			else
+			{
+				euler.x = atan2f( -forward.y, xz_dist );
+				euler.y = atan2f( right.x, right.z );
+				euler.z = 0.0f;
+			}
+
+			*out_rot = Math::RadToDeg( euler );
+		}
+	}
+	void Mat3x4::DecomposeNonUniformScaleDeg( Vec3* out_pos, Vec3* out_rot, Vec3* out_scale ) const
+	{
+		if( out_pos )
+		{
+			*out_pos = GetTranslation();
+		}
+
+		const Vec3 scale = GetScale();
+		if( out_scale )
+		{
+			*out_scale = scale;
+		}
+
+		if( out_rot )
+		{
+			const Vec3 inv_scale = Vec3::Reciprocal( scale );
+			Vec3 euler;
+
+			const Vec3 forward = Vec3{ m[0][2], m[1][2], m[2][2] } *inv_scale;
+			const Vec3 right = Vec3{ m[0][0], m[1][0], m[2][0] } *inv_scale;
+			const float up_y = m[1][1] * inv_scale.y;
+
+			float xz_dist = sqrtf( forward.x * forward.x + forward.z * forward.z );
+
+			if( xz_dist > 0.001f )
+			{
+				euler.x = atan2f( -forward.y, xz_dist );
+				euler.y = atan2f( forward.x, forward.z );
+				euler.z = atan2f( right.y, up_y );
+			}
+			else
+			{
+				euler.x = atan2f( -forward.y, xz_dist );
+				euler.y = atan2f( right.x, right.z );
+				euler.z = 0.0f;
+			}
+
+			*out_rot = Math::RadToDeg( euler );
+		}
+	}
+	Mat3x4 Mat3x4::Identity()
+	{
+		Mat3x4 mat;
+		for( int i = 0; i < 3; i++ )
+		{
+			mat.m[i][i] = 1.0f;
+		}
+		return mat;
+	}
+	Mat3x4 Mat3x4::Transpose( const Mat3x4& mat )
+	{
+		Mat3x4 transposed;
+		for( int i = 0; i < 3; i++ )
+		{
+			for( int j = 0; j < 3; j++ )
+			{
+				transposed.m[i][j] = mat.m[j][i];
+			}
+		}
+		transposed.m[0][3] = 0.0f;
+		transposed.m[1][3] = 0.0f;
+		transposed.m[2][3] = 0.0f;
+		return transposed;
+	}
+	Mat3x4 Mat3x4::InverseTransRot( const Mat3x4& mat )
+	{
+		Mat3x4 inverse;
+
+		// Transpose upper 3x3 (inverse rotation)
+		for( int i = 0; i < 3; i++ )
+		{
+			for( int j = 0; j < 3; j++ )
+			{
+				inverse.m[i][j] = mat.m[j][i];
+			}
+		}
+
+		Vec3 invtransform = { -mat.m[0][3], -mat.m[1][3], -mat.m[2][3] };
+
+		return inverse;
+	}
+	Mat3x4 Mat3x4::Inverse( const Mat3x4& mat )
+	{
+		Mat3x4 inv;
+		float wtmp[4][8];
+		float m0, m1, m2, m3, s;
+		float* r0;
+		float* r1;
+		float* r2;
+		float* r3;
+
+		r0 = wtmp[0]; r1 = wtmp[1]; r2 = wtmp[2]; r3 = wtmp[3];
+
+		r0[0] = mat.m[0][0]; r0[1] = mat.m[0][1];
+		r0[2] = mat.m[0][2]; r0[3] = mat.m[0][3];
+		r0[4] = 1.0f; r0[5] = r0[6] = r0[7] = 0.0f;
+
+		r1[0] = mat.m[1][0]; r1[1] = mat.m[1][1];
+		r1[2] = mat.m[1][2]; r1[3] = mat.m[1][3];
+		r1[5] = 1.0f; r1[4] = r1[6] = r1[7] = 0.0f;
+
+		r2[0] = mat.m[2][0]; r2[1] = mat.m[2][1];
+		r2[2] = mat.m[2][2]; r2[3] = mat.m[2][3];
+		r2[6] = 1.0; r2[4] = r2[5] = r2[7] = 0.0f;
+
+		r3[3] = 1.0f; r3[0] = r3[1] = r3[2] = 0.0f;
+		r3[7] = 1.0f; r3[4] = r3[5] = r3[6] = 0.0f;
+
+		/* choose pivot - or die */
+		if( fabsf( r3[0] ) > fabsf( r2[0] ) ) std::swap( r3, r2 );
+		if( fabsf( r2[0] ) > fabsf( r1[0] ) ) std::swap( r2, r1 );
+		if( fabsf( r1[0] ) > fabsf( r0[0] ) ) std::swap( r1, r0 );
+		if( 0.0F == r0[0] )  return {};
+
+		/* eliminate first variable     */
+		m1 = r1[0] / r0[0]; m2 = r2[0] / r0[0]; m3 = r3[0] / r0[0];
+		s = r0[1]; r1[1] -= m1 * s; r2[1] -= m2 * s; r3[1] -= m3 * s;
+		s = r0[2]; r1[2] -= m1 * s; r2[2] -= m2 * s; r3[2] -= m3 * s;
+		s = r0[3]; r1[3] -= m1 * s; r2[3] -= m2 * s; r3[3] -= m3 * s;
+		s = r0[4];
+		if( s != 0.0f ) { r1[4] -= m1 * s; r2[4] -= m2 * s; r3[4] -= m3 * s; }
+		s = r0[5];
+		if( s != 0.0f ) { r1[5] -= m1 * s; r2[5] -= m2 * s; r3[5] -= m3 * s; }
+		s = r0[6];
+		if( s != 0.0f ) { r1[6] -= m1 * s; r2[6] -= m2 * s; r3[6] -= m3 * s; }
+		s = r0[7];
+		if( s != 0.0f ) { r1[7] -= m1 * s; r2[7] -= m2 * s; r3[7] -= m3 * s; }
+
+		/* choose pivot - or die */
+		if( fabsf( r3[1] ) > fabsf( r2[1] ) ) std::swap( r3, r2 );
+		if( fabsf( r2[1] ) > fabsf( r1[1] ) ) std::swap( r2, r1 );
+		if( 0.0F == r1[1] )  return {};
+
+		/* eliminate second variable */
+		m2 = r2[1] / r1[1]; m3 = r3[1] / r1[1];
+		r2[2] -= m2 * r1[2]; r3[2] -= m3 * r1[2];
+		r2[3] -= m2 * r1[3]; r3[3] -= m3 * r1[3];
+		s = r1[4]; if( 0.0f != s ) { r2[4] -= m2 * s; r3[4] -= m3 * s; }
+		s = r1[5]; if( 0.0f != s ) { r2[5] -= m2 * s; r3[5] -= m3 * s; }
+		s = r1[6]; if( 0.0f != s ) { r2[6] -= m2 * s; r3[6] -= m3 * s; }
+		s = r1[7]; if( 0.0f != s ) { r2[7] -= m2 * s; r3[7] -= m3 * s; }
+
+		/* choose pivot - or die */
+		if( fabsf( r3[2] ) > fabsf( r2[2] ) ) std::swap( r3, r2 );
+		if( 0.0f == r2[2] )  return {};
+
+		/* eliminate third variable */
+		m3 = r3[2] / r2[2];
+		r3[3] -= m3 * r2[3]; r3[4] -= m3 * r2[4];
+		r3[5] -= m3 * r2[5]; r3[6] -= m3 * r2[6];
+		r3[7] -= m3 * r2[7];
+
+		/* last check */
+		if( 0.0f == r3[3] ) return {};
+
+		s = 1.0f / r3[3];             /* now back substitute row 3 */
+		r3[4] *= s; r3[5] *= s; r3[6] *= s; r3[7] *= s;
+
+		m2 = r2[3];                 /* now back substitute row 2 */
+		s = 1.0f / r2[2];
+		r2[4] = s * ( r2[4] - r3[4] * m2 ); r2[5] = s * ( r2[5] - r3[5] * m2 );
+		r2[6] = s * ( r2[6] - r3[6] * m2 ); r2[7] = s * ( r2[7] - r3[7] * m2 );
+		m1 = r1[3];
+		r1[4] -= r3[4] * m1; r1[5] -= r3[5] * m1;
+		r1[6] -= r3[6] * m1; r1[7] -= r3[7] * m1;
+		m0 = r0[3];
+		r0[4] -= r3[4] * m0; r0[5] -= r3[5] * m0;
+		r0[6] -= r3[6] * m0; r0[7] -= r3[7] * m0;
+
+		m1 = r1[2];                 /* now back substitute row 1 */
+		s = 1.0f / r1[1];
+		r1[4] = s * ( r1[4] - r2[4] * m1 ); r1[5] = s * ( r1[5] - r2[5] * m1 );
+		r1[6] = s * ( r1[6] - r2[6] * m1 ); r1[7] = s * ( r1[7] - r2[7] * m1 );
+		m0 = r0[2];
+		r0[4] -= r2[4] * m0; r0[5] -= r2[5] * m0;
+		r0[6] -= r2[6] * m0; r0[7] -= r2[7] * m0;
+
+		m0 = r0[1];                 /* now back substitute row 0 */
+		s = 1.0f / r0[0];
+		r0[4] = s * ( r0[4] - r1[4] * m0 ); r0[5] = s * ( r0[5] - r1[5] * m0 );
+		r0[6] = s * ( r0[6] - r1[6] * m0 ); r0[7] = s * ( r0[7] - r1[7] * m0 );
+
+		inv.m[0][0] = r0[4]; inv.m[0][1] = r0[5];
+		inv.m[0][2] = r0[6]; inv.m[0][3] = r0[7];
+		inv.m[1][0] = r1[4]; inv.m[1][1] = r1[5];
+		inv.m[1][2] = r1[6]; inv.m[1][3] = r1[7];
+		inv.m[2][0] = r2[4]; inv.m[2][1] = r2[5];
+		inv.m[2][2] = r2[6]; inv.m[2][3] = r2[7];
+
+		return inv;
+	}
+	Mat3x4 Mat3x4::RotateDeg( const Vec3& euler_deg )
+	{
+		return RotateDeg( euler_deg.x, euler_deg.y, euler_deg.z );
+	}
+	Mat3x4 Mat3x4::RotateDeg( float pitch, float yaw, float roll )
+	{
+		return RotateRad( Math::DegToRad( pitch ), Math::DegToRad( yaw ), Math::DegToRad( roll ) );
+	}
+	Mat3x4 Mat3x4::RotateRad( const Vec3& euler_rad )
+	{
+		return RotateRad( euler_rad.x, euler_rad.y, euler_rad.z );
+	}
+	Mat3x4 Mat3x4::RotateRad( float pitch, float yaw, float roll )
+	{
+		float sp, cp, sy, cy, sr, cr;
+		Math::SinCos( pitch, &sp, &cp );
+		Math::SinCos( yaw, &sy, &cy );
+		Math::SinCos( roll, &sr, &cr );
+
+		float crcy = cr * cy;
+		float crsy = cr * sy;
+		float srcy = sr * cy;
+		float srsy = sr * sy;
+
+		Mat3x4 rotate;
+		rotate.m[0][0] = srsy * sp + crcy;
+		rotate.m[1][0] = cp * sr;
+		rotate.m[2][0] = srcy * sp - crsy;
+
+		rotate.m[0][1] = crsy * sp - srcy;
+		rotate.m[1][1] = cr * cp;
+		rotate.m[2][1] = crcy * sp + srsy;
+
+		rotate.m[0][2] = sy * cp;
+		rotate.m[1][2] = -sp;
+		rotate.m[2][2] = cy * cp;
+
+		return rotate;
+	}
+	Mat3x4 Mat3x4::RotateQuat( const Vec4& q )
+	{
+		Mat3x4 rotate;
+
+		rotate.m[0][0] = 1.0f - 2.0f * q.y * q.y - 2.0f * q.z * q.z;
+		rotate.m[1][0] = 2.0f * q.x * q.y + 2.0f * q.w * q.z;
+		rotate.m[2][0] = 2.0f * q.x * q.z - 2.0f * q.w * q.y;
+
+		rotate.m[0][1] = 2.0f * q.x * q.y - 2.0f * q.w * q.z;
+		rotate.m[1][1] = 1.0f - 2.0f * q.x * q.x - 2.0f * q.z * q.z;
+		rotate.m[2][1] = 2.0f * q.y * q.z + 2.0f * q.w * q.x;
+
+		rotate.m[0][2] = 2.0f * q.x * q.z + 2.0f * q.w * q.y;
+		rotate.m[1][2] = 2.0f * q.y * q.z - 2.0f * q.w * q.x;
+		rotate.m[2][2] = 1.0f - 2.0f * q.x * q.x - 2.0f * q.y * q.y;
+
+		return rotate;
+	}
+	Mat3x4 Mat3x4::Translate( float x, float y, float z )
+	{
+		Mat3x4 translate;
+		translate.m[0][3] = x;
+		translate.m[1][3] = y;
+		translate.m[2][3] = z;
+
+		translate.m[0][0] = 1.0f;
+		translate.m[1][1] = 1.0f;
+		translate.m[2][2] = 1.0f;
+
+		return translate;
+	}
+	Mat3x4 Mat3x4::Scale( float uniform_scale )
+	{
+		return Scale( uniform_scale, uniform_scale, uniform_scale );
+	}
+	Mat3x4 Mat3x4::Scale( const Vec3& scale )
+	{
+		return Scale( scale.x, scale.y, scale.z );
+	}
+	Mat3x4 Mat3x4::Scale( float x, float y, float z )
+	{
+		Mat3x4 scale;
+		scale.m[0][0] = x;
+		scale.m[1][1] = y;
+		scale.m[2][2] = z;
+
+		return scale;
+	}
+	Mat3x4 Mat3x4::LookTo( const Vec3& eye_pos, const Vec3& eye_dir, const Vec3& up )
+	{
+		Vec3 r2 = XMVector3Normalize( eye_dir );
+
+		Vec3 r0 = Vec3::Cross( up, r2 );
+		r0.Normalize();
+
+		Vec3 r1 = Vec3::Cross( r2, r0 );
+
+		const Vec3 neg_eye_pos = -eye_pos;
+
+		float d0 = Vec3::Dot( r0, neg_eye_pos );
+		float d1 = Vec3::Dot( r1, neg_eye_pos );
+		float d2 = Vec3::Dot( r2, neg_eye_pos );
+
+		Mat3x4 look;
+
+		look.m[0][0] = r0.x;
+		look.m[0][1] = r0.y;
+		look.m[0][2] = r0.z;
+		look.m[0][3] = d0;
+
+		look.m[1][0] = r1.x;
+		look.m[1][1] = r1.y;
+		look.m[1][2] = r1.z;
+		look.m[1][3] = d1;
+
+		look.m[2][0] = r2.x;
+		look.m[2][1] = r2.y;
+		look.m[2][2] = r2.z;
+		look.m[2][3] = d2;
+
+		return look;
+	}
+	Mat3x4 Mat3x4::LookAt( const Vec3& eye_pos, const Vec3& target, const Vec3& up )
+	{
+		Vec3 eye_dir = target - eye_pos;
+		return LookTo( eye_pos, eye_dir, up );
+	}
+	Vec3 Mat3x4::Transform( const Mat3x4& mat, const Vec3& vec )
+	{
+		return {
+			mat.m[0][0] * vec.x + mat.m[0][1] * vec.y + mat.m[0][2] * vec.z + mat.m[0][3],
+			mat.m[1][0] * vec.x + mat.m[1][1] * vec.y + mat.m[1][2] * vec.z + mat.m[1][3],
+			mat.m[2][0] * vec.x + mat.m[2][1] * vec.y + mat.m[2][2] * vec.z + mat.m[2][3]
+		};
+	}
+	Vec3 Mat3x4::TransformNormal( const Mat3x4& mat, const Vec3& vec )
+	{
+		return {
+			mat.m[0][0] * vec.x + mat.m[0][1] * vec.y + mat.m[0][2] * vec.z,
+			mat.m[1][0] * vec.x + mat.m[1][1] * vec.y + mat.m[1][2] * vec.z,
+			mat.m[2][0] * vec.x + mat.m[2][1] * vec.y + mat.m[2][2] * vec.z
+		};
+	}
+	Mat3x4 Mat3x4::operator*( const Mat3x4& r ) const
+	{
+		return {
+			r.m[0][0] * m[0][0] + r.m[0][1] * m[1][0] + r.m[0][2] * m[2][0],
+			r.m[0][0] * m[0][1] + r.m[0][1] * m[1][1] + r.m[0][2] * m[2][1],
+			r.m[0][0] * m[0][2] + r.m[0][1] * m[1][2] + r.m[0][2] * m[2][2],
+			r.m[0][3] + m[0][3],
+			r.m[1][0] * m[0][0] + r.m[1][1] * m[1][0] + r.m[1][2] * m[2][0],
+			r.m[1][0] * m[0][1] + r.m[1][1] * m[1][1] + r.m[1][2] * m[2][1],
+			r.m[1][0] * m[0][2] + r.m[1][1] * m[1][2] + r.m[1][2] * m[2][2],
+			r.m[1][3] + m[1][3],
+			r.m[2][0] * m[0][0] + r.m[2][1] * m[1][0] + r.m[2][2] * m[2][0],
+			r.m[2][0] * m[0][1] + r.m[2][1] * m[1][1] + r.m[2][2] * m[2][1],
+			r.m[2][0] * m[0][2] + r.m[2][1] * m[1][2] + r.m[2][2] * m[2][2],
+			r.m[2][3] + m[2][3],
+		};
+	}
+	Vec3 Mat3x4::operator*( const Vec3& rhs ) const
+	{
+		return Transform( *this, rhs );
+	}
+	Plane Mat3x4::operator*( const Plane& rhs ) const
+	{
+		Plane res;
+		res.n = TransformNormal( *this, rhs.n );
+		res.d = rhs.d * rhs.n.LengthSq();
+		res.d += Vec3::Dot( res.n, GetTranslation() );
+
+		return res;
+	}
 	Mat4::Mat4()
 	{
 		memset( m, 0, sizeof( m ) );
@@ -288,6 +807,11 @@ namespace Bat
 		m[1][0] = _10; m[1][1] = _11; m[1][2] = _12; m[1][3] = _13;
 		m[2][0] = _20; m[2][1] = _21; m[2][2] = _22; m[2][3] = _23;
 		m[3][0] = _30; m[3][1] = _31; m[3][2] = _32; m[3][3] = _33;
+	}
+	Mat4::Mat4( const Mat3x4& mat )
+	{
+		memcpy( m, mat.m, sizeof( mat.m ) );
+		m[3][0] = 0.0f; m[3][1] = 0.0f; m[3][2] = 0.0f; m[3][3] = 1.0f;
 	}
 	Mat4::Mat4( const Mat4& copy )
 	{
@@ -535,25 +1059,25 @@ namespace Bat
 
 		r0[0] = mat.m[0][0]; r0[1] = mat.m[0][1];
 		r0[2] = mat.m[0][2]; r0[3] = mat.m[0][3];
-		r0[4] = 1.0; r0[5] = r0[6] = r0[7] = 0.0;
+		r0[4] = 1.0f; r0[5] = r0[6] = r0[7] = 0.0f;
 
 		r1[0] = mat.m[1][0]; r1[1] = mat.m[1][1];
 		r1[2] = mat.m[1][2]; r1[3] = mat.m[1][3];
-		r1[5] = 1.0; r1[4] = r1[6] = r1[7] = 0.0;
+		r1[5] = 1.0f; r1[4] = r1[6] = r1[7] = 0.0f;
 
 		r2[0] = mat.m[2][0]; r2[1] = mat.m[2][1];
 		r2[2] = mat.m[2][2]; r2[3] = mat.m[2][3];
-		r2[6] = 1.0; r2[4] = r2[5] = r2[7] = 0.0;
+		r2[6] = 1.0f; r2[4] = r2[5] = r2[7] = 0.0f;
 
 		r3[0] = mat.m[3][0]; r3[1] = mat.m[3][1];
 		r3[2] = mat.m[3][2]; r3[3] = mat.m[3][3];
-		r3[7] = 1.0; r3[4] = r3[5] = r3[6] = 0.0;
+		r3[7] = 1.0f; r3[4] = r3[5] = r3[6] = 0.0f;
 
 		/* choose pivot - or die */
 		if( fabsf( r3[0] ) > fabsf( r2[0] ) ) std::swap( r3, r2 );
 		if( fabsf( r2[0] ) > fabsf( r1[0] ) ) std::swap( r2, r1 );
 		if( fabsf( r1[0] ) > fabsf( r0[0] ) ) std::swap( r1, r0 );
-		if( 0.0F == r0[0] )  return {};
+		if( 0.0f == r0[0] )  return {};
 
 		/* eliminate first variable     */
 		m1 = r1[0] / r0[0]; m2 = r2[0] / r0[0]; m3 = r3[0] / r0[0];
@@ -561,31 +1085,31 @@ namespace Bat
 		s = r0[2]; r1[2] -= m1 * s; r2[2] -= m2 * s; r3[2] -= m3 * s;
 		s = r0[3]; r1[3] -= m1 * s; r2[3] -= m2 * s; r3[3] -= m3 * s;
 		s = r0[4];
-		if( s != 0.0F ) { r1[4] -= m1 * s; r2[4] -= m2 * s; r3[4] -= m3 * s; }
+		if( s != 0.0f ) { r1[4] -= m1 * s; r2[4] -= m2 * s; r3[4] -= m3 * s; }
 		s = r0[5];
-		if( s != 0.0F ) { r1[5] -= m1 * s; r2[5] -= m2 * s; r3[5] -= m3 * s; }
+		if( s != 0.0f ) { r1[5] -= m1 * s; r2[5] -= m2 * s; r3[5] -= m3 * s; }
 		s = r0[6];
-		if( s != 0.0F ) { r1[6] -= m1 * s; r2[6] -= m2 * s; r3[6] -= m3 * s; }
+		if( s != 0.0f ) { r1[6] -= m1 * s; r2[6] -= m2 * s; r3[6] -= m3 * s; }
 		s = r0[7];
-		if( s != 0.0F ) { r1[7] -= m1 * s; r2[7] -= m2 * s; r3[7] -= m3 * s; }
+		if( s != 0.0f ) { r1[7] -= m1 * s; r2[7] -= m2 * s; r3[7] -= m3 * s; }
 
 		/* choose pivot - or die */
 		if( fabsf( r3[1] ) > fabsf( r2[1] ) ) std::swap( r3, r2 );
 		if( fabsf( r2[1] ) > fabsf( r1[1] ) ) std::swap( r2, r1 );
-		if( 0.0F == r1[1] )  return {};
+		if( 0.0f == r1[1] )  return {};
 
 		/* eliminate second variable */
 		m2 = r2[1] / r1[1]; m3 = r3[1] / r1[1];
 		r2[2] -= m2 * r1[2]; r3[2] -= m3 * r1[2];
 		r2[3] -= m2 * r1[3]; r3[3] -= m3 * r1[3];
-		s = r1[4]; if( 0.0F != s ) { r2[4] -= m2 * s; r3[4] -= m3 * s; }
-		s = r1[5]; if( 0.0F != s ) { r2[5] -= m2 * s; r3[5] -= m3 * s; }
-		s = r1[6]; if( 0.0F != s ) { r2[6] -= m2 * s; r3[6] -= m3 * s; }
-		s = r1[7]; if( 0.0F != s ) { r2[7] -= m2 * s; r3[7] -= m3 * s; }
+		s = r1[4]; if( 0.0f != s ) { r2[4] -= m2 * s; r3[4] -= m3 * s; }
+		s = r1[5]; if( 0.0f != s ) { r2[5] -= m2 * s; r3[5] -= m3 * s; }
+		s = r1[6]; if( 0.0f != s ) { r2[6] -= m2 * s; r3[6] -= m3 * s; }
+		s = r1[7]; if( 0.0f != s ) { r2[7] -= m2 * s; r3[7] -= m3 * s; }
 
 		/* choose pivot - or die */
 		if( fabsf( r3[2] ) > fabsf( r2[2] ) ) std::swap( r3, r2 );
-		if( 0.0F == r2[2] )  return {};
+		if( 0.0f == r2[2] )  return {};
 
 		/* eliminate third variable */
 		m3 = r3[2] / r2[2];
@@ -594,13 +1118,13 @@ namespace Bat
 		r3[7] -= m3 * r2[7];
 
 		/* last check */
-		if( 0.0F == r3[3] ) return {};
+		if( 0.0f == r3[3] ) return {};
 
-		s = 1.0F / r3[3];             /* now back substitute row 3 */
+		s = 1.0f / r3[3];             /* now back substitute row 3 */
 		r3[4] *= s; r3[5] *= s; r3[6] *= s; r3[7] *= s;
 
 		m2 = r2[3];                 /* now back substitute row 2 */
-		s = 1.0F / r2[2];
+		s = 1.0f / r2[2];
 		r2[4] = s * ( r2[4] - r3[4] * m2 ); r2[5] = s * ( r2[5] - r3[5] * m2 );
 		r2[6] = s * ( r2[6] - r3[6] * m2 ); r2[7] = s * ( r2[7] - r3[7] * m2 );
 		m1 = r1[3];
@@ -611,7 +1135,7 @@ namespace Bat
 		r0[6] -= r3[6] * m0; r0[7] -= r3[7] * m0;
 
 		m1 = r1[2];                 /* now back substitute row 1 */
-		s = 1.0F / r1[1];
+		s = 1.0f / r1[1];
 		r1[4] = s * ( r1[4] - r2[4] * m1 ); r1[5] = s * ( r1[5] - r2[5] * m1 );
 		r1[6] = s * ( r1[6] - r2[6] * m1 ); r1[7] = s * ( r1[7] - r2[7] * m1 );
 		m0 = r0[2];
@@ -619,9 +1143,9 @@ namespace Bat
 		r0[6] -= r2[6] * m0; r0[7] -= r2[7] * m0;
 
 		m0 = r0[1];                 /* now back substitute row 0 */
-		s = 1.0F / r0[0];
-		r0[4] = s * ( r0[4] - r1[4] * m0 ), r0[5] = s * ( r0[5] - r1[5] * m0 ),
-		r0[6] = s * ( r0[6] - r1[6] * m0 ), r0[7] = s * ( r0[7] - r1[7] * m0 );
+		s = 1.0f / r0[0];
+		r0[4] = s * ( r0[4] - r1[4] * m0 ); r0[5] = s * ( r0[5] - r1[5] * m0 );
+		r0[6] = s * ( r0[6] - r1[6] * m0 ); r0[7] = s * ( r0[7] - r1[7] * m0 );
 
 		inv.m[0][0] = r0[4]; inv.m[0][1] = r0[5];
 		inv.m[0][2] = r0[6]; inv.m[0][3] = r0[7];

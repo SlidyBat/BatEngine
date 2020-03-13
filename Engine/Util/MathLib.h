@@ -586,6 +586,67 @@ namespace Bat
 		}
 	};
 
+	class Mat3x4
+	{
+	public:
+		Mat3x4();
+		Mat3x4( const float values[3 * 4] );
+		Mat3x4( float _00, float _01, float _02, float _03,
+			float _10, float _11, float _12, float _13,
+			float _20, float _21, float _22, float _23 );
+		Mat3x4( const Mat3x4& copy );
+		Mat3x4& operator=( const Mat3x4& rhs );
+
+		Vec3 GetCol( size_t col ) const;
+		void SetCol( size_t col, const Vec3& val );
+		Vec4 GetRow( size_t row ) const;
+		void SetRow( size_t row, const Vec4& val );
+
+		// Basis vectors
+		Vec3 GetForwardVector() const;
+		Vec3 GetRightVector() const;
+		Vec3 GetUpVector();
+
+		Vec3 GetTranslation() const;
+		void SetTranslation( const Vec3& val );
+		Vec3 GetRotationRad() const;
+		Vec3 GetRotationDeg() const;
+		Vec4 GetRotationQuat() const;
+		Vec3 GetScale() const;
+		void DecomposeDeg( Vec3* out_pos, Vec3* out_rot, float* out_uniform_scale ) const;
+		void DecomposeNonUniformScaleDeg( Vec3* out_pos, Vec3* out_rot, Vec3* out_scale ) const;
+
+		static Mat3x4 Identity();
+		static Mat3x4 Transpose( const Mat3x4& mat );
+
+		// Fast inverse for matrices with only translation/rotation
+		static Mat3x4 InverseTransRot( const Mat3x4& mat );
+		static Mat3x4 Inverse( const Mat3x4& mat );
+
+		static Mat3x4 RotateDeg( const Vec3& euler_deg );
+		static Mat3x4 RotateDeg( float pitch, float yaw, float roll );
+		static Mat3x4 RotateRad( const Vec3& euler_rad );
+		static Mat3x4 RotateRad( float pitch, float yaw, float roll );
+		static Mat3x4 RotateQuat( const Vec4& q );
+		static Mat3x4 Translate( const Vec3& translation ) { return Translate( translation.x, translation.y, translation.z ); }
+		static Mat3x4 Translate( float x, float y, float z );
+		static Mat3x4 Scale( float uniform_scale );
+		static Mat3x4 Scale( const Vec3& scale );
+		static Mat3x4 Scale( float x, float y, float z );
+
+		static Mat3x4 LookTo( const Vec3& eye_pos, const Vec3& eye_dir, const Vec3& up );
+		static Mat3x4 LookAt( const Vec3& eye_pos, const Vec3& target, const Vec3& up );
+
+		static Vec3 Transform( const Mat3x4& mat, const Vec3& vec );
+		static Vec3 TransformNormal( const Mat3x4& mat, const Vec3& vec );
+
+		Mat3x4 operator*( const Mat3x4& r ) const;
+		Vec3 operator*( const Vec3& rhs ) const;
+		Plane operator*( const Plane& rhs ) const;
+	public:
+		float m[3][4];
+	};
+
 	class Mat4
 	{
 	public:
@@ -595,6 +656,7 @@ namespace Bat
 			float _10, float _11, float _12, float _13,
 			float _20, float _21, float _22, float _23,
 			float _30, float _31, float _32, float _33 );
+		explicit Mat4( const Mat3x4& mat );
 		Mat4( const Mat4& copy );
 		Mat4& operator=( const Mat4& rhs );
 
@@ -650,7 +712,7 @@ namespace Bat
 		Vec4 operator*( const Vec4& rhs ) const;
 		Vec3 operator*( const Vec3& rhs ) const;
 		Plane operator*( const Plane& rhs ) const;
-	private:
+	public:
 		float m[4][4];
 	};
 
