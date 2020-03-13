@@ -46,7 +46,7 @@ namespace Bat
 			m_PbrMaps.brdf_integration_map = data.GetTexture( "brdf" );
 		}
 
-		virtual void Render( const Mat4& transform, Entity e ) override
+		virtual void Render( const Mat3x4& transform, Entity e ) override
 		{
 			if( e.Has<ModelComponent>() )
 			{
@@ -60,11 +60,11 @@ namespace Bat
 			}
 		}
 
-		void RenderModel( const ModelComponent& model, const Mat4& transform )
+		void RenderModel( const ModelComponent& model, const Mat3x4& transform )
 		{
 			Camera* pCamera = GetCamera();
 
-			const Mat4& w = transform;
+			const auto w = Mat4( transform );
 
 			auto& meshes = model.GetMeshes();
 			for( auto& pMesh : meshes )
@@ -86,7 +86,7 @@ namespace Bat
 			}
 		}
 
-		void RenderParticles( ParticleEmitterComponent& emitter, const Mat4& transform )
+		void RenderParticles( ParticleEmitterComponent& emitter, const Mat3x4& transform )
 		{
 			IGPUContext* pContext = GetContext();
 			Camera* pCamera = GetCamera();

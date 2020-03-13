@@ -17,9 +17,9 @@
 
 namespace Bat
 {
-	static Mat4 AiToBatMatrix( const aiMatrix4x4& aimat )
+	static Mat3x4 AiToBatMatrix( const aiMatrix4x4& aimat )
 	{
-		return Mat4( &aimat.a1 );
+		return Mat3x4( &aimat.a1 );
 	}
 
 	Resource<Mesh> SceneLoader::GetLoadedMesh( const aiMesh* pTarget )

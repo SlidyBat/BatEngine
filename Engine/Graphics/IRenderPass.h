@@ -34,7 +34,7 @@ namespace Bat
 		virtual NodeType GetNodeType( const std::string& name ) const override;
 		virtual NodeDataType GetNodeDataType( const std::string& name ) const override;
 
-		virtual void Visit( const Mat4& transform, Entity e ) {};
+		virtual void Visit( const Mat3x4& transform, Entity e ) {};
 	protected:
 		void AddRenderNode( std::string name, NodeType type, NodeDataType datatype );
 

@@ -56,9 +56,9 @@ namespace Bat
 		TransformComponent& SetLocalScale( float uniform_scale );
 		float GetLocalScale() const;
 
-		void SetLocalMatrix( const Mat4& local_matrix );
-		const Mat4& LocalToWorldMatrix() const;
-		Mat4 WorldToLocalMatrix() const;
+		void SetLocalMatrix( const Mat3x4& local_matrix );
+		const Mat3x4& LocalToWorldMatrix() const;
+		Mat3x4 WorldToLocalMatrix() const;
 	private:
 		bool IsDirty( HierarchyCache cache_type ) const;
 		void MarkSelfAndChildrenDirty( HierarchyCache cache_type );
@@ -73,7 +73,7 @@ namespace Bat
 		mutable Vec3 m_vecPosition = { 0.0f, 0.0f, 0.0f };
 		mutable Vec3 m_vecRotation = { 0.0f, 0.0f, 0.0f };
 		mutable float m_flScale = 1.0f;
-		mutable Mat4 m_matLocalToWorld = Mat4::Identity();
+		mutable Mat3x4 m_matLocalToWorld = Mat3x4::Identity();
 	};
 
 	class HierarchySystem

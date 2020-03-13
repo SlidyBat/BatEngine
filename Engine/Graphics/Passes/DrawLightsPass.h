@@ -36,7 +36,7 @@ namespace Bat
 			Traverse();
 		}
 	public:
-		virtual void Visit( const Mat4& transform, Entity e ) override
+		virtual void Visit( const Mat3x4& transform, Entity e ) override
 		{
 			static Resource<Mesh> sphere_mesh = ResourceManager::GetMesh( "Assets/sphere.gltf" );
 
@@ -54,7 +54,7 @@ namespace Bat
 						sphere_mesh->GetMaterial().SetEmissiveFactor( emissive.x, emissive.y, emissive.z );
 
 						const float scale = 0.05f;
-						Mat4 w = Mat4::Scale( scale ) * transform;
+						const auto w = Mat4( Mat3x4::Scale( scale ) * transform );
 
 						auto pPipeline = ShaderManager::GetPipeline<LitGenericPipeline>();
 

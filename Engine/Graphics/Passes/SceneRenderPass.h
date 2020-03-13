@@ -49,18 +49,18 @@ namespace Bat
 				{
 					auto& t = e.Get<TransformComponent>();
 					m_Lights.push_back( e );
-					m_LightTransforms.push_back( t.LocalToWorldMatrix() );
+					m_LightTransforms.push_back( Mat4( t.LocalToWorldMatrix() ) );
 				}
 			}
 		}
 
-		virtual void Visit( const Mat4& transform, Entity e ) override
+		virtual void Visit( const Mat3x4& transform, Entity e ) override
 		{
 			Render( transform, e );
 		}
 	protected:
 		virtual void PreRender( IGPUContext* pContext, Camera& camera, RenderData& data ) {};
-		virtual void Render( const Mat4& transform, Entity e ) = 0;
+		virtual void Render( const Mat3x4& transform, Entity e ) = 0;
 		virtual void PostRender( IGPUContext* pContext, Camera& camera, RenderData& data ) {};
 
 		IGPUContext* GetContext() { return m_pContext; }

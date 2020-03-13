@@ -13,7 +13,7 @@ namespace Bat
 	{
 		std::string name;
 		int index;
-		Mat4 inverse_bind_transform;
+		Mat3x4 inverse_bind_transform;
 	};
 
 	struct BoneTransform
@@ -24,8 +24,8 @@ namespace Bat
 		BoneTransform operator+( const BoneTransform& rhs ) const;
 		BoneTransform operator*( const BoneTransform& rhs ) const;
 		BoneTransform operator*( const float weight ) const;
-		static Mat4 ToMatrix( const BoneTransform& transform );
-		static BoneTransform FromMatrix( const Mat4& matrix );
+		static Mat3x4 ToMatrix( const BoneTransform& transform );
+		static BoneTransform FromMatrix( const Mat3x4& matrix );
 	};
 
 	struct BoneNode

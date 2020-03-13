@@ -41,7 +41,7 @@ namespace Bat
 			m_PbrMaps.brdf_integration_map = data.GetTexture( "brdf" );
 		}
 
-		virtual void Render( const Mat4& transform, Entity e ) override
+		virtual void Render( const Mat3x4& transform, Entity e ) override
 		{
 			IGPUContext* pContext = SceneRenderPass::GetContext();
 			Camera* pCamera = SceneRenderPass::GetCamera();
@@ -63,7 +63,7 @@ namespace Bat
 			{
 				auto& model = e.Get<ModelComponent>();
 
-				Mat4 w = transform;
+				const auto w = Mat4( transform );
 
 				if( model.HasRenderFlag( RenderFlags::DRAW_BBOX ) )
 				{

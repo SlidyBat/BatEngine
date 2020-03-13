@@ -46,7 +46,7 @@ namespace Bat
 		{
 			Entity parent_ent = parent->Get();
 			auto& parent_transform = parent_ent.Get<TransformComponent>();
-			Mat4 world_to_parent = Mat4::Inverse( parent_transform.LocalToWorldMatrix() );
+			Mat3x4 world_to_parent = Mat3x4::Inverse( parent_transform.LocalToWorldMatrix() );
 			m_vecLocalPosition = world_to_parent * m_vecPosition;
 		}
 
@@ -78,7 +78,7 @@ namespace Bat
 		ClearDirty( HierarchyCache::ROT );
 
 		m_vecRotation = rot;
-		m_matLocalToWorld = Mat4::Scale( m_flScale ) * Mat4::RotateDeg( m_vecRotation );
+		m_matLocalToWorld = Mat3x4::Scale( m_flScale ) * Mat3x4::RotateDeg( m_vecRotation );
 		m_matLocalToWorld.SetTranslation( m_vecPosition );
 
 		SceneNode* parent = m_pNode->GetParent();
@@ -90,8 +90,8 @@ namespace Bat
 		{
 			Entity parent_ent = parent->Get();
 			auto& parent_transform = parent_ent.Get<TransformComponent>();
-			Mat4 world_to_parent = Mat4::Inverse( parent_transform.LocalToWorldMatrix() );
-			Mat4 local = world_to_parent * m_matLocalToWorld;
+			Mat3x4 world_to_parent = Mat3x4::Inverse( parent_transform.LocalToWorldMatrix() );
+			Mat3x4 local = world_to_parent * m_matLocalToWorld;
 			local.DecomposeDeg( nullptr, &m_vecLocalRotation, nullptr );
 		}
 
@@ -136,7 +136,7 @@ namespace Bat
 		ClearDirty( HierarchyCache::SCALE );
 
 		m_flScale = scale;
-		m_matLocalToWorld = Mat4::Scale( m_flScale ) * Mat4::RotateDeg( m_vecRotation );
+		m_matLocalToWorld = Mat3x4::Scale( m_flScale ) * Mat3x4::RotateDeg( m_vecRotation );
 		m_matLocalToWorld.SetTranslation( m_vecPosition );
 
 		SceneNode* parent = m_pNode->GetParent();
@@ -148,8 +148,8 @@ namespace Bat
 		{
 			Entity parent_ent = parent->Get();
 			auto& parent_transform = parent_ent.Get<TransformComponent>();
-			Mat4 world_to_parent = Mat4::Inverse( parent_transform.LocalToWorldMatrix() );
-			Mat4 local = world_to_parent * m_matLocalToWorld;
+			Mat3x4 world_to_parent = Mat3x4::Inverse( parent_transform.LocalToWorldMatrix() );
+			Mat3x4 local = world_to_parent * m_matLocalToWorld;
 			local.DecomposeDeg( nullptr, nullptr, &m_flLocalScale );
 		}
 
@@ -202,13 +202,13 @@ namespace Bat
 		return m_flLocalScale;
 	}
 
-	void TransformComponent::SetLocalMatrix( const Mat4& local_matrix )
+	void TransformComponent::SetLocalMatrix( const Mat3x4& local_matrix )
 	{
 		MarkSelfAndChildrenDirty( HierarchyCache::ALL );
 		local_matrix.DecomposeDeg( &m_vecLocalPosition, &m_vecLocalRotation, &m_flLocalScale );
 	}
 
-	const Mat4& TransformComponent::LocalToWorldMatrix() const
+	const Mat3x4& TransformComponent::LocalToWorldMatrix() const
 	{
 		if( IsDirty( HierarchyCache::ALL ) )
 		{
@@ -217,9 +217,9 @@ namespace Bat
 		return m_matLocalToWorld;
 	}
 
-	Mat4 TransformComponent::WorldToLocalMatrix() const
+	Mat3x4 TransformComponent::WorldToLocalMatrix() const
 	{
-		return Mat4::Inverse( m_matLocalToWorld );
+		return Mat3x4::Inverse( m_matLocalToWorld );
 	}
 
 	void TransformComponent::MarkSelfAndChildrenDirty( HierarchyCache cache_type )
@@ -251,9 +251,9 @@ namespace Bat
 		Entity ent = m_pNode->Get();
 		auto& t = ent.Get<TransformComponent>();
 
-		Mat4 local = Mat4::Scale( m_flLocalScale ) *
-			Mat4::RotateDeg( m_vecLocalRotation ) *
-			Mat4::Translate( m_vecLocalPosition );
+		Mat3x4 local = Mat3x4::Scale( m_flLocalScale ) *
+			Mat3x4::RotateDeg( m_vecLocalRotation ) *
+			Mat3x4::Translate( m_vecLocalPosition );
 
 		SceneNode* parent = m_pNode->GetParent();
 		if( !parent )

@@ -181,7 +181,7 @@ namespace Bat
 			pContext->BindTexture( m_pShadowMaps.get(), PS_TEX_SHADOWMAPS );
 		}
 	private:
-		virtual void Visit( const Mat4& transform, Entity e ) override
+		virtual void Visit( const Mat3x4& transform, Entity e ) override
 		{
 			if( e.Has<AnimationComponent>() )
 			{
@@ -204,7 +204,7 @@ namespace Bat
 					return;
 				}
 
-				Mat4 w = transform;
+				const auto w = Mat4( transform );
 
 				auto& meshes = model.GetMeshes();
 				for( auto& pMesh : meshes )

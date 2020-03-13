@@ -24,11 +24,11 @@ namespace Bat
 		weighted.rotation = rotation * weight;
 		return weighted;
 	}
-	Mat4 BoneTransform::ToMatrix( const BoneTransform& transform )
+	Mat3x4 BoneTransform::ToMatrix( const BoneTransform& transform )
 	{
-		return Mat4::RotateQuat( transform.rotation ) * Mat4::Translate( transform.translation );
+		return Mat3x4::RotateQuat( transform.rotation ) * Mat3x4::Translate( transform.translation );
 	}
-	BoneTransform BoneTransform::FromMatrix( const Mat4& matrix )
+	BoneTransform BoneTransform::FromMatrix( const Mat3x4& matrix )
 	{
 		BoneTransform transform;
 		transform.translation = matrix.GetTranslation();
@@ -50,8 +50,8 @@ namespace Bat
 	{
 		for( size_t i = 0; i < bones.size(); i++ )
 		{
-			Mat4 bone_transform = BoneTransform::ToMatrix( model_pose.bones[bones[i].index].transform );
-			out[i] = bones[i].inverse_bind_transform * bone_transform;
+			Mat3x4 bone_transform = BoneTransform::ToMatrix( model_pose.bones[bones[i].index].transform );
+			out[i] = Mat4( bones[i].inverse_bind_transform * bone_transform );
 		}
 	}
 	SkeletonPose SkeletonPose::Blend( const SkeletonPose* poses, const float* weights, int num_poses, const SkeletonPose& bind_pose )
