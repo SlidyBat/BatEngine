@@ -521,7 +521,11 @@ namespace Bat
 		PxCharacterController( PxController* pController )
 			:
 			m_pController( pController )
-		{}
+		{
+
+			PxRigidDynamic* actor = m_pController->getActor();
+			m_pDynamicObject = std::make_unique<PxDynamicObject>( actor, m_pController->getUserData() );
+		}
 		~PxCharacterController()
 		{
 			m_pController->release();
@@ -553,6 +557,7 @@ namespace Bat
 		virtual Vec3 GetPosition() const override { return Px2BatVecExt( m_pController->getPosition() ); }
 	private:
 		PxController* m_pController = nullptr;
+		std::unique_ptr<PxDynamicObject> m_pDynamicObject;
 	};
 
 	void Physics::Initialize()
