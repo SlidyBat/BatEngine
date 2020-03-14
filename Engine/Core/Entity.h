@@ -10,6 +10,24 @@
 
 namespace Bat
 {
+	enum class ComponentId
+	{
+		TRANSFORM,
+		NAME,
+		MODEL,
+		LIGHT,
+		PHYSICS,
+		ANIMATION,
+		PARTICLE_EMITTER,
+		CHARACTER_CONTROLLER,
+		BEHAVIOUR_TREE
+	};
+
+#define BAT_COMPONENT( id ) \
+	static constexpr const char* GetName() { return #id; } \
+	static constexpr ComponentId GetId() { return ComponentId::##id; } \
+	static constexpr size_t GetIndex() { return (size_t)GetId(); }
+
 	class EntityManager;
 
 	class Entity
@@ -70,27 +88,6 @@ namespace Bat
 	private:
 		EntityManager* manager = nullptr;
 		Id id;
-	};
-
-	class BaseComponent
-	{
-	public:
-		void operator delete( void *p ) { ASSERT( false, "Can't explicitly delete component" ); }
-		void operator delete[]( void *p ) { ASSERT( false, "Can't explicitly delete component" ); }
-	protected:
-		static size_t s_iIndexCounter;
-	};
-
-	template <typename Derived>
-	class Component : public BaseComponent
-	{
-	private:
-		friend class EntityManager;
-		static size_t GetIndex()
-		{
-			static size_t index = s_iIndexCounter++;
-			return index;
-		}
 	};
 
 	class BaseComponentHelper

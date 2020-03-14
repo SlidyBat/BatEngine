@@ -23,9 +23,11 @@ namespace Bat
 	};
 	BAT_ENUM_OPERATORS( LightFlags );
 
-	class LightComponent : public Component<LightComponent>
+	class LightComponent
 	{
 	public:
+		BAT_COMPONENT( LIGHT );
+
 		LightComponent() = default;
 
 		LightType GetType() const { return m_Type; }

@@ -17,8 +17,10 @@ namespace Bat
 		Vec4 colour;
 	};
 
-	struct ParticleEmitterComponent : public Component<ParticleEmitterComponent>
+	struct ParticleEmitterComponent
 	{
+		BAT_COMPONENT( PARTICLE_EMITTER );
+
 		ParticleEmitterComponent( Resource<Texture> texture )
 			:
 			texture( std::move( texture ) )

@@ -165,8 +165,9 @@ namespace Bat
 		ActionCallback_t m_Callback;
 	};
 
-	struct BehaviourTree : public Component<BehaviourTree>
+	struct BehaviourTree
 	{
+		BAT_COMPONENT( BEHAVIOUR_TREE );
 		std::unique_ptr<BehaviourNode> root_node;
 	};
 

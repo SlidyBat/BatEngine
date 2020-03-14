@@ -7,9 +7,11 @@
 
 namespace Bat
 {
-	class AnimationComponent : public Component<AnimationComponent>
+	class AnimationComponent
 	{
 	public:
+		BAT_COMPONENT( ANIMATION );
+
 		SkeletonPose bind_pose;
 		SkeletonPose current_pose;
 		std::vector<AnimationState> states;

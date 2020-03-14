@@ -5,8 +5,6 @@ namespace Bat
 {
 	EntityManager world;
 
-	size_t BaseComponent::s_iIndexCounter = 0;
-
 	Entity Entity::INVALID = Entity();
 
 	Entity EntityManager::CreateEntity()
