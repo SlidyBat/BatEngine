@@ -36,6 +36,8 @@
 
 namespace Bat
 {
+	static ISoundEngine* snd;
+
 	class Character
 	{
 	public:
@@ -98,6 +100,7 @@ namespace Bat
 			auto& t = character.Get<TransformComponent>();
 			return t.GetRotation();
 		}
+		Entity GetEntity() const { return character; }
 		void Jump()
 		{
 			if( on_ground )
@@ -167,6 +170,7 @@ namespace Bat
 		}
 		Vec3 GetPosition() { return character.GetPosition(); }
 		Vec3 GetRotation() { return character.GetRotation(); }
+		Entity GetEntity() const { return character.GetEntity(); }
 	private:
 		float speed = 5.0f;
 		Character character;
@@ -174,54 +178,107 @@ namespace Bat
 	class AiCharacter
 	{
 	public:
-		void Initialize( SceneNode& scene, const Vec3& pos )
+		void Initialize( SceneNode& scene, const Vec3& pos, const NavMeshSystem& navmesh_system, Entity target_ent )
 		{
-			character.Initialize( scene, pos );
+			navmesh = &navmesh_system;
+
+			ent = world.CreateEntity();
+			scene.AddChild( ent );
+
+			CharacterControllerBoxDesc box;
+			ent.Get<TransformComponent>()
+				.SetPosition( pos );
+			ent.Add<CharacterControllerComponent>( box );
+			
+			auto& behaviour = ent.Add<BehaviourTree>();
+			behaviour.root_node = MakeBehaviour( target_ent );
 		}
-		void GoTo( const Vec3& target )
+		Vec3 GetPosition() const { return ent.Get<TransformComponent>().GetPosition(); }
+		Entity GetEntity() const { return ent; }
+	private:
+		std::unique_ptr<BehaviourNode> MakeBehaviour( Entity target_ent )
 		{
-			target_pos = target;
-			going = true;
+			auto sequence = std::make_unique<SequenceNode>();
+			sequence->Add( CheckIfVisible( target_ent ) );
+			sequence->Add( Chase( target_ent ) );
+			sequence->Add( Gotcha() );
+			sequence->Add( WaitUntilGone( target_ent ) );
+			return sequence;
 		}
-		void Update( const NavMeshSystem& navmesh, float dt )
+		std::unique_ptr<BehaviourNode> CheckIfVisible( Entity target_ent )
 		{
-			if( going )
-			{
-				Vec3 pos = character.GetPosition();
+			return std::make_unique<ActionNode>( [=]( Entity e ) {
+				const auto& target_transform = target_ent.Get<TransformComponent>();
+				Vec3 target_pos = target_transform.GetPosition();
+				const auto& my_transform = e.Get<TransformComponent>();
+				Vec3 pos = my_transform.GetPosition();
+
+				Vec3 dir = ( target_pos - pos ).Normalize();
+				RayCastResult trace = EntityTrace::RayCast( pos + dir * 0.05f, dir, 100.0f );
+				if( trace.hit && trace.entity == target_ent )
+				{
+					return BehaviourResult::SUCCEEDED;
+				}
+				return BehaviourResult::FAILED;
+			} );
+		}
+		std::unique_ptr<BehaviourNode> Chase( Entity target_ent )
+		{
+			return std::make_unique<ActionNode>( [=]( Entity e ) {
+				auto& controller = e.Get<CharacterControllerComponent>();
+				const auto& target_transform = target_ent.Get<TransformComponent>();
+				Vec3 target_pos = target_transform.GetPosition();
+				const auto& my_transform = e.Get<TransformComponent>();
+				Vec3 pos = my_transform.GetPosition();
 
 				if( ( target_pos - pos ).LengthSq() < 1.0f )
 				{
-					going = false;
+					return BehaviourResult::SUCCEEDED;
 				}
-				else
+			
+				Vec3 floor_pos = { pos.x, pos.y - 0.35f, pos.z };
+				std::vector<Vec3> path = navmesh->GetPath( 0, floor_pos, target_pos );
+				Vec3 delta = path[1] - path[0];
+				float len = delta.Length();
+
+				delta /= len;
+
+				DebugDraw::Line( pos, pos + delta, Colours::Green );
+				for( size_t i = 0; i < path.size() - 1; i++ )
 				{
-					Vec3 floor_pos = { pos.x, pos.y - 0.35f, pos.z };
-					std::vector<Vec3> path = navmesh.GetPath( 0, floor_pos, target_pos );
-					Vec3 delta = path[1] - path[0];
-					float len = delta.Length();
-
-					delta /= len;
-
-					DebugDraw::Line( pos, pos + delta, Colours::Green );
-					for( size_t i = 0; i < path.size() - 1; i++ )
-					{
-						DebugDraw::Line( path[i], path[i + 1], Colours::White );
-					}
-
-					float dist = std::min( len, speed * dt );
-					character.MoveBy( delta * dist );
+					DebugDraw::Line( path[i], path[i + 1], Colours::White );
 				}
-			}
 
-			character.Update( dt );
+				float dist = std::min( len, speed * g_pGlobals->deltatime );
+				controller.Move( delta * dist, g_pGlobals->deltatime );
+			
+				return BehaviourResult::RUNNING;
+			} );
 		}
-		Vec3 GetPosition() { return character.GetPosition(); }
-		Vec3 GetRotation() { return character.GetRotation(); }
+		std::unique_ptr<BehaviourNode> Gotcha()
+		{
+			return std::make_unique<ActionNode>( []( Entity e ) {
+				const auto& my_transform = e.Get<TransformComponent>();
+				Vec3 pos = my_transform.GetPosition();
+				snd->Play( "Assets/Ignore/gotcha.wav" );
+				return BehaviourResult::SUCCEEDED;
+			} );
+		}
+		std::unique_ptr<BehaviourNode> WaitUntilGone( Entity target_ent )
+		{
+			auto invert = std::make_unique<InverseNode>();
+			invert->SetChild( CheckIfVisible( target_ent ) );
+
+			auto loop = std::make_unique<LoopUntilSuccessNode>();
+			loop->SetChild( std::move( invert ) );
+			return loop;
+		}
 	private:
 		float speed = 5.0f;
-		Character character;
-		Vec3 target_pos;
+		Entity ent;
+		Vec3 target_ent;
 		bool going = false;
+		const NavMeshSystem* navmesh = nullptr;
 	};
 
 	static MoveableCharacter player;
@@ -254,7 +311,7 @@ namespace Bat
 		navmesh_system.Bake();
 
 		player.Initialize( scene, { 0.0f, 1.0f, 0.0f } );
-		ai.Initialize( scene, { 1.0f, 1.0f, 0.0f } );
+		ai.Initialize( scene, { 1.0f, 0.5f, 2.0f }, navmesh_system, player.GetEntity() );
 
 		// Fire
 		if( false )
@@ -377,8 +434,6 @@ namespace Bat
 		}
 
 		player.Update( wnd.input, deltatime );
-		ai.GoTo( player.GetPosition() );
-		ai.Update( navmesh_system, deltatime );
 		camera.SetPosition( player.GetPosition() );
 		camera.SetRotation( player.GetRotation() );
 
@@ -390,6 +445,7 @@ namespace Bat
 		physics_system.Update( world, deltatime );
 		anim_system.Update( world, deltatime );
 		particle_system.Update( world, deltatime );
+		behaviour_system.Update( world );
 		controller_system.Update( world, deltatime );
 
 		if( physics_simulate )
@@ -685,7 +741,7 @@ namespace Bat
 		}
 
 		Vec3 ai_pos = ai.GetPosition();
-		DebugDraw::Box( ai_pos - Vec3{ 1.0f, 1.0f, 1.0f } * 0.1f, ai_pos + Vec3{ 1.0f, 1.0f, 1.0f } * 0.1f, Colours::Red );
+		DebugDraw::Box( ai_pos - Vec3{ 1.0f, 1.0f, 1.0f } *0.1f, ai_pos + Vec3{ 1.0f, 1.0f, 1.0f } *0.1f, Colours::Red );
 
 		if( draw_navmesh )
 		{
