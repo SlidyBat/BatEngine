@@ -43,8 +43,8 @@ namespace Bat
 		// Gets frustum corners in world space
 		void CalculateFrustumCorners( Vec3 corners_out[8] );
 
-		DirectX::XMMATRIX GetViewMatrix() const;
-		DirectX::XMMATRIX GetProjectionMatrix() const;
+		const Mat4& GetViewMatrix() const;
+		const Mat4& GetProjectionMatrix() const;
 
 		void Render();
 	private:
@@ -66,7 +66,7 @@ namespace Bat
 		Vec3 m_vecForward;
 		Vec3 m_vecRight;
 
-		DirectX::XMMATRIX m_matProjMatrix = DirectX::XMMatrixIdentity();
-		DirectX::XMMATRIX m_matViewMatrix = DirectX::XMMatrixIdentity();
+		Mat4 m_matProjMatrix = Mat4::Identity();
+		Mat4 m_matViewMatrix = Mat4::Identity();
 	};
 }

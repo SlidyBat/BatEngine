@@ -2,9 +2,12 @@
 
 #include "MathLib.h"
 #include "Entity.h"
+#include "SceneEvents.h"
 
 namespace Bat
 {
+	class SceneNode;
+
 	struct NameComponent : public Component<NameComponent>
 	{
 		NameComponent( std::string name )
@@ -15,75 +18,74 @@ namespace Bat
 		std::string name;
 	};
 
+	enum class HierarchyCache
+	{
+		NONE = 0,
+		POS = ( 1 << 0 ),
+		ROT = ( 1 << 1 ),
+		SCALE = ( 1 << 2 ),
+		ALL = ( POS | ROT | SCALE )
+	};
+	BAT_ENUM_OPERATORS( HierarchyCache );
+
 	class TransformComponent : public Component<TransformComponent>
 	{
+		friend class HierarchySystem;
 	public:
-		TransformComponent() = default;
-		TransformComponent( DirectX::XMMATRIX transform )
-		{
-			SetTransform( transform );
-		}
+		TransformComponent( SceneNode* node );
 
-		TransformComponent& SetPosition( float x, float y, float z ) { position = { x, y, z }; dirty = true; return *this; }
-		TransformComponent& SetPosition( const Vec3& pos ) { return SetPosition( pos.x, pos.y, pos.z ); }
-		const Vec3& GetPosition() const { return position; }
-		void MoveBy( const float dx, const float dy, const float dz ) { SetPosition( position + Vec3{ dx, dy, dz } ); }
-		void MoveBy( const Vec3& delta ) { MoveBy( delta.x, delta.y, delta.z ); }
+		TransformComponent& SetPosition( float x, float y, float z );
+		TransformComponent& SetPosition( const Vec3& pos );
+		const Vec3& GetPosition() const;
 
-		TransformComponent& SetRotation( float pitch, float yaw, float roll ) { rotation = { pitch, yaw, roll }; dirty = true; return *this; }
-		TransformComponent& SetRotation( const Vec3& rot ) { return SetRotation( rot.x, rot.y, rot.z ); }
-		const Vec3& GetRotation() const { return rotation; }
-		void RotateBy( const float dpitch, const float dyaw, const float droll ) { SetRotation( rotation + Vec3{ dpitch, dyaw, droll } ); }
-		void RotateBy( const Vec3& delta ) { MoveBy( delta.x, delta.y, delta.z ); }
+		TransformComponent& SetRotation( float pitch, float yaw, float roll );
+		TransformComponent& SetRotation( const Vec3& rot );
+		const Vec3& GetRotation() const;
 
-		TransformComponent& SetScale( float uniform_scale ) { scale = uniform_scale; dirty = true; return *this; }
-		float GetScale() const { return scale; }
+		TransformComponent& SetScale( float uniform_scale );
+		float GetScale() const;
 
-		const DirectX::XMMATRIX& GetTransform() const
-		{
-			if( dirty )
-			{
-				transform = DirectX::XMMatrixScaling( scale, scale, scale ) *
-					DirectX::XMMatrixRotationRollPitchYaw( rotation.x, rotation.y, rotation.z ) *
-					DirectX::XMMatrixTranslation( position.x, position.y, position.z );
-				dirty = false;
-			}
+		TransformComponent& SetLocalPosition( float x, float y, float z );
+		TransformComponent& SetLocalPosition( const Vec3& pos );
+		const Vec3& GetLocalPosition() const;
 
-			return transform;
-		}
+		TransformComponent& SetLocalRotation( float pitch, float yaw, float roll );
+		TransformComponent& SetLocalRotation( const Vec3& rot );
+		const Vec3& GetLocalRotation() const;
 
-		void SetTransform( DirectX::XMMATRIX new_transform )
-		{
-			transform = new_transform;
+		TransformComponent& SetLocalScale( float uniform_scale );
+		float GetLocalScale() const;
 
-			DirectX::XMVECTOR tran, qrot, vscale;
-			DirectX::XMMatrixDecompose( &vscale, &qrot, &tran, transform );
-
-			position = tran;
-			rotation = Math::QuaternionToEuler( qrot );
-			DirectX::XMStoreFloat( &scale, vscale );
-
-			dirty = false;
-		}
+		void SetLocalMatrix( const Mat3x4& local_matrix );
+		const Mat3x4& LocalToWorldMatrix() const;
+		Mat3x4 WorldToLocalMatrix() const;
 	private:
-		mutable DirectX::XMMATRIX transform = DirectX::XMMatrixIdentity();
-		Vec3 position = { 0.0f, 0.0f, 0.0f };
-		float scale = 1.0f;
-		Vec3 rotation = { 0.0f, 0.0f, 0.0f };
-		mutable bool dirty = true;
-	};
-
-	struct HierarchyComponent : Component<HierarchyComponent>
-	{
-		DirectX::XMMATRIX abs_transform;
+		bool IsDirty( HierarchyCache cache_type ) const;
+		void MarkSelfAndChildrenDirty( HierarchyCache cache_type );
+		void ClearDirty( HierarchyCache cache_type ) const;
+		void CalculateCache() const;
+	private:
+		SceneNode* m_pNode = nullptr;
+		Vec3 m_vecLocalPosition = { 0.0f, 0.0f, 0.0f };
+		float m_flLocalScale = 1.0f;
+		Vec3 m_vecLocalRotation = { 0.0f, 0.0f, 0.0f };
+		mutable HierarchyCache m_Dirty = HierarchyCache::ALL;
+		mutable Vec3 m_vecPosition = { 0.0f, 0.0f, 0.0f };
+		mutable Vec3 m_vecRotation = { 0.0f, 0.0f, 0.0f };
+		mutable float m_flScale = 1.0f;
+		mutable Mat3x4 m_matLocalToWorld = Mat3x4::Identity();
 	};
 
 	class HierarchySystem
 	{
 	public:
-		void Update( SceneNode& root_node );
-	private:
-		std::vector<SceneNode*> m_NodeStack;
-		std::vector<DirectX::XMMATRIX> m_Transforms;
+		HierarchySystem();
+		~HierarchySystem();
+		HierarchySystem( const HierarchySystem& ) = delete;
+		HierarchySystem& operator=( const HierarchySystem& ) = delete;
+		HierarchySystem( HierarchySystem&& ) = delete;
+		HierarchySystem& operator=( HierarchySystem&& ) = delete;
+
+		void OnEvent( const SceneNodeAddedEvent& e );
 	};
 }

@@ -47,20 +47,20 @@ namespace Bat
 			{
 				if( e.Has<LightComponent>() )
 				{
-					auto& hier = e.Get<HierarchyComponent>();
+					auto& t = e.Get<TransformComponent>();
 					m_Lights.push_back( e );
-					m_LightTransforms.push_back( hier.abs_transform );
+					m_LightTransforms.push_back( Mat4( t.LocalToWorldMatrix() ) );
 				}
 			}
 		}
 
-		virtual void Visit( const DirectX::XMMATRIX& transform, Entity e ) override
+		virtual void Visit( const Mat3x4& transform, Entity e ) override
 		{
 			Render( transform, e );
 		}
 	protected:
 		virtual void PreRender( IGPUContext* pContext, Camera& camera, RenderData& data ) {};
-		virtual void Render( const DirectX::XMMATRIX& transform, Entity e ) = 0;
+		virtual void Render( const Mat3x4& transform, Entity e ) = 0;
 		virtual void PostRender( IGPUContext* pContext, Camera& camera, RenderData& data ) {};
 
 		IGPUContext* GetContext() { return m_pContext; }
@@ -68,14 +68,14 @@ namespace Bat
 
 		struct LightList
 		{
-			LightList( const std::vector<Entity>& lights, const std::vector<DirectX::XMMATRIX>& light_transforms )
+			LightList( const std::vector<Entity>& lights, const std::vector<Mat4>& light_transforms )
 				:
 				entities( lights ),
 				transforms( light_transforms )
 			{}
 
 			const std::vector<Entity>& entities;
-			const std::vector<DirectX::XMMATRIX>& transforms;
+			const std::vector<Mat4>& transforms;
 		};
 		LightList GetLights() const
 		{
@@ -84,7 +84,7 @@ namespace Bat
 
 		// Helper function that checks if a mesh is contained inside the view frustum
 		// The transform matrix passed in gets applied to mesh before doing check
-		bool MeshInCameraFrustum( Mesh* pMesh, Camera* pCamera, DirectX::XMMATRIX transform )
+		bool MeshInCameraFrustum( Mesh* pMesh, Camera* pCamera, const Mat4& transform )
 		{
 			const AABB& aabb = pMesh->GetAABB();
 			AABB world_aabb = aabb.Transform( transform );
@@ -100,7 +100,7 @@ namespace Bat
 	private:
 		Camera* m_pCamera = nullptr;
 		std::vector<Entity> m_Lights;
-		std::vector<DirectX::XMMATRIX> m_LightTransforms;
+		std::vector<Mat4> m_LightTransforms;
 		IGPUContext* m_pContext = nullptr;
 	};
 }

@@ -79,7 +79,7 @@ namespace Bat
 		Flush(); // Make sure message makes it to console
 
 		// Trigger an assert at the original location
-		Bat::Detail::AssertMessage( false, file, func, line, "%s", msg );
+		Bat::Detail::AssertMessage( "", file, func, line, "%s", msg );
 
 		// Exit application
 		throw std::runtime_error( Bat::Format( "Fatal Error!\n%s", msg ) );

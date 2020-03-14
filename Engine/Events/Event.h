@@ -69,7 +69,7 @@ namespace Bat
 		static void AddGlobalEventListener( Listener& listener )
 		{
 			void (Listener:: * listen_func)(const Event&) = &Listener::OnEvent;
-			ASSERT( !IsListeningForEvent<Event>( listener ), "Attempted to listen to same event multiple times" );
+			ASSERT( !IsListeningForGlobalEvent<Event>( listener ), "Attempted to listen to same event multiple times" );
 			auto wrapper = EventCallbackWrapper<Event>( std::bind( listen_func, &listener, std::placeholders::_1 ) );
 			m_GlobalCallbacks[std::type_index( typeid(Event) )].emplace_back( &listener, wrapper );
 		}

@@ -8,6 +8,7 @@
 #include "FileWatchdog.h"
 
 #include "CoreEntityComponents.h"
+#include "CharacterControllerComponent.h"
 #include "WindowEvents.h"
 #include "MouseEvents.h"
 #include "NetworkEvents.h"
@@ -35,38 +36,290 @@
 
 namespace Bat
 {
+	static ISoundEngine* snd;
+
+	class Character
+	{
+	public:
+		void Initialize( SceneNode& scene, const Vec3& pos )
+		{
+			character = world.CreateEntity();
+			scene.AddChild( character );
+
+			CharacterControllerBoxDesc box;
+			character.Get<TransformComponent>()
+				.SetPosition( pos );
+			character.Add<CharacterControllerComponent>( box );
+		}
+
+		void Update( float dt )
+		{
+			auto& controller = character.Get<CharacterControllerComponent>();
+
+			velocity += Vec3{ 0.0f, -9.8f, 0.0f } * dt;
+
+			PhysicsControllerCollisionFlags flags = controller.Move( velocity * dt + disp, dt );
+			if( ( flags & CONTROLLER_COLLISION_DOWN ) != CONTROLLER_COLLISION_NONE )
+			{
+				on_ground = true;
+				velocity.y = 0.0f;
+			}
+			else
+			{
+				on_ground = false;
+			}
+
+			if( ( flags & CONTROLLER_COLLISION_UP ) != CONTROLLER_COLLISION_NONE && velocity.y > 0.0f )
+			{
+				velocity.y = 0.0f;
+			}
+			if( ( flags & CONTROLLER_COLLISION_SIDES ) != CONTROLLER_COLLISION_NONE )
+			{
+				velocity.x = 0.0f;
+				velocity.z = 0.0f;
+			}
+
+			disp = { 0.0f, 0.0f, 0.0f };
+		}
+		void MoveBy( const Vec3& dpos )
+		{
+			disp += dpos;
+		}
+		void RotateBy( const Vec3& drot )
+		{
+			auto& t = character.Get<TransformComponent>();
+			t.SetRotation( Math::NormalizeAngleDeg( t.GetRotation() + drot ) );
+		}
+		Vec3 GetPosition()
+		{
+			auto& t = character.Get<TransformComponent>();
+			return t.GetPosition();
+		}
+		Vec3 GetRotation()
+		{
+			auto& t = character.Get<TransformComponent>();
+			return t.GetRotation();
+		}
+		Entity GetEntity() const { return character; }
+		void Jump()
+		{
+			if( on_ground )
+			{
+				velocity.y += 5.0f;
+				on_ground = false;
+			}
+		}
+	private:
+		Entity character;
+		Vec3 disp = { 0.0f, 0.0f, 0.0f };
+		Vec3 velocity = { 0.0f, 0.0f, 0.0f };
+		bool on_ground = true;
+	};
+	class MoveableCharacter
+	{
+	public:
+		void Initialize( SceneNode& scene, const Vec3& pos )
+		{
+			character.Initialize( scene, pos );
+		}
+		void Update( const Input& input, float dt )
+		{
+			Vec3 rotation = character.GetRotation();
+
+			Vec3 forward, right;
+			Math::AngleVectors( rotation, &forward, &right, nullptr );
+
+			Vec3 disp = { 0.0f, 0.0f, 0.0f };
+			if( input.IsKeyDown( 'A' ) )
+			{
+				disp += -right;
+			}
+			if( input.IsKeyDown( 'D' ) )
+			{
+				disp += right;
+			}
+			if( input.IsKeyDown( 'W' ) )
+			{
+				disp += forward;
+			}
+			if( input.IsKeyDown( 'S' ) )
+			{
+				disp += -forward;
+			}
+			if( disp.LengthSq() > 0.01f )
+			{
+				disp = disp.Normalized() * speed;
+			}
+			character.MoveBy( disp * dt );
+
+			if( input.IsKeyDown( VK_SPACE ) )
+			{
+				character.Jump();
+			}
+
+			if( input.IsMouseButtonDown( Input::MouseButton::Left ) )
+			{
+				const Vei2& delta = input.GetMouseDelta();
+				const float deltayaw = (float)delta.x;
+				const float deltapitch = (float)delta.y;
+
+				character.RotateBy( Vec3{ deltapitch, deltayaw, 0.0f } *0.5f );
+			}
+
+			character.Update( dt );
+		}
+		Vec3 GetPosition() { return character.GetPosition(); }
+		Vec3 GetRotation() { return character.GetRotation(); }
+		Entity GetEntity() const { return character.GetEntity(); }
+	private:
+		float speed = 5.0f;
+		Character character;
+	};
+	class AiCharacter
+	{
+	public:
+		void Initialize( SceneNode& scene, const Vec3& pos, const NavMeshSystem& navmesh_system, Entity target_ent )
+		{
+			navmesh = &navmesh_system;
+
+			ent = world.CreateEntity();
+			scene.AddChild( ent );
+
+			CharacterControllerBoxDesc box;
+			ent.Get<TransformComponent>()
+				.SetPosition( pos );
+			ent.Add<CharacterControllerComponent>( box );
+			
+			auto& behaviour = ent.Add<BehaviourTree>();
+			behaviour.root_node = MakeBehaviour( target_ent );
+		}
+		Vec3 GetPosition() const { return ent.Get<TransformComponent>().GetPosition(); }
+		Entity GetEntity() const { return ent; }
+	private:
+		std::unique_ptr<BehaviourNode> MakeBehaviour( Entity target_ent )
+		{
+			auto sequence = std::make_unique<SequenceNode>();
+			sequence->Add( CheckIfVisible( target_ent ) );
+			sequence->Add( Chase( target_ent ) );
+			sequence->Add( Gotcha() );
+			sequence->Add( WaitUntilGone( target_ent ) );
+			return sequence;
+		}
+		std::unique_ptr<BehaviourNode> CheckIfVisible( Entity target_ent )
+		{
+			return std::make_unique<ActionNode>( [=]( Entity e ) {
+				const auto& target_transform = target_ent.Get<TransformComponent>();
+				Vec3 target_pos = target_transform.GetPosition();
+				const auto& my_transform = e.Get<TransformComponent>();
+				Vec3 pos = my_transform.GetPosition();
+
+				Vec3 dir = ( target_pos - pos ).Normalize();
+				RayCastResult trace = EntityTrace::RayCast( pos + dir * 0.05f, dir, 100.0f );
+				if( trace.hit && trace.entity == target_ent )
+				{
+					return BehaviourResult::SUCCEEDED;
+				}
+				return BehaviourResult::FAILED;
+			} );
+		}
+		std::unique_ptr<BehaviourNode> Chase( Entity target_ent )
+		{
+			return std::make_unique<ActionNode>( [=]( Entity e ) {
+				auto& controller = e.Get<CharacterControllerComponent>();
+				const auto& target_transform = target_ent.Get<TransformComponent>();
+				Vec3 target_pos = target_transform.GetPosition();
+				const auto& my_transform = e.Get<TransformComponent>();
+				Vec3 pos = my_transform.GetPosition();
+
+				if( ( target_pos - pos ).LengthSq() < 1.0f )
+				{
+					return BehaviourResult::SUCCEEDED;
+				}
+			
+				Vec3 floor_pos = { pos.x, pos.y - 0.35f, pos.z };
+				std::vector<Vec3> path = navmesh->GetPath( 0, floor_pos, target_pos );
+				Vec3 delta = path[1] - path[0];
+				float len = delta.Length();
+
+				delta /= len;
+
+				DebugDraw::Line( pos, pos + delta, Colours::Green );
+				for( size_t i = 0; i < path.size() - 1; i++ )
+				{
+					DebugDraw::Line( path[i], path[i + 1], Colours::White );
+				}
+
+				float dist = std::min( len, speed * g_pGlobals->deltatime );
+				controller.Move( delta * dist, g_pGlobals->deltatime );
+			
+				return BehaviourResult::RUNNING;
+			} );
+		}
+		std::unique_ptr<BehaviourNode> Gotcha()
+		{
+			return std::make_unique<ActionNode>( []( Entity e ) {
+				const auto& my_transform = e.Get<TransformComponent>();
+				Vec3 pos = my_transform.GetPosition();
+				snd->Play( "Assets/Ignore/gotcha.wav" );
+				return BehaviourResult::SUCCEEDED;
+			} );
+		}
+		std::unique_ptr<BehaviourNode> WaitUntilGone( Entity target_ent )
+		{
+			auto invert = std::make_unique<InverseNode>();
+			invert->SetChild( CheckIfVisible( target_ent ) );
+
+			auto loop = std::make_unique<LoopUntilSuccessNode>();
+			loop->SetChild( std::move( invert ) );
+			return loop;
+		}
+	private:
+		float speed = 5.0f;
+		Entity ent;
+		Vec3 target_ent;
+		bool going = false;
+		const NavMeshSystem* navmesh = nullptr;
+	};
+
+	static MoveableCharacter player;
+	static AiCharacter ai;
+
 	Application::Application( Graphics& gfx, Window& wnd )
 		:
 		gfx( gfx ),
 		wnd( wnd ),
 		camera( wnd.input, 2.0f, 1.0f ),
-		physics_system( world )
+		physics_system( world ),
+		controller_system( world )
 	{
 		SceneLoader loader;
 
 		camera.SetAspectRatio( (float)wnd.GetWidth() / wnd.GetHeight() );
 
 		scene.Set( world.CreateEntity() ); // Root entity
-		scale_index = scene.AddChild( world.CreateEntity() );
-		SceneNode& scale_node = scene.GetChild( scale_index );
-		scale_node.AddChild( loader.Load( "Assets/Ignore/MetalRoughSpheres.glb" ) );
-		Entity floor = world.CreateEntity();
-		floor.Add<TransformComponent>()
+		scale_node = scene.AddChild( world.CreateEntity() );
+		scale_node->Get().Get<TransformComponent>()
+			.SetScale( 0.5f );
+		scale_node->AddChild( loader.Load( "Assets/Ignore/Sponza/sponza.gltf" ) );
+		Entity floor = scene.AddChild( world.CreateEntity() )->Get();
+		floor.Get<TransformComponent>()
 			.SetPosition( { 0.0f, -2.0f, 0.0f } )
-			.SetRotation( { 0.0f, 90.0f, 0.0f } );
+			.SetRotation( { 0.0f, 0.0f, 90.0f } );
 		floor.Add<PhysicsComponent>( PhysicsObjectType::STATIC )
 			.AddPlaneShape();
 
-		scale_node.Get().Add<TransformComponent>()
-			.SetScale( 0.5f );
+		navmesh_system.Bake();
+
+		player.Initialize( scene, { 0.0f, 1.0f, 0.0f } );
+		ai.Initialize( scene, { 1.0f, 0.5f, 2.0f }, navmesh_system, player.GetEntity() );
 
 		// Fire
 		if( false )
 		{
 			Entity emitter_test = world.CreateEntity();
-			emitter_test.Add<TransformComponent>()
+			scene.AddChild( emitter_test );
+			emitter_test.Get<TransformComponent>()
 				.SetPosition( { 0.0f, 0.0f, 0.0f } );
-			emitter_test.Add<HierarchyComponent>();
 			auto& emitter = emitter_test.Add<ParticleEmitterComponent>( ResourceManager::GetTexture( "Assets/Ignore/particles/fire_02.png" ) );
 			emitter.particles_per_sec = 50.0f;
 			emitter.lifetime = 2.0f;
@@ -80,25 +333,22 @@ namespace Bat
 			emitter.motion_blur = 8.0f;
 			emitter.normal = { 0.0f, 0.3f, 0.0f };
 			emitter.rand_velocity_range = { 0.0f, 0.0f, 0.0f };
-
-			scene.AddChild( emitter_test );
 		}
 
 		flashlight = world.CreateEntity();
+		scene.AddChild( flashlight );
 		flashlight.Add<LightComponent>()
 			.SetType( LightType::SPOT )
 			.SetSpotlightAngle( 0.5f );
-		flashlight.Add<TransformComponent>();
-		scene.AddChild( flashlight );
 
 		sun = world.CreateEntity();
+		scene.AddChild( sun );
+		sun.Get<TransformComponent>()
+			.SetRotation( 90.0f, 0.0f, 0.0f );
 		sun.Add<LightComponent>()
 			.SetType( LightType::DIRECTIONAL )
 			.SetEnabled( false )
 			.AddFlag( LightFlags::EMIT_SHADOWS );
-		sun.Add<TransformComponent>()
-			.SetRotation( 90.0f, 0.0f, 0.0f );
-		scene.AddChild( sun );
 
 		gfx.SetActiveScene( &scene );
 		gfx.SetActiveCamera( &camera );
@@ -114,16 +364,8 @@ namespace Bat
 		{
 			Physics::EnableFixedTimestep( 1.0f / 60.0f );
 
-			player = world.CreateEntity();
-			player.Add<TransformComponent>()
-				.SetPosition( camera.GetPosition() )
-				.SetRotation( camera.GetRotation() );
-			player.Add<PhysicsComponent>( PhysicsObjectType::DYNAMIC )
-				.SetKinematic( true )
-				.AddSphereShape( 0.05f );
-
-			//scene_ent.Add<PhysicsComponent>( PhysicsObjectType::STATIC )
-			//	.AddMeshShape();
+			scale_node->GetFirstChild()->Get().Add<PhysicsComponent>( PhysicsObjectType::STATIC )
+				.AddMeshShape();
 		}
 
 		wnd.input.AddEventListener<KeyPressedEvent>( *this );
@@ -191,20 +433,20 @@ namespace Bat
 			elapsed_time -= 1.0f;
 		}
 
-		camera.Update( deltatime );
+		player.Update( wnd.input, deltatime );
+		camera.SetPosition( player.GetPosition() );
+		camera.SetRotation( player.GetRotation() );
+
 		flashlight.Get<TransformComponent>()
 			.SetPosition( camera.GetPosition() )
 			.SetRotation( camera.GetRotation() );
 		snd->SetListenerPosition( camera.GetPosition(), camera.GetLookAtVector() );
 
-		player.Get<TransformComponent>()
-			.SetPosition( camera.GetPosition() )
-			.SetRotation( camera.GetRotation() );
-
 		physics_system.Update( world, deltatime );
 		anim_system.Update( world, deltatime );
-		hier_system.Update( scene );
 		particle_system.Update( world, deltatime );
+		behaviour_system.Update( world );
+		controller_system.Update( world, deltatime );
 
 		if( physics_simulate )
 		{
@@ -229,10 +471,9 @@ namespace Bat
 
 		if( ImGui::TreeNode( name.c_str() ) )
 		{
-			size_t num_children = node.GetNumChildren();
-			for( size_t i = 0; i < num_children; i++ )
+			for( SceneNode& child : node )
 			{
-				AddNodeTree( &node, node.GetChild( i ) );
+				AddNodeTree( &node, child );
 			}
 
 			if( e.Has<ModelComponent>() )
@@ -310,9 +551,9 @@ namespace Bat
 			if( e.Has<TransformComponent>() )
 			{
 				const auto& t = e.Get<TransformComponent>();
-				Vec3 pos = t.GetPosition();
-				Vec3 rot = t.GetRotation();
-				float scale = t.GetScale();
+				Vec3 pos = t.GetLocalPosition();
+				Vec3 rot = t.GetLocalRotation();
+				float scale = t.GetLocalScale();
 
 				std::string pos_text = Format( "Local Pos: (%.2f, %.2f, %.2f)", pos.x, pos.y, pos.z );
 				std::string rot_text = Format( "Local Rot: (%.2f, %.2f, %.2f)", rot.x, rot.y, rot.z );
@@ -498,6 +739,14 @@ namespace Bat
 				ImGui::End();
 			}
 		}
+
+		Vec3 ai_pos = ai.GetPosition();
+		DebugDraw::Box( ai_pos - Vec3{ 1.0f, 1.0f, 1.0f } *0.1f, ai_pos + Vec3{ 1.0f, 1.0f, 1.0f } *0.1f, Colours::Red );
+
+		if( draw_navmesh )
+		{
+			navmesh_system.Draw( 0 );
+		}
 	}
 
 	void Application::OnEvent( const WindowResizeEvent& e )
@@ -532,22 +781,22 @@ namespace Bat
 		else if( e.key == 'C' )
 		{
 			Entity light = world.CreateEntity();
+			scene.AddChild( light );
+			light.Get<TransformComponent>()
+				.SetPosition( camera.GetPosition() );
 			light.Add<LightComponent>()
 				.SetRange( 2.5f );
-			light.Add<TransformComponent>()
-				.SetPosition( camera.GetPosition() );
 			//light.Add<PhysicsComponent>( PhysicsObjectType::DYNAMIC )
 			//	.AddSphereShape( 0.05f );
-			scene.AddChild( light );
 		}
 		else if( e.key == 'V' )
 		{
 			Entity light = world.CreateEntity();
+			scene.AddChild( light );
+			light.Get<TransformComponent>()
+				.SetPosition( camera.GetPosition() );
 			light.Add<LightComponent>()
 				.SetRange( 2.5f );
-			light.Add<TransformComponent>()
-				.SetPosition( camera.GetPosition() );
-			scene.AddChild( light );
 		}
 		else if( e.key == 'F' )
 		{
@@ -571,15 +820,7 @@ namespace Bat
 		}
 		else if( e.key == 'R' )
 		{
-			auto result = EntityTrace::RayCast( camera.GetPosition() + camera.GetLookAtVector() * 0.5f, camera.GetLookAtVector(), 500.0f, HIT_DYNAMICS );
-			if( result.hit )
-			{
-				Entity hit_ent = result.entity;
-				BAT_LOG( "HIT! Entity: %i", hit_ent.GetId().GetIndex() );
-				const auto& t = hit_ent.Get<TransformComponent>();
-				auto& phys = hit_ent.Get<PhysicsComponent>();
-				phys.AddLinearImpulse( (t.GetPosition() - camera.GetPosition()).Normalize() * 10.0f );
-			}
+			draw_navmesh = !draw_navmesh;
 		}
 		else if( e.key == 'X' )
 		{
@@ -588,14 +829,14 @@ namespace Bat
 		else if( e.key == 'E' )
 		{
 			Entity spotlight = world.CreateEntity();
+			spotlight.Get<TransformComponent>()
+				.SetPosition( camera.GetPosition() )
+				.SetRotation( camera.GetRotation() );
+			scene.AddChild( spotlight );
 			spotlight.Add<LightComponent>()
 				.SetType( LightType::SPOT )
 				.SetSpotlightAngle( Math::DegToRad( 45.0f ) )
 				.AddFlag( LightFlags::EMIT_SHADOWS );
-			spotlight.Add<TransformComponent>()
-				.SetPosition( camera.GetPosition() )
-				.SetRotation( camera.GetRotation() );
-			scene.AddChild( spotlight );
 		}
 		else if( e.key == 'Q' )
 		{
@@ -623,12 +864,10 @@ namespace Bat
 		SceneNode new_node = loader.Load( filepath );
 
 		const Vec3& pos = camera.GetPosition();
-		SceneNode pos_node( world.CreateEntity() );
-		pos_node.AddChild( new_node );
-		pos_node.Get().Add<TransformComponent>()
+		SceneNode* pos_node = scale_node->AddChild( world.CreateEntity() );
+		pos_node->AddChild( std::move( new_node ) );
+		pos_node->Get().Get<TransformComponent>()
 			.SetPosition( pos );
-
-		scene.GetChild( scale_index ).AddChild( pos_node );
 	}
 
 	void Application::BuildRenderGraph()

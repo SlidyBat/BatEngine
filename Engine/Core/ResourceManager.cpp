@@ -5,6 +5,7 @@
 #include "Texture.h"
 #include "Colour.h"
 #include "Mesh.h"
+#include "SceneLoader.h"
 #include "IGPUDevice.h"
 
 namespace Bat
@@ -15,6 +16,7 @@ namespace Bat
 	using UniqueResourceMap = std::unordered_map<std::string, std::unique_ptr<T>>;
 
 	static ResourceMap<Texture>             g_mapTextures;
+	static ResourceMap<Mesh>                g_mapMeshes;
 	static UniqueResourceMap<IVertexShader> g_mapVShaders;
 	static UniqueResourceMap<IPixelShader>  g_mapPShaders;
 
@@ -26,6 +28,20 @@ namespace Bat
 			auto pResource = std::make_shared<Texture>( StringToWide( filename ) );
 			g_mapTextures[filename] = pResource;
 			return pResource;
+		}
+
+		return it->second;
+	}
+
+	Resource<Mesh> ResourceManager::GetMesh( const std::string& filename )
+	{
+		auto it = g_mapMeshes.find( filename );
+		if( it == g_mapMeshes.end() )
+		{
+			SceneLoader loader;
+			std::shared_ptr<Mesh> mesh = loader.LoadMesh( filename );
+			g_mapMeshes[filename] = mesh;
+			return mesh;
 		}
 
 		return it->second;

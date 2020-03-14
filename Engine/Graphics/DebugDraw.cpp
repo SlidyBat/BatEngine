@@ -34,6 +34,14 @@ namespace Bat
 	};
 	static std::vector<DebugBox> g_DebugBoxes;
 
+	struct DebugLine
+	{
+		Vec3 a;
+		Vec3 b;
+		Colour col;
+	};
+	static std::vector<DebugLine> g_DebugLines;
+
 	static void InitDebugDrawState( IGPUContext* pContext )
 	{
 		pContext->SetDepthEnabled( false );
@@ -76,7 +84,7 @@ namespace Bat
 		builder.Triangle( 3, 4, 0 );
 
 		auto pPipeline = ShaderManager::GetPipeline<ColourPipeline>();
-		pPipeline->Render( pContext, builder.Build(), Camera::ScreenOrtho(), DirectX::XMMatrixIdentity() );
+		pPipeline->Render( pContext, builder.Build(), Camera::ScreenOrtho(), Mat4::Identity() );
 	}
 	static void DrawBox( const Camera& camera, const DebugBox& box )
 	{
@@ -109,7 +117,23 @@ namespace Bat
 
 		IGPUContext* pContext = gpu->GetContext();
 		auto pPipeline = ShaderManager::GetPipeline<ColourPipeline>();
-		pPipeline->Render( pContext, builder.Build(), camera, DirectX::XMMatrixIdentity() );
+		pPipeline->Render( pContext, builder.Build(), camera, Mat4::Identity() );
+	}
+	static void DrawLines( const Camera& camera, const std::vector<DebugLine>& lines )
+	{
+		const size_t vertex_count = lines.size() * 2;
+		const size_t index_count = 0;
+		MeshBuilder builder( vertex_count, index_count, PrimitiveTopology::LINELIST );
+		for( const DebugLine& line : lines  )
+		{
+			Vec4 col = line.col.AsVector();
+			builder.Position( line.a ); builder.Colour( col );
+			builder.Position( line.b ); builder.Colour( col );
+		}
+
+		IGPUContext* pContext = gpu->GetContext();
+		auto pPipeline = ShaderManager::GetPipeline<ColourPipeline>();
+		pPipeline->Render( pContext, builder.Build(), camera, Mat4::Identity() );
 	}
 
 	void DebugDraw::Rectangle( const Vei2& a, const Vei2& b, const Colour& col, float thickness )
@@ -128,6 +152,14 @@ namespace Bat
 		box.b = b;
 		box.col = col;
 		g_DebugBoxes.push_back( box );
+	}
+	void DebugDraw::Line( const Vec3& a, const Vec3& b, const Colour& col )
+	{
+		DebugLine line;
+		line.a = a;
+		line.b = b;
+		line.col = col;
+		g_DebugLines.push_back( line );
 	}
 	void DebugDraw::Text( const std::string& str, const Vei2& pos, const Colour& col )
 	{
@@ -155,6 +187,12 @@ namespace Bat
 			DrawBox( camera, box );
 		}
 		g_DebugBoxes.clear();
+
+		if( !g_DebugLines.empty() )
+		{
+			DrawLines( camera, g_DebugLines );
+			g_DebugLines.clear();
+		}
 
 		static DirectX::SpriteFont font( (ID3D11Device*)gpu->GetImpl(), L"Assets/Fonts/consolas.spritefont" );
 		if( !g_DebugTexts.empty() )

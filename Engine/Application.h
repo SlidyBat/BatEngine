@@ -12,7 +12,11 @@
 #include "MouseEvents.h"
 #include "PhysicsSystem.h"
 #include "AnimationSystem.h"
+#include "CharacterControllerSystem.h"
+#include "BehaviourTree.h"
+#include "NavMesh.h"
 #include "Particles.h"
+#include "Scene.h"
 
 namespace Bat
 {
@@ -46,16 +50,15 @@ namespace Bat
 	private:
 		Graphics& gfx;
 		Window& wnd;
-		ISoundEngine* snd;
 		MoveableCamera camera;
 		SceneNode scene;
-		size_t scale_index;
+		SceneNode* scale_node;
 		RenderGraph rendergraph;
 		Entity flashlight;
 		Entity sun;
-		Entity player;
 
-		bool physics_simulate = false;
+		bool physics_simulate = true;
+		bool draw_navmesh = false;
 
 		float timestamp = 0.0f;
 		float anim_timescale = 1.0f;
@@ -65,6 +68,9 @@ namespace Bat
 		PhysicsSystem physics_system;
 		AnimationSystem anim_system;
 		ParticleSystem particle_system;
+		NavMeshSystem navmesh_system;
+		BehaviourTreeSystem behaviour_system;
+		CharacterControllerSystem controller_system;
 
 		std::string skybox_tex = "Assets/Ignore/IBLTest.hdr";
 

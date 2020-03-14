@@ -10,12 +10,12 @@ namespace Bat
 	class ColourPipeline : public IPipeline
 	{
 	public:
-		void Render( IGPUContext* pContext, const Mesh& mesh, const Camera& camera, const DirectX::XMMATRIX& world_transform );
+		void Render( IGPUContext* pContext, const Mesh& mesh, const Camera& camera, const Mat4& world_transform );
 	private:
 		struct CB_ColourPipelineMatrix
 		{
-			DirectX::XMMATRIX world;
-			DirectX::XMMATRIX viewproj;
+			Mat4 world;
+			Mat4 viewproj;
 		};
 		ConstantBuffer<CB_ColourPipelineMatrix> m_cbufTransform;
 	};

@@ -17,7 +17,7 @@ namespace Bat
 
 		void OnEvent( const ComponentAddedEvent<PhysicsComponent>& e )
 		{
-			const auto& t = e.entity.Get<TransformComponent>();
+			auto& t = e.entity.Get<TransformComponent>();
 			if( e.component.GetType() == PhysicsObjectType::STATIC )
 			{
 				e.component.m_pObject = std::unique_ptr<IPhysicsObject>( Physics::CreateStaticObject( t.GetPosition(), t.GetRotation(), (void*)e.entity.GetId().Raw() ) );
@@ -36,6 +36,7 @@ namespace Bat
 				{
 					auto& phys = ent.Get<PhysicsComponent>();
 					auto& t = ent.Get<TransformComponent>();
+
 					IPhysicsObject* obj = phys.m_pObject.get();
 
 					if( phys.m_AddMeshShape != PhysicsComponent::AddMeshType::NONE )
@@ -67,16 +68,18 @@ namespace Bat
 					}
 
 					// Kinematic objects update physics system, non-kinematic objects are updated by physics system
-					if( phys.GetType() == PhysicsObjectType::DYNAMIC && phys.IsKinematic() )
+					if( phys.GetType() == PhysicsObjectType::DYNAMIC )
 					{
-						static_cast<IDynamicObject*>(obj)->MoveTo( t.GetPosition(), t.GetRotation() );
+						if( phys.IsKinematic() )
+						{
+							static_cast<IDynamicObject*>( obj )->MoveTo( t.GetPosition(), t.GetRotation() );
+						}
+						else
+						{
+							t.SetPosition( obj->GetPosition() );
+							t.SetRotation( obj->GetRotation() );
+						}
 ;					}
-					else
-					{
-						t.SetPosition( obj->GetPosition() );
-						t.SetRotation( obj->GetRotation() );
-					}
-
 				}
 			}
 		}

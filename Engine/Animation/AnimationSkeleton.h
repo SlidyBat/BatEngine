@@ -13,7 +13,7 @@ namespace Bat
 	{
 		std::string name;
 		int index;
-		DirectX::XMMATRIX inverse_bind_transform;
+		Mat3x4 inverse_bind_transform;
 	};
 
 	struct BoneTransform
@@ -24,8 +24,8 @@ namespace Bat
 		BoneTransform operator+( const BoneTransform& rhs ) const;
 		BoneTransform operator*( const BoneTransform& rhs ) const;
 		BoneTransform operator*( const float weight ) const;
-		static DirectX::XMMATRIX ToMatrix( const BoneTransform& transform );
-		static BoneTransform FromMatrix( DirectX::XMMATRIX matrix );
+		static Mat3x4 ToMatrix( const BoneTransform& transform );
+		static BoneTransform FromMatrix( const Mat3x4& matrix );
 	};
 
 	struct BoneNode
@@ -44,7 +44,7 @@ namespace Bat
 		// Converts a given pose from local space to model space
 		static SkeletonPose ToModelSpace( SkeletonPose pose );
 		// Converts a given model-space pose to a matrix palette for use in skinning
-		static void ToMatrixPalette( const SkeletonPose& model_pose, const std::vector<BoneData>& bones, DirectX::XMMATRIX* out );
+		static void ToMatrixPalette( const SkeletonPose& model_pose, const std::vector<BoneData>& bones, Mat4* out );
 		static SkeletonPose Blend( const SkeletonPose* poses, const float* weights, int num_poses, const SkeletonPose& bind_pose );
 	};
 }

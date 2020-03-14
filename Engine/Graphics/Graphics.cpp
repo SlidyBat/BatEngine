@@ -14,6 +14,7 @@
 #include "ShaderManager.h"
 #include "WindowEvents.h"
 #include "DebugDraw.h"
+#include "Scene.h"
 
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
@@ -116,7 +117,7 @@ namespace Bat
 		gpu->SwapBuffers();
 	}
 
-	DirectX::XMMATRIX Graphics::GetOrthoMatrix() const
+	Mat4 Graphics::GetOrthoMatrix() const
 	{
 		return m_matOrtho;
 	}
@@ -125,7 +126,7 @@ namespace Bat
 	{
 		m_iScreenWidth = (int)width;
 		m_iScreenHeight = (int)height;
-		m_matOrtho = DirectX::XMMatrixOrthographicLH(
+		m_matOrtho = Mat4::Ortho(
 			(float)width,
 			(float)height,
 			Graphics::ScreenNear,

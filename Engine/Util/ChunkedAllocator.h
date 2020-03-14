@@ -5,25 +5,19 @@
 
 namespace Bat
 {
+	template <size_t ChunkSize = 8192>
 	class ChunkedAllocator
 	{
 	public:
 		// The allocator will ensure at least this capacity, but may
 		// also allocate more. Use Capacity() to check the real capacity.
-		ChunkedAllocator( const size_t object_size, const size_t chunk_size, const size_t capacity = 1 )
+		ChunkedAllocator( const size_t object_size, const size_t capacity = 1 )
 			:
-			m_iObjectSize( object_size ),
-			m_iChunkSize( chunk_size )
+			m_iObjectSize( object_size )
 		{
-			ASSERT( capacity > 0, "Cannot have 0 capacity" );
-
-			const size_t nBytes = object_size * capacity;
-			m_iCapacity = chunk_size / nBytes;
-			const size_t nChunksNeeded = (nBytes / chunk_size) + 1;
-			m_pChunks.resize( nChunksNeeded );
-			for( size_t i = 0; i < nChunksNeeded; i++ )
+			if( capacity )
 			{
-				m_pChunks[i] = new char[chunk_size];
+				EnsureCapacity( capacity );
 			}
 		}
 		~ChunkedAllocator()
@@ -45,7 +39,6 @@ namespace Bat
 		{
 			m_iCapacity = rhs.m_iCapacity;
 			m_pChunks = std::move( rhs.m_pChunks );
-			m_iCurrentChunk = rhs.m_iCurrentChunk;
 			m_iObjectSize = rhs.m_iObjectSize;
 		}
 
@@ -53,8 +46,7 @@ namespace Bat
 		// Not guaranteed to be a valid object
 		void* Get( size_t index )
 		{
-			size_t elements_per_chunk = m_iChunkSize / m_iObjectSize;
-			return m_pChunks[index / elements_per_chunk] + ( index % elements_per_chunk ) * m_iObjectSize;
+			return m_pChunks[index / ChunkSize] + ( index % ChunkSize ) * m_iObjectSize;
 		}
 
 		void EnsureCapacity( const size_t capacity )
@@ -65,19 +57,16 @@ namespace Bat
 				return;
 			}
 
-			const size_t nBytes = capacity * m_iObjectSize;
-			const size_t nChunksNeeded = ((nBytes - 1) / m_iChunkSize) + 1;
-			const size_t nOldBytes = m_iCapacity * m_iObjectSize;
-			const size_t nOldChunksNeeded = ((nOldBytes - 1) / m_iChunkSize) + 1;
+			const size_t nChunksNeeded = ( ( capacity - 1 ) / ChunkSize ) + 1;
+			const size_t nOldChunksNeeded = m_iCapacity ? ( ( ( m_iCapacity - 1 ) / ChunkSize ) + 1 ) : 0;
 
 			m_pChunks.resize( nChunksNeeded );
 			for( size_t i = nOldChunksNeeded; i < nChunksNeeded; i++ )
 			{
-				m_pChunks[i] = new char[m_iChunkSize];
+				m_pChunks[i] = new char[ChunkSize * m_iObjectSize];
 			}
 
-			size_t elements_per_chunk = m_iChunkSize / m_iObjectSize;
-			m_iCapacity = nChunksNeeded * elements_per_chunk;
+			m_iCapacity = nChunksNeeded * ChunkSize;
 		}
 
 		size_t Capacity() const { return m_iCapacity; }
@@ -85,20 +74,18 @@ namespace Bat
 		static constexpr size_t GROW_MULTIPLIER = 2;
 
 		std::vector<char*> m_pChunks;
-		size_t m_iCurrentChunk = 0;
 		size_t m_iCapacity = 0;
 
 		size_t m_iObjectSize = 0;
-		size_t m_iChunkSize = 0;
 	};
 
 	template <typename T, size_t ChunkSize = 8192>
-	class ObjectChunkedAllocator : public ChunkedAllocator
+	class ObjectChunkedAllocator : public ChunkedAllocator<ChunkSize>
 	{
 	public:
 		ObjectChunkedAllocator( const size_t capacity = 1 )
 			:
-			ChunkedAllocator( sizeof( T ), ChunkSize * sizeof( T ), capacity )
+			ChunkedAllocator( sizeof( T ), capacity )
 		{
 			// we double up the memory as a linked list that stores 1 pointer per node
 			// so we need at least sizeof a pointer for this to work

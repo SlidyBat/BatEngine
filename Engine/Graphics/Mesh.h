@@ -33,6 +33,7 @@ namespace Bat
 	public:
 		Mesh() = default;
 		Mesh( const MeshParameters& params, const std::vector<unsigned int>& indices, const Material& material = {} );
+		Mesh( const MeshParameters& params, const Material& material = {} );
 
 		void SetName( const std::string& name ) { m_szName = name; }
 		std::string GetName() const { return m_szName; }

@@ -5,6 +5,9 @@ namespace Bat
 	class IPhysicsObject;
 	class IStaticObject;
 	class IDynamicObject;
+	class ICharacterController;
+	struct PhysicsBoxControllerDesc;
+	struct PhysicsCapsuleControllerDesc;
 
 	struct PhysicsMaterial
 	{
@@ -64,6 +67,9 @@ namespace Bat
 		// Creates a new dynamic object (body with mass, inertia, velocity) with the given world position/rotation
 		// NOTE: must be freed using `delete`
 		static IDynamicObject* CreateDynamicObject( const Vec3& pos, const Vec3& ang, void* userdata = nullptr );
+
+		static ICharacterController* CreateCharacterController( const PhysicsBoxControllerDesc& desc );
+		static ICharacterController* CreateCharacterController( const PhysicsCapsuleControllerDesc& desc );
 
 		// See TraceFilterFlags for possible filter flags
 		static PhysicsRayCastResult RayCast( const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter = (HIT_STATICS|HIT_DYNAMICS) );
@@ -178,5 +184,46 @@ namespace Bat
 		virtual void AddAngularImpulse( const Vec3& ang_impulse ) = 0;
 
 		virtual PhysicsObjectType GetType() const override { return PhysicsObjectType::DYNAMIC; }
+	};
+
+	enum PhysicsControllerCollisionFlags
+	{
+		CONTROLLER_COLLISION_NONE = 0,
+		CONTROLLER_COLLISION_SIDES = ( 1 << 0 ),
+		CONTROLLER_COLLISION_UP = ( 1 << 1 ),
+		CONTROLLER_COLLISION_DOWN = ( 1 << 2 )
+	};
+	BAT_ENUM_OPERATORS( PhysicsControllerCollisionFlags );
+
+	struct PhysicsBoxControllerDesc
+	{
+		Vec3 position = { 0.0f, 0.0f, 0.0f };
+		float height = 0.5f, forward_extent = 0.1f, side_extent = 0.1f;
+		float slope_limit = 45.0f; // Maximum walkable slop angle in degrees
+		float step_offset = 0.1f;
+		PhysicsMaterial material = Physics::DEFAULT_MATERIAL;
+		void* user_data = nullptr;
+	};
+
+	struct PhysicsCapsuleControllerDesc
+	{
+		Vec3 position = { 0.0f, 0.0f, 0.0f };
+		float height = 0.5f, radius = 0.1f;
+		float slope_limit = 45.0f; // Maximum walkable slop angle in degrees
+		float step_offset = 0.1f;
+		PhysicsMaterial material = Physics::DEFAULT_MATERIAL;
+		void* user_data = nullptr;
+	};
+
+	class ICharacterController
+	{
+	public:
+		// Moves the character by the given displacement vector
+		virtual PhysicsControllerCollisionFlags Move( const Vec3& disp, float dt ) = 0;
+
+		// Teleports the character to the given position.
+		// Unlike Move() no collision checks are done here, the character's position is simply set.
+		virtual void SetPosition( const Vec3& pos ) = 0;
+		virtual Vec3 GetPosition() const = 0;
 	};
 }

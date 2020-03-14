@@ -3,27 +3,14 @@
 
 namespace Bat
 {
-	Frustum::Frustum( DirectX::XMMATRIX transform )
+	Frustum::Frustum( const Mat4& transform )
 	{
-		transform = DirectX::XMMatrixTranspose( transform );
-
-		const auto l = DirectX::XMPlaneNormalizeEst( DirectX::XMVectorAdd( transform.r[3], transform.r[0] ) );
-		DirectX::XMStoreFloat4( &planes[LEFT_PLANE], l );
-
-		const auto r = DirectX::XMPlaneNormalizeEst( DirectX::XMVectorSubtract( transform.r[3], transform.r[0] ) );
-		DirectX::XMStoreFloat4( &planes[RIGHT_PLANE], r );
-
-		const auto b = DirectX::XMPlaneNormalizeEst( DirectX::XMVectorAdd( transform.r[3], transform.r[1] ) );
-		DirectX::XMStoreFloat4( &planes[BOTTOM_PLANE], b );
-
-		const auto t = DirectX::XMPlaneNormalizeEst( DirectX::XMVectorSubtract( transform.r[3], transform.r[1] ) );
-		DirectX::XMStoreFloat4( &planes[TOP_PLANE], t );
-
-		const auto n = DirectX::XMPlaneNormalizeEst( DirectX::XMVectorAdd( transform.r[3], transform.r[2] ) );
-		DirectX::XMStoreFloat4( &planes[NEAR_PLANE], n );
-
-		const auto f = DirectX::XMPlaneNormalizeEst( DirectX::XMVectorSubtract( transform.r[3], transform.r[2] ) );
-		DirectX::XMStoreFloat4( &planes[FAR_PLANE], f );
+		planes[LEFT_PLANE]   = Plane::Normalize( transform.GetRow( 3 ) + transform.GetRow( 0 ) );
+		planes[RIGHT_PLANE]  = Plane::Normalize( transform.GetRow( 3 ) - transform.GetRow( 0 ) );
+		planes[BOTTOM_PLANE] = Plane::Normalize( transform.GetRow( 3 ) + transform.GetRow( 1 ) );
+		planes[TOP_PLANE]    = Plane::Normalize( transform.GetRow( 3 ) - transform.GetRow( 1 ) );
+		planes[NEAR_PLANE]   = Plane::Normalize( transform.GetRow( 3 ) + transform.GetRow( 2 ) );
+		planes[FAR_PLANE]    = Plane::Normalize( transform.GetRow( 3 ) - transform.GetRow( 2 ) );
 	}
 
 	bool Frustum::IsPointInside( const Vec3& point ) const
@@ -92,49 +79,43 @@ namespace Bat
 		return true;
 	}
 
-	Frustum Frustum::Transform( const Frustum& frustum, DirectX::XMMATRIX transform )
+	Frustum Frustum::Transform( const Frustum& frustum, const Mat4& transform )
 	{
 		Frustum transformed;
 		for( int i = 0; i < TOTAL_PLANES; i++ )
 		{
-			transformed.planes[i] = DirectX::XMPlaneTransform( frustum.planes[i], transform );
+			transformed.planes[i] = transform * frustum.planes[i];
 		}
 
 		return transformed;
 	}
 
-	void Frustum::CalculateCorners( DirectX::XMMATRIX viewproj, Vec3 corners_out[8] )
+	void Frustum::CalculateCorners( const Mat4& viewproj, Vec3 corners_out[8] )
 	{
-		DirectX::XMMATRIX inv_vp = DirectX::XMMatrixInverse( nullptr, viewproj );
+		Mat4 inv_vp = Mat4::Inverse( viewproj );
 
 		// Corners in homogeneous clip space
-		DirectX::XMVECTOR corners[8] =
-		{                                                     //                   7--------6
-			DirectX::XMVectorSet(  1.0f, -1.0f, 0.0f, 1.0f ), //                  /|       /|
-			DirectX::XMVectorSet( -1.0f, -1.0f, 0.0f, 1.0f ), //   Y ^           / |      / |
-			DirectX::XMVectorSet(  1.0f,  1.0f, 0.0f, 1.0f ), //   | _          3--------2  |
-			DirectX::XMVectorSet( -1.0f,  1.0f, 0.0f, 1.0f ), //   | /' Z       |  |     |  |
-			DirectX::XMVectorSet(  1.0f, -1.0f, 1.0f, 1.0f ), //   |/           |  5-----|--4
-			DirectX::XMVectorSet( -1.0f, -1.0f, 1.0f, 1.0f ), //   + ---> X     | /      | /
-			DirectX::XMVectorSet(  1.0f,  1.0f, 1.0f, 1.0f ), //                |/       |/
-			DirectX::XMVectorSet( -1.0f,  1.0f, 1.0f, 1.0f ), //                1--------0
+		Vec3 corners[8] =
+		{                           //                   7--------6
+			{  1.0f, -1.0f, 0.0f }, //                  /|       /|
+			{ -1.0f, -1.0f, 0.0f }, //   Y ^           / |      / |
+			{  1.0f,  1.0f, 0.0f }, //   | _          3--------2  |
+			{ -1.0f,  1.0f, 0.0f }, //   | /' Z       |  |     |  |
+			{  1.0f, -1.0f, 1.0f }, //   |/           |  5-----|--4
+			{ -1.0f, -1.0f, 1.0f }, //   + ---> X     | /      | /
+			{  1.0f,  1.0f, 1.0f }, //                |/       |/
+			{ -1.0f,  1.0f, 1.0f }, //                1--------0
 		};
 
 		// Convert to world space
 		for( int i = 0; i < 8; ++i )
 		{
-			corners_out[i] = DirectX::XMVector3TransformCoord( corners[i], inv_vp );
+			corners_out[i] = inv_vp * corners[i];
 		}
 	}
 
-	float Frustum::PlaneDotCoord( const Vec4& plane, const Vec3& point )
+	float Frustum::PlaneDotCoord( const Plane& plane, const Vec3& point )
 	{
-		DirectX::XMVECTOR p = DirectX::XMLoadFloat4( &plane );
-		DirectX::XMVECTOR v = DirectX::XMLoadFloat3( &point );
-
-		float d;
-		DirectX::XMStoreFloat( &d, DirectX::XMPlaneDotCoord( p, v ) );
-
-		return d;
+		return Vec3::Dot( plane.n, point ) + plane.d;
 	}
 }

@@ -9,7 +9,7 @@
 
 namespace Bat
 {
-	void TexturePipeline::Render( IGPUContext* pContext, const Mesh& mesh, const Camera& camera, ITexture* pTexture, const DirectX::XMMATRIX& world_transform )
+	void TexturePipeline::Render( IGPUContext* pContext, const Mesh& mesh, const Camera& camera, ITexture* pTexture, const Mat4& world_transform )
 	{
 		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/TextureVS.hlsl" );
 		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/TexturePS.hlsl" );

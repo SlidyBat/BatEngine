@@ -14,12 +14,15 @@ namespace Bat
 		Input& operator=( const Input& src ) = delete;
 		Input( Input&& donor ) = delete;
 		Input& operator=( Input&& donor ) = delete;
+
+		void SaveState();
 	private: // keyboard		
 		void OnKeyChar( const size_t key, bool repeated );
 		void OnKeyDown( const size_t key, bool repeated );
 		void OnKeyUp( const size_t key );
 	public:
 		bool IsKeyDown( const size_t key ) const;
+		bool KeyPressed( const size_t key ) const;
 		bool IsAutorepeatEnabled() const { return m_bEnableAutorepeat; };
 		void SetAutorepeatEnabled( bool enabled ) { m_bEnableAutorepeat = enabled; }
 	public: // mouse
@@ -41,7 +44,8 @@ namespace Bat
 		void OnMouseEnter();
 		void OnMouseLeave();
 	public:
-		Vei2 GetMousePosition() const;
+		const Vei2& GetMousePosition() const;
+		Vei2 GetMouseDelta() const;
 		bool IsMouseButtonDown( const MouseButton mb ) const;
 
 		bool IsLeftDown() const;
@@ -52,10 +56,12 @@ namespace Bat
 
 		bool IsMouseInWindow() const;
 	private:
-		static constexpr int MaxKeys = 256;
-		bool m_bKeyIsPressed[MaxKeys];
+		static constexpr int MAX_KEYS = 256;
+		bool m_bKeyIsDown[MAX_KEYS];
+		bool m_bKeyWasDown[MAX_KEYS];
 		bool m_bEnableAutorepeat = false;
 
+		Vei2 m_vecMouseLastPosition;
 		Vei2 m_vecMousePosition;
 		bool m_bMouseButtonIsDown[(int)MouseButton::TOTAL_MOUSE_BUTTONS];
 		bool m_bMouseInWindow = false;

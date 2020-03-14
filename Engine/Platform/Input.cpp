@@ -9,16 +9,17 @@ namespace Bat
 {
 	Input::Input()
 	{
-		for( int i = 0; i < MaxKeys; i++ )
+		for( int i = 0; i < MAX_KEYS; i++ )
 		{
-			m_bKeyIsPressed[i] = false;
+			m_bKeyWasDown[i] = false;
+			m_bKeyIsDown[i] = false;
 		}
 	}
 
 	void Input::OnKeyChar( const size_t key, bool repeated )
 	{
 		ASSERT( key >= 0, "Invalid keyboard key '%i'", key );
-		ASSERT( key < MaxKeys, "Invalid keyboard key '%i'", key );
+		ASSERT( key < MAX_KEYS, "Invalid keyboard key '%i'", key );
 
 		ImGuiIO& io = ImGui::GetIO();
 		if( io.WantCaptureKeyboard )
@@ -38,7 +39,7 @@ namespace Bat
 		}
 
 		ASSERT( key >= 0, "Invalid keyboard key '%i'", key );
-		ASSERT( key < MaxKeys, "Invalid keyboard key '%i'", key );
+		ASSERT( key < MAX_KEYS, "Invalid keyboard key '%i'", key );
 
 		ImGuiIO& io = ImGui::GetIO();
 		if( io.WantCaptureKeyboard )
@@ -46,7 +47,7 @@ namespace Bat
 			return;
 		}
 
-		m_bKeyIsPressed[key] = true;
+		m_bKeyIsDown[key] = true;
 
 		DispatchEvent<KeyPressedEvent>( key, repeated );
 	}
@@ -54,7 +55,7 @@ namespace Bat
 	void Input::OnKeyUp( const size_t key )
 	{
 		ASSERT( key >= 0, "Invalid keyboard key '%i'", key );
-		ASSERT( key < MaxKeys, "Invalid keyboard key '%i'", key );
+		ASSERT( key < MAX_KEYS, "Invalid keyboard key '%i'", key );
 
 		ImGuiIO& io = ImGui::GetIO();
 		if( io.WantCaptureKeyboard )
@@ -62,14 +63,25 @@ namespace Bat
 			return;
 		}
 
-		m_bKeyIsPressed[key] = false;
+		m_bKeyIsDown[key] = false;
 
 		DispatchEvent<KeyReleasedEvent>( key );
 	}
 
+	void Input::SaveState()
+	{
+		memcpy( m_bKeyWasDown, m_bKeyIsDown, MAX_KEYS * sizeof( bool ) );
+		m_vecMouseLastPosition = m_vecMousePosition;
+	}
+
 	bool Input::IsKeyDown( const size_t key ) const
 	{
-		return m_bKeyIsPressed[key];
+		return m_bKeyIsDown[key];
+	}
+
+	bool Input::KeyPressed( const size_t key ) const
+	{
+		return m_bKeyIsDown[key] && !m_bKeyWasDown[key];
 	}
 
 	void Input::OnMouseMoved( const Vei2& pos )
@@ -154,9 +166,14 @@ namespace Bat
 		DispatchEvent<MouseLeaveEvent>();
 	}
 
-	Vei2 Input::GetMousePosition() const
+	const Vei2& Input::GetMousePosition() const
 	{
 		return m_vecMousePosition;
+	}
+
+	Vei2 Input::GetMouseDelta() const
+	{
+		return m_vecMousePosition - m_vecMouseLastPosition;
 	}
 
 	bool Input::IsMouseButtonDown( const MouseButton mb ) const

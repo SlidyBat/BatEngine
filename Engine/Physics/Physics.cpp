@@ -16,11 +16,12 @@ using namespace physx;
 
 namespace Bat
 {
-	static PxFoundation* g_pPxFoundation;
-	static PxPhysics*    g_pPxPhysics;
-	static PxCooking*    g_pPxCooking;
-	static PxScene*      g_pPxScene = nullptr;
-	static PxMaterial*   g_pPxDefaultMaterial = nullptr;
+	static PxFoundation*        g_pPxFoundation = nullptr;
+	static PxPhysics*           g_pPxPhysics = nullptr;
+	static PxCooking*           g_pPxCooking = nullptr;
+	static PxScene*             g_pPxScene = nullptr;
+	static PxMaterial*          g_pPxDefaultMaterial = nullptr;
+	static PxControllerManager* g_pPxControllerManager = nullptr;
 
 	static bool g_bFixedTimestep = false;
 	static float g_flFixedTimestep = 0.0f;
@@ -120,20 +121,30 @@ namespace Bat
 		return { vec.x, vec.y, vec.z };
 	}
 
+	static PxExtendedVec3 Bat2PxVecExt( const Vec3& vec )
+	{
+		return { (PxExtended)vec.x, (PxExtended)vec.y, (PxExtended)vec.z };
+	}
+
 	static Vec3 Px2BatVec( const PxVec3& vec )
 	{
 		return { vec.x, vec.y, vec.z };
 	}
+
+	static Vec3 Px2BatVecExt( const PxExtendedVec3& vec )
+	{
+		return { (float)vec.x, (float)vec.y, (float)vec.z };
+	}
 	
 	static PxQuat Bat2PxAng( const Vec3& ang )
 	{
-		Vec4 q = Math::EulerToQuaternion( ang );
+		Vec4 q = Math::EulerToQuaternionDeg( ang );
 		return { q.x, q.y, q.z, q.w };
 	}
 	
 	static Vec3 Px2BatAng( const PxQuat& q )
 	{
-		Vec3 ang = Math::QuaternionToEuler( { q.x, q.y, q.z, q.w } );
+		Vec3 ang = Math::QuaternionToEulerDeg( { q.x, q.y, q.z, q.w } );
 		return ang;
 	}
 
@@ -504,6 +515,51 @@ namespace Bat
 		void* m_pUserData;
 	};
 
+	class PxCharacterController : public ICharacterController
+	{
+	public:
+		PxCharacterController( PxController* pController )
+			:
+			m_pController( pController )
+		{
+
+			PxRigidDynamic* actor = m_pController->getActor();
+			m_pDynamicObject = std::make_unique<PxDynamicObject>( actor, m_pController->getUserData() );
+		}
+		~PxCharacterController()
+		{
+			m_pController->release();
+		}
+
+		virtual PhysicsControllerCollisionFlags Move( const Vec3& disp, float dt ) override
+		{
+			PxControllerFilters filters;
+			PxControllerCollisionFlags pxflags = m_pController->move( Bat2PxVec( disp ), 0.001f, dt, filters );
+			
+			PhysicsControllerCollisionFlags flags = CONTROLLER_COLLISION_NONE;
+			if( pxflags.isSet( PxControllerCollisionFlag::eCOLLISION_SIDES ) )
+			{
+				flags |= CONTROLLER_COLLISION_SIDES;
+			}
+			if( pxflags.isSet( PxControllerCollisionFlag::eCOLLISION_UP ) )
+			{
+				flags |= CONTROLLER_COLLISION_UP;
+			}
+			if( pxflags.isSet( PxControllerCollisionFlag::eCOLLISION_DOWN ) )
+			{
+				flags |= CONTROLLER_COLLISION_DOWN;
+			}
+
+			return flags;
+		}
+
+		virtual void SetPosition( const Vec3& pos ) override { m_pController->setPosition( Bat2PxVecExt( pos ) ); }
+		virtual Vec3 GetPosition() const override { return Px2BatVecExt( m_pController->getPosition() ); }
+	private:
+		PxController* m_pController = nullptr;
+		std::unique_ptr<PxDynamicObject> m_pDynamicObject;
+	};
+
 	void Physics::Initialize()
 	{
 		static BatPxErrorCallback px_error_callback;
@@ -558,10 +614,15 @@ namespace Bat
 			auto& m = DEFAULT_MATERIAL;
 			g_pPxDefaultMaterial = g_pPxPhysics->createMaterial( m.static_friction, m.dynamic_friction, m.restitution );
 		}
+
+		{
+			g_pPxControllerManager = PxCreateControllerManager( *g_pPxScene );
+		}
 	}
 
 	void Physics::Shutdown()
 	{
+		g_pPxControllerManager->release();
 		g_pPxDefaultMaterial->release();
 		g_pPxScene->release();
 		PxCloseExtensions();
@@ -621,6 +682,39 @@ namespace Bat
 		g_pPxScene->addActor( *dynamic_actor );
 
 		return new PxDynamicObject( dynamic_actor, userdata );
+	}
+
+	ICharacterController* Physics::CreateCharacterController( const PhysicsBoxControllerDesc& desc )
+	{
+		PxBoxControllerDesc box_desc;
+		box_desc.position = Bat2PxVecExt( desc.position );
+		box_desc.halfHeight = desc.height / 2.0f;
+		box_desc.halfForwardExtent = desc.forward_extent / 2.0f;
+		box_desc.halfSideExtent = desc.side_extent / 2.0f;
+		box_desc.slopeLimit = cosf( Math::DegToRad( desc.slope_limit ) );
+		box_desc.stepOffset = desc.step_offset;
+		box_desc.material = GetPxMaterial( desc.material );
+		box_desc.userData = desc.user_data;
+
+		PxController* controller = g_pPxControllerManager->createController( box_desc );
+		
+		return new PxCharacterController( controller );
+	}
+
+	ICharacterController* Physics::CreateCharacterController( const PhysicsCapsuleControllerDesc& desc )
+	{
+		PxCapsuleControllerDesc cap_desc;
+		cap_desc.position = Bat2PxVecExt( desc.position );
+		cap_desc.height = desc.height;
+		cap_desc.radius = desc.radius;
+		cap_desc.slopeLimit = cosf( Math::DegToRad( desc.slope_limit ) );
+		cap_desc.stepOffset = desc.step_offset;
+		cap_desc.material = GetPxMaterial( desc.material );
+		cap_desc.userData = desc.user_data;
+
+		PxController* controller = g_pPxControllerManager->createController( cap_desc );
+
+		return new PxCharacterController( controller );
 	}
 
 	PhysicsRayCastResult Physics::RayCast( const Vec3& origin, const Vec3& unit_direction, float max_distance, int filter )

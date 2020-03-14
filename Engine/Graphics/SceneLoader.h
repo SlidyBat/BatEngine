@@ -3,7 +3,7 @@
 #include "PCH.h"
 #include "Entity.h"
 #include "Mesh.h"
-#include "ResourceManager.h"
+#include "Scene.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -29,7 +29,11 @@ namespace Bat
 			Disk
 		};
 	public:
+		SceneLoader();
+		~SceneLoader();
+
 		SceneNode Load( const std::string& filename );
+		std::shared_ptr<Mesh> LoadMesh( const std::string& filename );
 	private:
 		bool ReadFile( const std::string& filename );
 		const std::string& GetDirectory() const { return m_szDirectory; }
@@ -37,11 +41,13 @@ namespace Bat
 		void PreProcess();
 		void ProcessNode( aiNode* pAiNode, SceneNode& node );
 		void BuildSkeleton( aiNode* pAiNode, int parent_index );
-		Resource<Mesh> ProcessMesh( aiMesh* pAiMesh );
-		Resource<Mesh> GetLoadedMesh( const aiMesh* pTarget );
+		std::shared_ptr<Mesh> ProcessMesh( aiMesh* pAiMesh );
+		std::shared_ptr<Mesh> GetLoadedMesh( const aiMesh* pTarget );
+
+		std::shared_ptr<Mesh> ExtractMesh( aiNode* pAiNode );
 
 		TextureStorageType DetermineTextureStorageType( aiMaterial* pMat, aiTextureType type, unsigned int index );
-		Resource<Texture> LoadMaterialTexture( aiMaterial* pMaterial, aiTextureType type, unsigned int index = 0 );
+		std::shared_ptr<Texture> LoadMaterialTexture( aiMaterial* pMaterial, aiTextureType type, unsigned int index = 0 );
 		float LoadMaterialFloat( aiMaterial* pMaterial, const char* key, unsigned int type, unsigned int index );
 		Vec3 LoadMaterialColour3( aiMaterial* pMaterial, const char* key, unsigned int type, unsigned int index );
 		Vec4 LoadMaterialColour4( aiMaterial* pMaterial, const char* key, unsigned int type, unsigned int index );

@@ -1957,7 +1957,7 @@ namespace Bat
 			Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
 			Microsoft::WRL::ComPtr<ID3DBlob> pixelShaderBuffer;
 
-			UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS;
+			UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
 #ifdef _DEBUG
 			flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
@@ -2175,7 +2175,7 @@ namespace Bat
 			Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
 			Microsoft::WRL::ComPtr<ID3DBlob> vertexShaderBuffer;
 
-			UINT flags = D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS;
+			UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
 #ifdef _DEBUG
 			flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
@@ -2361,7 +2361,7 @@ namespace Bat
 		desc.CPUAccessFlags = access_flags;
 		desc.MiscFlags = misc_flags;
 
-		ID3D11Texture2D* p2DTexture;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> p2DTexture;
 		if( image.pixels && !gen_mips )
 		{
 			std::vector<D3D11_SUBRESOURCE_DATA> initialData;
@@ -2379,7 +2379,7 @@ namespace Bat
 			COM_THROW_IF_FAILED( pDevice->CreateTexture2D( &desc, nullptr, &p2DTexture ) );
 		}
 
-		m_pTexture = static_cast<ID3D11Resource*>( p2DTexture );
+		m_pTexture = static_cast<ID3D11Resource*>( p2DTexture.Get() );
 
 		if( image.pixels && gen_mips )
 		{

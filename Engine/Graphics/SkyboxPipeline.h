@@ -22,7 +22,7 @@ namespace Bat
 
 		struct CB_SkyboxPipelineMatrix
 		{
-			DirectX::XMMATRIX viewproj;
+			Mat4 viewproj;
 		};
 		ConstantBuffer<CB_SkyboxPipelineMatrix> m_cbufTransform;
 	};

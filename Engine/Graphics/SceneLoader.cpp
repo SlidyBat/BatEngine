@@ -7,6 +7,7 @@
 #include "Mesh.h"
 #include "Model.h"
 #include "Colour.h"
+#include "ResourceManager.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -16,11 +17,9 @@
 
 namespace Bat
 {
-	static DirectX::XMMATRIX AiToDxMatrix( const aiMatrix4x4& aimat )
+	static Mat3x4 AiToBatMatrix( const aiMatrix4x4& aimat )
 	{
-		return DirectX::XMMatrixTranspose(
-			DirectX::XMMATRIX( &aimat.a1 )
-		);
+		return Mat3x4( &aimat.a1 );
 	}
 
 	Resource<Mesh> SceneLoader::GetLoadedMesh( const aiMesh* pTarget )
@@ -36,6 +35,26 @@ namespace Bat
 		}
 
 		return it->pBatMesh;
+	}
+
+	std::shared_ptr<Mesh> SceneLoader::ExtractMesh( aiNode* pAiNode )
+	{
+		if( pAiNode->mNumMeshes > 0 )
+		{
+			aiMesh* pMesh = m_pAiScene->mMeshes[pAiNode->mMeshes[0]];
+			return ProcessMesh( pMesh );
+		}
+
+		for( unsigned int i = 0; i < pAiNode->mNumChildren; i++ )
+		{
+			std::shared_ptr<Mesh> mesh = ExtractMesh( pAiNode->mChildren[i] );
+			if( mesh )
+			{
+				return mesh;
+			}
+		}
+
+		return nullptr;
 	}
 
 	SceneLoader::TextureStorageType SceneLoader::DetermineTextureStorageType( aiMaterial* pMat, aiTextureType type, unsigned int index = 0 )
@@ -181,7 +200,7 @@ namespace Bat
 		m_mapNodeNameToIndex[pAiNode->mName.C_Str()] = index;
 		
 		BoneNode node;
-		node.transform = BoneTransform::FromMatrix( AiToDxMatrix( pAiNode->mTransformation ) );
+		node.transform = BoneTransform::FromMatrix( AiToBatMatrix( pAiNode->mTransformation ) );
 		node.parent_index = parent_index;
 
 		m_OriginalSkeleton.bones.push_back( node );
@@ -196,7 +215,7 @@ namespace Bat
 		BoneData bone;
 		bone.index = node_index;
 		bone.name = pAiBone->mName.C_Str();
-		bone.inverse_bind_transform = AiToDxMatrix( pAiBone->mOffsetMatrix );
+		bone.inverse_bind_transform = AiToBatMatrix( pAiBone->mOffsetMatrix );
 
 		m_mapBoneNameToIndex[bone.name] = (int)m_Bones.size();
 
@@ -571,8 +590,9 @@ namespace Bat
 		Entity e = node.Get();
 		e.Add<NameComponent>( pAiNode->mName.C_Str() );
 
-		const auto transform = AiToDxMatrix( pAiNode->mTransformation );
-		e.Add<TransformComponent>( transform );
+		const auto transform = AiToBatMatrix( pAiNode->mTransformation );
+		e.Get<TransformComponent>()
+			.SetLocalMatrix( transform );
 		
 		int node_index = FindNodeByName( pAiNode->mName.C_Str() );
 		if( node_index != -1 )
@@ -595,9 +615,17 @@ namespace Bat
 		for( unsigned int i = 0; i < pAiNode->mNumChildren; i++ )
 		{
 			Entity child = world.CreateEntity();
-			size_t new_node_idx = node.AddChild( child );
-			ProcessNode( pAiNode->mChildren[i], node.GetChild( new_node_idx ) );
+			SceneNode* child_node = node.AddChild( child );
+			ProcessNode( pAiNode->mChildren[i], *child_node );
 		}
+	}
+
+	SceneLoader::SceneLoader()
+	{
+	}
+
+	SceneLoader::~SceneLoader()
+	{
 	}
 
 	SceneNode SceneLoader::Load( const std::string& filename )
@@ -620,7 +648,6 @@ namespace Bat
 		if( m_pAiScene->HasAnimations() )
 		{
 			auto& anim = e.Add<AnimationComponent>();
-			e.Ensure<TransformComponent>(); // Animations rely on transform component, so ensure it exists
 			LoadAnimations( &anim );
 		}
 
@@ -630,6 +657,16 @@ namespace Bat
 		m_LoadedMeshes.clear();
 
 		return root_node;
+	}
+
+	std::shared_ptr<Mesh> SceneLoader::LoadMesh( const std::string& filename )
+	{
+		if( !this->ReadFile( filename ) )
+		{
+			return {};
+		}
+
+		return ExtractMesh( m_pAiScene->mRootNode );
 	}
 
 	bool SceneLoader::ReadFile( const std::string& filename )

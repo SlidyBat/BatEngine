@@ -9,7 +9,7 @@
 #define BAT_LOG(...)   Bat::Logger::Info(Bat::Format(__VA_ARGS__), __FILE__, __FUNCTION__, __LINE__)
 #define BAT_WARN(...)  Bat::Logger::Warn(Bat::Format(__VA_ARGS__), __FILE__, __FUNCTION__, __LINE__)
 #define BAT_ERROR(...) Bat::Logger::Error(Bat::Format(__VA_ARGS__), __FILE__, __FUNCTION__, __LINE__)
-#define BAT_ABORT(...) Bat::Logger::Abort(Bat::Format(__VA_ARGS__), __FILE__, __FUNCTION__, __LINE__)
+#define BAT_ABORT(...) do { BAT_DEBUG_BREAK(); Bat::Logger::Abort(Bat::Format(__VA_ARGS__), __FILE__, __FUNCTION__, __LINE__); } while( false )
 #else
 #define BAT_DEBUG(...)
 #define BAT_TRACE(...)

@@ -33,8 +33,8 @@ namespace Bat
 	private:
 		struct CB_ParticlePipelineMatrix
 		{
-			DirectX::XMMATRIX view;
-			DirectX::XMMATRIX proj;
+			Mat4 view;
+			Mat4 proj;
 		};
 		ConstantBuffer<CB_ParticlePipelineMatrix> m_cbufTransform;
 

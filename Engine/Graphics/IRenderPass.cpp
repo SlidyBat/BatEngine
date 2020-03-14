@@ -3,6 +3,7 @@
 
 #include "CoreEntityComponents.h"
 #include "Camera.h"
+#include "Scene.h"
 
 namespace Bat
 {
@@ -49,11 +50,8 @@ namespace Bat
 	{
 		for( Entity e : world )
 		{
-			if( e.Has<HierarchyComponent>() )
-			{
-				auto& hier = e.Get<HierarchyComponent>();
-				Visit( hier.abs_transform, e );
-			}
+			auto& t = e.Get<TransformComponent>();
+			Visit( t.LocalToWorldMatrix(), e );
 		}
 	}
 }

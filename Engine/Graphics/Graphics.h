@@ -17,6 +17,7 @@ namespace Bat
 	class SceneGraph;
 	class Camera;
 	class RenderGraph;
+	class SceneNode;
 
 	class Graphics
 	{
@@ -45,7 +46,7 @@ namespace Bat
 		void BeginFrame();
 		void EndFrame();
 
-		DirectX::XMMATRIX GetOrthoMatrix() const;
+		Mat4 GetOrthoMatrix() const;
 	private:
 		void InitialiseResources( size_t width, size_t height );
 
@@ -53,7 +54,7 @@ namespace Bat
 		void RenderUI();
 		void RenderImGui();
 	private:
-		DirectX::XMMATRIX m_matOrtho;
+		Mat4 m_matOrtho;
 
 		int m_iScreenWidth = 0;
 		int m_iScreenHeight = 0;
@@ -71,7 +72,7 @@ namespace Bat
 		static constexpr float	ScreenFar = 200.0f;
 		static constexpr float	ScreenNear = 0.1f;
 		static constexpr float	FOV = 90.0f;
-		static constexpr float  FOVRadians = FOV * (DirectX::XM_PI / 180.0f);
+		static constexpr float  FOVRadians = Math::DegToRad( FOV );
 
 		// only used when not in fullscreen
 		static constexpr int	InitialScreenWidth = 1366;

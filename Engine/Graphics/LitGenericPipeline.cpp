@@ -18,9 +18,9 @@ namespace Bat
 	void LitGenericPipeline::Render( IGPUContext* pContext,
 		const Mesh& mesh,
 		const Camera& camera,
-		const DirectX::XMMATRIX& world_transform,
+		const Mat4& world_transform,
 		const std::vector<Entity>& light_ents,
-		const std::vector<DirectX::XMMATRIX>& light_transforms,
+		const std::vector<Mat4>& light_transforms,
 		const PbrGlobalMaps& maps )
 	{
 		auto macros = ShaderManager::BuildMacrosForMesh( mesh );
@@ -58,7 +58,7 @@ namespace Bat
 		const std::vector<LitGenericInstanceData>& instances,
 		const Camera& camera,
 		const std::vector<Entity>& light_ents,
-		const std::vector<DirectX::XMMATRIX>& light_transforms,
+		const std::vector<Mat4>& light_transforms,
 		const PbrGlobalMaps& maps )
 	{
 		auto macros = ShaderManager::BuildMacrosForInstancedMesh( mesh );
@@ -69,7 +69,7 @@ namespace Bat
 		pContext->SetVertexShader( pVertexShader );
 		pContext->SetPixelShader( pPixelShader );
 
-		BindTransforms( pContext, camera, DirectX::XMMatrixIdentity() );
+		BindTransforms( pContext, camera, Mat4::Identity() );
 
 		mesh.Bind( pContext, pVertexShader );
 		BindMaterial( pContext, mesh.GetMaterial() );
@@ -83,7 +83,7 @@ namespace Bat
 
 	void LitGenericPipeline::BindTransforms( IGPUContext* pContext,
 		const Camera& camera,
-		const DirectX::XMMATRIX& world_transform )
+		const Mat4& world_transform )
 	{
 		{
 			CB_LitGenericPipelineMatrix transform;
@@ -127,7 +127,7 @@ namespace Bat
 		}
 	}
 
-	void LitGenericPipeline::BindLights( IGPUContext* pContext, const std::vector<Entity>& light_ents, const std::vector<DirectX::XMMATRIX>& light_transforms )
+	void LitGenericPipeline::BindLights( IGPUContext* pContext, const std::vector<Entity>& light_ents, const std::vector<Mat4>& light_transforms )
 	{
 		CB_LitGenericPipelineLights lights;
 		size_t j = 0;
@@ -146,16 +146,11 @@ namespace Bat
 				continue;
 			}
 
-			DirectX::XMMATRIX rot = DirectX::XMMatrixRotationRollPitchYaw(
-				Math::DegToRad( t.GetRotation().x ),
-				Math::DegToRad( t.GetRotation().y ),
-				Math::DegToRad( t.GetRotation().z ) );
+			Mat4 rot = Mat4::RotateDeg( t.GetRotation() );
 
-			DirectX::XMVECTOR vs, vr, vp;
-			DirectX::XMMatrixDecompose( &vs, &vr, &vp, light_transforms[i] );
-			lights.lights[j].Position = vp;
+			lights.lights[j].Position = light_transforms[i].GetTranslation();
 			lights.lights[j].ShadowIndex = (int)l.GetShadowIndex();
-			lights.lights[j].Direction = DirectX::XMVector3TransformNormal( DirectX::XMVectorSet( 0.0f, 0.0f, 1.0f, 0.0f ), rot );
+			lights.lights[j].Direction = Mat4::TransformNormal( rot, { 0.0f, 0.0f, 1.0f } );
 			lights.lights[j].SpotlightAngle = l.GetSpotlightAngle();
 			lights.lights[j].Colour = l.GetColour();
 			lights.lights[j].Range = l.GetRange();

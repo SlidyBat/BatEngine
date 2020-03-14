@@ -31,11 +31,9 @@ namespace Bat
 				continue;
 			}
 
-			auto& hier = e.Get<HierarchyComponent>();
+			auto& t = e.Get<TransformComponent>();
 
-			DirectX::XMVECTOR vscale, vrot, vpos;
-			DirectX::XMMatrixDecompose( &vscale, &vrot, &vpos, hier.abs_transform );
-			Vec3 emitter_pos = vpos;
+			Vec3 emitter_pos = t.GetPosition();
 
 			auto& emitter = e.Get<ParticleEmitterComponent>();
 			emitter.particles.resize( MAX_PARTICLES );

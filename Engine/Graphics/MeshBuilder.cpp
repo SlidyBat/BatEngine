@@ -57,7 +57,11 @@ namespace Bat
 	}
 	Mesh MeshBuilder::Build()
 	{
-		Mesh mesh( mesh_params, indices );
+		Mesh mesh( mesh_params );
+		if( !indices.empty() )
+		{
+			mesh.SetIndices( indices );
+		}
 		mesh.SetTopology( topology );
 
 		return mesh;

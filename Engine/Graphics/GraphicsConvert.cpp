@@ -101,7 +101,7 @@ namespace Bat
 
 	struct CB_CubemapMatrix
 	{
-		DirectX::XMMATRIX viewproj;
+		Mat4 viewproj;
 	};
 
 	ITexture* GraphicsConvert::EquirectangularToCubemap( IGPUContext* pContext, ITexture* equirect, size_t width, size_t height )
@@ -135,11 +135,12 @@ namespace Bat
 		pContext->BindTexture( equirect, PS_TEX_SLOT_0 );
 		BindUnitCube( pContext );
 
-		DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH( Math::DegToRad( 90.0f ), 1.0f, 0.1f, 10.0f );
+		Mat4 proj = Mat4::PerspectiveFov( Math::DegToRad( 90.0f ), 1.0f, 0.1f, 10.0f );
 
 		for( size_t i = 0; i < 6; i++ )
 		{
-			DirectX::XMMATRIX view = DirectX::XMMatrixLookAtLH( DirectX::XMVectorZero(), cube_directions[i], up_directions[i] );
+			Mat4 view = Mat4::LookTo( { 0.0f, 0.0f, 0.0f }, cube_directions[i], up_directions[i] );
+
 			transforms_data.viewproj = view * proj;
 			transforms.Update( pContext, transforms_data );
 			pContext->SetConstantBuffer( ShaderType::VERTEX, transforms, VS_CBUF_TRANSFORMS );
@@ -188,11 +189,12 @@ namespace Bat
 		pContext->BindTexture( envmap, PS_TEX_SLOT_0 );
 		BindUnitCube( pContext );
 
-		DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH( Math::DegToRad( 90.0f ), 1.0f, 0.1f, 10.0f );
+		Mat4 proj = Mat4::PerspectiveFov( Math::DegToRad( 90.0f ), 1.0f, 0.1f, 10.0f );
 
 		for( size_t i = 0; i < 6; i++ )
 		{
-			DirectX::XMMATRIX view = DirectX::XMMatrixLookAtLH( DirectX::XMVectorZero(), cube_directions[i], up_directions[i] );
+			Mat4 view = Mat4::LookTo( { 0.0f, 0.0f, 0.0f }, cube_directions[i], up_directions[i] );
+
 			transforms_data.viewproj = view * proj;
 			transforms.Update( pContext, transforms_data );
 			pContext->SetConstantBuffer( ShaderType::VERTEX, transforms, VS_CBUF_TRANSFORMS );
@@ -244,7 +246,7 @@ namespace Bat
 		pContext->BindTexture( envmap, PS_TEX_SLOT_0 );
 		BindUnitCube( pContext );
 
-		DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH( Math::DegToRad( 90.0f ), 1.0f, 0.1f, 10.0f );
+		Mat4 proj = Mat4::PerspectiveFov( Math::DegToRad( 90.0f ), 1.0f, 0.1f, 10.0f );
 		
 		float mip_width = (float)width;
 		float mip_height = (float)height;
@@ -265,7 +267,8 @@ namespace Bat
 
 			for( size_t cubeface = 0; cubeface < 6; cubeface++ )
 			{
-				DirectX::XMMATRIX view = DirectX::XMMatrixLookAtLH( DirectX::XMVectorZero(), cube_directions[cubeface], up_directions[cubeface] );
+				Mat4 view = Mat4::LookTo( { 0.0f, 0.0f, 0.0f }, cube_directions[cubeface], up_directions[cubeface] );
+
 				transforms_data.viewproj = view * proj;
 				transforms.Update( pContext, transforms_data );
 				pContext->SetConstantBuffer( ShaderType::VERTEX, transforms, VS_CBUF_TRANSFORMS );
