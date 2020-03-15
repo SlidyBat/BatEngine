@@ -9,6 +9,7 @@ namespace Bat
 	class ChunkedAllocator
 	{
 	public:
+		ChunkedAllocator() = default;
 		// The allocator will ensure at least this capacity, but may
 		// also allocate more. Use Capacity() to check the real capacity.
 		ChunkedAllocator( const size_t object_size, const size_t capacity = 1 )
@@ -40,6 +41,7 @@ namespace Bat
 			m_iCapacity = rhs.m_iCapacity;
 			m_pChunks = std::move( rhs.m_pChunks );
 			m_iObjectSize = rhs.m_iObjectSize;
+			return *this;
 		}
 
 		// Returns pointer to the object at given index
@@ -77,31 +79,5 @@ namespace Bat
 		size_t m_iCapacity = 0;
 
 		size_t m_iObjectSize = 0;
-	};
-
-	template <typename T, size_t ChunkSize = 8192>
-	class ObjectChunkedAllocator : public ChunkedAllocator<ChunkSize>
-	{
-	public:
-		ObjectChunkedAllocator( const size_t capacity = 1 )
-			:
-			ChunkedAllocator( sizeof( T ), capacity )
-		{
-			// we double up the memory as a linked list that stores 1 pointer per node
-			// so we need at least sizeof a pointer for this to work
-			static_assert( sizeof( T ) >= sizeof( char* ) );
-			// not a good idea to have a size bigger than chunk size
-			static_assert( sizeof( T ) < ChunkSize );
-		}
-
-		T* Get( size_t index )
-		{
-			return reinterpret_cast<T*>( ChunkedAllocator::Get( index ) );
-		}
-
-		const T* Get( size_t index ) const
-		{
-			return reinterpret_cast<const T*>(ChunkedAllocator::Get( index ));
-		}
 	};
 }

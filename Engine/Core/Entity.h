@@ -39,6 +39,8 @@ namespace Bat
 #define BAT_COMPONENT_BEGIN( classname ) \
 	template <> \
 	TypeDescriptor Bat::GetComponentTypeDescriptor<classname::GetId()>() { return classname::Reflect(); } \
+	template <> \
+	void Bat::Detail::DestroyComponent<classname::GetId()>( void* pComponent ) { reinterpret_cast<classname*>( pComponent )->~classname(); } \
 	BAT_REFLECT_BEGIN( classname );
 
 #define BAT_COMPONENT_MEMBER( membername ) \
@@ -51,6 +53,12 @@ namespace Bat
 	TypeDescriptor GetComponentTypeDescriptor();
 	
 	TypeDescriptor GetComponentTypeDescriptor( ComponentId id );
+
+	namespace Detail
+	{
+		template <ComponentId Id>
+		void DestroyComponent( void* pComponent );
+	}
 
 	class EntityManager;
 
@@ -118,29 +126,12 @@ namespace Bat
 		Id id;
 	};
 
-	class BaseComponentHelper
-	{
-	public:
-		virtual ~BaseComponentHelper() = default;
-		virtual void Destroy( void* pComponent ) = 0;
-	};
-
-	template <typename C>
-	class ComponentHelper : public BaseComponentHelper
-	{
-		virtual void Destroy( void* pComponent ) override
-		{
-			auto pConverted = static_cast<C*>( pComponent );
-			pConverted->~C();
-		}
-	};
-
 	class EntityManager : public EventDispatcher
 	{
 	public:
 		BAT_REFLECT();
 
-		EntityManager() { m_EntityVersions.resize( INITIAL_ENTITIES ); m_EntityComponentMasks.resize( INITIAL_ENTITIES ); }
+		EntityManager();
 		
 		Entity CreateEntity();
 		void DestroyEntity( Entity entity );
@@ -216,9 +207,11 @@ namespace Bat
 
 		void EnsureEntityCapacity( uint32_t index );
 	private:
-		ChunkedAllocator<8192>& GetComponentAllocator( ComponentId id );
+		using ComponentAllocator = ChunkedAllocator<8192>;
+
+		ComponentAllocator& GetComponentAllocator( ComponentId id );
 		template <typename C>
-		ObjectChunkedAllocator<C>& GetComponentAllocator();
+		ComponentAllocator& GetComponentAllocator();
 
 		void SortFreeList();
 	private:
@@ -231,8 +224,7 @@ namespace Bat
 
 		using ComponentMask = std::bitset<MAX_COMPONENTS>;
 		std::vector<ComponentMask> m_EntityComponentMasks;
-		std::array<std::unique_ptr<ChunkedAllocator<8192>>, MAX_COMPONENTS> m_pComponentAllocators;
-		std::array<std::unique_ptr<BaseComponentHelper>, MAX_COMPONENTS> m_pComponentHelpers;
+		std::array<std::unique_ptr<ComponentAllocator>, MAX_COMPONENTS> m_pComponentAllocators;
 	};
 
 	template<typename C, typename... Args>
@@ -241,7 +233,7 @@ namespace Bat
 		const size_t component_idx = C::GetIndex();
 		const size_t entity_idx = entity.GetId().GetIndex();
 		ASSERT( !m_EntityComponentMasks[entity_idx].test( component_idx ), "Added same component twice" );
-		ObjectChunkedAllocator<C>& allocator = GetComponentAllocator<C>();
+		ComponentAllocator& allocator = GetComponentAllocator<C>();
 
 		void* pAlloc = allocator.Get( entity_idx );
 		C* pComponent = new( pAlloc ) C{ std::forward<Args>( args )... };
@@ -259,9 +251,9 @@ namespace Bat
 		const size_t component_idx = C::GetIndex();
 		const size_t entity_idx = entity.GetId().GetIndex();
 		ASSERT( m_EntityComponentMasks[entity_idx].test( component_idx ), "Removing non-existent component" );
-		ObjectChunkedAllocator<C>& allocator = GetComponentAllocator<C>();
+		ComponentAllocator& allocator = GetComponentAllocator<C>();
 
-		C* pComponent = (C*)allocator.Get( entity_idx );
+		C* pComponent = reinterpret_cast<C*>( allocator.Get( entity_idx ) );
 		DispatchEvent<ComponentRemovedEvent<C>>( entity, *pComponent );
 		pComponent->~C();
 
@@ -273,9 +265,9 @@ namespace Bat
 	{
 		ASSERT( HasComponent<C>( entity ), "Tried to get component we don't have" );
 		const size_t entity_idx = entity.GetId().GetIndex();
-		ObjectChunkedAllocator<C>& allocator = GetComponentAllocator<C>();
+		ComponentAllocator& allocator = GetComponentAllocator<C>();
 
-		C* pComponent = allocator.Get( entity_idx );
+		C* pComponent = reinterpret_cast<C*>( allocator.Get( entity_idx ) );
 		return *pComponent;
 	}
 
@@ -284,9 +276,9 @@ namespace Bat
 	{
 		ASSERT( HasComponent<C>( entity ), "Tried to get component we don't have" );
 		const size_t entity_idx = entity.GetId().GetIndex();
-		ObjectChunkedAllocator<C>& allocator = GetComponentAllocator<C>();
+		ComponentAllocator& allocator = GetComponentAllocator<C>();
 
-		const C* pComponent = allocator.Get( entity_idx );
+		const C* pComponent = reinterpret_cast<const C*>( allocator.Get( entity_idx ) );
 		return *pComponent;
 	}
 
@@ -299,18 +291,10 @@ namespace Bat
 	}
 
 	template<typename C>
-	inline ObjectChunkedAllocator<C>& EntityManager::GetComponentAllocator()
+	inline EntityManager::ComponentAllocator& EntityManager::GetComponentAllocator()
 	{
-		const size_t component_idx = C::GetIndex();
-		if( !m_pComponentAllocators[component_idx] )
-		{
-			auto allocator = std::make_unique<ObjectChunkedAllocator<C>>();
-			allocator->EnsureCapacity( m_EntityVersions.size() );
-			m_pComponentAllocators[component_idx] = std::move( allocator );
-			m_pComponentHelpers[component_idx] = std::make_unique<ComponentHelper<C>>();
-		}
-
-		return *static_cast<ObjectChunkedAllocator<C>*>( m_pComponentAllocators[component_idx].get() );
+		const ComponentId component_id = C::GetId();
+		return GetComponentAllocator( component_id );
 	}
 
 	template<typename C, typename ...Args>

@@ -18,6 +18,18 @@ namespace Bat
 	BAT_REFLECT_BEGIN( EntityManager );
 	BAT_REFLECT_END();
 
+	EntityManager::EntityManager()
+	{
+		m_EntityVersions.resize( INITIAL_ENTITIES );
+		m_EntityComponentMasks.resize( INITIAL_ENTITIES );
+
+		for( int i = (int)ComponentId::INVALID + 1; i < (int)ComponentId::LAST; i++ )
+		{
+			TypeDescriptor component_desc = GetComponentTypeDescriptor( (ComponentId)i );
+			m_pComponentAllocators[i] = std::make_unique<ComponentAllocator>( component_desc.size );
+		}
+	}
+
 	Entity EntityManager::CreateEntity()
 	{
 		uint32_t idx;
@@ -48,14 +60,20 @@ namespace Bat
 
 		const size_t entity_idx = entity.GetId().GetIndex();
 
-		for( size_t i = 0; i < MAX_COMPONENTS; i++ )
+		for( auto i = (int)ComponentId::INVALID + 1; i < (int)ComponentId::LAST; i++ )
 		{
-			auto& helper = m_pComponentHelpers[i];
-			if( helper && m_EntityComponentMasks[entity_idx].test( i ) )
+			if( m_EntityComponentMasks[entity_idx].test( i ) )
 			{
 				auto& allocator = m_pComponentAllocators[i];
 				void* pComponent = allocator->Get( entity_idx );
-				helper->Destroy( pComponent );
+				switch( (ComponentId)i )
+				{
+#define DESTROY_COMPONENT( component ) case ComponentId::component: Detail::DestroyComponent<ComponentId::component>( pComponent ); break;
+					BAT_COMPONENT_LIST( DESTROY_COMPONENT )
+#undef DESTROY_COMPONENT
+				default:
+					ASSERT( false, "Unhandled component type" );
+				}
 			}
 		}
 
@@ -100,16 +118,14 @@ namespace Bat
 			m_EntityVersions.resize( capacity );
 			m_EntityComponentMasks.resize( capacity );
 
-			for( auto& allocator : m_pComponentAllocators )
+			for( int i = (int)ComponentId::INVALID + 1; i < (int)ComponentId::LAST; i++ )
 			{
-				if( allocator )
-				{
-					allocator->EnsureCapacity( capacity );
-				}
+				auto& allocator = m_pComponentAllocators[i];
+				allocator->EnsureCapacity( capacity );
 			}
 		}
 	}
-	ChunkedAllocator<8192>& EntityManager::GetComponentAllocator( ComponentId id )
+	EntityManager::ComponentAllocator& EntityManager::GetComponentAllocator( ComponentId id )
 	{
 		const size_t component_idx = (size_t)id;
 		ASSERT( m_pComponentAllocators[component_idx], "Tried to get non-existent component allocator" );
