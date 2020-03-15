@@ -8,6 +8,7 @@
 #include "Entity.h"
 #include "Camera.h"
 #include "RenderNode.h"
+#include "RenderData.h"
 
 namespace Bat
 {
@@ -84,6 +85,8 @@ namespace Bat
 
 		std::unordered_map<std::string, NodeDataType> m_mapResourceTypes;
 		std::vector<std::vector<NodeAndResource>> m_vNodeAndResourceBindings;
+
+		RenderData m_RenderData;
 
 #define RENDER_NODE_DATATYPE( type, name, capname ) \
 			std::unordered_map<std::string, std::unique_ptr<type>> m_mapOwning##name; \

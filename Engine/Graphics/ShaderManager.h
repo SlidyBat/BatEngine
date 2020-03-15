@@ -93,8 +93,8 @@ namespace Bat
 			return static_cast<Pipeline*>( it->second.get() );
 		}
 		
-		static std::vector<ShaderMacro> BuildMacrosForMesh( const Mesh& mesh );
-		static std::vector<ShaderMacro> BuildMacrosForInstancedMesh( const Mesh& mesh );
+		static size_t BuildMacrosForMesh( const Mesh& mesh, ShaderMacro* out_macros, size_t max );
+		static size_t BuildMacrosForInstancedMesh( const Mesh& mesh, ShaderMacro* out_macros, size_t max );
 	private:
 		static std::unordered_map<std::type_index, std::unique_ptr<IPipeline>> m_mapPipelines;
 	};

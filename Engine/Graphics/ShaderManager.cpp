@@ -120,40 +120,51 @@ namespace Bat
 		pContext->SetConstantBuffer( ShaderType::PIXEL, cb_globals, PS_CBUF_GLOBALS );
 	}
 
-	static std::vector<ShaderMacro> BuildMacrosForAnyMesh( const Mesh& mesh )
+	static size_t AddMacro( ShaderMacro* out_macros, size_t num_macros, size_t max, const char* name, const char* value = "" )
 	{
-		std::vector<ShaderMacro> macros;
+		if( num_macros == max )
+		{
+			return num_macros;
+		}
+		out_macros[num_macros] = ShaderMacro( name, value );
+		return num_macros + 1;
+	}
+
+	static size_t BuildMacrosForAnyMesh( const Mesh& mesh, ShaderMacro* out_macros, size_t max )
+	{
+		size_t num_macros = 0;
+
 		if( mesh.HasTangentsAndBitangents() )
 		{
-			macros.emplace_back( "HAS_TANGENT" );
+			num_macros = AddMacro( out_macros, num_macros, max, "HAS_TANGENT" );
 		}
 
 		const Material& material = mesh.GetMaterial();
 
 		if( material.GetAlphaMode() == AlphaMode::MASK )
 		{
-			macros.emplace_back( "MASK_ALPHA" );
+			num_macros = AddMacro( out_macros, num_macros, max, "MASK_ALPHA" );
 		}
 
-		return macros;
+		return num_macros;
 	}
 
-	std::vector<ShaderMacro> ShaderManager::BuildMacrosForMesh( const Mesh& mesh )
+	size_t ShaderManager::BuildMacrosForMesh( const Mesh& mesh, ShaderMacro* out_macros, size_t max )
 	{
-		std::vector<ShaderMacro> macros = BuildMacrosForAnyMesh( mesh );
+		size_t num_macros = BuildMacrosForAnyMesh( mesh, out_macros, max );
 		if( mesh.HasBones() )
 		{
-			macros.emplace_back( "HAS_BONES" );
+			num_macros = AddMacro( out_macros, num_macros, max, "HAS_BONES" );
 		}
 
-		return macros;
+		return num_macros;
 	}
 
-	std::vector<ShaderMacro> ShaderManager::BuildMacrosForInstancedMesh( const Mesh& mesh )
+	size_t ShaderManager::BuildMacrosForInstancedMesh( const Mesh& mesh, ShaderMacro* out_macros, size_t max )
 	{
-		std::vector<ShaderMacro> macros = BuildMacrosForAnyMesh( mesh );
-		macros.emplace_back( "INSTANCED" );
+		size_t num_macros = BuildMacrosForAnyMesh( mesh, out_macros, max );
+		num_macros = AddMacro( out_macros, num_macros, max, "INSTANCED" );
 
-		return macros;
+		return num_macros;
 	}
 }

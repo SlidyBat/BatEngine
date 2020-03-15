@@ -197,13 +197,15 @@ namespace Bat
 		static DirectX::SpriteFont font( (ID3D11Device*)gpu->GetImpl(), L"Assets/Fonts/consolas.spritefont" );
 		if( !g_DebugTexts.empty() )
 		{
-			DirectX::SpriteBatch batch( (ID3D11DeviceContext*)gpu->GetContext()->GetImpl() );
+			static DirectX::SpriteBatch batch( (ID3D11DeviceContext*)gpu->GetContext()->GetImpl() );
 			batch.Begin();
 			for( const DebugText& text : g_DebugTexts )
 			{
-				std::wstring wstr = Bat::StringToWide( text.str );
 				Vec2 pos = { (float)text.pos.x, (float)text.pos.y };
-				font.DrawString( &batch, wstr.c_str(), pos, text.col.AsVector() );
+
+				wchar_t wstr[256];
+				Bat::StringToWide( text.str.c_str(), wstr, sizeof( wstr ) );
+				font.DrawString( &batch, wstr, pos, text.col.AsVector() );
 			}
 			batch.End();
 

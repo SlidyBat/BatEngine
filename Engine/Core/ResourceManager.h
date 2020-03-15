@@ -19,8 +19,8 @@ namespace Bat
 	public:
 		static Resource<Texture> GetTexture( const std::string& filename );
 		static Resource<Mesh>    GetMesh( const std::string& filename );
-		static IVertexShader*    GetVertexShader( const std::string& filename, const std::vector<ShaderMacro>& macros = {} );
-		static IPixelShader*     GetPixelShader( const std::string& filename, const std::vector<ShaderMacro>& macros = {} );
+		static IVertexShader*    GetVertexShader( const std::string& filename, const ShaderMacro* macros = nullptr, size_t num_macros = 0 );
+		static IPixelShader*     GetPixelShader( const std::string& filename, const ShaderMacro* macros = nullptr, size_t num_macros = 0 );
 
 		static void CleanUp();
 	};

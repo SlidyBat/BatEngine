@@ -17,5 +17,12 @@ namespace Bat
 	private: \
 		std::unordered_map<std::string, type*> m_map##name;
 #include "RenderNodeDataTypes.def"
+	public:
+		void Clear()
+		{
+#define RENDER_NODE_DATATYPE( type, name, capname ) \
+			m_map##name##.clear();
+#include "RenderNodeDataTypes.def"
+		}
 	};
 }

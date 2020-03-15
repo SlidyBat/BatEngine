@@ -2,7 +2,6 @@
 #include "RenderGraph.h"
 
 #include "IRenderPass.h"
-#include "RenderData.h"
 
 namespace Bat
 {
@@ -144,12 +143,12 @@ namespace Bat
 				continue;
 			}
 
-			RenderData data;
+			m_RenderData.Clear();
 
 			// bind to output if this is the output pass
 			if( i == (size_t)m_OutputNode->pass_idx )
 			{
-				data.AddRenderTarget( m_OutputNode->name, target );
+				m_RenderData.AddRenderTarget( m_OutputNode->name, target );
 			}
 
 			// bind any resources
@@ -160,13 +159,13 @@ namespace Bat
 				switch( type )
 				{
 					case NodeDataType::TEXTURE:
-						data.AddTexture( nar.node.name, GetTextureResource( nar.resource ) );
+						m_RenderData.AddTexture( nar.node.name, GetTextureResource( nar.resource ) );
 						break;
 					case NodeDataType::RENDER_TARGET:
-						data.AddRenderTarget( nar.node.name, GetRenderTargetResource( nar.resource ) );
+						m_RenderData.AddRenderTarget( nar.node.name, GetRenderTargetResource( nar.resource ) );
 						break;
 					case NodeDataType::DEPTH_STENCIL:
-						data.AddDepthStencil( nar.node.name, GetDepthStencilResource( nar.resource ) );
+						m_RenderData.AddDepthStencil( nar.node.name, GetDepthStencilResource( nar.resource ) );
 						break;
 					default:
 						ASSERT( false, "Unhandled node data type" );
@@ -177,7 +176,7 @@ namespace Bat
 			IGPUContext* pContext = gpu->GetContext();
 
 			pContext->BeginEvent( m_vPassNames[i] );
-			m_vRenderPasses[i]->Execute( pContext, camera, scene, data );
+			m_vRenderPasses[i]->Execute( pContext, camera, scene, m_RenderData );
 			pContext->EndEvent();
 		}
 	}
