@@ -33,6 +33,7 @@
 #include "DebugDraw.h"
 #include "ScratchRenderTarget.h"
 #include "FileDialog.h"
+#include "Reflect.h"
 
 namespace Bat
 {
@@ -284,6 +285,82 @@ namespace Bat
 	static MoveableCharacter player;
 	static AiCharacter ai;
 
+	struct Reflected1
+	{
+		BAT_REFLECT();
+		float a, b, c;
+		float* p;
+	};
+
+	BAT_REFLECT_BEGIN( Reflected1 );
+		BAT_REFLECT_MEMBER( a );
+		BAT_REFLECT_MEMBER( b );
+		BAT_REFLECT_MEMBER( c );
+		BAT_REFLECT_MEMBER( p );
+	BAT_REFLECT_END();
+
+	struct Reflected2
+	{
+		BAT_REFLECT();
+		int x, y, z;
+		std::unique_ptr<int> up;
+		Reflected1 r;
+	};
+
+	BAT_REFLECT_BEGIN( Reflected2 );
+		BAT_REFLECT_MEMBER( x );
+		BAT_REFLECT_MEMBER( y );
+		BAT_REFLECT_MEMBER( z );
+		BAT_REFLECT_MEMBER( up );
+		BAT_REFLECT_MEMBER( r );
+	BAT_REFLECT_END();
+
+	std::string Indent( int level )
+	{
+		std::string indent;
+		for( int i = 0; i < level; i++ )
+		{
+			indent += "  ";
+		}
+		return indent;
+	}
+	std::string Dump( const TypeElement& el, int level = 0, bool last = true )
+	{
+		std::string s;
+		s += Indent( level );
+		s += Format( "%s %s (size=%i, off=%i)", el.desc.name, el.name, el.desc.size, el.offset );
+		if( el.desc.num_members )
+		{
+			s += " {\n";
+			for( size_t i = 0; i < el.desc.num_members; i++ )
+			{
+				s += Dump( el.desc.members[i], level + 1, i == el.desc.num_members - 1 );
+			}
+			s += Indent( level );
+			s += "}";
+		}
+		s += last ? "\n" : ",\n";
+		return s;
+	}
+	std::string Dump( const TypeDescriptor& desc, int level = 0, bool last = true )
+	{
+		std::string s;
+		s += Indent( level );
+		s += Format( "%s (size=%i)", desc.name, desc.size );
+		if( desc.num_members )
+		{
+			s += " {\n";
+			for( size_t i = 0; i < desc.num_members; i++ )
+			{
+				s += Dump( desc.members[i], level + 1, i == desc.num_members - 1 );
+			}
+			s += Indent( level );
+			s += "}";
+		}
+		s += last ? "\n" : ",\n";
+		return s;
+	}
+
 	Application::Application( Graphics& gfx, Window& wnd )
 		:
 		gfx( gfx ),
@@ -292,6 +369,8 @@ namespace Bat
 		physics_system( world ),
 		controller_system( world )
 	{
+		TypeDescriptor desc = GetTypeDescriptor<Reflected2>();
+		BAT_LOG( Dump( desc ) );
 		SceneLoader loader;
 
 		camera.SetAspectRatio( (float)wnd.GetWidth() / wnd.GetHeight() );

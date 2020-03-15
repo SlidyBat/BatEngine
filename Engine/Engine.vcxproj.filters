@@ -2,55 +2,55 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Graphics">
-      <UniqueIdentifier>{47a42ddd-cf08-424f-af2e-9b6fde277b99}</UniqueIdentifier>
+      <UniqueIdentifier>{075fa8ce-7b4b-49f7-9955-f76fb1b11a12}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics\UI">
-      <UniqueIdentifier>{b07b5a2e-abd8-44cd-bf47-123077196ec9}</UniqueIdentifier>
+      <UniqueIdentifier>{946e71fc-163b-4fc1-8b9d-e23ed48c3d8c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics\UI\UltralightAdapters">
-      <UniqueIdentifier>{034b9228-847e-4015-8480-c1b9bc4fd3c9}</UniqueIdentifier>
+      <UniqueIdentifier>{b6260d25-0399-43d1-9757-39a6edfc70d5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Animation">
-      <UniqueIdentifier>{f0c5f6ee-2277-4d73-bcff-59ac5c115db9}</UniqueIdentifier>
+      <UniqueIdentifier>{6f1a0eda-09b7-4223-8f5b-dc473e1eab5a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Physics">
-      <UniqueIdentifier>{30e999e6-5e9d-4555-8d5b-3257de686fe0}</UniqueIdentifier>
+      <UniqueIdentifier>{67208cce-1be3-4f0c-b269-551e5cd5478e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Platform">
-      <UniqueIdentifier>{c51e1b21-a61b-4baf-89d3-df7801d2bc4b}</UniqueIdentifier>
+      <UniqueIdentifier>{5ddad072-a365-4b32-a5eb-2b89069a02f0}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\ImGui">
-      <UniqueIdentifier>{ecde1c52-397b-4d99-89c6-27e2354b05cb}</UniqueIdentifier>
+      <UniqueIdentifier>{15623811-a7ee-45fb-9333-87fd69d29dc5}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty">
-      <UniqueIdentifier>{abc0704d-e75d-4bd7-8bee-9ae9d158ce5f}</UniqueIdentifier>
+      <UniqueIdentifier>{f5f7383a-7ad2-483a-a48c-35150b4cad31}</UniqueIdentifier>
     </Filter>
     <Filter Include="Util">
-      <UniqueIdentifier>{5327dbdd-d37c-4167-8fda-a890333d6a3e}</UniqueIdentifier>
+      <UniqueIdentifier>{9044c7ce-4a6f-4559-892c-250bd5af77d0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core">
-      <UniqueIdentifier>{94354795-9cd2-404a-bb4e-96909f5dce91}</UniqueIdentifier>
+      <UniqueIdentifier>{8d861325-1b55-4269-8ca0-c35fc31c07d2}</UniqueIdentifier>
     </Filter>
     <Filter Include="Networking">
-      <UniqueIdentifier>{399f7f6d-ef50-4ffa-9681-1d3ed1493c00}</UniqueIdentifier>
+      <UniqueIdentifier>{5fc50160-2758-40af-88ea-a8793d27bf83}</UniqueIdentifier>
     </Filter>
     <Filter Include="Audio">
-      <UniqueIdentifier>{2bf5569d-d7dd-4573-bbe6-428b34b68a66}</UniqueIdentifier>
+      <UniqueIdentifier>{a9020ee0-f90c-487b-8f50-fe01c6026ff8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Events">
-      <UniqueIdentifier>{b68586c7-49fe-4c36-96d4-62ca93abb2be}</UniqueIdentifier>
+      <UniqueIdentifier>{14ea6830-2b91-4de5-96c8-aa75112c037a}</UniqueIdentifier>
     </Filter>
     <Filter Include="AI">
-      <UniqueIdentifier>{2624aac6-308c-458c-b245-7a33a683101f}</UniqueIdentifier>
+      <UniqueIdentifier>{421194e3-9755-417f-b6e5-0de6a565e986}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics\Passes">
-      <UniqueIdentifier>{579ac06b-bea7-4d3f-a255-e95149e47fe4}</UniqueIdentifier>
+      <UniqueIdentifier>{45d94d33-b2d5-43a4-9ad1-7c749f4b4f6d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Graphics\Shaders">
-      <UniqueIdentifier>{e4349983-2294-42dd-a4b1-822bf457e7da}</UniqueIdentifier>
+      <UniqueIdentifier>{a8636fae-1619-4ef0-9afa-40367474e91a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Assets">
-      <UniqueIdentifier>{706b9c56-641c-46b1-8ce5-5bb18b68d32c}</UniqueIdentifier>
+      <UniqueIdentifier>{89a1513b-6aa8-46b5-b6fb-23a675541070}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -270,11 +270,14 @@
     <ClCompile Include="Events\Event.cpp">
       <Filter>Events</Filter>
     </ClCompile>
+    <ClCompile Include="AI\BehaviourTree.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
     <ClCompile Include="AI\NavMesh.cpp">
       <Filter>AI</Filter>
     </ClCompile>
-    <ClCompile Include="AI\BehaviourTree.cpp">
-      <Filter>AI</Filter>
+    <ClCompile Include="Util\Reflect.cpp">
+      <Filter>Util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -632,11 +635,14 @@
     <ClInclude Include="Events\WindowEvents.h">
       <Filter>Events</Filter>
     </ClInclude>
+    <ClInclude Include="AI\BehaviourTree.h">
+      <Filter>AI</Filter>
+    </ClInclude>
     <ClInclude Include="AI\NavMesh.h">
       <Filter>AI</Filter>
     </ClInclude>
-    <ClInclude Include="AI\BehaviourTree.h">
-      <Filter>AI</Filter>
+    <ClInclude Include="Util\Reflect.h">
+      <Filter>Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
