@@ -3,6 +3,9 @@
 
 namespace Bat
 {
+	BAT_COMPONENT_BEGIN( CharacterControllerComponent );
+	BAT_COMPONENT_END();
+
 	CharacterControllerComponent::CharacterControllerComponent( const CharacterControllerBoxDesc& desc )
 	{
 		m_Type = ControllerType::BOX;

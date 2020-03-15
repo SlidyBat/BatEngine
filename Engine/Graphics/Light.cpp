@@ -5,6 +5,9 @@
 
 namespace Bat
 {
+	BAT_COMPONENT_BEGIN( LightComponent );
+	BAT_COMPONENT_END();
+
 	void LightComponent::DoImGuiMenu()
 	{
 		if( ImGui::TreeNode( "Light" ) )

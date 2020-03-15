@@ -6,6 +6,10 @@
 
 namespace Bat
 {
+	BAT_REFLECT_BEGIN( SceneNode );
+		BAT_REFLECT_MEMBER( m_Value );
+	BAT_REFLECT_END();
+
 	SceneNode::SceneNode( Entity value, SceneNode* parent )
 		:
 		m_Value( value ),

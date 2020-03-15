@@ -219,6 +219,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClCompile Include="AI\NavMesh.cpp" />
     <ClCompile Include="Animation\AnimationChannel.cpp" />
     <ClCompile Include="Animation\AnimationClip.cpp" />
+    <ClCompile Include="Animation\AnimationComponent.cpp" />
     <ClCompile Include="Animation\AnimationSkeleton.cpp" />
     <ClCompile Include="Animation\AnimationSystem.cpp" />
     <ClCompile Include="Application.cpp" />

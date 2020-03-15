@@ -5,37 +5,65 @@
 #include "Event.h"
 #include "EntityEvents.h"
 #include "ChunkedAllocator.h"
-#include "Tree.h"
+#include "Reflect.h"
 #include <bitset>
 
 namespace Bat
 {
+#define BAT_COMPONENT_LIST(_)   \
+	_(TRANSFORM)            \
+	_(NAME)                 \
+	_(MODEL)                \
+	_(LIGHT)                \
+	_(PHYSICS)              \
+	_(ANIMATION)            \
+	_(PARTICLE_EMITTER)     \
+	_(CHARACTER_CONTROLLER) \
+	_(BEHAVIOUR_TREE)       \
+
 	enum class ComponentId
 	{
-		TRANSFORM,
-		NAME,
-		MODEL,
-		LIGHT,
-		PHYSICS,
-		ANIMATION,
-		PARTICLE_EMITTER,
-		CHARACTER_CONTROLLER,
-		BEHAVIOUR_TREE
+		INVALID = -1,
+#define MAKE_ENUM( component ) component,
+		BAT_COMPONENT_LIST( MAKE_ENUM )
+#undef MAKE_ENUM
+		LAST
 	};
 
 #define BAT_COMPONENT( id ) \
+	BAT_REFLECT(); \
 	static constexpr const char* GetName() { return #id; } \
 	static constexpr ComponentId GetId() { return ComponentId::##id; } \
 	static constexpr size_t GetIndex() { return (size_t)GetId(); }
+
+#define BAT_COMPONENT_BEGIN( classname ) \
+	template <> \
+	TypeDescriptor Bat::GetComponentTypeDescriptor<classname::GetId()>() { return classname::Reflect(); } \
+	BAT_REFLECT_BEGIN( classname );
+
+#define BAT_COMPONENT_MEMBER( membername ) \
+	BAT_REFLECT_MEMBER( membername )
+
+#define BAT_COMPONENT_END() \
+	BAT_REFLECT_END();
+
+	template <ComponentId Id>
+	TypeDescriptor GetComponentTypeDescriptor();
+	
+	TypeDescriptor GetComponentTypeDescriptor( ComponentId id );
 
 	class EntityManager;
 
 	class Entity
 	{
 	public:
+		BAT_REFLECT();
+
 		struct Id
 		{
 		public:
+			BAT_REFLECT();
+
 			Id() = default;
 			explicit Id( uint64_t id )
 				:
@@ -110,6 +138,8 @@ namespace Bat
 	class EntityManager : public EventDispatcher
 	{
 	public:
+		BAT_REFLECT();
+
 		EntityManager() { m_EntityVersions.resize( INITIAL_ENTITIES ); m_EntityComponentMasks.resize( INITIAL_ENTITIES ); }
 		
 		Entity CreateEntity();
@@ -123,10 +153,12 @@ namespace Bat
 		void RemoveComponent( Entity entity );
 		template <typename C>
 		C& GetComponent( Entity entity );
+		void* GetComponent( Entity entity, ComponentId id );
 		template <typename C>
 		const C& GetComponent( Entity entity ) const;
 		template <typename C>
 		bool HasComponent( Entity entity );
+		std::vector<ComponentId> GetComponentsList( Entity entity );
 
 		class Iterator
 		{
@@ -184,9 +216,9 @@ namespace Bat
 
 		void EnsureEntityCapacity( uint32_t index );
 	private:
+		ChunkedAllocator<8192>& GetComponentAllocator( ComponentId id );
 		template <typename C>
 		ObjectChunkedAllocator<C>& GetComponentAllocator();
-
 
 		void SortFreeList();
 	private:

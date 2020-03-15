@@ -285,36 +285,6 @@ namespace Bat
 	static MoveableCharacter player;
 	static AiCharacter ai;
 
-	struct Reflected1
-	{
-		BAT_REFLECT();
-		float a, b, c;
-		float* p;
-	};
-
-	BAT_REFLECT_BEGIN( Reflected1 );
-		BAT_REFLECT_MEMBER( a );
-		BAT_REFLECT_MEMBER( b );
-		BAT_REFLECT_MEMBER( c );
-		BAT_REFLECT_MEMBER( p );
-	BAT_REFLECT_END();
-
-	struct Reflected2
-	{
-		BAT_REFLECT();
-		int x, y, z;
-		std::unique_ptr<int> up;
-		Reflected1 r;
-	};
-
-	BAT_REFLECT_BEGIN( Reflected2 );
-		BAT_REFLECT_MEMBER( x );
-		BAT_REFLECT_MEMBER( y );
-		BAT_REFLECT_MEMBER( z );
-		BAT_REFLECT_MEMBER( up );
-		BAT_REFLECT_MEMBER( r );
-	BAT_REFLECT_END();
-
 	std::string Indent( int level )
 	{
 		std::string indent;
@@ -361,6 +331,26 @@ namespace Bat
 		return s;
 	}
 
+	std::string DumpComponents( Entity e )
+	{
+		std::vector<ComponentId> components = world.GetComponentsList( e );
+
+		std::string s;
+		for( ComponentId component : components )
+		{
+			TypeDescriptor desc = GetComponentTypeDescriptor( component );
+			s += Dump( desc );
+		}
+
+		return s;
+	}
+
+	BAT_REFLECT_EXTERNAL_BEGIN( Vec3 );
+		BAT_REFLECT_MEMBER( x );
+		BAT_REFLECT_MEMBER( y );
+		BAT_REFLECT_MEMBER( z );
+	BAT_REFLECT_END();
+
 	Application::Application( Graphics& gfx, Window& wnd )
 		:
 		gfx( gfx ),
@@ -369,8 +359,6 @@ namespace Bat
 		physics_system( world ),
 		controller_system( world )
 	{
-		TypeDescriptor desc = GetTypeDescriptor<Reflected2>();
-		BAT_LOG( Dump( desc ) );
 		SceneLoader loader;
 
 		camera.SetAspectRatio( (float)wnd.GetWidth() / wnd.GetHeight() );
@@ -386,6 +374,8 @@ namespace Bat
 			.SetRotation( { 0.0f, 0.0f, 90.0f } );
 		floor.Add<PhysicsComponent>( PhysicsObjectType::STATIC )
 			.AddPlaneShape();
+
+		BAT_LOG( DumpComponents( floor ) );
 
 		navmesh_system.Bake();
 

@@ -3,6 +3,9 @@
 
 namespace Bat
 {
+	BAT_COMPONENT_BEGIN( BehaviourTree );
+	BAT_COMPONENT_END();
+
 	void BehaviourTreeSystem::Update( EntityManager& world )
 	{
 		for( Entity e : world )

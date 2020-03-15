@@ -5,6 +5,9 @@
 
 namespace Bat
 {
+	BAT_COMPONENT_BEGIN( ParticleEmitterComponent );
+	BAT_COMPONENT_END();
+
 	static Particle CreateParticle( const Vec3& pos, const ParticleEmitterComponent& emitter )
 	{
 		Vec3 rand_vel = {

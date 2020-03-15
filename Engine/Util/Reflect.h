@@ -4,29 +4,57 @@
 #include <vector>
 #include <string>
 
+// Declares the necessary functions for the class to be reflected
+// NOTE: Must have public visibility
+// Example usage:
+//  class MyClass
+//  {
+//    public:
+//      BAT_REFLECT();
+//      int x, y, z;
+//  }
 #define BAT_REFLECT() \
 	static constexpr const char* GetClassName(); \
-	static TypeDescriptor Reflect()
+	static Bat::TypeDescriptor Reflect()
 
+// Does the actual work of reflecting a class
+// NOTE: Must be used in a .cpp file
+// Example usage:
+//  BAT_REFLECT_BEGIN( MyClass );
+//    BAT_REFLECT_MEMBER( x );
+//    BAT_REFLECT_MEMBER( y );
+//    BAT_REFLECT_MEMBER( z );
+//  BAT_REFLECT_END();
 #define BAT_REFLECT_BEGIN( classname ) \
 	constexpr const char* classname::GetClassName() { return #classname; } \
-	template <> TypeDescriptor GetTypeDescriptorImpl<classname>() { return classname::Reflect(); } \
-	TypeDescriptor classname::Reflect() { \
+	template <> Bat::TypeDescriptor Bat::GetTypeDescriptorImpl<classname>() { return classname::Reflect(); } \
+	Bat::TypeDescriptor classname::Reflect() { \
 		using ThisClass = classname; \
-		TypeDescriptor desc; \
+		Bat::TypeDescriptor desc; \
 		desc.name = #classname; \
 		desc.size = sizeof( classname ); \
-		std::vector<TypeElement> elements
+		std::vector<Bat::TypeElement> elements
 
 #define BAT_REFLECT_MEMBER( membername ) \
-		elements.emplace_back( TypeElement{ #membername, offsetof( ThisClass, membername ), GetTypeDescriptor<decltype( ThisClass::membername )>() } )
+		elements.emplace_back( Bat::TypeElement{ #membername, offsetof( ThisClass, membername ), Bat::GetTypeDescriptor<decltype( ThisClass::membername )>() } )
 
 #define BAT_REFLECT_END() \
 		desc.num_members = elements.size(); \
-		desc.members = std::make_unique<TypeElement[]>( desc.num_members ); \
+		desc.members = std::make_unique<Bat::TypeElement[]>( desc.num_members ); \
 		for( size_t i = 0; i < elements.size(); i++ ) { desc.members[i] = std::move( elements[i] ); } \
 		return desc; \
 	}
+
+// Same as BAT_REFLECT_BEGIN, but doesn't depend on the given class having a `Reflect()` member function (and therefore no need for BAT_REFLECT() to be used)
+// Disadvantage is that private members can't be reflected
+// Use this for external classes that you can't/won't change the definition of
+#define BAT_REFLECT_EXTERNAL_BEGIN( classname ) \
+	template <> Bat::TypeDescriptor Bat::GetTypeDescriptorImpl<classname>() {  \
+		using ThisClass = classname; \
+		Bat::TypeDescriptor desc; \
+		desc.name = #classname; \
+		desc.size = sizeof( classname ); \
+		std::vector<Bat::TypeElement> elements
 
 namespace Bat
 {

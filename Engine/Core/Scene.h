@@ -8,6 +8,8 @@ namespace Bat
 	class SceneNode
 	{
 	public:
+		BAT_REFLECT();
+
 		SceneNode() = default;
 		SceneNode( Entity value, SceneNode* parent = nullptr );
 		~SceneNode();
