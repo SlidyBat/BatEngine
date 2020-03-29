@@ -8,16 +8,17 @@ namespace Bat
 {
 	void ShadowPipeline::Render( IGPUContext* pContext, const Mesh& mesh, const Mat4& viewproj, const Mat4& world_transform )
 	{
-		auto macros = ShaderManager::BuildMacrosForMesh( mesh );
+		ShaderMacro macros[MAX_SHADER_MACROS];
+		size_t num_macros = ShaderManager::BuildMacrosForMesh( mesh, macros, MAX_SHADER_MACROS );
 
-		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/ShadowMapVS.hlsl", macros );
+		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/ShadowMapVS.hlsl", macros, num_macros );
 		pContext->SetVertexShader( pVertexShader );
 		
 		// If there is some alpha masking going on then we need a pixel shader that discards low alpha pixels
 		const Material& material = mesh.GetMaterial();
 		if( material.GetAlphaMode() == AlphaMode::MASK )
 		{
-			IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/ShadowMapPS.hlsl", macros );
+			IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/ShadowMapPS.hlsl", macros, num_macros );
 			pContext->SetPixelShader( pPixelShader );
 			BindMaterial( pContext, material );
 		}

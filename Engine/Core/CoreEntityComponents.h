@@ -8,8 +8,10 @@ namespace Bat
 {
 	class SceneNode;
 
-	struct NameComponent : public Component<NameComponent>
+	struct NameComponent
 	{
+		BAT_COMPONENT( NAME );
+
 		NameComponent( std::string name )
 			:
 			name( std::move( name ) )
@@ -28,10 +30,12 @@ namespace Bat
 	};
 	BAT_ENUM_OPERATORS( HierarchyCache );
 
-	class TransformComponent : public Component<TransformComponent>
+	class TransformComponent
 	{
 		friend class HierarchySystem;
 	public:
+		BAT_COMPONENT( TRANSFORM );
+
 		TransformComponent( SceneNode* node );
 
 		TransformComponent& SetPosition( float x, float y, float z );

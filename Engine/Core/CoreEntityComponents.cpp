@@ -5,6 +5,17 @@
 
 namespace Bat
 {
+	BAT_COMPONENT_BEGIN( NameComponent );
+		BAT_COMPONENT_MEMBER( name );
+	BAT_COMPONENT_END();
+
+	BAT_COMPONENT_BEGIN( TransformComponent );
+		BAT_COMPONENT_MEMBER( m_pNode );
+		BAT_COMPONENT_MEMBER( m_vecLocalPosition );
+		BAT_COMPONENT_MEMBER( m_flLocalScale );
+		BAT_COMPONENT_MEMBER( m_vecLocalRotation );
+	BAT_COMPONENT_END();
+
 	TransformComponent::TransformComponent( SceneNode* node )
 		:
 		m_pNode( node )

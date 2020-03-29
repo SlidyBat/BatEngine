@@ -14,9 +14,11 @@ namespace Bat
 {
 	class IPipeline;
 
-	class ModelComponent : public Component<ModelComponent>
+	class ModelComponent
 	{
 	public:
+		BAT_COMPONENT( MODEL );
+
 		ModelComponent( std::vector<Resource<Mesh>> pMeshes );
 
 		std::vector<Resource<Mesh>>& GetMeshes();

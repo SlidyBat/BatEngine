@@ -18,19 +18,19 @@ namespace Bat
 	class IDepthStencil;
 	class ISampler;
 
+	static constexpr size_t MAX_SHADER_MACROS = 16;
 	struct ShaderMacro
 	{
-		ShaderMacro( std::string name, std::string value = "" )
+		ShaderMacro() = default;
+		ShaderMacro( const char* name, const char* value )
 			:
-			name( std::move( name ) ),
-			value( std::move( value ) )
+			name( name ),
+			value( value )
 		{}
 
-		std::string name;
-		std::string value;
+		const char* name = nullptr;
+		const char* value = nullptr;
 	};
-
-
 
 	class IGPUDevice
 	{
@@ -39,8 +39,8 @@ namespace Bat
 
 		virtual const DeviceInfo& GetDeviceInfo() const = 0;
 
-		virtual IPixelShader* CreatePixelShader( const std::string& filename, const std::vector<ShaderMacro>& macros = {} ) = 0;
-		virtual IVertexShader*   CreateVertexShader( const std::string& filename, const std::vector<ShaderMacro>& macros = {} ) = 0;
+		virtual IPixelShader* CreatePixelShader( const std::string& filename, const ShaderMacro* macros, size_t num_macros ) = 0;
+		virtual IVertexShader*   CreateVertexShader( const std::string& filename, const ShaderMacro* macros, size_t num_macros ) = 0;
 
 		// Creates vertex buffer with size `size`, element size `elem_size` bytes and `data` as initial data.
 		// Pass nullptr to leave uninitialized.

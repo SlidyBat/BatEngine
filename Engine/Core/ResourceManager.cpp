@@ -25,7 +25,7 @@ namespace Bat
 		auto it = g_mapTextures.find( filename );
 		if( it == g_mapTextures.end() )
 		{
-			auto pResource = std::make_shared<Texture>( StringToWide( filename ) );
+			auto pResource = std::make_shared<Texture>( filename );
 			g_mapTextures[filename] = pResource;
 			return pResource;
 		}
@@ -47,24 +47,24 @@ namespace Bat
 		return it->second;
 	}
 
-	static std::string GetShaderHashName( const std::string& filename, const std::vector<ShaderMacro>& macros )
+	static std::string GetShaderHashName( const std::string& filename, const ShaderMacro* macros, size_t num_macros )
 	{
 		std::string name = filename;
-		for( const auto& macro : macros )
+		for( size_t i = 0; i < num_macros; i++ )
 		{
-			name += macro.name;
-			name += macro.value;
+			name += macros[i].name;
+			name += macros[i].value;
 		}
 		return name;
 	}
 	
-	IVertexShader* ResourceManager::GetVertexShader( const std::string& filename, const std::vector<ShaderMacro>& macros )
+	IVertexShader* ResourceManager::GetVertexShader( const std::string& filename, const ShaderMacro* macros, size_t num_macros )
 	{
-		std::string name = GetShaderHashName( filename, macros );
+		std::string name = GetShaderHashName( filename, macros, num_macros );
 		auto it = g_mapVShaders.find( name );
 		if( it == g_mapVShaders.end() )
 		{
-			auto pResource = gpu->CreateVertexShader( filename, macros );
+			auto pResource = gpu->CreateVertexShader( filename, macros, num_macros );
 			g_mapVShaders[name] = std::unique_ptr<IVertexShader>( pResource );
 			return pResource;
 		}
@@ -72,13 +72,13 @@ namespace Bat
 		return it->second.get();
 	}
 
-	IPixelShader* ResourceManager::GetPixelShader( const std::string& filename, const std::vector<ShaderMacro>& macros )
+	IPixelShader* ResourceManager::GetPixelShader( const std::string& filename, const ShaderMacro* macros, size_t num_macros )
 	{
-		std::string name = GetShaderHashName( filename, macros );
+		std::string name = GetShaderHashName( filename, macros, num_macros );
 		auto it = g_mapPShaders.find( name );
 		if( it == g_mapPShaders.end() )
 		{
-			auto pResource = gpu->CreatePixelShader( filename, macros );
+			auto pResource = gpu->CreatePixelShader( filename, macros, num_macros );
 			g_mapPShaders[name] = std::unique_ptr<IPixelShader>( pResource );
 			return pResource;
 		}

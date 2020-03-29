@@ -94,12 +94,11 @@ inline bool operator==( const D3D11_RASTERIZER_DESC& a, const D3D11_RASTERIZER_D
 
 #ifdef _DEBUG
 #define DXGI_CALL( dev, fn ) do { \
-		auto msg = dev->FlushMessages(); \
+		dev->FlushMessages(); \
 		fn; \
-		msg = dev->FlushMessages(); \
-		if( !msg.empty() ) \
+		if( dev->FlushMessages() ) \
 		{ \
-			ASSERT( false, msg ); \
+			ASSERT( false, dev->GetLastDebugMessage() ); \
 		} \
 	} while( false )
 #else
@@ -225,7 +224,7 @@ namespace Bat
 	class D3DPixelShader : public IPixelShader
 	{
 	public:
-		D3DPixelShader( ID3D11Device* pDevice, const std::string& filename, const std::vector<ShaderMacro>& macros );
+		D3DPixelShader( ID3D11Device* pDevice, const std::string& filename, const ShaderMacro* macros, size_t num_macros );
 		~D3DPixelShader();
 
 		virtual std::string GetName() const override { return m_szName; }
@@ -237,7 +236,8 @@ namespace Bat
 		void SetDirty( bool dirty ) { m_bDirty = dirty; }
 	private:
 		std::string m_szName;
-		std::vector<ShaderMacro> m_Macros;
+		ShaderMacro m_Macros[MAX_SHADER_MACROS];
+		size_t m_iNumMacros;
 		std::atomic_bool m_bDirty = true;
 		Microsoft::WRL::ComPtr<ID3D11PixelShader> m_pShader;
 
@@ -249,7 +249,7 @@ namespace Bat
 	class D3DVertexShader : public IVertexShader
 	{
 	public:
-		D3DVertexShader( ID3D11Device* pDevice, const std::string& filename, const std::vector<ShaderMacro>& macros );
+		D3DVertexShader( ID3D11Device* pDevice, const std::string& filename, const ShaderMacro* macros, size_t num_macros );
 		~D3DVertexShader();
 
 		virtual std::string GetName() const override { return m_szName; }
@@ -271,7 +271,8 @@ namespace Bat
 		Microsoft::WRL::ComPtr<ID3D11InputLayout> m_pInputLayout;
 		int m_iAttributeCount[(int)VertexAttribute::TotalAttributes];
 		int m_iAttributeSlot[(int)VertexAttribute::TotalAttributes][MAX_ATTRIBUTE_COUNT];
-		std::vector<ShaderMacro> m_Macros;
+		ShaderMacro m_Macros[MAX_SHADER_MACROS];
+		size_t m_iNumMacros;
 		std::atomic_bool m_bDirty = true;
 		Microsoft::WRL::ComPtr<ID3D11VertexShader> m_pShader;
 
@@ -421,8 +422,8 @@ namespace Bat
 
 		virtual const DeviceInfo& GetDeviceInfo() const override;
 
-		virtual IPixelShader*    CreatePixelShader( const std::string& filename, const std::vector<ShaderMacro>& macros = {} ) override;
-		virtual IVertexShader*   CreateVertexShader( const std::string& filename, const std::vector<ShaderMacro>& macros = {} ) override;
+		virtual IPixelShader*    CreatePixelShader( const std::string& filename, const ShaderMacro* macros, size_t num_macros ) override;
+		virtual IVertexShader*   CreateVertexShader( const std::string& filename, const ShaderMacro* macros, size_t num_macros ) override;
 
 		virtual IVertexBuffer*   CreateVertexBuffer( const void* pData, size_t elem_size, size_t size ) override;
 		virtual IIndexBuffer*    CreateIndexBuffer( const void* pData, size_t elem_size, size_t size ) override;
@@ -478,7 +479,8 @@ namespace Bat
 		ID3D11BlendState*        GetBlendEnabledState() { return m_pBlendEnabledState.Get(); }
 		ID3D11BlendState*        GetBlendDisabledState() { return m_pBlendDisabledState.Get(); }
 
-		std::string FlushMessages();
+		bool FlushMessages();
+		std::string GetLastDebugMessage();
 	private:
 		bool       m_bVSyncEnabled;
 
@@ -490,6 +492,7 @@ namespace Bat
 
 #ifdef _DEBUG
 		Microsoft::WRL::ComPtr<IDXGIInfoQueue>           m_pInfoQueue;
+		std::string                                      m_szDxgiMessage;
 #endif
 
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView>   m_pRenderTargetView;
@@ -1312,8 +1315,9 @@ namespace Bat
 	{
 		if( m_pAnnotation )
 		{
-			std::wstring wname = StringToWide( name );
-			m_pAnnotation->BeginEvent( wname.c_str() );
+			wchar_t wname[128];
+			StringToWide( name.c_str(), wname, sizeof( wname ) );
+			m_pAnnotation->BeginEvent( wname );
 		}
 	}
 
@@ -1643,14 +1647,14 @@ namespace Bat
 		return m_DeviceInfo;
 	}
 
-	IPixelShader* D3DGPUDevice::CreatePixelShader( const std::string& filename, const std::vector<ShaderMacro>& macros )
+	IPixelShader* D3DGPUDevice::CreatePixelShader( const std::string& filename, const ShaderMacro* macros, size_t num_macros )
 	{
-		return new D3DPixelShader( m_pDevice.Get(), filename, macros );
+		return new D3DPixelShader( m_pDevice.Get(), filename, macros, num_macros );
 	}
 
-	IVertexShader* D3DGPUDevice::CreateVertexShader( const std::string& filename, const std::vector<ShaderMacro>& macros )
+	IVertexShader* D3DGPUDevice::CreateVertexShader( const std::string& filename, const ShaderMacro* macros, size_t num_macros )
 	{
-		return new D3DVertexShader( m_pDevice.Get(), filename, macros );
+		return new D3DVertexShader( m_pDevice.Get(), filename, macros, num_macros );
 	}
 
 	IVertexBuffer* D3DGPUDevice::CreateVertexBuffer( const void* pData, size_t elem_size, size_t size )
@@ -1756,10 +1760,10 @@ namespace Bat
 		return new D3DSampler( m_pDevice.Get(), sampler_desc );
 	}
 
-	std::string D3DGPUDevice::FlushMessages()
+	bool D3DGPUDevice::FlushMessages()
 	{
 #ifdef _DEBUG
-		std::string msg;
+		m_szDxgiMessage.clear();
 
 		if( m_pInfoQueue )
 		{
@@ -1787,8 +1791,8 @@ namespace Bat
 						break;
 				}
 
-				msg += pMessage->pDescription;
-				msg += '\n';
+				m_szDxgiMessage += pMessage->pDescription;
+				m_szDxgiMessage += '\n';
 
 				free( pMessage );
 			}
@@ -1796,9 +1800,16 @@ namespace Bat
 			m_pInfoQueue->ClearStoredMessages( DXGI_DEBUG_ALL );
 		}
 
-		return msg;
+		return !m_szDxgiMessage.empty();
 #else
-		return "";
+		return false;
+#endif
+	}
+
+	std::string D3DGPUDevice::GetLastDebugMessage()
+	{
+#ifdef _DEBUG
+		return m_szDxgiMessage;
 #endif
 	}
 
@@ -1902,11 +1913,13 @@ namespace Bat
 		return new D3DGPUDevice( wnd, vsync_enabled, screen_depth, screen_near );
 	}
 
-	D3DPixelShader::D3DPixelShader( ID3D11Device* pDevice, const std::string& filename, const std::vector<ShaderMacro>& macros )
+	D3DPixelShader::D3DPixelShader( ID3D11Device* pDevice, const std::string& filename, const ShaderMacro* macros, size_t num_macros )
 		:
-		m_szName( filename ),
-		m_Macros( macros )
+		m_szName( filename )
 	{
+		memcpy( m_Macros, macros, num_macros * sizeof( ShaderMacro ) );
+		m_iNumMacros = num_macros;
+
 		LoadFromFile( pDevice, filename, true );
 
 #ifdef _DEBUG
@@ -1946,12 +1959,12 @@ namespace Bat
 		// not compiled, lets compile ourselves
 		else
 		{
-			std::vector<D3D_SHADER_MACRO> macros;
-			for( const ShaderMacro& macro : m_Macros )
+			D3D_SHADER_MACRO macros[MAX_SHADER_MACROS + 1];
+			for( size_t i = 0; i < m_iNumMacros; i++ )
 			{
-				macros.push_back( { macro.name.c_str(), macro.value.c_str() } );
+				macros[i] = { m_Macros[i].name, m_Macros[i].value };
 			}
-			macros.push_back( { NULL, NULL } ); // Sentinel
+			macros[m_iNumMacros] = { NULL, NULL }; // Sentinel
 
 			HRESULT hr;
 			Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
@@ -1962,7 +1975,7 @@ namespace Bat
 			flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
 
-			if( FAILED( hr = D3DCompileFromFile( Bat::StringToWide( filename ).c_str(), macros.data(), D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", flags, 0, &pixelShaderBuffer, &errorMessage ) ) )
+			if( FAILED( hr = D3DCompileFromFile( Bat::StringToWide( filename ).c_str(), macros, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", flags, 0, &pixelShaderBuffer, &errorMessage ) ) )
 			{
 				if( errorMessage )
 				{
@@ -2000,11 +2013,13 @@ namespace Bat
 		SetDirty( true );
 	}
 
-	D3DVertexShader::D3DVertexShader( ID3D11Device* pDevice, const std::string& filename, const std::vector<ShaderMacro>& macros )
+	D3DVertexShader::D3DVertexShader( ID3D11Device* pDevice, const std::string& filename, const ShaderMacro* macros, size_t num_macros )
 		:
-		m_szName( filename ),
-		m_Macros( macros )
+		m_szName( filename )
 	{
+		memcpy( m_Macros, macros, num_macros * sizeof( ShaderMacro ) );
+		m_iNumMacros = num_macros;
+
 		LoadFromFile( pDevice, filename, true );
 
 #ifdef _DEBUG
@@ -2164,12 +2179,12 @@ namespace Bat
 		// not compiled, lets compile ourselves
 		else
 		{
-			std::vector<D3D_SHADER_MACRO> macros;
-			for( const ShaderMacro& macro : m_Macros )
+			D3D_SHADER_MACRO macros[MAX_SHADER_MACROS + 1];
+			for( size_t i = 0; i < m_iNumMacros; i++ )
 			{
-				macros.push_back( { macro.name.c_str(), macro.value.c_str() } );
+				macros[i] = { m_Macros[i].name, m_Macros[i].value };
 			}
-			macros.push_back( { NULL, NULL }  ); // Sentinel
+			macros[m_iNumMacros] = { NULL, NULL }; // Sentinel
 
 			HRESULT hr;
 			Microsoft::WRL::ComPtr<ID3DBlob> errorMessage;
@@ -2180,7 +2195,7 @@ namespace Bat
 			flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
 
-			if( FAILED( hr = D3DCompileFromFile( Bat::StringToWide( filename ).c_str(), macros.data(), D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage ) ) )
+			if( FAILED( hr = D3DCompileFromFile( Bat::StringToWide( filename ).c_str(), macros, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage ) ) )
 			{
 				if( errorMessage )
 				{
@@ -2232,7 +2247,8 @@ namespace Bat
 
 	D3DTexture::D3DTexture( ID3D11Device* pDevice, const std::string& filename, TexFlags flags )
 	{
-		std::wstring wfilename = Bat::StringToWide( filename );
+		wchar_t wfilename[MAX_PATH];
+		Bat::StringToWide( filename.c_str(), wfilename, sizeof( wfilename ) );
 
 		DirectX::ScratchImage scratch;
 		DirectX::TexMetadata metadata;
@@ -2247,25 +2263,25 @@ namespace Bat
 		else if( ext == "dds" )
 		{
 			COM_THROW_IF_FAILED(
-				DirectX::LoadFromDDSFile( wfilename.c_str(), DirectX::DDS_FLAGS_NONE, &metadata, scratch )
+				DirectX::LoadFromDDSFile( wfilename, DirectX::DDS_FLAGS_NONE, &metadata, scratch )
 			);
 		}
 		else if( ext == "tga" )
 		{
 			COM_THROW_IF_FAILED(
-				DirectX::LoadFromTGAFile( wfilename.c_str(), &metadata, scratch )
+				DirectX::LoadFromTGAFile( wfilename, &metadata, scratch )
 			);
 		}
 		else if( ext == "hdr" )
 		{
 			COM_THROW_IF_FAILED(
-				DirectX::LoadFromHDRFile( wfilename.c_str(), &metadata, scratch )
+				DirectX::LoadFromHDRFile( wfilename, &metadata, scratch )
 			);
 		}
 		else
 		{
 			COM_THROW_IF_FAILED(
-				DirectX::LoadFromWICFile( wfilename.c_str(), DirectX::WIC_FLAGS_IGNORE_SRGB, &metadata, scratch )
+				DirectX::LoadFromWICFile( wfilename, DirectX::WIC_FLAGS_IGNORE_SRGB, &metadata, scratch )
 			);
 		}
 

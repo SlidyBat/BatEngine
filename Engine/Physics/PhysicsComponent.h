@@ -6,9 +6,11 @@
 
 namespace Bat
 {
-	class PhysicsComponent : public Component<PhysicsComponent>
+	class PhysicsComponent
 	{
 	public:
+		BAT_COMPONENT( PHYSICS );
+
 		PhysicsComponent( PhysicsObjectType type, const PhysicsMaterial& material = Physics::DEFAULT_MATERIAL );
 
 		PhysicsComponent& AddSphereShape( float radius );

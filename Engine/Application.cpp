@@ -33,6 +33,7 @@
 #include "DebugDraw.h"
 #include "ScratchRenderTarget.h"
 #include "FileDialog.h"
+#include "Reflect.h"
 
 namespace Bat
 {
@@ -284,6 +285,72 @@ namespace Bat
 	static MoveableCharacter player;
 	static AiCharacter ai;
 
+	std::string Indent( int level )
+	{
+		std::string indent;
+		for( int i = 0; i < level; i++ )
+		{
+			indent += "  ";
+		}
+		return indent;
+	}
+	std::string Dump( const TypeElement& el, int level = 0, bool last = true )
+	{
+		std::string s;
+		s += Indent( level );
+		s += Format( "%s %s (size=%i, off=%i)", el.desc.name, el.name, el.desc.size, el.offset );
+		if( el.desc.num_members )
+		{
+			s += " {\n";
+			for( size_t i = 0; i < el.desc.num_members; i++ )
+			{
+				s += Dump( el.desc.members[i], level + 1, i == el.desc.num_members - 1 );
+			}
+			s += Indent( level );
+			s += "}";
+		}
+		s += last ? "\n" : ",\n";
+		return s;
+	}
+	std::string Dump( const TypeDescriptor& desc, int level = 0, bool last = true )
+	{
+		std::string s;
+		s += Indent( level );
+		s += Format( "%s (size=%i)", desc.name, desc.size );
+		if( desc.num_members )
+		{
+			s += " {\n";
+			for( size_t i = 0; i < desc.num_members; i++ )
+			{
+				s += Dump( desc.members[i], level + 1, i == desc.num_members - 1 );
+			}
+			s += Indent( level );
+			s += "}";
+		}
+		s += last ? "\n" : ",\n";
+		return s;
+	}
+
+	std::string DumpComponents( Entity e )
+	{
+		std::vector<ComponentId> components = world.GetComponentsList( e );
+
+		std::string s;
+		for( ComponentId component : components )
+		{
+			TypeDescriptor desc = GetComponentTypeDescriptor( component );
+			s += Dump( desc );
+		}
+
+		return s;
+	}
+
+	BAT_REFLECT_EXTERNAL_BEGIN( Vec3 );
+		BAT_REFLECT_MEMBER( x );
+		BAT_REFLECT_MEMBER( y );
+		BAT_REFLECT_MEMBER( z );
+	BAT_REFLECT_END();
+
 	Application::Application( Graphics& gfx, Window& wnd )
 		:
 		gfx( gfx ),
@@ -307,6 +374,8 @@ namespace Bat
 			.SetRotation( { 0.0f, 0.0f, 90.0f } );
 		floor.Add<PhysicsComponent>( PhysicsObjectType::STATIC )
 			.AddPlaneShape();
+
+		BAT_LOG( DumpComponents( floor ) );
 
 		navmesh_system.Bake();
 

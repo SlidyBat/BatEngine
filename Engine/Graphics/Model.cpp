@@ -6,6 +6,9 @@
 
 namespace Bat
 {
+	BAT_COMPONENT_BEGIN( ModelComponent );
+	BAT_COMPONENT_END();
+
 	ModelComponent::ModelComponent( std::vector<Resource<Mesh>> pMeshes )
 		:
 		m_pMeshes( std::move( pMeshes ) )

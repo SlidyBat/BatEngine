@@ -2,11 +2,31 @@
 
 namespace Bat
 {
-	std::wstring StringToWide( std::string_view str )
+	void StringToWide( const char* str, wchar_t* out_wstr, size_t size_bytes )
+	{
+		mbstowcs_s( nullptr, out_wstr, size_bytes / sizeof( wchar_t ), str, size_bytes / sizeof( wchar_t ) - 1 );
+	}
+	std::wstring StringToWide( const std::string& str )
+	{
+		wchar_t buf[256];
+		StringToWide( str.c_str(), buf, sizeof( buf ) );
+		return buf;
+	}
+	std::wstring StringToWideView( std::string_view str )
 	{
 		return std::wstring( str.begin(), str.end() );
 	}
-	std::string WideToString( std::wstring_view wstr )
+	void WideToString( const wchar_t* wstr, char* out_str, size_t size_bytes )
+	{
+		wcstombs_s( nullptr, out_str, size_bytes, wstr, size_bytes - 1 );
+	}
+	std::string WideToString( const std::wstring& wstr )
+	{
+		char buf[256];
+		WideToString( wstr.c_str(), buf, sizeof( buf ) );
+		return buf;
+	}
+	std::string WideToStringView( std::wstring_view wstr )
 	{
 		return std::string( wstr.begin(), wstr.end() );
 	}

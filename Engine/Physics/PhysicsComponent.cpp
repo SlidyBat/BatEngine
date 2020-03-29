@@ -3,6 +3,9 @@
 
 namespace Bat
 {
+	BAT_COMPONENT_BEGIN( PhysicsComponent );
+	BAT_COMPONENT_END();
+
 	PhysicsComponent::PhysicsComponent( PhysicsObjectType type, const PhysicsMaterial& material )
 		:
 		m_Type( type ),

@@ -22,9 +22,11 @@ namespace Bat
 		PhysicsMaterial material = Physics::DEFAULT_MATERIAL;
 	};
 
-	class CharacterControllerComponent : public Component<CharacterControllerComponent>
+	class CharacterControllerComponent
 	{
 	public:
+		BAT_COMPONENT( CHARACTER_CONTROLLER );
+
 		CharacterControllerComponent( const CharacterControllerBoxDesc& desc );
 		CharacterControllerComponent( const CharacterControllerCapsuleDesc& desc );
 

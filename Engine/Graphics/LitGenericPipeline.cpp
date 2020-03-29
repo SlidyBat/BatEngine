@@ -23,10 +23,11 @@ namespace Bat
 		const std::vector<Mat4>& light_transforms,
 		const PbrGlobalMaps& maps )
 	{
-		auto macros = ShaderManager::BuildMacrosForMesh( mesh );
+		ShaderMacro macros[MAX_SHADER_MACROS];
+		size_t num_macros = ShaderManager::BuildMacrosForMesh( mesh, macros, MAX_SHADER_MACROS );
 
-		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/LitGenericVS.hlsl", macros );
-		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/LitGenericPS.hlsl", macros );
+		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/LitGenericVS.hlsl", macros, num_macros );
+		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/LitGenericPS.hlsl", macros, num_macros );
 
 		pContext->SetVertexShader( pVertexShader );
 		pContext->SetPixelShader( pPixelShader );
@@ -61,10 +62,11 @@ namespace Bat
 		const std::vector<Mat4>& light_transforms,
 		const PbrGlobalMaps& maps )
 	{
-		auto macros = ShaderManager::BuildMacrosForInstancedMesh( mesh );
+		ShaderMacro macros[MAX_SHADER_MACROS];
+		size_t num_macros = ShaderManager::BuildMacrosForInstancedMesh( mesh, macros, MAX_SHADER_MACROS );
 
-		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/LitGenericVS.hlsl", macros );
-		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/LitGenericPS.hlsl", macros );
+		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/LitGenericVS.hlsl", macros, num_macros );
+		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/LitGenericPS.hlsl", macros, num_macros );
 
 		pContext->SetVertexShader( pVertexShader );
 		pContext->SetPixelShader( pPixelShader );
