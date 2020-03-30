@@ -1,8 +1,11 @@
 #include "PCH.h"
+#include "Globals.h"
+#include "FileSystem.h"
 #include "UI/UltralightAdapters/FileSystemBasic.h"
 #include <Ultralight/String.h>
-#include <fstream>
 #include <cstring>
+
+using namespace Bat;
 
 static const char* FileExtensionToMimeType(const char* ext);
 
@@ -43,62 +46,56 @@ std::string FileSystemBasic::getRelative(const String16& path) {
 }
 
 bool FileSystemBasic::FileExists(const String16& path) {
-  std::ifstream filestream(getRelative(path));
-  return filestream.good();
+  std::string relative = getRelative(path);
+  return filesystem->Exists(relative.c_str());
 }
 
 bool FileSystemBasic::GetFileSize(const String16& path, int64_t& result) {
-  std::ifstream in(getRelative(path), std::ifstream::ate | std::ifstream::binary);
-  if (in.good()) {
-    result = static_cast<int64_t>(in.tellg());
+  std::string relative = getRelative(path);
+  size_t filesize = filesystem->Size( relative.c_str() );
+  if (filesize != Bat::FileSystem::INVALID_SIZE) {
+    result = static_cast<int64_t>(filesize);
     return true;
   }
   return false;
 }
 
 bool FileSystemBasic::GetFileSize(FileHandle handle, int64_t& result) {
-  auto i = open_files_.find(handle);
-  if (i != open_files_.end()) {
-    auto& file = i->second;
-    file->seekg(0, file->end);
-    result = (int64_t)file->tellg();
+  size_t filesize = filesystem->Size((FileHandle_t)handle);
+  if (filesize != Bat::FileSystem::INVALID_SIZE) {
+    result = static_cast<int64_t>(filesize);
     return true;
   }
-
   return false;
 }
 
 bool FileSystemBasic::GetFileMimeType(const String16& path, String16& result) {
   String8 utf8 = String(path).utf8();
   std::string filepath(utf8.data(), utf8.length()); 
-  std::string ext = filepath.substr(filepath.find_last_of(".") + 1);
+  auto ext = std::string(Bat::GetFileExtension(filepath));
   result = String16(FileExtensionToMimeType(ext.c_str()));
   return true;
 }
 
 FileHandle FileSystemBasic::OpenFile(const String16& path, bool open_for_writing) {
-  std::unique_ptr<std::ifstream> file(new std::ifstream(getRelative(path), std::ifstream::ate | std::ifstream::binary));
-  if (!file->good())
+  std::string relative = getRelative(path);
+  FileHandle_t handle = filesystem->Open(relative.c_str(), open_for_writing ? "wb" : "rb");
+  if (handle == Bat::FileSystem::INVALID_HANDLE)
     return invalidFileHandle;
 
-  FileHandle handle = next_handle_++;
-  open_files_[handle] = std::move(file);
-  return handle;
+  return (FileHandle)handle;
 }
 
 void FileSystemBasic::CloseFile(FileHandle& handle) {
-  open_files_.erase(handle);
+  filesystem->Close((FileHandle_t)handle);
   handle = invalidFileHandle;
 }
 
 int64_t FileSystemBasic::ReadFromFile(FileHandle handle, char* data, int64_t length) {
-  auto i = open_files_.find(handle);
-  if (i != open_files_.end()) {
-    auto& file = i->second;
-    file->seekg(0, file->beg);
-    file->read(data, (std::streamsize)length);
-    return (int64_t)file->gcount();
-  }
+  if (handle == invalidFileHandle)
+    return 0;
+
+  filesystem->Read((FileHandle_t)handle, data, (size_t)length);
 
   return 0;
 }

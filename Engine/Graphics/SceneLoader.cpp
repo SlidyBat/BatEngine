@@ -1,6 +1,8 @@
 #include "PCH.h"
 #include "SceneLoader.h"
 
+#include "Globals.h"
+#include "FileSystem.h"
 #include "CoreEntityComponents.h"
 #include "AnimationComponent.h"
 #include "AnimationClip.h"
@@ -12,18 +14,54 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <assimp/pbrmaterial.h>
+#include <assimp/IOStream.hpp>
+#include <assimp/IOSystem.hpp>
 #include "Material.h"
 #include "FrameTimer.h"
 
 namespace Bat
 {
+	class BatIOStream : public Assimp::IOStream
+	{
+	public:
+		BatIOStream( const char* filename, const char* mode ) { handle = filesystem->Open( filename, mode ); }
+		~BatIOStream() { filesystem->Close( handle ); }
+
+		virtual size_t Read( void* pvBuffer, size_t pSize, size_t pCount ) override { return filesystem->Read( handle, (char*)pvBuffer, pSize * pCount ) / pSize; }
+		virtual size_t Write( const void* pvBuffer, size_t pSize, size_t pCount ) override { return filesystem->Write( handle, (char*)pvBuffer, pSize * pCount ) / pSize; }
+		virtual aiReturn Seek( size_t pOffset, aiOrigin pOrigin ) { filesystem->Seek( handle, (int)pOffset, (SeekPos)pOrigin ); return aiReturn_SUCCESS; }
+		virtual size_t Tell() const { return (size_t)filesystem->Tell( handle ); }
+		virtual size_t FileSize() const { return filesystem->Size( handle ); }
+		virtual void Flush() { filesystem->Flush( handle ); }
+	private:
+		FileHandle_t handle;
+	};
+
+	class BatIOSystem : public Assimp::IOSystem
+	{
+	public:
+		virtual bool Exists( const char* pFile ) const override { return filesystem->Exists( pFile ); }
+		virtual char getOsSeparator() const override { return '\\'; }
+		virtual Assimp::IOStream* Open( const char* pFile, const char* pMode = "rb" ) override { return new BatIOStream( pFile, pMode ); }
+		virtual void Close( Assimp::IOStream* pFile ) override { delete pFile; }
+		virtual bool ComparePaths( const char* one, const char* second ) const
+		{
+			return std::filesystem::absolute( one ) == std::filesystem::absolute( second );
+		}
+	private:
+		std::vector<std::string> m_pathStack;
+	};
+
 	static Mat3x4 AiToBatMatrix( const aiMatrix4x4& aimat )
 	{
 		return Mat3x4( &aimat.a1 );
 	}
 
+	static Mutex mesh_cache_mutex;
 	Resource<Mesh> SceneLoader::GetLoadedMesh( const aiMesh* pTarget )
 	{
+		ScopedLock lock( mesh_cache_mutex );
+
 		auto it = std::find_if( m_LoadedMeshes.begin(), m_LoadedMeshes.end(), [pTarget]( const LoadedMesh& loaded )
 		{
 			return loaded.pAssimpMesh == pTarget;
@@ -122,24 +160,24 @@ namespace Bat
 		if( storetype == TextureStorageType::IndexCompressed )
 		{
 			int idx = GetTextureIndex( &str );
-			pTexture = std::make_shared<Texture>( reinterpret_cast<char*>(m_pAiScene->mTextures[idx]->pcData),
+			pTexture = std::make_shared<Texture>( reinterpret_cast<char*>( m_pAiScene->mTextures[idx]->pcData ),
 				m_pAiScene->mTextures[idx]->mWidth );
 		}
 		else if( storetype == TextureStorageType::IndexNonCompressed )
 		{
 			int idx = GetTextureIndex( &str );
-			pTexture = std::make_shared<Texture>( reinterpret_cast<char*>(m_pAiScene->mTextures[idx]->pcData),
+			pTexture = std::make_shared<Texture>( reinterpret_cast<char*>( m_pAiScene->mTextures[idx]->pcData ),
 				m_pAiScene->mTextures[idx]->mWidth * m_pAiScene->mTextures[idx]->mHeight );
 		}
 		else if( storetype == TextureStorageType::EmbeddedCompressed )
 		{
 			auto pAiTex = m_pAiScene->GetEmbeddedTexture( str.C_Str() );
-			pTexture = std::make_shared<Texture>( reinterpret_cast<char*>(pAiTex->pcData), pAiTex->mWidth );
+			pTexture = std::make_shared<Texture>( reinterpret_cast<char*>( pAiTex->pcData ), pAiTex->mWidth );
 		}
 		else if( storetype == TextureStorageType::EmbeddedNonCompressed )
 		{
 			auto pAiTex = m_pAiScene->GetEmbeddedTexture( str.C_Str() );
-			pTexture = std::make_shared<Texture>( reinterpret_cast<char*>(pAiTex->pcData), pAiTex->mWidth * pAiTex->mHeight );
+			pTexture = std::make_shared<Texture>( reinterpret_cast<char*>( pAiTex->pcData ), pAiTex->mWidth * pAiTex->mHeight );
 		}
 		else
 		{
@@ -198,7 +236,7 @@ namespace Bat
 	{
 		int index = (int)m_OriginalSkeleton.bones.size();
 		m_mapNodeNameToIndex[pAiNode->mName.C_Str()] = index;
-		
+
 		BoneNode node;
 		node.transform = BoneTransform::FromMatrix( AiToBatMatrix( pAiNode->mTransformation ) );
 		node.parent_index = parent_index;
@@ -240,8 +278,11 @@ namespace Bat
 		return m_SceneNodes[node_index];
 	}
 
+	static Mutex bone_cache_mutex;
 	int SceneLoader::FindBoneByName( const std::string& name ) const
 	{
+		ScopedLock lock( bone_cache_mutex );
+
 		auto it = m_mapBoneNameToIndex.find( name );
 		if( it == m_mapBoneNameToIndex.end() )
 		{
@@ -302,7 +343,7 @@ namespace Bat
 					keyframe.value.x = ai_key.mValue.x;
 					keyframe.value.y = ai_key.mValue.y;
 					keyframe.value.z = ai_key.mValue.z;
-					
+
 					channel.position_keyframes.push_back( keyframe );
 				}
 
@@ -338,8 +379,8 @@ namespace Bat
 
 	static void AddBoneWeight( std::vector<Veu4>* ids, std::vector<Vec4>* weights, unsigned int vertex_id, unsigned int bone_id, float weight )
 	{
-		Veu4& curr_id = (*ids)[vertex_id];
-		Vec4& curr_weight = (*weights)[vertex_id];
+		Veu4& curr_id = ( *ids )[vertex_id];
+		Vec4& curr_weight = ( *weights )[vertex_id];
 
 		if( curr_weight.x == 0.0f )
 		{
@@ -378,7 +419,7 @@ namespace Bat
 		std::vector<unsigned int> indices;
 		std::vector<BoneData> bones;
 		Material material;
-		
+
 		if( pAiMesh->mMaterialIndex >= 0 )
 		{
 			aiMaterial* pMat = m_pAiScene->mMaterials[pAiMesh->mMaterialIndex];
@@ -483,7 +524,7 @@ namespace Bat
 					material.SetBaseColour( std::move( pTexture ) );
 				}
 			}
-			
+
 			// Metallic & Roughness
 			{
 				float metallic = LoadMaterialFloat( pAiMaterial, AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLIC_FACTOR );
@@ -538,12 +579,22 @@ namespace Bat
 
 		auto pBatMesh = std::make_shared<Mesh>( params, indices, material );
 		pBatMesh->SetName( pAiMesh->mName.C_Str() );
-		LoadedMesh loaded_mesh;
-		loaded_mesh.pAssimpMesh = pAiMesh;
-		loaded_mesh.pBatMesh = pBatMesh;
-		m_LoadedMeshes.emplace_back( loaded_mesh );
+
+		{
+			ScopedLock lock( mesh_cache_mutex );
+
+			LoadedMesh loaded_mesh;
+			loaded_mesh.pAssimpMesh = pAiMesh;
+			loaded_mesh.pBatMesh = pBatMesh;
+			m_LoadedMeshes.emplace_back( loaded_mesh );
+		}
 
 		return pBatMesh;
+	}
+
+	Future<std::shared_ptr<Mesh>> SceneLoader::ProcessMeshAsync( aiMesh* pAiMesh )
+	{
+		return std::async( &SceneLoader::ProcessMesh, this, pAiMesh );
 	}
 
 	void SceneLoader::PreProcess()
@@ -593,23 +644,22 @@ namespace Bat
 		const auto transform = AiToBatMatrix( pAiNode->mTransformation );
 		e.Get<TransformComponent>()
 			.SetLocalMatrix( transform );
-		
+
 		int node_index = FindNodeByName( pAiNode->mName.C_Str() );
 		if( node_index != -1 )
 		{
 			m_SceneNodes[node_index] = e;
 		}
 
+		std::vector<FutureResource<Mesh>> future_meshes;
 		if( pAiNode->mNumMeshes > 0 )
 		{
-			std::vector<Resource<Mesh>> meshes;
-			meshes.reserve( pAiNode->mNumMeshes );
+			future_meshes.reserve( pAiNode->mNumMeshes );
 			for( unsigned int i = 0; i < pAiNode->mNumMeshes; i++ )
 			{
 				aiMesh* pMesh = m_pAiScene->mMeshes[pAiNode->mMeshes[i]];
-				meshes.emplace_back( ProcessMesh( pMesh ) );
+				future_meshes.emplace_back( ProcessMeshAsync( pMesh ) );
 			}
-			e.Add<ModelComponent>( meshes );
 		}
 
 		for( unsigned int i = 0; i < pAiNode->mNumChildren; i++ )
@@ -617,6 +667,17 @@ namespace Bat
 			Entity child = world.CreateEntity();
 			SceneNode* child_node = node.AddChild( child );
 			ProcessNode( pAiNode->mChildren[i], *child_node );
+		}
+
+		if( pAiNode->mNumMeshes > 0 )
+		{
+			std::vector<Resource<Mesh>> meshes;
+			meshes.reserve( future_meshes.size() );
+			for( auto& future_mesh : future_meshes )
+			{
+				meshes.push_back( future_mesh.Get() );
+			}
+			e.Add<ModelComponent>( std::move( meshes ) );
 		}
 	}
 
@@ -672,7 +733,7 @@ namespace Bat
 	bool SceneLoader::ReadFile( const std::string& filename )
 	{
 		m_szFilename = filename;
-		if( !std::ifstream( filename ) )
+		if( !filesystem->Exists( filename.c_str() ) )
 		{
 			BAT_WARN( "Could not open model file '%s'", filename );
 			ASSERT( false, "Could not open model file '%s'", filename );
@@ -682,7 +743,8 @@ namespace Bat
 		std::filesystem::path filepath( m_szFilename );
 		m_szDirectory = filepath.parent_path().string();
 
-		m_pAiScene = m_Importer.ReadFile( m_szFilename,aiProcess_MakeLeftHanded | aiProcess_FlipWindingOrder | aiProcessPreset_TargetRealtime_Fast | aiProcess_TransformUVCoords );
+		m_Importer.SetIOHandler( new BatIOSystem() );
+		m_pAiScene = m_Importer.ReadFile( m_szFilename, aiProcess_MakeLeftHanded | aiProcess_FlipWindingOrder | aiProcessPreset_TargetRealtime_Fast | aiProcess_TransformUVCoords );
 
 		if( !m_pAiScene )
 		{

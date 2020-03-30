@@ -30,15 +30,10 @@ namespace Bat
 	}
 	SceneNode& SceneNode::operator=( SceneNode&& donor )
 	{
-		m_pParentNode = donor.m_pParentNode;
-		m_pFirstChild = donor.m_pFirstChild;
-		m_pAdjacentChild = donor.m_pAdjacentChild;
-		m_Value = donor.m_Value;
-
-		donor.m_pParentNode = nullptr;
-		donor.m_pFirstChild = nullptr;
-		donor.m_pAdjacentChild = nullptr;
-		donor.m_Value = Entity::INVALID;
+		std::swap( m_pParentNode, donor.m_pParentNode );
+		std::swap( m_pFirstChild, donor.m_pFirstChild );
+		std::swap( m_pAdjacentChild, donor.m_pAdjacentChild );
+		std::swap( m_Value, donor.m_Value );
 
 		return *this;
 	}

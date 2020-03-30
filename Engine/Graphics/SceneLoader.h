@@ -42,6 +42,7 @@ namespace Bat
 		void ProcessNode( aiNode* pAiNode, SceneNode& node );
 		void BuildSkeleton( aiNode* pAiNode, int parent_index );
 		std::shared_ptr<Mesh> ProcessMesh( aiMesh* pAiMesh );
+		Future<std::shared_ptr<Mesh>> ProcessMeshAsync( aiMesh* pAiMesh );
 		std::shared_ptr<Mesh> GetLoadedMesh( const aiMesh* pTarget );
 
 		std::shared_ptr<Mesh> ExtractMesh( aiNode* pAiNode );

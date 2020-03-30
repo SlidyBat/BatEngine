@@ -85,6 +85,6 @@ namespace Bat
 		SceneNode* m_pParentNode = nullptr;
 		SceneNode* m_pFirstChild = nullptr;
 		SceneNode* m_pAdjacentChild = nullptr;
-		Entity m_Value;
+		Entity m_Value = Entity::INVALID;
 	};
 }

@@ -19,6 +19,7 @@
 #include "COMException.h"
 #include "Common.h"
 #include "Window.h"
+#include "FileSystem.h"
 #include "FileWatchdog.h"
 #include "MemoryStream.h"
 #include <wrl.h>
@@ -1953,8 +1954,8 @@ namespace Bat
 		// compiled shader object
 		if( Bat::GetFileExtension( filename ) == "cso" )
 		{
-			auto bytes = MemoryStream::FromFile( filename );
-			COM_THROW_IF_FAILED( pDevice->CreatePixelShader( bytes.Base(), bytes.Size(), NULL, &m_pShader ) );
+			std::string bytes = filesystem->ReadAllBinary( filename.c_str() );
+			COM_THROW_IF_FAILED( pDevice->CreatePixelShader( bytes.data(), bytes.size(), NULL, &m_pShader ) );
 		}
 		// not compiled, lets compile ourselves
 		else
@@ -1975,7 +1976,8 @@ namespace Bat
 			flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
 
-			if( FAILED( hr = D3DCompileFromFile( Bat::StringToWide( filename ).c_str(), macros, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", flags, 0, &pixelShaderBuffer, &errorMessage ) ) )
+			std::string bytes = filesystem->ReadAllText( filename.c_str() );
+			if( FAILED( hr = D3DCompile( bytes.data(), bytes.size(), filename.c_str(), macros, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", flags, 0, &pixelShaderBuffer, &errorMessage ) ) )
 			{
 				if( errorMessage )
 				{
@@ -2171,10 +2173,10 @@ namespace Bat
 		// compiled shader object
 		if( Bat::GetFileExtension( filename ) == "cso" )
 		{
-			auto bytes = MemoryStream::FromFile( filename );
+			std::string bytes = filesystem->ReadAllBinary( filename.c_str() );
 
-			COM_THROW_IF_FAILED( pDevice->CreateVertexShader( bytes.Base(), bytes.Size(), NULL, &m_pShader ) );
-			CreateInputLayoutDescFromVertexShaderSignature( pDevice, bytes.Base(), bytes.Size() );
+			COM_THROW_IF_FAILED( pDevice->CreateVertexShader( bytes.data(), bytes.size(), NULL, &m_pShader ) );
+			CreateInputLayoutDescFromVertexShaderSignature( pDevice, bytes.data(), bytes.size() );
 		}
 		// not compiled, lets compile ourselves
 		else
@@ -2194,8 +2196,9 @@ namespace Bat
 #ifdef _DEBUG
 			flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
-
-			if( FAILED( hr = D3DCompileFromFile( Bat::StringToWide( filename ).c_str(), macros, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage ) ) )
+			
+			std::string bytes = filesystem->ReadAllText( filename.c_str() );
+			if( FAILED( hr = D3DCompile( bytes.data(), bytes.size(), filename.c_str(), macros, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage ) ) )
 			{
 				if( errorMessage )
 				{
@@ -2247,41 +2250,40 @@ namespace Bat
 
 	D3DTexture::D3DTexture( ID3D11Device* pDevice, const std::string& filename, TexFlags flags )
 	{
-		wchar_t wfilename[MAX_PATH];
-		Bat::StringToWide( filename.c_str(), wfilename, sizeof( wfilename ) );
+		const char* file = filename.c_str();
+		if( !filesystem->Exists( filename.c_str() ) )
+		{
+			file = "Assets/error.png";
+		}
 
 		DirectX::ScratchImage scratch;
 		DirectX::TexMetadata metadata;
-		std::string_view ext = Bat::GetFileExtension( filename );
+		std::string_view ext = Bat::GetFileExtension( file );
 
-		if( !std::ifstream( filename ) )
+		std::string bytes = filesystem->ReadAllBinary( file );
+
+		if( ext == "dds" )
 		{
 			COM_THROW_IF_FAILED(
-				DirectX::LoadFromWICFile( L"Assets/error.png", DirectX::WIC_FLAGS_IGNORE_SRGB, &metadata, scratch )
-			);
-		}
-		else if( ext == "dds" )
-		{
-			COM_THROW_IF_FAILED(
-				DirectX::LoadFromDDSFile( wfilename, DirectX::DDS_FLAGS_NONE, &metadata, scratch )
+				DirectX::LoadFromDDSMemory( bytes.data(), bytes.size(), DirectX::DDS_FLAGS_NONE, &metadata, scratch )
 			);
 		}
 		else if( ext == "tga" )
 		{
 			COM_THROW_IF_FAILED(
-				DirectX::LoadFromTGAFile( wfilename, &metadata, scratch )
+				DirectX::LoadFromTGAMemory( bytes.data(), bytes.size(), &metadata, scratch )
 			);
 		}
 		else if( ext == "hdr" )
 		{
 			COM_THROW_IF_FAILED(
-				DirectX::LoadFromHDRFile( wfilename, &metadata, scratch )
+				DirectX::LoadFromHDRMemory( bytes.data(), bytes.size(), &metadata, scratch )
 			);
 		}
 		else
 		{
 			COM_THROW_IF_FAILED(
-				DirectX::LoadFromWICFile( wfilename, DirectX::WIC_FLAGS_IGNORE_SRGB, &metadata, scratch )
+				DirectX::LoadFromWICMemory( bytes.data(), bytes.size(), DirectX::WIC_FLAGS_IGNORE_SRGB, &metadata, scratch )
 			);
 		}
 
@@ -2289,6 +2291,11 @@ namespace Bat
 		ASSERT( image, "Failed to load image" );
 
 		InitializeTex( pDevice, *image, metadata, GPUResourceUsage::DEFAULT, flags );
+
+#ifdef _DEBUG
+		D3D_SET_OBJECT_NAME_N_A( m_pTexture, (UINT)filename.size(), filename.c_str() );
+		D3D_SET_OBJECT_NAME_N_A( m_pTextureView, (UINT)filename.size(), filename.c_str() );
+#endif
 	}
 
 	D3DTexture::D3DTexture( ID3D11Device* pDevice, const char* pData, size_t size, TexFlags flags )
