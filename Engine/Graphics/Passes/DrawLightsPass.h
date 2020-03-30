@@ -38,8 +38,6 @@ namespace Bat
 	public:
 		virtual void Visit( const Mat3x4& transform, Entity e ) override
 		{
-			static Resource<Mesh> sphere_mesh = ResourceManager::GetMesh( "Assets/sphere.gltf" );
-
 			if( e.Has<LightComponent>() )
 			{
 				static Resource<Mesh> sphere_mesh = ResourceManager::GetMesh( "Assets/sphere.gltf" );
