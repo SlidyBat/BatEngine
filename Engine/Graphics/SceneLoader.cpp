@@ -22,8 +22,11 @@ namespace Bat
 		return Mat3x4( &aimat.a1 );
 	}
 
+	static Mutex mesh_cache_mutex;
 	Resource<Mesh> SceneLoader::GetLoadedMesh( const aiMesh* pTarget )
 	{
+		ScopedLock lock( mesh_cache_mutex );
+
 		auto it = std::find_if( m_LoadedMeshes.begin(), m_LoadedMeshes.end(), [pTarget]( const LoadedMesh& loaded )
 		{
 			return loaded.pAssimpMesh == pTarget;
@@ -122,24 +125,24 @@ namespace Bat
 		if( storetype == TextureStorageType::IndexCompressed )
 		{
 			int idx = GetTextureIndex( &str );
-			pTexture = std::make_shared<Texture>( reinterpret_cast<char*>(m_pAiScene->mTextures[idx]->pcData),
+			pTexture = std::make_shared<Texture>( reinterpret_cast<char*>( m_pAiScene->mTextures[idx]->pcData ),
 				m_pAiScene->mTextures[idx]->mWidth );
 		}
 		else if( storetype == TextureStorageType::IndexNonCompressed )
 		{
 			int idx = GetTextureIndex( &str );
-			pTexture = std::make_shared<Texture>( reinterpret_cast<char*>(m_pAiScene->mTextures[idx]->pcData),
+			pTexture = std::make_shared<Texture>( reinterpret_cast<char*>( m_pAiScene->mTextures[idx]->pcData ),
 				m_pAiScene->mTextures[idx]->mWidth * m_pAiScene->mTextures[idx]->mHeight );
 		}
 		else if( storetype == TextureStorageType::EmbeddedCompressed )
 		{
 			auto pAiTex = m_pAiScene->GetEmbeddedTexture( str.C_Str() );
-			pTexture = std::make_shared<Texture>( reinterpret_cast<char*>(pAiTex->pcData), pAiTex->mWidth );
+			pTexture = std::make_shared<Texture>( reinterpret_cast<char*>( pAiTex->pcData ), pAiTex->mWidth );
 		}
 		else if( storetype == TextureStorageType::EmbeddedNonCompressed )
 		{
 			auto pAiTex = m_pAiScene->GetEmbeddedTexture( str.C_Str() );
-			pTexture = std::make_shared<Texture>( reinterpret_cast<char*>(pAiTex->pcData), pAiTex->mWidth * pAiTex->mHeight );
+			pTexture = std::make_shared<Texture>( reinterpret_cast<char*>( pAiTex->pcData ), pAiTex->mWidth * pAiTex->mHeight );
 		}
 		else
 		{
@@ -198,7 +201,7 @@ namespace Bat
 	{
 		int index = (int)m_OriginalSkeleton.bones.size();
 		m_mapNodeNameToIndex[pAiNode->mName.C_Str()] = index;
-		
+
 		BoneNode node;
 		node.transform = BoneTransform::FromMatrix( AiToBatMatrix( pAiNode->mTransformation ) );
 		node.parent_index = parent_index;
@@ -240,8 +243,11 @@ namespace Bat
 		return m_SceneNodes[node_index];
 	}
 
+	static Mutex bone_cache_mutex;
 	int SceneLoader::FindBoneByName( const std::string& name ) const
 	{
+		ScopedLock lock( bone_cache_mutex );
+
 		auto it = m_mapBoneNameToIndex.find( name );
 		if( it == m_mapBoneNameToIndex.end() )
 		{
@@ -302,7 +308,7 @@ namespace Bat
 					keyframe.value.x = ai_key.mValue.x;
 					keyframe.value.y = ai_key.mValue.y;
 					keyframe.value.z = ai_key.mValue.z;
-					
+
 					channel.position_keyframes.push_back( keyframe );
 				}
 
@@ -338,8 +344,8 @@ namespace Bat
 
 	static void AddBoneWeight( std::vector<Veu4>* ids, std::vector<Vec4>* weights, unsigned int vertex_id, unsigned int bone_id, float weight )
 	{
-		Veu4& curr_id = (*ids)[vertex_id];
-		Vec4& curr_weight = (*weights)[vertex_id];
+		Veu4& curr_id = ( *ids )[vertex_id];
+		Vec4& curr_weight = ( *weights )[vertex_id];
 
 		if( curr_weight.x == 0.0f )
 		{
@@ -378,7 +384,7 @@ namespace Bat
 		std::vector<unsigned int> indices;
 		std::vector<BoneData> bones;
 		Material material;
-		
+
 		if( pAiMesh->mMaterialIndex >= 0 )
 		{
 			aiMaterial* pMat = m_pAiScene->mMaterials[pAiMesh->mMaterialIndex];
@@ -483,7 +489,7 @@ namespace Bat
 					material.SetBaseColour( std::move( pTexture ) );
 				}
 			}
-			
+
 			// Metallic & Roughness
 			{
 				float metallic = LoadMaterialFloat( pAiMaterial, AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLIC_FACTOR );
@@ -538,12 +544,22 @@ namespace Bat
 
 		auto pBatMesh = std::make_shared<Mesh>( params, indices, material );
 		pBatMesh->SetName( pAiMesh->mName.C_Str() );
-		LoadedMesh loaded_mesh;
-		loaded_mesh.pAssimpMesh = pAiMesh;
-		loaded_mesh.pBatMesh = pBatMesh;
-		m_LoadedMeshes.emplace_back( loaded_mesh );
+
+		{
+			ScopedLock lock( mesh_cache_mutex );
+
+			LoadedMesh loaded_mesh;
+			loaded_mesh.pAssimpMesh = pAiMesh;
+			loaded_mesh.pBatMesh = pBatMesh;
+			m_LoadedMeshes.emplace_back( loaded_mesh );
+		}
 
 		return pBatMesh;
+	}
+
+	Future<std::shared_ptr<Mesh>> SceneLoader::ProcessMeshAsync( aiMesh* pAiMesh )
+	{
+		return std::async( &SceneLoader::ProcessMesh, this, pAiMesh );
 	}
 
 	void SceneLoader::PreProcess()
@@ -593,23 +609,22 @@ namespace Bat
 		const auto transform = AiToBatMatrix( pAiNode->mTransformation );
 		e.Get<TransformComponent>()
 			.SetLocalMatrix( transform );
-		
+
 		int node_index = FindNodeByName( pAiNode->mName.C_Str() );
 		if( node_index != -1 )
 		{
 			m_SceneNodes[node_index] = e;
 		}
 
+		std::vector<FutureResource<Mesh>> future_meshes;
 		if( pAiNode->mNumMeshes > 0 )
 		{
-			std::vector<Resource<Mesh>> meshes;
-			meshes.reserve( pAiNode->mNumMeshes );
+			future_meshes.reserve( pAiNode->mNumMeshes );
 			for( unsigned int i = 0; i < pAiNode->mNumMeshes; i++ )
 			{
 				aiMesh* pMesh = m_pAiScene->mMeshes[pAiNode->mMeshes[i]];
-				meshes.emplace_back( ProcessMesh( pMesh ) );
+				future_meshes.emplace_back( ProcessMeshAsync( pMesh ) );
 			}
-			e.Add<ModelComponent>( meshes );
 		}
 
 		for( unsigned int i = 0; i < pAiNode->mNumChildren; i++ )
@@ -617,6 +632,17 @@ namespace Bat
 			Entity child = world.CreateEntity();
 			SceneNode* child_node = node.AddChild( child );
 			ProcessNode( pAiNode->mChildren[i], *child_node );
+		}
+
+		if( pAiNode->mNumMeshes > 0 )
+		{
+			std::vector<Resource<Mesh>> meshes;
+			meshes.reserve( future_meshes.size() );
+			for( auto& future_mesh : future_meshes )
+			{
+				meshes.push_back( future_mesh.Get() );
+			}
+			e.Add<ModelComponent>( std::move( meshes ) );
 		}
 	}
 
