@@ -1,10 +1,59 @@
 #include "PCH.h"
 #include "Audio.h"
 
+#include "FileSystem.h"
 #include <irrKlang/irrKlang.h>
 
 namespace Bat
 {
+	class BatFileReader : public irrklang::IFileReader
+	{
+	public:
+		BatFileReader( const char* filename )
+		{
+			strcpy_s( m_szFilename, filename );
+			m_hFile = filesystem->Open( filename, "rb" );
+		}
+		~BatFileReader()
+		{
+			filesystem->Close( m_hFile );
+		}
+
+		virtual irrklang::ik_s32 read( void* buffer, irrklang::ik_u32 sizeToRead ) override
+		{
+			return (irrklang::ik_s32)filesystem->Read( m_hFile, (char*)buffer, (size_t)sizeToRead );
+		}
+		virtual bool seek( irrklang::ik_s32 finalPos, bool relativeMovement = false ) override
+		{
+			filesystem->Seek( m_hFile, (int)finalPos, relativeMovement ? SeekPos::CURRENT : SeekPos::START );
+			return true;
+		}
+		virtual irrklang::ik_s32 getSize() override
+		{
+			return (irrklang::ik_s32)filesystem->Size( m_hFile );
+		}
+		virtual irrklang::ik_s32 getPos() override
+		{
+			return (irrklang::ik_s32)filesystem->Tell( m_hFile );
+		}
+		virtual const irrklang::ik_c8* getFileName() override
+		{
+			return m_szFilename;
+		}
+	private:
+		char m_szFilename[MAX_PATH];
+		FileHandle_t m_hFile;
+	};
+
+	class BatFileFactory : public irrklang::IFileFactory
+	{
+		virtual irrklang::IFileReader* createFileReader( const irrklang::ik_c8* filename ) override
+		{
+			return new BatFileReader( filename );
+		}
+	};
+	static BatFileFactory bat_file_factory;
+
 	static irrklang::ESampleFormat Bat2IrrKlangSampleFormat( SampleFormat format )
 	{
 		switch( format )
@@ -181,6 +230,7 @@ namespace Bat
 		IrrKlangSoundEngine()
 		{
 			m_pSoundEngine = irrklang::createIrrKlangDevice();
+			m_pSoundEngine->addFileFactory( &bat_file_factory );
 		}
 		IrrKlangSoundEngine( const AudioDevice& device )
 		{

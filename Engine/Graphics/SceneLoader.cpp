@@ -1,6 +1,8 @@
 #include "PCH.h"
 #include "SceneLoader.h"
 
+#include "Globals.h"
+#include "FileSystem.h"
 #include "CoreEntityComponents.h"
 #include "AnimationComponent.h"
 #include "AnimationClip.h"
@@ -12,11 +14,44 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <assimp/pbrmaterial.h>
+#include <assimp/IOStream.hpp>
+#include <assimp/IOSystem.hpp>
 #include "Material.h"
 #include "FrameTimer.h"
 
 namespace Bat
 {
+	class BatIOStream : public Assimp::IOStream
+	{
+	public:
+		BatIOStream( const char* filename, const char* mode ) { handle = filesystem->Open( filename, mode ); }
+		~BatIOStream() { filesystem->Close( handle ); }
+
+		virtual size_t Read( void* pvBuffer, size_t pSize, size_t pCount ) override { return filesystem->Read( handle, (char*)pvBuffer, pSize * pCount ) / pSize; }
+		virtual size_t Write( const void* pvBuffer, size_t pSize, size_t pCount ) override { return filesystem->Write( handle, (char*)pvBuffer, pSize * pCount ) / pSize; }
+		virtual aiReturn Seek( size_t pOffset, aiOrigin pOrigin ) { filesystem->Seek( handle, (int)pOffset, (SeekPos)pOrigin ); return aiReturn_SUCCESS; }
+		virtual size_t Tell() const { return (size_t)filesystem->Tell( handle ); }
+		virtual size_t FileSize() const { return filesystem->Size( handle ); }
+		virtual void Flush() { filesystem->Flush( handle ); }
+	private:
+		FileHandle_t handle;
+	};
+
+	class BatIOSystem : public Assimp::IOSystem
+	{
+	public:
+		virtual bool Exists( const char* pFile ) const override { return filesystem->Exists( pFile ); }
+		virtual char getOsSeparator() const override { return '\\'; }
+		virtual Assimp::IOStream* Open( const char* pFile, const char* pMode = "rb" ) override { return new BatIOStream( pFile, pMode ); }
+		virtual void Close( Assimp::IOStream* pFile ) override { delete pFile; }
+		virtual bool ComparePaths( const char* one, const char* second ) const
+		{
+			return std::filesystem::absolute( one ) == std::filesystem::absolute( second );
+		}
+	private:
+		std::vector<std::string> m_pathStack;
+	};
+
 	static Mat3x4 AiToBatMatrix( const aiMatrix4x4& aimat )
 	{
 		return Mat3x4( &aimat.a1 );
@@ -698,7 +733,7 @@ namespace Bat
 	bool SceneLoader::ReadFile( const std::string& filename )
 	{
 		m_szFilename = filename;
-		if( !std::ifstream( filename ) )
+		if( !filesystem->Exists( filename.c_str() ) )
 		{
 			BAT_WARN( "Could not open model file '%s'", filename );
 			ASSERT( false, "Could not open model file '%s'", filename );
@@ -708,7 +743,8 @@ namespace Bat
 		std::filesystem::path filepath( m_szFilename );
 		m_szDirectory = filepath.parent_path().string();
 
-		m_pAiScene = m_Importer.ReadFile( m_szFilename,aiProcess_MakeLeftHanded | aiProcess_FlipWindingOrder | aiProcessPreset_TargetRealtime_Fast | aiProcess_TransformUVCoords );
+		m_Importer.SetIOHandler( new BatIOSystem() );
+		m_pAiScene = m_Importer.ReadFile( m_szFilename, aiProcess_MakeLeftHanded | aiProcess_FlipWindingOrder | aiProcessPreset_TargetRealtime_Fast | aiProcess_TransformUVCoords );
 
 		if( !m_pAiScene )
 		{

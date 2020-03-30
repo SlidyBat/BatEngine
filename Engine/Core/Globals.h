@@ -3,6 +3,7 @@
 namespace Bat
 {
 	class IGPUDevice;
+	class FileSystem;
 
 	struct GlobalValues
 	{
@@ -13,4 +14,5 @@ namespace Bat
 	extern GlobalValues* g_pGlobals;
 
 	extern IGPUDevice* gpu;
+	extern FileSystem* filesystem;
 }

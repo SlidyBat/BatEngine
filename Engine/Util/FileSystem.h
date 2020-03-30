@@ -8,7 +8,6 @@
 namespace Bat
 {
 	using FileHandle_t = intptr_t;
-	static constexpr FileHandle_t INVALID_FILE_HANDLE = 0;
 
 	enum class SeekPos
 	{
@@ -20,6 +19,9 @@ namespace Bat
 	class FileSystem
 	{
 	public:
+		static constexpr FileHandle_t INVALID_HANDLE = 0;
+		static constexpr auto INVALID_SIZE = (size_t)-1;
+
 		FileHandle_t Open( const char* filename, const char* mode );
 		void Close( FileHandle_t handle );
 
@@ -68,7 +70,7 @@ namespace Bat
 		void Seek( int off, SeekPos pos );
 		int Tell() const;
 	private:
-		FileHandle_t m_hFile = INVALID_FILE_HANDLE;
+		FileHandle_t m_hFile = FileSystem::INVALID_HANDLE;
 		FileSystem* m_pFileSystem = nullptr;
 	};
 }

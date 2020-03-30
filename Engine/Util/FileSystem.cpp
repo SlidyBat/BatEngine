@@ -104,7 +104,7 @@ namespace Bat
 	}
 	File::~File()
 	{
-		if( m_hFile != INVALID_FILE_HANDLE )
+		if( m_hFile != FileSystem::INVALID_HANDLE )
 		{
 			m_pFileSystem->Close( m_hFile );
 		}
@@ -123,7 +123,7 @@ namespace Bat
 	void File::Close()
 	{
 		m_pFileSystem->Close( m_hFile );
-		m_hFile = INVALID_FILE_HANDLE;
+		m_hFile = FileSystem::INVALID_HANDLE;
 	}
 	size_t File::Read( char* out, size_t size )
 	{
