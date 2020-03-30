@@ -33,6 +33,11 @@ namespace Bat
 		return it->second;
 	}
 
+	FutureResource<Texture> ResourceManager::GetTextureAsync( const std::string& filename )
+	{
+		return std::async( &ResourceManager::GetTexture, filename );
+	}
+
 	Resource<Mesh> ResourceManager::GetMesh( const std::string& filename )
 	{
 		auto it = g_mapMeshes.find( filename );
@@ -45,6 +50,11 @@ namespace Bat
 		}
 
 		return it->second;
+	}
+
+	FutureResource<Mesh> ResourceManager::GetMeshAsync( const std::string& filename )
+	{
+		return std::async( &ResourceManager::GetMesh, filename );
 	}
 
 	static std::string GetShaderHashName( const std::string& filename, const ShaderMacro* macros, size_t num_macros )
@@ -72,6 +82,11 @@ namespace Bat
 		return it->second.get();
 	}
 
+	Future<IVertexShader*> ResourceManager::GetVertexShaderAsync( const std::string& filename, const ShaderMacro* macros, size_t num_macros )
+	{
+		return std::async( &ResourceManager::GetVertexShader, filename, macros, num_macros );
+	}
+
 	IPixelShader* ResourceManager::GetPixelShader( const std::string& filename, const ShaderMacro* macros, size_t num_macros )
 	{
 		std::string name = GetShaderHashName( filename, macros, num_macros );
@@ -84,6 +99,11 @@ namespace Bat
 		}
 
 		return it->second.get();
+	}
+
+	Future<IPixelShader*> ResourceManager::GetPixelShaderAsync( const std::string& filename, const ShaderMacro* macros, size_t num_macros )
+	{
+		return std::async( &ResourceManager::GetPixelShader, filename, macros, num_macros );
 	}
 
 	template <typename T>
