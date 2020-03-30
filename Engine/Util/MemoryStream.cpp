@@ -17,11 +17,11 @@ MemoryStream::MemoryStream( std::vector<char> data )
 
 void MemoryStream::Seek( SeekPosition where )
 {
-	if( where == SeekPosition::Start )
+	if( where == SeekPosition::START )
 	{
 		m_iCurrentByte = 0;
 	}
-	else if( where == SeekPosition::End )
+	else if( where == SeekPosition::END )
 	{
 		m_iCurrentByte = m_Bytes.size();
 	}
@@ -31,14 +31,14 @@ void MemoryStream::Seek( size_t pos, SeekPosition dir )
 {
 	switch( dir )
 	{
-	case SeekPosition::Start:
+	case SeekPosition::START:
 		m_iCurrentByte = pos;
 		break;
-	case SeekPosition::End:
+	case SeekPosition::END:
 		assert( pos < m_Bytes.size() );
 		m_iCurrentByte = m_Bytes.size() - pos;
 		break;
-	case SeekPosition::Current:
+	case SeekPosition::CURRENT:
 		m_iCurrentByte += pos;
 		break;
 	}

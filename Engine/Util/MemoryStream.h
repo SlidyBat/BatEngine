@@ -8,9 +8,9 @@ class MemoryStream
 public:
 	enum class SeekPosition
 	{
-		Start,
-		End,
-		Current
+		START,
+		END,
+		CURRENT
 	};
 public:
 	MemoryStream() = default;
