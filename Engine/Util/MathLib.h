@@ -237,7 +237,7 @@ namespace Bat
 
 		float Length() const
 		{
-			return sqrt( LengthSq() );
+			return sqrtf( LengthSq() );
 		}
 
 		Vec2& Normalize()
@@ -375,7 +375,7 @@ namespace Bat
 		
 		float Length() const
 		{
-			return sqrt( LengthSq() );
+			return sqrtf( LengthSq() );
 		}
 
 		Vec3& Normalize()
@@ -544,7 +544,7 @@ namespace Bat
 
 		float Length() const
 		{
-			return sqrt( LengthSq() );
+			return sqrtf( LengthSq() );
 		}
 
 		Vec4& Normalize()
