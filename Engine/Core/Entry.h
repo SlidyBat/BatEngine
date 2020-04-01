@@ -1,5 +1,3 @@
-#include "PCH.h"
-
 #include "COMInitialize.h"
 #include "COMException.h"
 #include "FrameTimer.h"
@@ -14,15 +12,14 @@
 #include "Demo.h"
 #include "EngineSystems.h"
 
-#include <WinBase.h>
-using namespace Bat;
-
 int WINAPI WinMain(
 	_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
 	_In_ LPSTR lpCmdLine,
 	_In_ int nShowCmd)
 {
+	using namespace Bat;
+
 	try
 	{
 		BAT_INIT_SYSTEM( Logger );

@@ -286,8 +286,8 @@
       <Filter>Util</Filter>
     </ClCompile>
     <ClCompile Include="PCH.cpp" />
-    <ClCompile Include="Main.cpp" />
     <ClCompile Include="Demo.cpp" />
+    <ClCompile Include="Entry.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\GraphicsConvert.h">

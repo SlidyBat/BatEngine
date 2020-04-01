@@ -222,7 +222,12 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClCompile Include="Animation\AnimationComponent.cpp" />
     <ClCompile Include="Animation\AnimationSkeleton.cpp" />
     <ClCompile Include="Animation\AnimationSystem.cpp" />
-    <ClCompile Include="Demo.cpp" />
+    <ClCompile Include="Demo.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Audio\Audio.cpp" />
     <ClCompile Include="Core\Console.cpp" />
     <ClCompile Include="Core\CoreEntityComponents.cpp" />
@@ -362,7 +367,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     </ClCompile>
     <ClCompile Include="Graphics\Graphics.cpp" />
     <ClCompile Include="Platform\Input.cpp" />
-    <ClCompile Include="Main.cpp" />
+    <ClInclude Include="Core\Entry.h" />
     <ClCompile Include="Graphics\Texture.cpp" />
     <ClCompile Include="Graphics\TexturePipeline.cpp" />
     <ClCompile Include="Util\MathLib.cpp" />

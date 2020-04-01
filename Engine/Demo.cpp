@@ -1,5 +1,6 @@
-#include "PCH.h"
 #include "Demo.h"
+
+#include "Entry.h"
 
 #include "Common.h"
 #include "Graphics.h"
