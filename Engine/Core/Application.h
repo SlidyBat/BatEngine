@@ -2,10 +2,10 @@
 
 namespace Bat
 {
-	class ILayer
+	class IApplication
 	{
 	public:
-		virtual ~ILayer() = default;
+		virtual ~IApplication() = default;
 
 		virtual void OnUpdate( float deltatime ) {};
 		virtual void OnRender() {};

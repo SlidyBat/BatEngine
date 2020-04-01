@@ -222,7 +222,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClCompile Include="Animation\AnimationComponent.cpp" />
     <ClCompile Include="Animation\AnimationSkeleton.cpp" />
     <ClCompile Include="Animation\AnimationSystem.cpp" />
-    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Demo.cpp" />
     <ClCompile Include="Audio\Audio.cpp" />
     <ClCompile Include="Core\Console.cpp" />
     <ClCompile Include="Core\CoreEntityComponents.cpp" />
@@ -384,7 +384,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Animation\AnimationSkeleton.h" />
     <ClInclude Include="Animation\AnimationSystem.h" />
     <ClInclude Include="Animation\KeyFrame.h" />
-    <ClInclude Include="Application.h" />
+    <ClInclude Include="Demo.h" />
     <ClInclude Include="Audio\Audio.h" />
     <ClInclude Include="Core\CoreEntityComponents.h" />
     <ClInclude Include="Core\Scene.h" />
@@ -485,7 +485,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Util\COMException.h" />
     <ClInclude Include="Graphics\ConstantBuffer.h" />
     <ClInclude Include="Graphics\D3DGPUDevice.h" />
-    <ClInclude Include="Core\ILayer.h" />
+    <ClInclude Include="Core\IApplication.h" />
     <ClInclude Include="Platform\GDIPManager.h" />
     <ClInclude Include="Graphics\Graphics.h" />
     <ClInclude Include="Graphics\IndexBuffer.h" />

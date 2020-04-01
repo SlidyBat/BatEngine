@@ -11,7 +11,7 @@
 #include "Graphics.h"
 #include "FileWatchdog.h"
 #include "Physics.h"
-#include "Application.h"
+#include "Demo.h"
 #include "EngineSystems.h"
 
 #include <WinBase.h>
@@ -41,7 +41,7 @@ int WINAPI WinMain(
 
 		FrameTimer ft;
 
-		Application app( gfx, wnd );
+		Demo app( gfx, wnd );
 		while( Window::ProcessMessagesForAllWindows() && wnd.IsOpen() )
 		{
 			float dt = ft.Mark();

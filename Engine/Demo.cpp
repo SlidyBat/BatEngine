@@ -1,5 +1,5 @@
 #include "PCH.h"
-#include "Application.h"
+#include "Demo.h"
 
 #include "Common.h"
 #include "Graphics.h"
@@ -351,7 +351,7 @@ namespace Bat
 		BAT_REFLECT_MEMBER( z );
 	BAT_REFLECT_END();
 
-	Application::Application( Graphics& gfx, Window& wnd )
+	Demo::Demo( Graphics& gfx, Window& wnd )
 		:
 		gfx( gfx ),
 		wnd( wnd ),
@@ -486,12 +486,12 @@ namespace Bat
 		wnd.input.AddEventListener<MouseButtonPressedEvent>( *this );
 	}
 
-	Application::~Application()
+	Demo::~Demo()
 	{
 		delete snd;
 	}
 
-	void Application::OnUpdate( float deltatime )
+	void Demo::OnUpdate( float deltatime )
 	{
 		elapsed_time += deltatime;
 		fps_counter += 1;
@@ -682,7 +682,7 @@ namespace Bat
 		ImGui::PopID();
 	}
 
-	void Application::OnRender()
+	void Demo::OnRender()
 	{
 		Vec3 pos = camera.GetPosition();
 		auto posstr = Format( "Pos: %.2f %.2f %.2f", pos.x, pos.y, pos.z );
@@ -818,7 +818,7 @@ namespace Bat
 		}
 	}
 
-	void Application::OnEvent( const WindowResizeEvent& e )
+	void Demo::OnEvent( const WindowResizeEvent& e )
 	{
 		camera.SetAspectRatio( (float)e.width / e.height );
 
@@ -826,7 +826,7 @@ namespace Bat
 		BuildRenderGraph();
 	}
 
-	void Application::OnEvent( const KeyPressedEvent& e )
+	void Demo::OnEvent( const KeyPressedEvent& e )
 	{
 		if( e.key == VK_OEM_3 )
 		{
@@ -914,14 +914,14 @@ namespace Bat
 		}
 	}
 
-	void Application::OnEvent( const MouseButtonPressedEvent& e )
+	void Demo::OnEvent( const MouseButtonPressedEvent& e )
 	{
 		if( e.button == Input::MouseButton::Left )
 		{
 		}
 	}
 
-	void Application::LoadModel( const std::string& filename )
+	void Demo::LoadModel( const std::string& filename )
 	{
 		std::string filepath = std::string( filename );
 		if( !std::filesystem::exists( filepath ) )
@@ -939,7 +939,7 @@ namespace Bat
 			.SetPosition( pos );
 	}
 
-	void Application::BuildRenderGraph()
+	void Demo::BuildRenderGraph()
 	{
 		IGPUContext* pContext = gpu->GetContext();
 

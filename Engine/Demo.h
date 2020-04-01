@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ILayer.h"
+#include "Application.h"
 #include "MoveableCamera.h"
 #include "Mesh.h"
 #include "Texture.h"
@@ -24,11 +24,11 @@ namespace Bat
 	class Window;
 	class Light;
 
-	class Application : public ILayer
+	class Demo : public IApplication
 	{
 	public:
-		Application( Graphics& gfx, Window& wnd );
-		~Application();
+		Demo( Graphics& gfx, Window& wnd );
+		~Demo();
 
 		virtual void OnUpdate( float deltatime ) override;
 		virtual void OnRender() override;
