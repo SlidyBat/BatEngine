@@ -12,6 +12,11 @@
 #include "Demo.h"
 #include "EngineSystems.h"
 
+namespace Bat
+{
+	IApplication* CreateApplication( int argc, char* argv[], Graphics& gfx, Window& wnd );
+}
+
 int WINAPI WinMain(
 	_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
@@ -38,7 +43,7 @@ int WINAPI WinMain(
 
 		FrameTimer ft;
 
-		Demo app( gfx, wnd );
+		auto app = std::unique_ptr<IApplication>( CreateApplication( __argc, __argv, gfx, wnd ) );
 		while( Window::ProcessMessagesForAllWindows() && wnd.IsOpen() )
 		{
 			float dt = ft.Mark();
@@ -51,11 +56,11 @@ int WINAPI WinMain(
 
 			BAT_SERVICE_SYSTEMS( dt );
 
-			app.OnUpdate( dt );
+			app->OnUpdate( dt );
 
 			gfx.BeginFrame();
 
-			app.OnRender();
+			app->OnRender();
 			g_Console.Draw("Bat Engine Console");
 
 			gfx.EndFrame();
