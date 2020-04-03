@@ -2,6 +2,7 @@
 
 #include "Thread.h"
 #include <string>
+#include <memory>
 
 namespace Bat
 {

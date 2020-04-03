@@ -279,6 +279,8 @@
     <ClCompile Include="AI\NavMesh.cpp">
       <Filter>AI</Filter>
     </ClCompile>
+    <ClCompile Include="PCH.cpp" />
+    <ClCompile Include="Physics\PhysicsSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\GraphicsConvert.h">
@@ -653,6 +655,7 @@
     <ClInclude Include="AI\NavMesh.h">
       <Filter>AI</Filter>
     </ClInclude>
+    <ClInclude Include="PCH.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\RenderNodeDataTypes.def">

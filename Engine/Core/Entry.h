@@ -1,3 +1,5 @@
+#include "BatWinAPI.h"
+#include "Console.h"
 #include "COMInitialize.h"
 #include "COMException.h"
 #include "FrameTimer.h"

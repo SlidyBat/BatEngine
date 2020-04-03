@@ -175,10 +175,18 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AiCharacter.h" />
+    <ClInclude Include="Character.h" />
     <ClInclude Include="Demo.h" />
+    <ClInclude Include="MoveableCharacter.h" />
+    <ClInclude Include="RenderBuilder.h" />
+    <ClInclude Include="Sound.h" />
+    <ClInclude Include="TypeToString.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Demo.cpp" />
+    <ClCompile Include="RenderBuilder.cpp" />
+    <ClCompile Include="Sound.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

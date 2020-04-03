@@ -9,10 +9,10 @@
 #include "Camera.h"
 #include "RenderNode.h"
 #include "RenderData.h"
+#include "IRenderPass.h"
 
 namespace Bat
 {
-	class IRenderPass;
 	class ITexture;
 	class IRenderTarget;
 	class IDepthStencil;

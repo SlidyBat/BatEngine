@@ -2,6 +2,7 @@
 
 #include "MathLib.h"
 #include <string>
+#include <functional>
 
 namespace Bat
 {

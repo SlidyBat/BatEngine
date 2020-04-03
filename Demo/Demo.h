@@ -2,22 +2,24 @@
 
 #include "BatWinAPI.h"
 #include "Application.h"
-#include "MoveableCamera.h"
-#include "Mesh.h"
-#include "Texture.h"
-#include "Console.h"
-#include "Audio.h"
+
 #include "Entity.h"
+#include "MoveableCamera.h"
+#include "Scene.h"
 #include "RenderGraph.h"
+#include "RenderBuilder.h"
+
+#include "WindowEvents.h"
 #include "KeyboardEvents.h"
 #include "MouseEvents.h"
+
+#include "CoreEntityComponents.h"
 #include "PhysicsSystem.h"
 #include "AnimationSystem.h"
-#include "CharacterControllerSystem.h"
-#include "BehaviourTree.h"
-#include "NavMesh.h"
 #include "Particles.h"
-#include "Scene.h"
+#include "NavMesh.h"
+#include "BehaviourTree.h"
+#include "CharacterControllerSystem.h"
 
 namespace Bat
 {
@@ -41,14 +43,6 @@ public:
 private:
 	void LoadModel( const std::string& filename );
 	void BuildRenderGraph();
-public:
-	bool opaque_pass = true;
-	bool transparent_pass = true;
-
-	bool skybox_enabled = true;
-	bool bloom_enabled = false;
-	bool motion_blur_enabled = false;
-	bool tonemapping_enabled = true;
 private:
 	Bat::Graphics& gfx;
 	Bat::Window& wnd;
@@ -74,13 +68,7 @@ private:
 	Bat::BehaviourTreeSystem behaviour_system;
 	Bat::CharacterControllerSystem controller_system;
 
-	std::string skybox_tex = "Assets/Ignore/IBLTest.hdr";
-
-	float bloom_threshold = 1.0f;
-	float exposure = 2.0f;
-
-	bool msaa_enabled = true;
-	int msaa_samples = 4;
+	RenderBuilder renderbuilder;
 
 	bool imgui_menu_enabled = false;
 

@@ -2,39 +2,19 @@
 
 #include "Entry.h"
 
-#include "Common.h"
-#include "Graphics.h"
-#include "Window.h"
-#include "SceneLoader.h"
-#include "FileWatchdog.h"
+#include "TypeToString.h"
+#include "Sound.h"
+#include "MoveableCharacter.h"
+#include "AiCharacter.h"
 
-#include "CoreEntityComponents.h"
-#include "CharacterControllerComponent.h"
-#include "WindowEvents.h"
-#include "MouseEvents.h"
-#include "NetworkEvents.h"
-#include "PhysicsEvents.h"
-#include "TexturePipeline.h"
-#include "Globals.h"
-#include "IRenderPass.h"
-#include "ShaderManager.h"
-#include "RenderData.h"
-#include "EntityTrace.h"
-#include "GraphicsConvert.h"
-#include "Passes/ClearRenderTargetPass.h"
-#include "Passes/SkyboxPass.h"
-#include "Passes/BloomPass.h"
-#include "Passes/ToneMappingPass.h"
-#include "Passes/MotionBlurPass.h"
-#include "Passes/OpaquePass.h"
-#include "Passes/TransparentPass.h"
-#include "Passes/DrawLightsPass.h"
-#include "Passes/ShadowPass.h"
-#include "Passes/MsaaResolvePass.h"
-#include "DebugDraw.h"
-#include "ScratchRenderTarget.h"
+#include "SceneLoader.h"
+#include "Console.h"
+#include "Light.h"
+#include "Model.h"
 #include "FileDialog.h"
-#include "Reflect.h"
+#include "AnimationComponent.h"
+
+#include <filesystem>
 
 using namespace Bat;
 
@@ -43,318 +23,13 @@ Bat::IApplication* Bat::CreateApplication( int argc, char* argv[], Graphics& gfx
 	return new Demo( gfx, wnd );
 }
 
-static ISoundEngine* snd;
-
-class Character
-{
-public:
-	void Initialize( SceneNode& scene, const Vec3& pos )
-	{
-		character = world.CreateEntity();
-		scene.AddChild( character );
-
-		CharacterControllerBoxDesc box;
-		character.Get<TransformComponent>()
-			.SetPosition( pos );
-		character.Add<CharacterControllerComponent>( box );
-	}
-
-	void Update( float dt )
-	{
-		auto& controller = character.Get<CharacterControllerComponent>();
-
-		velocity += Vec3{ 0.0f, -9.8f, 0.0f } *dt;
-
-		PhysicsControllerCollisionFlags flags = controller.Move( velocity * dt + disp, dt );
-		if( ( flags & CONTROLLER_COLLISION_DOWN ) != CONTROLLER_COLLISION_NONE )
-		{
-			on_ground = true;
-			velocity.y = 0.0f;
-		}
-		else
-		{
-			on_ground = false;
-		}
-
-		if( ( flags & CONTROLLER_COLLISION_UP ) != CONTROLLER_COLLISION_NONE && velocity.y > 0.0f )
-		{
-			velocity.y = 0.0f;
-		}
-		if( ( flags & CONTROLLER_COLLISION_SIDES ) != CONTROLLER_COLLISION_NONE )
-		{
-			velocity.x = 0.0f;
-			velocity.z = 0.0f;
-		}
-
-		disp = { 0.0f, 0.0f, 0.0f };
-	}
-	void MoveBy( const Vec3& dpos )
-	{
-		disp += dpos;
-	}
-	void RotateBy( const Vec3& drot )
-	{
-		auto& t = character.Get<TransformComponent>();
-		t.SetRotation( Math::NormalizeAngleDeg( t.GetRotation() + drot ) );
-	}
-	Vec3 GetPosition()
-	{
-		auto& t = character.Get<TransformComponent>();
-		return t.GetPosition();
-	}
-	Vec3 GetRotation()
-	{
-		auto& t = character.Get<TransformComponent>();
-		return t.GetRotation();
-	}
-	Entity GetEntity() const { return character; }
-	void Jump()
-	{
-		if( on_ground )
-		{
-			velocity.y += 5.0f;
-			on_ground = false;
-		}
-	}
-private:
-	Entity character;
-	Vec3 disp = { 0.0f, 0.0f, 0.0f };
-	Vec3 velocity = { 0.0f, 0.0f, 0.0f };
-	bool on_ground = true;
-};
-class MoveableCharacter
-{
-public:
-	void Initialize( SceneNode& scene, const Vec3& pos )
-	{
-		character.Initialize( scene, pos );
-	}
-	void Update( const Input& input, float dt )
-	{
-		Vec3 rotation = character.GetRotation();
-
-		Vec3 forward, right;
-		Math::AngleVectors( rotation, &forward, &right, nullptr );
-
-		Vec3 disp = { 0.0f, 0.0f, 0.0f };
-		if( input.IsKeyDown( 'A' ) )
-		{
-			disp += -right;
-		}
-		if( input.IsKeyDown( 'D' ) )
-		{
-			disp += right;
-		}
-		if( input.IsKeyDown( 'W' ) )
-		{
-			disp += forward;
-		}
-		if( input.IsKeyDown( 'S' ) )
-		{
-			disp += -forward;
-		}
-		if( disp.LengthSq() > 0.01f )
-		{
-			disp = disp.Normalized() * speed;
-		}
-		character.MoveBy( disp * dt );
-
-		if( input.IsKeyDown( VK_SPACE ) )
-		{
-			character.Jump();
-		}
-
-		if( input.IsMouseButtonDown( Input::MouseButton::Left ) )
-		{
-			const Vei2& delta = input.GetMouseDelta();
-			const float deltayaw = (float)delta.x;
-			const float deltapitch = (float)delta.y;
-
-			character.RotateBy( Vec3{ deltapitch, deltayaw, 0.0f } *0.5f );
-		}
-
-		character.Update( dt );
-	}
-	Vec3 GetPosition() { return character.GetPosition(); }
-	Vec3 GetRotation() { return character.GetRotation(); }
-	Entity GetEntity() const { return character.GetEntity(); }
-private:
-	float speed = 5.0f;
-	Character character;
-};
-class AiCharacter
-{
-public:
-	void Initialize( SceneNode& scene, const Vec3& pos, const NavMeshSystem& navmesh_system, Entity target_ent )
-	{
-		navmesh = &navmesh_system;
-
-		ent = world.CreateEntity();
-		scene.AddChild( ent );
-
-		CharacterControllerBoxDesc box;
-		ent.Get<TransformComponent>()
-			.SetPosition( pos );
-		ent.Add<CharacterControllerComponent>( box );
-
-		auto& behaviour = ent.Add<BehaviourTree>();
-		behaviour.root_node = MakeBehaviour( target_ent );
-	}
-	Vec3 GetPosition() const { return ent.Get<TransformComponent>().GetPosition(); }
-	Entity GetEntity() const { return ent; }
-private:
-	std::unique_ptr<BehaviourNode> MakeBehaviour( Entity target_ent )
-	{
-		auto sequence = std::make_unique<SequenceNode>();
-		sequence->Add( CheckIfVisible( target_ent ) );
-		sequence->Add( Chase( target_ent ) );
-		sequence->Add( Gotcha() );
-		sequence->Add( WaitUntilGone( target_ent ) );
-		return sequence;
-	}
-	std::unique_ptr<BehaviourNode> CheckIfVisible( Entity target_ent )
-	{
-		return std::make_unique<ActionNode>( [=]( Entity e ) {
-			const auto& target_transform = target_ent.Get<TransformComponent>();
-			Vec3 target_pos = target_transform.GetPosition();
-			const auto& my_transform = e.Get<TransformComponent>();
-			Vec3 pos = my_transform.GetPosition();
-
-			Vec3 dir = ( target_pos - pos ).Normalize();
-			RayCastResult trace = EntityTrace::RayCast( pos + dir * 0.05f, dir, 100.0f );
-			if( trace.hit && trace.entity == target_ent )
-			{
-				return BehaviourResult::SUCCEEDED;
-			}
-			return BehaviourResult::FAILED;
-		} );
-	}
-	std::unique_ptr<BehaviourNode> Chase( Entity target_ent )
-	{
-		return std::make_unique<ActionNode>( [=]( Entity e ) {
-			auto& controller = e.Get<CharacterControllerComponent>();
-			const auto& target_transform = target_ent.Get<TransformComponent>();
-			Vec3 target_pos = target_transform.GetPosition();
-			const auto& my_transform = e.Get<TransformComponent>();
-			Vec3 pos = my_transform.GetPosition();
-
-			if( ( target_pos - pos ).LengthSq() < 1.0f )
-			{
-				return BehaviourResult::SUCCEEDED;
-			}
-
-			Vec3 floor_pos = { pos.x, pos.y - 0.35f, pos.z };
-			std::vector<Vec3> path = navmesh->GetPath( 0, floor_pos, target_pos );
-			Vec3 delta = path[1] - path[0];
-			float len = delta.Length();
-
-			delta /= len;
-
-			DebugDraw::Line( pos, pos + delta, Colours::Green );
-			for( size_t i = 0; i < path.size() - 1; i++ )
-			{
-				DebugDraw::Line( path[i], path[i + 1], Colours::White );
-			}
-
-			float dist = std::min( len, speed * g_pGlobals->deltatime );
-			controller.Move( delta * dist, g_pGlobals->deltatime );
-
-			return BehaviourResult::RUNNING;
-		} );
-	}
-	std::unique_ptr<BehaviourNode> Gotcha()
-	{
-		return std::make_unique<ActionNode>( []( Entity e ) {
-			const auto& my_transform = e.Get<TransformComponent>();
-			Vec3 pos = my_transform.GetPosition();
-			snd->Play( "Assets/Ignore/gotcha.wav" );
-			return BehaviourResult::SUCCEEDED;
-		} );
-	}
-	std::unique_ptr<BehaviourNode> WaitUntilGone( Entity target_ent )
-	{
-		auto invert = std::make_unique<InverseNode>();
-		invert->SetChild( CheckIfVisible( target_ent ) );
-
-		auto loop = std::make_unique<LoopUntilSuccessNode>();
-		loop->SetChild( std::move( invert ) );
-		return loop;
-	}
-private:
-	float speed = 5.0f;
-	Entity ent;
-	Vec3 target_ent;
-	bool going = false;
-	const NavMeshSystem* navmesh = nullptr;
-};
-
 static MoveableCharacter player;
 static AiCharacter ai;
 
-std::string Indent( int level )
-{
-	std::string indent;
-	for( int i = 0; i < level; i++ )
-	{
-		indent += "  ";
-	}
-	return indent;
-}
-std::string Dump( const TypeElement& el, int level = 0, bool last = true )
-{
-	std::string s;
-	s += Indent( level );
-	s += Format( "%s %s (size=%i, off=%i)", el.desc.name, el.name, el.desc.size, el.offset );
-	if( el.desc.num_members )
-	{
-		s += " {\n";
-		for( size_t i = 0; i < el.desc.num_members; i++ )
-		{
-			s += Dump( el.desc.members[i], level + 1, i == el.desc.num_members - 1 );
-		}
-		s += Indent( level );
-		s += "}";
-	}
-	s += last ? "\n" : ",\n";
-	return s;
-}
-std::string Dump( const TypeDescriptor& desc, int level = 0, bool last = true )
-{
-	std::string s;
-	s += Indent( level );
-	s += Format( "%s (size=%i)", desc.name, desc.size );
-	if( desc.num_members )
-	{
-		s += " {\n";
-		for( size_t i = 0; i < desc.num_members; i++ )
-		{
-			s += Dump( desc.members[i], level + 1, i == desc.num_members - 1 );
-		}
-		s += Indent( level );
-		s += "}";
-	}
-	s += last ? "\n" : ",\n";
-	return s;
-}
-
-std::string DumpComponents( Entity e )
-{
-	std::vector<ComponentId> components = world.GetComponentsList( e );
-
-	std::string s;
-	for( ComponentId component : components )
-	{
-		TypeDescriptor desc = GetComponentTypeDescriptor( component );
-		s += Dump( desc );
-	}
-
-	return s;
-}
-
 BAT_REFLECT_EXTERNAL_BEGIN( Vec3 );
-BAT_REFLECT_MEMBER( x );
-BAT_REFLECT_MEMBER( y );
-BAT_REFLECT_MEMBER( z );
+	BAT_REFLECT_MEMBER( x );
+	BAT_REFLECT_MEMBER( y );
+	BAT_REFLECT_MEMBER( z );
 BAT_REFLECT_END();
 
 Demo::Demo( Graphics& gfx, Window& wnd )
@@ -365,6 +40,8 @@ Demo::Demo( Graphics& gfx, Window& wnd )
 	physics_system( world ),
 	controller_system( world )
 {
+	InitializeSound();
+
 	wnd.SetIcon( "Assets/slidy.ico" );
 
 	SceneLoader loader;
@@ -383,7 +60,7 @@ Demo::Demo( Graphics& gfx, Window& wnd )
 	floor.Add<PhysicsComponent>( PhysicsObjectType::STATIC )
 		.AddPlaneShape();
 
-	BAT_LOG( DumpComponents( floor ) );
+	BAT_LOG( TypeToString::DumpComponents( floor ) );
 
 	navmesh_system.Bake();
 
@@ -730,73 +407,7 @@ void Demo::OnRender()
 
 			if( ImGui::CollapsingHeader( "Render Passes" ) )
 			{
-				bool changed = false;
-
-				changed |= ImGui::Checkbox( "Opaque pass", &opaque_pass );
-				changed |= ImGui::Checkbox( "Transparent pass", &transparent_pass );
-
-				changed |= ImGui::Checkbox( "Skybox", &skybox_enabled );
-				if( skybox_enabled && rendergraph.GetPassByName( "skybox" ) )
-				{
-					auto skybox = static_cast<SkyboxPass*>( rendergraph.GetPassByName( "skybox" ) );
-					bool dynamic_sky = skybox->IsDynamicSkyEnabled();
-
-					if( ImGui::Checkbox( "Dynamic sky", &dynamic_sky ) )
-					{
-						skybox->SetDynamicSkyEnabled( dynamic_sky );
-					}
-
-					if( !dynamic_sky )
-					{
-						if( ImGui::Button( "Load texture" ) )
-						{
-							auto path = FileDialog::Open( "Assets" );
-							if( path )
-							{
-								skybox_tex = path->string();
-								changed = true;
-							}
-						}
-					}
-				}
-
-				changed |= ImGui::Checkbox( "Bloom", &bloom_enabled );
-				if( bloom_enabled )
-				{
-					if( ImGui::SliderFloat( "Bloom threshold", &bloom_threshold, 0.0f, 100.0f ) )
-					{
-						auto bloom = static_cast<BloomPass*>( rendergraph.GetPassByName( "bloom" ) );
-						bloom->SetThreshold( bloom_threshold );
-					}
-				}
-
-				changed |= ImGui::Checkbox( "Motion blur", &motion_blur_enabled );
-				changed |= ImGui::Checkbox( "Tonemapping", &tonemapping_enabled );
-				if( tonemapping_enabled )
-				{
-					if( ImGui::SliderFloat( "Exposure", &exposure, 0.0f, 32.0f ) )
-					{
-						auto tm = static_cast<ToneMappingPass*>( rendergraph.GetPassByName( "tonemapping" ) );
-						tm->SetExposure( exposure );
-					}
-				}
-
-				changed |= ImGui::Checkbox( "MSAA", &msaa_enabled );
-				if( msaa_enabled )
-				{
-					static int current_msaa_sample = 2;
-					static const char* samples[] = { "1", "2", "4", "8" };
-					if( ImGui::Combo( "MSAA Samples", &current_msaa_sample, samples, ARRAYSIZE( samples ) ) )
-					{
-						changed = true;
-						msaa_samples = std::stoi( samples[current_msaa_sample] );
-					}
-				}
-
-				if( changed )
-				{
-					BuildRenderGraph();
-				}
+				renderbuilder.DrawSettings( gfx, wnd, &rendergraph );
 			}
 
 			if( ImGui::CollapsingHeader( "Scene Hierarchy" ) )
@@ -844,14 +455,14 @@ void Demo::OnEvent( const KeyPressedEvent& e )
 	else if( e.key == 'B' )
 	{
 		// toggle bloom
-		bloom_enabled = !bloom_enabled;
+		renderbuilder.bloom_enabled = !renderbuilder.bloom_enabled;
 		// re-build render graph
 		BuildRenderGraph();
 	}
 	else if( e.key == 'M' )
 	{
 		// toggle motion blur
-		motion_blur_enabled = !motion_blur_enabled;
+		renderbuilder.motion_blur_enabled = !renderbuilder.motion_blur_enabled;
 		// re-build render graoh
 		BuildRenderGraph();
 	}
@@ -949,200 +560,5 @@ void Demo::LoadModel( const std::string& filename )
 
 void Demo::BuildRenderGraph()
 {
-	IGPUContext* pContext = gpu->GetContext();
-
-	ScratchRenderTarget::Clear();
-	ShaderManager::BindShaderGlobals( gfx.GetActiveCamera(), { (float)wnd.GetWidth(), (float)wnd.GetHeight() }, pContext );
-
-	rendergraph.Reset();
-
-	int post_process_count = 0;
-	if( bloom_enabled ) post_process_count++;
-	if( motion_blur_enabled ) post_process_count++;
-	if( tonemapping_enabled ) post_process_count++;
-
-	size_t ms_samples = msaa_enabled ? (size_t)msaa_samples : 1;
-	MsaaQuality ms_quality = msaa_enabled ? MsaaQuality::STANDARD_PATTERN : MsaaQuality::NONE;
-
-	// initialize resources
-	// render texture to draw scene to
-	if( post_process_count )
-	{
-		if( msaa_enabled )
-		{
-			rendergraph.AddRenderTargetResource( "target",
-				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT, ms_quality, ms_samples ) ) );
-			rendergraph.AddRenderTargetResource( "target2",
-				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
-			rendergraph.AddRenderTargetResource( "resolve_target",
-				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT ) ) );
-		}
-		else
-		{
-			rendergraph.AddRenderTargetResource( "target",
-				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT, ms_quality, ms_samples ) ) );
-			rendergraph.AddRenderTargetResource( "target2",
-				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT, ms_quality, ms_samples ) ) );
-		}
-	}
-	else
-	{
-		if( msaa_enabled )
-		{
-			rendergraph.AddRenderTargetResource( "target",
-				std::unique_ptr<IRenderTarget>( gpu->CreateRenderTarget( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R32G32B32A32_FLOAT, ms_quality, ms_samples, TexFlags::NO_SHADER_BIND ) ) );
-			rendergraph.AddRenderTargetResource( "resolve_target", gpu->GetBackbuffer() );
-		}
-		else
-		{
-			rendergraph.AddRenderTargetResource( "target", gpu->GetBackbuffer() );
-		}
-	}
-
-	auto depth = std::unique_ptr<IDepthStencil>( gpu->CreateDepthStencil( wnd.GetWidth(), wnd.GetHeight(), TEX_FORMAT_R24G8_TYPELESS, 1, ms_quality, ms_samples, TexFlags::NO_SHADER_BIND ) );
-	rendergraph.AddDepthStencilResource( "depth", std::move( depth ) );
-
-	std::unique_ptr<ITexture> envmap;
-	if( Bat::GetFileExtension( skybox_tex ) == "hdr" )
-	{
-		auto hdrmap = std::unique_ptr<ITexture>( gpu->CreateTexture( skybox_tex, TexFlags::NO_GEN_MIPS ) );
-		envmap = std::unique_ptr<ITexture>( GraphicsConvert::EquirectangularToCubemap( pContext, hdrmap.get(), 512, 512 ) );
-	}
-	else
-	{
-		envmap = std::unique_ptr<ITexture>( gpu->CreateTexture( skybox_tex, TexFlags::NO_GEN_MIPS ) );
-	}
-	auto irradiance = std::unique_ptr<ITexture>( GraphicsConvert::MakeIrradianceMap( pContext, envmap.get(), 32, 32 ) );
-	auto prefilter = std::unique_ptr<ITexture>( GraphicsConvert::MakePreFilteredEnvMap( pContext, envmap.get(), 128, 128 ) );
-	auto brdf_integration = std::unique_ptr<ITexture>( GraphicsConvert::MakeBrdfIntegrationMap( pContext, 512, 512 ) );
-
-	rendergraph.AddTextureResource( "skybox", std::move( envmap ) );
-	rendergraph.AddTextureResource( "irradiance", std::move( irradiance ) );
-	rendergraph.AddTextureResource( "prefilter", std::move( prefilter ) );
-	rendergraph.AddTextureResource( "brdf", std::move( brdf_integration ) );
-
-	// add passes
-	rendergraph.AddPass( "crt", std::make_unique<ClearRenderTargetPass>() );
-	rendergraph.BindToResource( "crt.buffer", "target" );
-	rendergraph.BindToResource( "crt.depth", "depth" );
-
-	rendergraph.AddPass( "shadows", std::make_unique<ShadowPass>() );
-
-	if( opaque_pass )
-	{
-		rendergraph.AddPass( "opaque", std::make_unique<OpaquePass>() );
-		rendergraph.BindToResource( "opaque.dst", "target" );
-		rendergraph.BindToResource( "opaque.irradiance", "irradiance" );
-		rendergraph.BindToResource( "opaque.prefilter", "prefilter" );
-		rendergraph.BindToResource( "opaque.brdf", "brdf" );
-	}
-
-	if( transparent_pass )
-	{
-		rendergraph.AddPass( "transparent", std::make_unique<TransparentPass>() );
-		rendergraph.BindToResource( "transparent.dst", "target" );
-		rendergraph.BindToResource( "transparent.irradiance", "irradiance" );
-		rendergraph.BindToResource( "transparent.prefilter", "prefilter" );
-		rendergraph.BindToResource( "transparent.brdf", "brdf" );
-	}
-
-	rendergraph.AddPass( "draw_lights", std::make_unique<DrawLightsPass>() );
-
-	if( skybox_enabled )
-	{
-		rendergraph.BindToResource( "draw_lights.dst", "target" );
-
-		rendergraph.AddPass( "skybox", std::make_unique<SkyboxPass>() );
-		rendergraph.BindToResource( "skybox.skyboxtex", "skybox" );
-	}
-	if( !post_process_count )
-	{
-		if( msaa_enabled )
-		{
-			rendergraph.AddPass( "resolve", std::make_unique<MsaaResolvePass>() );
-			rendergraph.BindToResource( "resolve.src", "target" );
-			rendergraph.BindToResource( "resolve.dst", "resolve_target" );
-		}
-		else if( skybox_enabled )
-		{
-			rendergraph.MarkOutput( "skybox.dst" );
-		}
-		else
-		{
-			rendergraph.MarkOutput( "draw_lights.dst" );
-		}
-	}
-	else
-	{
-		if( skybox_enabled )
-		{
-			rendergraph.BindToResource( "skybox.dst", "target" );
-		}
-		else
-		{
-			rendergraph.BindToResource( "draw_lights.dst", "target" );
-		}
-		std::string input_rt = "target";
-
-		if( msaa_enabled )
-		{
-			rendergraph.AddPass( "resolve", std::make_unique<MsaaResolvePass>() );
-			rendergraph.BindToResource( "resolve.src", input_rt );
-			rendergraph.BindToResource( "resolve.dst", "resolve_target" );
-			input_rt = "resolve_target";
-		}
-
-		if( bloom_enabled )
-		{
-			post_process_count--;
-
-			auto bloom = std::make_unique<BloomPass>();
-			bloom->SetThreshold( bloom_threshold );
-
-			rendergraph.AddPass( "bloom", std::move( bloom ) );
-			rendergraph.BindToResource( "bloom.src", input_rt );
-			if( !post_process_count )
-			{
-				rendergraph.MarkOutput( "bloom.dst" );
-			}
-			else
-			{
-				rendergraph.BindToResource( "bloom.dst", "target2" );
-			}
-
-			input_rt = "target2";
-		}
-
-		if( motion_blur_enabled )
-		{
-			post_process_count--;
-
-			rendergraph.AddPass( "motionblur", std::make_unique<MotionBlurPass>() );
-			rendergraph.BindToResource( "motionblur.src", input_rt );
-			rendergraph.BindToResource( "motionblur.depth", "depth" );
-			if( !post_process_count )
-			{
-				rendergraph.MarkOutput( "motionblur.dst" );
-			}
-			else
-			{
-				rendergraph.BindToResource( "motionblur.dst", "target" );
-			}
-
-			input_rt = "target";
-		}
-
-		if( tonemapping_enabled )
-		{
-			post_process_count--;
-
-			auto tm = std::make_unique<ToneMappingPass>();
-			tm->SetExposure( exposure );
-
-			rendergraph.AddPass( "tonemapping", std::move( tm ) );
-			rendergraph.BindToResource( "tonemapping.src", input_rt );
-
-			rendergraph.MarkOutput( "tonemapping.dst" );
-		}
-	}
+	renderbuilder.Make( gfx, wnd, &rendergraph );
 }
