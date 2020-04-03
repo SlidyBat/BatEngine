@@ -25,28 +25,28 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -69,21 +69,21 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)Build\$(Configuration)-$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Build\Obj\$(Configuration)-$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\$(Configuration)-$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Build\$(ProjectName)\Obj\$(Configuration)-$(Platform)\</IntDir>
     <IncludePath>$(ProjectDir)Util;$(ProjectDir);$(ProjectDir)Graphics;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)Build\$(Configuration)-$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Build\Obj\$(Configuration)-$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\$(Configuration)-$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Build\$(ProjectName)\Obj\$(Configuration)-$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)Build\$(Configuration)-$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Build\Obj\$(Configuration)-$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\$(Configuration)-$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Build\$(ProjectName)\Obj\$(Configuration)-$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)Build\$(Configuration)-$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)Build\Obj\$(Configuration)-$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\$(Configuration)-$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Build\$(ProjectName)\Obj\$(Configuration)-$(Platform)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -92,7 +92,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Core;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Physics;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)Networking;$(ProjectDir)Animation;$(ProjectDir)Audio;$(ProjectDir)AI;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;$(ProjectDir)ThirdParty\irrKlang\include;$(ProjectDir)ThirdParty\PhysX\include;$(ProjectDir)ThirdParty\PhysX\include\PhysX;$(ProjectDir)ThirdParty\DirectXTex/inc;$(ProjectDir)ThirdParty\recastnavigation\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING;%(PreprocessorDefinitions);</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>PCH.h</PrecompiledHeaderFile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -100,10 +100,6 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
-    <Link>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\DirectXTK\Bin\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform);$(ProjectDir)ThirdParty\irrKlang\lib\$(Platform);$(ProjectDir)ThirdParty\PhysX\lib\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\DirectXTex\lib\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\recastnavigation\lib\$(Configuration)-$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies);Ws2_32.lib;winmm.lib;dxguid.lib;DirectXTK.lib;assimp-vc142-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib;irrKlang.lib;PhysX_$(PlatformArchitecture).lib;PhysXCommon_$(PlatformArchitecture).lib;PhysXFoundation_$(PlatformArchitecture).lib;PhysXCooking_$(PlatformArchitecture).lib;PhysXExtensions_static_$(PlatformArchitecture).lib;PhysXPvdSDK_static_$(PlatformArchitecture).lib;PhysXCharacterKinematic_static_$(PlatformArchitecture).lib;DirectXTex.lib;Recast.lib;Detour.lib</AdditionalDependencies>
-    </Link>
     <PostBuildEvent>
       <Command>xcopy /Y /C /E "$(ProjectDir)ThirdParty\Assimp\bin\$(Configuration)-$(Platform)" "$(OutDir)"
 xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDir)"
@@ -122,7 +118,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Core;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Physics;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)Networking;$(ProjectDir)Animation;$(ProjectDir)Audio;$(ProjectDir)AI;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;$(ProjectDir)ThirdParty\irrKlang\include;$(ProjectDir)ThirdParty\PhysX\include;$(ProjectDir)ThirdParty\PhysX\include\PhysX;$(ProjectDir)ThirdParty\DirectXTex/inc;$(ProjectDir)ThirdParty\recastnavigation\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING;%(PreprocessorDefinitions);</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>PCH.h</PrecompiledHeaderFile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -130,10 +126,6 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
-    <Link>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\DirectXTK\Bin\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform);$(ProjectDir)ThirdParty\irrKlang\lib\$(Platform);$(ProjectDir)ThirdParty\PhysX\lib\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\DirectXTex\lib\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\recastnavigation\lib\$(Configuration)-$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies);Ws2_32.lib;winmm.lib;dxguid.lib;DirectXTK.lib;assimp-vc142-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib;irrKlang.lib;PhysX_$(PlatformArchitecture).lib;PhysXCommon_$(PlatformArchitecture).lib;PhysXFoundation_$(PlatformArchitecture).lib;PhysXCooking_$(PlatformArchitecture).lib;PhysXExtensions_static_$(PlatformArchitecture).lib;PhysXPvdSDK_static_$(PlatformArchitecture).lib;PhysXCharacterKinematic_static_$(PlatformArchitecture).lib;DirectXTex.lib;Recast.lib;Detour.lib</AdditionalDependencies>
-    </Link>
     <PostBuildEvent>
       <Command>xcopy /Y /C /E "$(ProjectDir)ThirdParty\Assimp\bin\$(Configuration)-$(Platform)" "$(OutDir)"
 xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDir)"
@@ -154,7 +146,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Core;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Physics;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)Networking;$(ProjectDir)Animation;$(ProjectDir)Audio;$(ProjectDir)AI;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;$(ProjectDir)ThirdParty\irrKlang\include;$(ProjectDir)ThirdParty\PhysX\include;$(ProjectDir)ThirdParty\PhysX\include\PhysX;$(ProjectDir)ThirdParty\DirectXTex/inc;$(ProjectDir)ThirdParty\recastnavigation\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;%(PreprocessorDefinitions);NDEBUG</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING;%(PreprocessorDefinitions);NDEBUG</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>PCH.h</PrecompiledHeaderFile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -162,13 +154,6 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
-    <Link>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\DirectXTK\Bin\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform);$(ProjectDir)ThirdParty\irrKlang\lib\$(Platform);$(ProjectDir)ThirdParty\PhysX\lib\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\DirectXTex\lib\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\recastnavigation\lib\$(Configuration)-$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies);Ws2_32.lib;winmm.lib;dxguid.lib;DirectXTK.lib;assimp-vc142-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib;irrKlang.lib;PhysX_$(PlatformArchitecture).lib;PhysXCommon_$(PlatformArchitecture).lib;PhysXFoundation_$(PlatformArchitecture).lib;PhysXCooking_$(PlatformArchitecture).lib;PhysXExtensions_static_$(PlatformArchitecture).lib;PhysXPvdSDK_static_$(PlatformArchitecture).lib;PhysXCharacterKinematic_static_$(PlatformArchitecture).lib;DirectXTex.lib;Recast.lib;Detour.lib</AdditionalDependencies>
-      <ImageHasSafeExceptionHandlers />
-    </Link>
     <PostBuildEvent>
       <Command>xcopy /Y /C /E "$(ProjectDir)ThirdParty\Assimp\bin\$(Configuration)-$(Platform)" "$(OutDir)"
 xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDir)"
@@ -189,7 +174,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Core;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Physics;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)Networking;$(ProjectDir)Animation;$(ProjectDir)Audio;$(ProjectDir)AI;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;$(ProjectDir)ThirdParty\irrKlang\include;$(ProjectDir)ThirdParty\PhysX\include;$(ProjectDir)ThirdParty\PhysX\include\PhysX;$(ProjectDir)ThirdParty\DirectXTex/inc;$(ProjectDir)ThirdParty\recastnavigation\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;%(PreprocessorDefinitions);NDEBUG</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING;%(PreprocessorDefinitions);NDEBUG</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>PCH.h</PrecompiledHeaderFile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -197,12 +182,6 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
-    <Link>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(ProjectDir)ThirdParty\DirectXTK\Bin\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Assimp\lib\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\Ultralight\lib\win\$(Platform);$(ProjectDir)ThirdParty\ENet\lib\$(Platform);$(ProjectDir)ThirdParty\irrKlang\lib\$(Platform);$(ProjectDir)ThirdParty\PhysX\lib\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\DirectXTex\lib\$(Configuration)-$(Platform);$(ProjectDir)ThirdParty\recastnavigation\lib\$(Configuration)-$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies);Ws2_32.lib;winmm.lib;dxguid.lib;DirectXTK.lib;assimp-vc142-mt.lib;UltralightCore.lib;Ultralight.lib;WebCore.lib;enet.lib;irrKlang.lib;PhysX_$(PlatformArchitecture).lib;PhysXCommon_$(PlatformArchitecture).lib;PhysXFoundation_$(PlatformArchitecture).lib;PhysXCooking_$(PlatformArchitecture).lib;PhysXExtensions_static_$(PlatformArchitecture).lib;PhysXPvdSDK_static_$(PlatformArchitecture).lib;PhysXCharacterKinematic_static_$(PlatformArchitecture).lib;DirectXTex.lib;Recast.lib;Detour.lib</AdditionalDependencies>
-    </Link>
     <PostBuildEvent>
       <Command>xcopy /Y /C /E "$(ProjectDir)ThirdParty\Assimp\bin\$(Configuration)-$(Platform)" "$(OutDir)"
 xcopy /Y /C /E "$(ProjectDir)ThirdParty\Ultralight\bin\win\$(Platform)" "$(OutDir)"
@@ -222,12 +201,6 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClCompile Include="Animation\AnimationComponent.cpp" />
     <ClCompile Include="Animation\AnimationSkeleton.cpp" />
     <ClCompile Include="Animation\AnimationSystem.cpp" />
-    <ClCompile Include="Demo.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="Audio\Audio.cpp" />
     <ClCompile Include="Core\Console.cpp" />
     <ClCompile Include="Core\CoreEntityComponents.cpp" />
@@ -279,7 +252,6 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     </ClCompile>
     <ClCompile Include="Util\TokenStream.cpp" />
     <ClCompile Include="Util\FileWatchdog.cpp" />
-    <ClCompile Include="Graphics\Material.cpp" />
     <ClCompile Include="Graphics\Mesh.cpp" />
     <ClCompile Include="Graphics\Model.cpp" />
     <ClCompile Include="Util\Mutex.cpp" />
@@ -389,7 +361,6 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Animation\AnimationSkeleton.h" />
     <ClInclude Include="Animation\AnimationSystem.h" />
     <ClInclude Include="Animation\KeyFrame.h" />
-    <ClInclude Include="Demo.h" />
     <ClInclude Include="Audio\Audio.h" />
     <ClInclude Include="Core\CoreEntityComponents.h" />
     <ClInclude Include="Core\Scene.h" />
@@ -496,7 +467,6 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Graphics\IndexBuffer.h" />
     <ClInclude Include="Graphics\IPipeline.h" />
     <ClInclude Include="Graphics\Model.h" />
-    <ClInclude Include="Resource.h" />
     <ClInclude Include="Graphics\Texture.h" />
     <ClInclude Include="Platform\Input.h" />
     <ClInclude Include="Graphics\TexturePipeline.h" />
@@ -507,13 +477,6 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Util\MemoryStream.h" />
     <ClInclude Include="Platform\Window.h" />
     <ClInclude Include="Events\WindowEvents.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Assets\mario.png" />
-    <Image Include="Assets\slidy.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Engine.rc" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Graphics\Shaders\BloomPS.hlsl">

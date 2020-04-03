@@ -11,8 +11,8 @@ namespace Bat
 		const ParticleEmitterComponent& emitter,
 		const Camera& camera )
 	{
-		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/ParticleVS.hlsl" );
-		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/ParticlePS.hlsl" );
+		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "../Engine/Graphics/Shaders/ParticleVS.hlsl" );
+		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "../Engine/Graphics/Shaders/ParticlePS.hlsl" );
 
 		pContext->SetVertexShader( pVertexShader );
 		pContext->SetPixelShader( pPixelShader );

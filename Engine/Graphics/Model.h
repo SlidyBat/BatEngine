@@ -1,7 +1,5 @@
 #pragma once
 
-#include "PCH.h"
-
 #include "Camera.h"
 #include "Texture.h"
 #include "VertexTypes.h"

@@ -6,7 +6,7 @@
 #include <sstream>
 #include "COMException.h"
 
-#define SHADER_PATH L"./Graphics/Shaders/Ultralight/"
+#define SHADER_PATH L"./../Engine/Graphics/Shaders/Ultralight/"
 
 namespace {
 

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "PCH.h"
-
 #include "IGPUDevice.h"
 #include "IPipeline.h"
 #include "Texture.h"

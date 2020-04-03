@@ -11,8 +11,8 @@ namespace Bat
 {
 	void TexturePipeline::Render( IGPUContext* pContext, const Mesh& mesh, const Camera& camera, ITexture* pTexture, const Mat4& world_transform )
 	{
-		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/TextureVS.hlsl" );
-		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/TexturePS.hlsl" );
+		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "../Engine/Graphics/Shaders/TextureVS.hlsl" );
+		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "../Engine/Graphics/Shaders/TexturePS.hlsl" );
 
 		CB_TexturePipelineMatrix transform;
 		transform.world = world_transform;

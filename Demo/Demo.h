@@ -1,5 +1,6 @@
 #pragma once
 
+#include "BatWinAPI.h"
 #include "Application.h"
 #include "MoveableCamera.h"
 #include "Mesh.h"
@@ -77,7 +78,7 @@ private:
 
 	float bloom_threshold = 1.0f;
 	float exposure = 2.0f;
-		
+
 	bool msaa_enabled = true;
 	int msaa_samples = 4;
 

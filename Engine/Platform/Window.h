@@ -1,6 +1,5 @@
 #pragma once
 
-#include "PCH.h"
 #include "Input.h"
 
 namespace Bat

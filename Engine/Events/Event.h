@@ -1,7 +1,5 @@
 #pragma once
 
-#include "PCH.h"
-
 // TODO: Make this thread safe so we can listen for events on other threads
 namespace Bat
 {

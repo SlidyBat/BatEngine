@@ -26,8 +26,8 @@ namespace Bat
 		ShaderMacro macros[MAX_SHADER_MACROS];
 		size_t num_macros = ShaderManager::BuildMacrosForMesh( mesh, macros, MAX_SHADER_MACROS );
 
-		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/LitGenericVS.hlsl", macros, num_macros );
-		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/LitGenericPS.hlsl", macros, num_macros );
+		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "../Engine/Graphics/Shaders/LitGenericVS.hlsl", macros, num_macros );
+		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "../Engine/Graphics/Shaders/LitGenericPS.hlsl", macros, num_macros );
 
 		pContext->SetVertexShader( pVertexShader );
 		pContext->SetPixelShader( pPixelShader );
@@ -65,8 +65,8 @@ namespace Bat
 		ShaderMacro macros[MAX_SHADER_MACROS];
 		size_t num_macros = ShaderManager::BuildMacrosForInstancedMesh( mesh, macros, MAX_SHADER_MACROS );
 
-		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/LitGenericVS.hlsl", macros, num_macros );
-		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/LitGenericPS.hlsl", macros, num_macros );
+		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "../Engine/Graphics/Shaders/LitGenericVS.hlsl", macros, num_macros );
+		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "../Engine/Graphics/Shaders/LitGenericPS.hlsl", macros, num_macros );
 
 		pContext->SetVertexShader( pVertexShader );
 		pContext->SetPixelShader( pPixelShader );

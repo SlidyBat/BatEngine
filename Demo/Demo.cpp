@@ -63,7 +63,7 @@ public:
 	{
 		auto& controller = character.Get<CharacterControllerComponent>();
 
-		velocity += Vec3{ 0.0f, -9.8f, 0.0f } * dt;
+		velocity += Vec3{ 0.0f, -9.8f, 0.0f } *dt;
 
 		PhysicsControllerCollisionFlags flags = controller.Move( velocity * dt + disp, dt );
 		if( ( flags & CONTROLLER_COLLISION_DOWN ) != CONTROLLER_COLLISION_NONE )
@@ -196,7 +196,7 @@ public:
 		ent.Get<TransformComponent>()
 			.SetPosition( pos );
 		ent.Add<CharacterControllerComponent>( box );
-			
+
 		auto& behaviour = ent.Add<BehaviourTree>();
 		behaviour.root_node = MakeBehaviour( target_ent );
 	}
@@ -242,7 +242,7 @@ private:
 			{
 				return BehaviourResult::SUCCEEDED;
 			}
-			
+
 			Vec3 floor_pos = { pos.x, pos.y - 0.35f, pos.z };
 			std::vector<Vec3> path = navmesh->GetPath( 0, floor_pos, target_pos );
 			Vec3 delta = path[1] - path[0];
@@ -258,7 +258,7 @@ private:
 
 			float dist = std::min( len, speed * g_pGlobals->deltatime );
 			controller.Move( delta * dist, g_pGlobals->deltatime );
-			
+
 			return BehaviourResult::RUNNING;
 		} );
 	}
@@ -352,9 +352,9 @@ std::string DumpComponents( Entity e )
 }
 
 BAT_REFLECT_EXTERNAL_BEGIN( Vec3 );
-	BAT_REFLECT_MEMBER( x );
-	BAT_REFLECT_MEMBER( y );
-	BAT_REFLECT_MEMBER( z );
+BAT_REFLECT_MEMBER( x );
+BAT_REFLECT_MEMBER( y );
+BAT_REFLECT_MEMBER( z );
 BAT_REFLECT_END();
 
 Demo::Demo( Graphics& gfx, Window& wnd )
@@ -469,24 +469,24 @@ Demo::Demo( Graphics& gfx, Window& wnd )
 		cam.SetSpeed( speed );
 	} );
 
-	g_Console.AddCommand( "sun_toggle", [&sun = sun]( const CommandArgs_t & args )
+	g_Console.AddCommand( "sun_toggle", [&sun = sun]( const CommandArgs_t& args )
 	{
 		LightComponent& l = sun.Get<LightComponent>();
 		l.SetEnabled( !l.IsEnabled() );
 	} );
 
-	EventDispatcher::OnGlobalEventDispatched<PhysicsTriggerStartTouchEvent>( []( const PhysicsTriggerStartTouchEvent & e )
-	{
-		BAT_LOG( "Entered trigger" );
-	} );
-	EventDispatcher::OnGlobalEventDispatched<PhysicsTriggerEndTouchEvent>( []( const PhysicsTriggerEndTouchEvent & e )
-	{
-		BAT_LOG( "Exited trigger" );
-	} );
-	EventDispatcher::OnGlobalEventDispatched<PhysicsObjectStartTouchEvent>( []( const PhysicsObjectStartTouchEvent & e )
-	{
-		BAT_LOG( "Touch!" );
-	} );
+	//EventDispatcher::OnGlobalEventDispatched<PhysicsTriggerStartTouchEvent>( []( const PhysicsTriggerStartTouchEvent& e )
+	//{
+	//	BAT_LOG( "Entered trigger" );
+	//} );
+	//EventDispatcher::OnGlobalEventDispatched<PhysicsTriggerEndTouchEvent>( []( const PhysicsTriggerEndTouchEvent& e )
+	//{
+	//	BAT_LOG( "Exited trigger" );
+	//} );
+	//EventDispatcher::OnGlobalEventDispatched<PhysicsObjectStartTouchEvent>( []( const PhysicsObjectStartTouchEvent& e )
+	//{
+	//	BAT_LOG( "Touch!" );
+	//} );
 
 	wnd.AddEventListener<WindowResizeEvent>( *this );
 	wnd.input.AddEventListener<MouseButtonPressedEvent>( *this );
@@ -633,7 +633,7 @@ static void AddNodeTree( SceneNode* parent_node, SceneNode& node )
 			std::string pos_text = Format( "Local Pos: (%.2f, %.2f, %.2f)", pos.x, pos.y, pos.z );
 			std::string rot_text = Format( "Local Rot: (%.2f, %.2f, %.2f)", rot.x, rot.y, rot.z );
 			std::string scale_text = Format( "Local Scale: %.2f", scale );
-			
+
 			if( ImGui::TreeNode( "Transform" ) )
 			{
 				ImGui::Text( pos_text.c_str() );
@@ -763,7 +763,7 @@ void Demo::OnRender()
 				{
 					if( ImGui::SliderFloat( "Bloom threshold", &bloom_threshold, 0.0f, 100.0f ) )
 					{
-						auto bloom = static_cast<BloomPass*>(rendergraph.GetPassByName( "bloom" ));
+						auto bloom = static_cast<BloomPass*>( rendergraph.GetPassByName( "bloom" ) );
 						bloom->SetThreshold( bloom_threshold );
 					}
 				}
@@ -774,7 +774,7 @@ void Demo::OnRender()
 				{
 					if( ImGui::SliderFloat( "Exposure", &exposure, 0.0f, 32.0f ) )
 					{
-						auto tm = static_cast<ToneMappingPass*>(rendergraph.GetPassByName( "tonemapping" ));
+						auto tm = static_cast<ToneMappingPass*>( rendergraph.GetPassByName( "tonemapping" ) );
 						tm->SetExposure( exposure );
 					}
 				}
@@ -800,7 +800,7 @@ void Demo::OnRender()
 			if( ImGui::CollapsingHeader( "Scene Hierarchy" ) )
 			{
 				AddNodeTree( nullptr, scene );
-				
+
 				if( ImGui::Button( "Load model" ) )
 				{
 					auto path = FileDialog::Open( "Assets" );

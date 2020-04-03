@@ -1,6 +1,5 @@
 #pragma once
 
-#include "PCH.h"
 #include <d3d11.h>
 
 namespace Bat

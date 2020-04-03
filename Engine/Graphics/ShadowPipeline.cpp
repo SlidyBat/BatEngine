@@ -11,14 +11,14 @@ namespace Bat
 		ShaderMacro macros[MAX_SHADER_MACROS];
 		size_t num_macros = ShaderManager::BuildMacrosForMesh( mesh, macros, MAX_SHADER_MACROS );
 
-		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/ShadowMapVS.hlsl", macros, num_macros );
+		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "../Engine/Graphics/Shaders/ShadowMapVS.hlsl", macros, num_macros );
 		pContext->SetVertexShader( pVertexShader );
 		
 		// If there is some alpha masking going on then we need a pixel shader that discards low alpha pixels
 		const Material& material = mesh.GetMaterial();
 		if( material.GetAlphaMode() == AlphaMode::MASK )
 		{
-			IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/ShadowMapPS.hlsl", macros, num_macros );
+			IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "../Engine/Graphics/Shaders/ShadowMapPS.hlsl", macros, num_macros );
 			pContext->SetPixelShader( pPixelShader );
 			BindMaterial( pContext, material );
 		}

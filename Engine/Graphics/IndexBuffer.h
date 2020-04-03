@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "Graphics.h"
+#include "Globals.h"
 
 namespace Bat
 {

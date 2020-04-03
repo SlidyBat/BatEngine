@@ -74,8 +74,8 @@ namespace Bat
 
 	void SkyboxPipeline::Render( IGPUContext* pContext, const Camera& camera, ITexture* pTexture )
 	{
-		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/SkyboxVS.hlsl" );
-		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/SkyboxPS.hlsl" );
+		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "../Engine/Graphics/Shaders/SkyboxVS.hlsl" );
+		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "../Engine/Graphics/Shaders/SkyboxPS.hlsl" );
 
 		auto pos = camera.GetPosition();
 		auto w = Mat4::Translate( pos );

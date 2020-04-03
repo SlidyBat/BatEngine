@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Graphics.h"
+#include "Globals.h"
 
 namespace Bat
 {

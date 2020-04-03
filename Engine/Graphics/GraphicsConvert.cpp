@@ -127,9 +127,9 @@ namespace Bat
 		vp.top_left = { 0, 0 };
 		pContext->PushViewport( vp );
 
-		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/SkyboxVS.hlsl" );
+		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "../Engine/Graphics/Shaders/SkyboxVS.hlsl" );
 		pContext->SetVertexShader( pVertexShader );
-		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/EquirectangularToCubemapPS.hlsl" );
+		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "../Engine/Graphics/Shaders/EquirectangularToCubemapPS.hlsl" );
 		pContext->SetPixelShader( pPixelShader );
 
 		pContext->BindTexture( equirect, PS_TEX_SLOT_0 );
@@ -181,9 +181,9 @@ namespace Bat
 		vp.top_left = { 0, 0 };
 		pContext->PushViewport( vp );
 
-		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/SkyboxVS.hlsl" );
+		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "../Engine/Graphics/Shaders/SkyboxVS.hlsl" );
 		pContext->SetVertexShader( pVertexShader );
-		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/IrradianceConvolvePS.hlsl" );
+		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "../Engine/Graphics/Shaders/IrradianceConvolvePS.hlsl" );
 		pContext->SetPixelShader( pPixelShader );
 
 		pContext->BindTexture( envmap, PS_TEX_SLOT_0 );
@@ -238,9 +238,9 @@ namespace Bat
 
 		pContext->SetPrimitiveTopology( PrimitiveTopology::TRIANGLELIST );
 
-		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/SkyboxVS.hlsl" );
+		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "../Engine/Graphics/Shaders/SkyboxVS.hlsl" );
 		pContext->SetVertexShader( pVertexShader );
-		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/PreFilterConvolvePS.hlsl" );
+		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "../Engine/Graphics/Shaders/PreFilterConvolvePS.hlsl" );
 		pContext->SetPixelShader( pPixelShader );
 
 		pContext->BindTexture( envmap, PS_TEX_SLOT_0 );
@@ -312,9 +312,9 @@ namespace Bat
 		vp.top_left = { 0, 0 };
 		pContext->PushViewport( vp );
 
-		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/PostProcessVS.hlsl" );
+		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "../Engine/Graphics/Shaders/PostProcessVS.hlsl" );
 		pContext->SetVertexShader( pVertexShader );
-		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/IntegrateBrdfPS.hlsl" );
+		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "../Engine/Graphics/Shaders/IntegrateBrdfPS.hlsl" );
 		pContext->SetPixelShader( pPixelShader );
 
 		pContext->SetRenderTarget( map.get() );

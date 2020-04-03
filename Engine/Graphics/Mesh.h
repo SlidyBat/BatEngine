@@ -1,7 +1,5 @@
 #pragma once
 
-#include "PCH.h"
-
 #include "MathLib.h"
 #include "IndexBuffer.h"
 #include "VertexBuffer.h"

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <string>
 #include "GraphicsFormats.h"
 #include "VertexTypes.h"

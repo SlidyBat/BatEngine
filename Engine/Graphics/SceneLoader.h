@@ -1,6 +1,5 @@
 #pragma once
 
-#include "PCH.h"
 #include "Entity.h"
 #include "Mesh.h"
 #include "Scene.h"

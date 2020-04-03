@@ -38,8 +38,8 @@ namespace Bat
 
 			if( m_bDynamicSky )
 			{
-				IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/DynamicSkyVS.hlsl" );
-				IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/DynamicSkyPS.hlsl" );
+				IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "../Engine/Graphics/Shaders/DynamicSkyVS.hlsl" );
+				IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "../Engine/Graphics/Shaders/DynamicSkyPS.hlsl" );
 
 				pContext->SetVertexShader( pVertexShader );
 				pContext->SetPixelShader( pPixelShader );

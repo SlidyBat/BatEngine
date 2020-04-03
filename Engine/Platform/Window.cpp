@@ -1,7 +1,6 @@
 #include "PCH.h"
 
 #include "Window.h"
-#include "Resource.h"
 #include "WindowEvents.h"
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
@@ -22,8 +21,8 @@ namespace Bat
 		wc.cbClsExtra = 0;
 		wc.cbWndExtra = 0;
 		wc.hInstance = m_hInstance;
-		wc.hIcon = (HICON)LoadImage( m_hInstance, MAKEINTRESOURCE( IDI_ICON1 ), IMAGE_ICON, 32, 32, 0 );
-		wc.hIconSm = (HICON)LoadImage( m_hInstance, MAKEINTRESOURCE( IDI_ICON1 ), IMAGE_ICON, 16, 16, 0 );
+		wc.hIcon = (HICON)LoadImage( m_hInstance, MAKEINTRESOURCE( 101 ), IMAGE_ICON, 32, 32, 0 );
+		wc.hIconSm = (HICON)LoadImage( m_hInstance, MAKEINTRESOURCE( 101 ), IMAGE_ICON, 16, 16, 0 );
 		wc.hCursor = LoadCursor( NULL, IDC_ARROW );
 		wc.hbrBackground = (HBRUSH)GetStockObject( BLACK_BRUSH );
 		wc.lpszMenuName = NULL;

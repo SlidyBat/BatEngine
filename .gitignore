@@ -8,11 +8,21 @@ Engine.VC.db
 /Engine/Thumbs.db
 /Engine/Engine.aps
 /Engine/Release
-/Release
 /Engine/Engine.vcxproj.user
+/Engine/cookies.dat
+/Engine/VTune Amplifier Results/Engine
+/Demo/x64
+/Demo/Debug
+Demo.VC.VC.opendb
+Demo.VC.db
+/Demo/Thumbs.db
+/Demo/Engine.aps
+/Demo/Release
+/Demo/Engine.vcxproj.user
+/Demo/Assets/Ignore
+/Demo/cookies.dat
+/Demo/VTune Amplifier Results/Engine
+/Release
 /Build
 *.cso
 imgui.ini
-/Engine/Assets/Ignore
-/Engine/cookies.dat
-/Engine/VTune Amplifier Results/Engine

@@ -35,8 +35,8 @@ namespace Bat
 		{
 			m_cbufToneMapSettings.Update( pContext, m_Settings );
 
-			IVertexShader* pTextureVS = ResourceManager::GetVertexShader( "Graphics/Shaders/PostProcessVS.hlsl" );
-			IPixelShader* pToneMapShader = ResourceManager::GetPixelShader( "Graphics/Shaders/ToneMappingPS.hlsl" );
+			IVertexShader* pTextureVS = ResourceManager::GetVertexShader( "../Engine/Graphics/Shaders/PostProcessVS.hlsl" );
+			IPixelShader* pToneMapShader = ResourceManager::GetPixelShader( "../Engine/Graphics/Shaders/ToneMappingPS.hlsl" );
 
 			pContext->SetPrimitiveTopology( PrimitiveTopology::TRIANGLELIST );
 			pContext->SetDepthEnabled( false );
