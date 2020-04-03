@@ -365,6 +365,8 @@ Demo::Demo( Graphics& gfx, Window& wnd )
 	physics_system( world ),
 	controller_system( world )
 {
+	wnd.SetIcon( "Assets/slidy.ico" );
+
 	SceneLoader loader;
 
 	camera.SetAspectRatio( (float)wnd.GetWidth() / wnd.GetHeight() );
