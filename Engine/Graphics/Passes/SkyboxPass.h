@@ -1,12 +1,12 @@
 #pragma once
 
-#include "IRenderPass.h"
-#include "RenderData.h"
-#include "SkyboxPipeline.h"
-#include "MathLib.h"
-#include "Camera.h"
-#include "Entity.h"
-#include "ShaderManager.h"
+#include "Core/Entity.h"
+#include "Util/MathLib.h"
+#include "../IRenderPass.h"
+#include "../RenderData.h"
+#include "../SkyboxPipeline.h"
+#include "../Camera.h"
+#include "../ShaderManager.h"
 
 namespace Bat
 {

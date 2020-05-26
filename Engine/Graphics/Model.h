@@ -5,8 +5,8 @@
 #include "VertexTypes.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
-#include "ResourceManager.h"
 #include "RenderFlags.h"
+#include "Core/ResourceManager.h"
 
 namespace Bat
 {

@@ -2,8 +2,8 @@
 
 #include "AnimationSkeleton.h"
 #include "AnimationClip.h"
-#include "IGPUDevice.h"
-#include "ConstantBuffer.h"
+#include "Graphics/IGPUDevice.h"
+#include "Graphics/ConstantBuffer.h"
 
 namespace Bat
 {

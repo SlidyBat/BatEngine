@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ResourceManager.h"
+#include "Core/ResourceManager.h"
 #include "Texture.h"
 
 namespace Bat

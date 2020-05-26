@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <array>
 #include <vector>
-#include "BatAssert.h"
+#include "Util/BatAssert.h"
 
 // TODO: Make this thread safe so we can listen for events on other threads
 namespace Bat

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vector>
-#include "Graphics.h"
-#include "Globals.h"
+#include "Renderer.h"
+#include "Core/Globals.h"
 
 namespace Bat
 {

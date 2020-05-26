@@ -95,7 +95,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine\AI;$(SolutionDir)Engine\Animation;$(SolutionDir)Engine\Audio;$(SolutionDir)Engine\Core;$(SolutionDir)Engine\Events;$(SolutionDir)Engine\Graphics;$(SolutionDir)Engine\Networking;$(SolutionDir)Engine\Physics;$(SolutionDir)Engine\Platform;$(SolutionDir)Engine\ThirdParty;$(SolutionDir)Engine\ThirdParty\ImGui;$(SolutionDir)Engine\ThirdParty\Assimp\include;$(SolutionDir)Engine\ThirdParty\spdlog\include;$(SolutionDir)Engine\ThirdParty\Ultralight\include;$(SolutionDir)Engine\Util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)Engine\ThirdParty;$(SolutionDir)Engine\ThirdParty\ImGui;$(SolutionDir)Engine\ThirdParty\Assimp\include;$(SolutionDir)Engine\ThirdParty\spdlog\include;$(SolutionDir)Engine\ThirdParty\Ultralight\include;$(SolutionDir)Engine\Util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -112,7 +112,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine\AI;$(SolutionDir)Engine\Animation;$(SolutionDir)Engine\Audio;$(SolutionDir)Engine\Core;$(SolutionDir)Engine\Events;$(SolutionDir)Engine\Graphics;$(SolutionDir)Engine\Networking;$(SolutionDir)Engine\Physics;$(SolutionDir)Engine\Platform;$(SolutionDir)Engine\ThirdParty;$(SolutionDir)Engine\ThirdParty\ImGui;$(SolutionDir)Engine\ThirdParty\Assimp\include;$(SolutionDir)Engine\ThirdParty\spdlog\include;$(SolutionDir)Engine\ThirdParty\Ultralight\include;$(SolutionDir)Engine\Util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)Engine\ThirdParty;$(SolutionDir)Engine\ThirdParty\ImGui;$(SolutionDir)Engine\ThirdParty\Assimp\include;$(SolutionDir)Engine\ThirdParty\spdlog\include;$(SolutionDir)Engine\ThirdParty\Ultralight\include;$(SolutionDir)Engine\Util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -131,7 +131,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine\AI;$(SolutionDir)Engine\Animation;$(SolutionDir)Engine\Audio;$(SolutionDir)Engine\Core;$(SolutionDir)Engine\Events;$(SolutionDir)Engine\Graphics;$(SolutionDir)Engine\Networking;$(SolutionDir)Engine\Physics;$(SolutionDir)Engine\Platform;$(SolutionDir)Engine\ThirdParty;$(SolutionDir)Engine\ThirdParty\ImGui;$(SolutionDir)Engine\ThirdParty\Assimp\include;$(SolutionDir)Engine\ThirdParty\spdlog\include;$(SolutionDir)Engine\ThirdParty\Ultralight\include;$(SolutionDir)Engine\Util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)Engine\ThirdParty;$(SolutionDir)Engine\ThirdParty\ImGui;$(SolutionDir)Engine\ThirdParty\Assimp\include;$(SolutionDir)Engine\ThirdParty\spdlog\include;$(SolutionDir)Engine\ThirdParty\Ultralight\include;$(SolutionDir)Engine\Util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -153,7 +153,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine\AI;$(SolutionDir)Engine\Animation;$(SolutionDir)Engine\Audio;$(SolutionDir)Engine\Core;$(SolutionDir)Engine\Events;$(SolutionDir)Engine\Graphics;$(SolutionDir)Engine\Networking;$(SolutionDir)Engine\Physics;$(SolutionDir)Engine\Platform;$(SolutionDir)Engine\ThirdParty;$(SolutionDir)Engine\ThirdParty\ImGui;$(SolutionDir)Engine\ThirdParty\Assimp\include;$(SolutionDir)Engine\ThirdParty\spdlog\include;$(SolutionDir)Engine\ThirdParty\Ultralight\include;$(SolutionDir)Engine\Util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)Engine\ThirdParty;$(SolutionDir)Engine\ThirdParty\ImGui;$(SolutionDir)Engine\ThirdParty\Assimp\include;$(SolutionDir)Engine\ThirdParty\spdlog\include;$(SolutionDir)Engine\ThirdParty\Ultralight\include;$(SolutionDir)Engine\Util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>

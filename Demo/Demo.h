@@ -1,29 +1,11 @@
 #pragma once
 
-#include "BatWinAPI.h"
-#include "Application.h"
-
-#include "Entity.h"
-#include "MoveableCamera.h"
-#include "Scene.h"
-#include "RenderGraph.h"
+#include <BatEngine.h>
 #include "RenderBuilder.h"
-
-#include "WindowEvents.h"
-#include "KeyboardEvents.h"
-#include "MouseEvents.h"
-
-#include "CoreEntityComponents.h"
-#include "PhysicsSystem.h"
-#include "AnimationSystem.h"
-#include "Particles.h"
-#include "NavMesh.h"
-#include "BehaviourTree.h"
-#include "CharacterControllerSystem.h"
 
 namespace Bat
 {
-	class Graphics;
+	class Renderer;
 	class Window;
 	class Light;
 }
@@ -31,7 +13,7 @@ namespace Bat
 class Demo : public Bat::IApplication
 {
 public:
-	Demo( Bat::Graphics& gfx, Bat::Window& wnd );
+	Demo( Bat::Renderer& gfx, Bat::Window& wnd );
 	~Demo();
 
 	virtual void OnUpdate( float deltatime ) override;
@@ -44,7 +26,7 @@ private:
 	void LoadModel( const std::string& filename );
 	void BuildRenderGraph();
 private:
-	Bat::Graphics& gfx;
+	Bat::Renderer& gfx;
 	Bat::Window& wnd;
 	Bat::MoveableCamera camera;
 	Bat::SceneNode scene;

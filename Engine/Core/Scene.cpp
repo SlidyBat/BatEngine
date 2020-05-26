@@ -1,8 +1,8 @@
 #include "PCH.h"
 #include "Scene.h"
 
-#include "Event.h"
-#include "SceneEvents.h"
+#include "Events/Event.h"
+#include "Events/SceneEvents.h"
 
 namespace Bat
 {

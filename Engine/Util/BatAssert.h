@@ -1,9 +1,9 @@
 #pragma once
 
-#include "BatWinAPI.h"
-#include "Common.h"
+#include "Platform/BatWinAPI.h"
+#include "Core/Common.h"
+#include "Core/Log.h"
 #include "StringLib.h"
-#include "Log.h"
 
 #ifdef _DEBUG
 #define ENGINE_ENABLE_ASSERTS

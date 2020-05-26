@@ -4,7 +4,7 @@
 
 namespace Bat
 {
-	class Graphics;
+	class Renderer;
 	class Window;
 	class RenderGraph;
 }
@@ -12,10 +12,10 @@ namespace Bat
 class RenderBuilder
 {
 public:
-	void Make( const Bat::Graphics& gfx, const Bat::Window& wnd, Bat::RenderGraph* graph );
-	void MakeForwardPipeline( const Bat::Graphics& gfx, const Bat::Window& wnd, Bat::RenderGraph* graph );
+	void Make( const Bat::Renderer& gfx, const Bat::Window& wnd, Bat::RenderGraph* graph );
+	void MakeForwardPipeline( const Bat::Renderer& gfx, const Bat::Window& wnd, Bat::RenderGraph* graph );
 
-	void DrawSettings( const Bat::Graphics& gfx, const Bat::Window& wnd, Bat::RenderGraph* graph );
+	void DrawSettings( const Bat::Renderer& gfx, const Bat::Window& wnd, Bat::RenderGraph* graph );
 public:
 	bool opaque_pass = true;
 	bool transparent_pass = true;

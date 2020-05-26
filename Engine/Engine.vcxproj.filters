@@ -117,9 +117,6 @@
     <ClCompile Include="Graphics\SceneLoader.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Graphics.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\Texture.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
@@ -281,6 +278,9 @@
     </ClCompile>
     <ClCompile Include="PCH.cpp" />
     <ClCompile Include="Physics\PhysicsSystem.cpp" />
+    <ClCompile Include="Graphics\Renderer.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\GraphicsConvert.h">
@@ -365,9 +365,6 @@
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\D3DGPUDevice.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Graphics.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\IndexBuffer.h">
@@ -656,6 +653,21 @@
       <Filter>AI</Filter>
     </ClInclude>
     <ClInclude Include="PCH.h" />
+    <ClInclude Include="Platform.h" />
+    <ClInclude Include="Physics.h" />
+    <ClInclude Include="Networking.h" />
+    <ClInclude Include="Events.h" />
+    <ClInclude Include="Core.h" />
+    <ClInclude Include="Audio.h" />
+    <ClInclude Include="Animation.h" />
+    <ClInclude Include="AI.h" />
+    <ClInclude Include="Core\Application.h" />
+    <ClInclude Include="BatEngine.h" />
+    <ClInclude Include="Util.h" />
+    <ClInclude Include="Graphics\Renderer.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics2.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\RenderNodeDataTypes.def">

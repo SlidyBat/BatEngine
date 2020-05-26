@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Physics.h"
-#include "Entity.h"
-#include "CoreEntityComponents.h"
+#include "Core/Entity.h"
+#include "Core/CoreEntityComponents.h"
 
 namespace Bat
 {

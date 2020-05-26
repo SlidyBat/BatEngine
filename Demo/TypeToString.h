@@ -1,9 +1,7 @@
 #pragma once
 
+#include <BatEngine.h>
 #include <string>
-#include "Reflect.h"
-#include "StringLib.h"
-#include "Entity.h"
 
 class TypeToString
 {

@@ -1,7 +1,7 @@
 #pragma once
 
 // Windows
-#include "BatWinAPI.h"
+#include "Platform/BatWinAPI.h"
 #include <wrl.h>
 
 #include <cstdlib>
@@ -36,9 +36,9 @@
 #include <optional>
 
 // my stuff
-#include "BatAssert.h"
-#include "Log.h"
-#include "MathLib.h"
-#include "StringLib.h"
-#include "Globals.h"
-#include "Entity.h"
+#include "Util/BatAssert.h"
+#include "Util/MathLib.h"
+#include "Util/StringLib.h"
+#include "Core/Log.h"
+#include "Core/Globals.h"
+#include "Core/Entity.h"

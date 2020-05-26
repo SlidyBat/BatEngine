@@ -1,16 +1,16 @@
 #pragma once
 
-#include "Frustum.h"
-#include "Graphics.h"
-#include "Entity.h"
+#include "Core/Entity.h"
+#include "Util/Frustum.h"
+#include "Renderer.h"
 
 namespace Bat
 {
 	class Camera
 	{
 	public:
-		Camera( const Vec3& pos, const Vec3& rot, float fov = 90.0f, float ar = 4.0f / 3.0f, float screen_near = Graphics::ScreenNear, float screen_far = Graphics::ScreenFar );
-		Camera( float fov = 90.0f, float ar = 4.0f / 3.0f, float screen_near = Graphics::ScreenNear, float screen_far = Graphics::ScreenFar );
+		Camera( const Vec3& pos, const Vec3& rot, float fov = 90.0f, float ar = 4.0f / 3.0f, float screen_near = Renderer::ScreenNear, float screen_far = Renderer::ScreenFar );
+		Camera( float fov = 90.0f, float ar = 4.0f / 3.0f, float screen_near = Renderer::ScreenNear, float screen_far = Renderer::ScreenFar );
 		
 		static Camera ScreenOrtho();
 
@@ -57,8 +57,8 @@ namespace Bat
 
 		float m_flFOV = 90.0f;
 		float m_flAspectRatio = 1.3333333f;
-		float m_flScreenNear = Graphics::ScreenNear;
-		float m_flScreenFar = Graphics::ScreenFar;
+		float m_flScreenNear = Renderer::ScreenNear;
+		float m_flScreenFar = Renderer::ScreenFar;
 
 		Vec3 m_vecPosition = { 0.0f, 0.0f, 0.0f };
 		Vec3 m_angRotation = { 0.0f, 0.0f, 0.0f };

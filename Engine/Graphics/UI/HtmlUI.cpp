@@ -6,10 +6,10 @@
 #include "UI/UltralightAdapters/FontLoaderWin.h"
 #include "UI/UltralightAdapters/FileSystemBasic.h"
 
-#include "IGPUDevice.h"
-#include "Common.h"
-#include "Window.h"
-#include "WindowEvents.h"
+#include "../IGPUDevice.h"
+#include "Core/Common.h"
+#include "Platform/Window.h"
+#include "Events/WindowEvents.h"
 
 using namespace ultralight;
 using namespace framework;

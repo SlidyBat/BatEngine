@@ -1,23 +1,24 @@
 #include "PCH.h"
 #include "SceneLoader.h"
 
-#include "Globals.h"
-#include "FileSystem.h"
-#include "CoreEntityComponents.h"
-#include "AnimationComponent.h"
-#include "AnimationClip.h"
+#include "Core/Globals.h"
+#include "Core/CoreEntityComponents.h"
+#include "Core/ResourceManager.h"
+#include "Util/FileSystem.h"
+#include "Util/FrameTimer.h"
+#include "Animation/AnimationComponent.h"
+#include "Animation/AnimationClip.h"
 #include "Mesh.h"
 #include "Model.h"
+#include "Material.h"
 #include "Colour.h"
-#include "ResourceManager.h"
+
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <assimp/pbrmaterial.h>
 #include <assimp/IOStream.hpp>
 #include <assimp/IOSystem.hpp>
-#include "Material.h"
-#include "FrameTimer.h"
 
 namespace Bat
 {

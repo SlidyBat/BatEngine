@@ -1,17 +1,8 @@
 #pragma once
 
-#include "MathLib.h"
-#include "Scene.h"
-#include "BatWinAPI.h"
-#include "NavMesh.h"
-#include "BehaviourTree.h"
-#include "CharacterControllerComponent.h"
-#include "CoreEntityComponents.h"
-#include "EntityTrace.h"
-#include "Globals.h"
-#include "DebugDraw.h"
-
+#include <BatEngine.h>
 #include <algorithm>
+#include "Sound.h"
 
 class AiCharacter
 {

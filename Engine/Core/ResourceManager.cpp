@@ -2,11 +2,11 @@
 
 #include "ResourceManager.h"
 
-#include "Texture.h"
-#include "Colour.h"
-#include "Mesh.h"
-#include "SceneLoader.h"
-#include "IGPUDevice.h"
+#include "Graphics/Texture.h"
+#include "Graphics/Colour.h"
+#include "Graphics/Mesh.h"
+#include "Graphics/SceneLoader.h"
+#include "Graphics/IGPUDevice.h"
 
 namespace Bat
 {

@@ -1,7 +1,7 @@
 #include "PCH.h"
 #include "Texture.h"
 
-#include "Globals.h"
+#include "Core/Globals.h"
 
 namespace Bat
 {

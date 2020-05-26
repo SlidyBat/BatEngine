@@ -1,8 +1,8 @@
 #pragma once
 
-#include "MathLib.h"
+#include "Util/MathLib.h"
 #include "Entity.h"
-#include "SceneEvents.h"
+#include "Events/SceneEvents.h"
 
 namespace Bat
 {

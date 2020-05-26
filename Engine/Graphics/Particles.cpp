@@ -1,7 +1,7 @@
 #include "PCH.h"
 #include "Particles.h"
 
-#include "CoreEntityComponents.h"
+#include "Core/CoreEntityComponents.h"
 
 namespace Bat
 {

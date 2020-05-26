@@ -1,16 +1,16 @@
 #include "PCH.h"
 
 #include "Physics.h"
-#include "Common.h"
-#include "Event.h"
-#include "PhysicsEvents.h"
+#include "Core/Common.h"
+#include "Events/Event.h"
+#include "Events/PhysicsEvents.h"
 
 #include <PhysX/PxPhysicsAPI.h>
 #include <PhysX/extensions/PxDefaultAllocator.h>
 #include <PhysX/common/windows/PxWindowsDelayLoadHook.h>
 #include <PhysX/cooking/PxCooking.h>
 
-#include "JobSystem.h"
+#include "Util/JobSystem.h"
 
 using namespace physx;
 

@@ -1,9 +1,9 @@
 #include "PCH.h"
 #include "PhysicsSystem.h"
 
-#include "Entity.h"
-#include "Model.h"
-#include "Mesh.h"
+#include "Core/Entity.h"
+#include "Graphics/Model.h"
+#include "Graphics/Mesh.h"
 
 namespace Bat
 {

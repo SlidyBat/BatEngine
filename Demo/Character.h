@@ -1,9 +1,6 @@
 #pragma once
 
-#include "MathLib.h"
-#include "Scene.h"
-#include "CoreEntityComponents.h"
-#include "CharacterControllerComponent.h"
+#include <BatEngine.h>
 
 class Character
 {

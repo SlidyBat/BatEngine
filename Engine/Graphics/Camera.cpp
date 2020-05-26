@@ -25,11 +25,11 @@ namespace Bat
 	Camera Camera::ScreenOrtho()
 	{
 		Camera cam;
-		cam.m_flScreenNear = Graphics::ScreenNear;
-		cam.m_flScreenFar = Graphics::ScreenFar;
+		cam.m_flScreenNear = Renderer::ScreenNear;
+		cam.m_flScreenFar = Renderer::ScreenFar;
 
 		const Viewport& vp = gpu->GetContext()->GetViewport();
-		cam.m_matViewMatrix = Mat4::OrthoOffCentre( 0.0f, vp.width, vp.height, 0.0f, Graphics::ScreenNear, Graphics::ScreenFar );
+		cam.m_matViewMatrix = Mat4::OrthoOffCentre( 0.0f, vp.width, vp.height, 0.0f, Renderer::ScreenNear, Renderer::ScreenFar );
 		
 		cam.UpdateFrustum();
 

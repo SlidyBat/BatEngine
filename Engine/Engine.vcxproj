@@ -90,7 +90,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Core;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Physics;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)Networking;$(ProjectDir)Animation;$(ProjectDir)Audio;$(ProjectDir)AI;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;$(ProjectDir)ThirdParty\irrKlang\include;$(ProjectDir)ThirdParty\PhysX\include;$(ProjectDir)ThirdParty\PhysX\include\PhysX;$(ProjectDir)ThirdParty\DirectXTex/inc;$(ProjectDir)ThirdParty\recastnavigation\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;$(ProjectDir)ThirdParty\irrKlang\include;$(ProjectDir)ThirdParty\PhysX\include;$(ProjectDir)ThirdParty\PhysX\include\PhysX;$(ProjectDir)ThirdParty\DirectXTex/inc;$(ProjectDir)ThirdParty\recastnavigation\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING;%(PreprocessorDefinitions);</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -116,7 +116,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Core;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Physics;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)Networking;$(ProjectDir)Animation;$(ProjectDir)Audio;$(ProjectDir)AI;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;$(ProjectDir)ThirdParty\irrKlang\include;$(ProjectDir)ThirdParty\PhysX\include;$(ProjectDir)ThirdParty\PhysX\include\PhysX;$(ProjectDir)ThirdParty\DirectXTex/inc;$(ProjectDir)ThirdParty\recastnavigation\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;$(ProjectDir)ThirdParty\irrKlang\include;$(ProjectDir)ThirdParty\PhysX\include;$(ProjectDir)ThirdParty\PhysX\include\PhysX;$(ProjectDir)ThirdParty\DirectXTex/inc;$(ProjectDir)ThirdParty\recastnavigation\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING;%(PreprocessorDefinitions);</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -144,7 +144,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Core;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Physics;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)Networking;$(ProjectDir)Animation;$(ProjectDir)Audio;$(ProjectDir)AI;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;$(ProjectDir)ThirdParty\irrKlang\include;$(ProjectDir)ThirdParty\PhysX\include;$(ProjectDir)ThirdParty\PhysX\include\PhysX;$(ProjectDir)ThirdParty\DirectXTex/inc;$(ProjectDir)ThirdParty\recastnavigation\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;$(ProjectDir)ThirdParty\irrKlang\include;$(ProjectDir)ThirdParty\PhysX\include;$(ProjectDir)ThirdParty\PhysX\include\PhysX;$(ProjectDir)ThirdParty\DirectXTex/inc;$(ProjectDir)ThirdParty\recastnavigation\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING;%(PreprocessorDefinitions);NDEBUG</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -172,7 +172,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Core;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Physics;$(ProjectDir)Graphics;$(ProjectDir)Events;$(ProjectDir)Networking;$(ProjectDir)Animation;$(ProjectDir)Audio;$(ProjectDir)AI;$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;$(ProjectDir)ThirdParty\irrKlang\include;$(ProjectDir)ThirdParty\PhysX\include;$(ProjectDir)ThirdParty\PhysX\include\PhysX;$(ProjectDir)ThirdParty\DirectXTex/inc;$(ProjectDir)ThirdParty\recastnavigation\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)ThirdParty\ImGui;$(ProjectDir)ThirdParty\DirectXTK\Inc;$(ProjectDir)ThirdParty\Assimp\include;$(ProjectDir)ThirdParty\spdlog\include;$(ProjectDir)ThirdParty\Ultralight\include;$(ProjectDir)ThirdParty\ENet\include;$(ProjectDir)ThirdParty\irrKlang\include;$(ProjectDir)ThirdParty\PhysX\include;$(ProjectDir)ThirdParty\PhysX\include\PhysX;$(ProjectDir)ThirdParty\DirectXTex/inc;$(ProjectDir)ThirdParty\recastnavigation\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_MBCS;_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING;%(PreprocessorDefinitions);NDEBUG</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -338,8 +338,10 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Graphics\Graphics.cpp" />
+    <ClCompile Include="Graphics\Renderer.cpp" />
     <ClCompile Include="Platform\Input.cpp" />
+    <ClInclude Include="BatEngine.h" />
+    <ClInclude Include="Core\Application.h" />
     <ClInclude Include="Core\Entry.h" />
     <ClCompile Include="Graphics\Texture.cpp" />
     <ClCompile Include="Graphics\TexturePipeline.cpp" />
@@ -374,6 +376,11 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Graphics\ShadowPipeline.h" />
     <ClInclude Include="Physics\CharacterControllerComponent.h" />
     <ClInclude Include="Physics\CharacterControllerSystem.h" />
+    <ClInclude Include="Events.h" />
+    <ClInclude Include="Core.h" />
+    <ClInclude Include="Audio.h" />
+    <ClInclude Include="AI.h" />
+    <ClInclude Include="Animation.h" />
     <ClInclude Include="Platform\FileDialog.h" />
     <ClInclude Include="Events\PhysicsEvents.h" />
     <ClInclude Include="Animation\AnimationState.h" />
@@ -387,7 +394,12 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Physics\EntityTrace.h" />
     <ClInclude Include="Physics\PhysicsComponent.h" />
     <ClInclude Include="Physics\PhysicsSystem.h" />
+    <ClInclude Include="Platform.h" />
+    <ClInclude Include="Physics.h" />
+    <ClInclude Include="Networking.h" />
+    <ClInclude Include="Graphics2.h" />
     <ClInclude Include="ThirdParty\ImGui\imgui_color_gradient.h" />
+    <ClInclude Include="Util.h" />
     <ClInclude Include="Util\FileSystem.h" />
     <ClInclude Include="Util\Hash.h" />
     <ClInclude Include="Util\Reflect.h" />
@@ -464,7 +476,7 @@ xcopy /Y /C /E "$(ProjectDir)ThirdParty\PhysX\bin\$(Configuration)-$(Platform)" 
     <ClInclude Include="Graphics\D3DGPUDevice.h" />
     <ClInclude Include="Core\IApplication.h" />
     <ClInclude Include="Platform\GDIPManager.h" />
-    <ClInclude Include="Graphics\Graphics.h" />
+    <ClInclude Include="Graphics\Renderer.h" />
     <ClInclude Include="Graphics\IndexBuffer.h" />
     <ClInclude Include="Graphics\IPipeline.h" />
     <ClInclude Include="Graphics\Model.h" />

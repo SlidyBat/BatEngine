@@ -1,10 +1,10 @@
 #pragma once
 
-#include "ResourceManager.h"
-#include "IRenderPass.h"
-#include "RenderData.h"
-#include "TexturePipeline.h"
-#include "ConstantBuffer.h"
+#include "Core/ResourceManager.h"
+#include "../IRenderPass.h"
+#include "../RenderData.h"
+#include "../TexturePipeline.h"
+#include "../ConstantBuffer.h"
 
 namespace Bat
 {

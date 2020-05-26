@@ -62,7 +62,7 @@ namespace Bat
 			m_StateStack.back()->Execute( m_Parent );
 		}
 
-		State<T>* GetCurrentState() { return m_StateStack.back().get() };
+		State<T>* GetCurrentState() { return m_StateStack.back().get(); }
 		void SetGlobalState( std::unique_ptr<State<T>> state ) { m_pGlobalState = std::move( state ); }
 		State<T>* GetGlobalState() { return m_pGlobalState.get(); }
 	private:

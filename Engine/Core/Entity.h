@@ -6,10 +6,10 @@
 #include <bitset>
 #include <typeindex>
 
-#include "Event.h"
-#include "EntityEvents.h"
-#include "ChunkedAllocator.h"
-#include "Reflect.h"
+#include "Events/Event.h"
+#include "Events/EntityEvents.h"
+#include "Util/ChunkedAllocator.h"
+#include "Util/Reflect.h"
 
 namespace Bat
 {

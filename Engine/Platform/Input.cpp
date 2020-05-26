@@ -2,8 +2,8 @@
 #include "Input.h"
 
 #include <imgui.h>
-#include "MouseEvents.h"
-#include "KeyboardEvents.h"
+#include "Events/MouseEvents.h"
+#include "Events/KeyboardEvents.h"
 
 namespace Bat
 {

@@ -1,8 +1,7 @@
 #pragma once
 
-#include "BatWinAPI.h"
+#include <BatEngine.h>
 #include "Character.h"
-#include "Input.h"
 
 class MoveableCharacter
 {

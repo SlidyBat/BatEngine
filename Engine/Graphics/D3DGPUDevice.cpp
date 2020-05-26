@@ -16,16 +16,17 @@
 #endif
 
 #include "IGPUDevice.h"
-#include "COMException.h"
-#include "Common.h"
-#include "Window.h"
-#include "FileSystem.h"
-#include "FileWatchdog.h"
-#include "MemoryStream.h"
+#include "Core/Common.h"
+#include "Platform/Window.h"
+#include "Util/COMException.h"
+#include "Util/FileSystem.h"
+#include "Util/FileWatchdog.h"
+#include "Util/MemoryStream.h"
+#include "Util/Hash.h"
+
 #include <wrl.h>
 #include <DirectXTex/DirectXTex.h>
 
-#include "Hash.h"
 
 #pragma comment( lib, "d3d11.lib" )
 #pragma comment( lib, "dxgi.lib" )

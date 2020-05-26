@@ -1,12 +1,12 @@
 #include "PCH.h"
 #include "FileWatchdog.h"
 
-#include "BatWinAPI.h"
+#include "Platform/BatWinAPI.h"
 #include <unordered_map>
 #include <vector>
 
 #include "Mutex.h"
-#include "Log.h"
+#include "Core/Log.h"
 
 namespace Bat
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Entity.h"
+#include "Core/Entity.h"
 #include "IGPUDevice.h"
 
 namespace Bat

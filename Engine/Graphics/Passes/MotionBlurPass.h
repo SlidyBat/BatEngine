@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ResourceManager.h"
-#include "IRenderPass.h"
-#include "RenderData.h"
-#include "TexturePipeline.h"
-#include "Entity.h"
-#include "Globals.h"
+#include "Core/ResourceManager.h"
+#include "Core/Entity.h"
+#include "Core/Globals.h"
+#include "../IRenderPass.h"
+#include "../RenderData.h"
+#include "../TexturePipeline.h"
 
 namespace Bat
 {

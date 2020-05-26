@@ -1,7 +1,7 @@
 #pragma once
 
-#include "IRenderPass.h"
-#include "RenderData.h"
+#include "../IRenderPass.h"
+#include "../RenderData.h"
 
 namespace Bat
 {

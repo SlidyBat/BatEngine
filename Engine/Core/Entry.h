@@ -1,22 +1,21 @@
-#include "BatWinAPI.h"
+#include "Platform/BatWinAPI.h"
 #include "Console.h"
-#include "COMInitialize.h"
-#include "COMException.h"
-#include "FrameTimer.h"
+#include "Platform/COMInitialize.h"
+#include "Util/COMException.h"
+#include "Util/FrameTimer.h"
 #include "Globals.h"
-#include "Networking.h"
-#include "JobSystem.h"
+#include "Networking/Networking.h"
+#include "Util/JobSystem.h"
 #include "ResourceManager.h"
-#include "Window.h"
-#include "Graphics.h"
-#include "FileWatchdog.h"
-#include "Physics.h"
-#include "Demo.h"
+#include "Platform/Window.h"
+#include "Graphics/Renderer.h"
+#include "Util/FileWatchdog.h"
+#include "Physics/Physics.h"
 #include "EngineSystems.h"
 
 namespace Bat
 {
-	IApplication* CreateApplication( int argc, char* argv[], Graphics& gfx, Window& wnd );
+	IApplication* CreateApplication( int argc, char* argv[], Renderer& gfx, Window& wnd );
 }
 
 int WINAPI WinMain(
@@ -38,9 +37,9 @@ int WINAPI WinMain(
 		BAT_INIT_PER_FRAME_SYSTEM( FileWatchdog );
 #endif
 
-		Window wnd( { 50, 50 }, Graphics::InitialScreenWidth, Graphics::InitialScreenHeight, "Bat Engine", Graphics::FullScreen );
+		Window wnd( { 50, 50 }, Renderer::InitialScreenWidth, Renderer::InitialScreenHeight, "Bat Engine", Renderer::FullScreen );
 		BAT_TRACE( "Initialized window" );
-		Graphics gfx( wnd );
+		Renderer gfx( wnd );
 		BAT_TRACE( "Initialized graphics" );
 
 		FrameTimer ft;

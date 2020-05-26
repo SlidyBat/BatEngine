@@ -1,24 +1,16 @@
 #include "Demo.h"
 
-#include "Entry.h"
+#include <Core/Entry.h>
+#include <filesystem>
 
-#include "TypeToString.h"
-#include "Sound.h"
 #include "MoveableCharacter.h"
 #include "AiCharacter.h"
-
-#include "SceneLoader.h"
-#include "Console.h"
-#include "Light.h"
-#include "Model.h"
-#include "FileDialog.h"
-#include "AnimationComponent.h"
-
-#include <filesystem>
+#include "Sound.h"
+#include "TypeToString.h"
 
 using namespace Bat;
 
-Bat::IApplication* Bat::CreateApplication( int argc, char* argv[], Graphics& gfx, Window& wnd )
+Bat::IApplication* Bat::CreateApplication( int argc, char* argv[], Renderer& gfx, Window& wnd )
 {
 	return new Demo( gfx, wnd );
 }
@@ -32,7 +24,7 @@ BAT_REFLECT_EXTERNAL_BEGIN( Vec3 );
 	BAT_REFLECT_MEMBER( z );
 BAT_REFLECT_END();
 
-Demo::Demo( Graphics& gfx, Window& wnd )
+Demo::Demo( Renderer& gfx, Window& wnd )
 	:
 	gfx( gfx ),
 	wnd( wnd ),

@@ -1,35 +1,17 @@
 #include "RenderBuilder.h"
 
-#include "RenderGraph.h"
-#include "Globals.h"
-#include "ScratchRenderTarget.h"
-#include "ShaderManager.h"
-#include "Graphics.h"
-#include "Window.h"
-#include "GraphicsConvert.h"
-#include "FileDialog.h"
-
-#include "Passes/ClearRenderTargetPass.h"
-#include "Passes/OpaquePass.h"
-#include "Passes/TransparentPass.h"
-#include "Passes/DrawLightsPass.h"
-#include "Passes/ShadowPass.h"
-#include "Passes/SkyboxPass.h"
-#include "Passes/MsaaResolvePass.h"
-#include "Passes/BloomPass.h"
-#include "Passes/MotionBlurPass.h"
-#include "Passes/TonemappingPass.h"
+#include <BatEngine.h>
 
 #include "imgui.h"
 
 using namespace Bat;
 
-void RenderBuilder::Make( const Bat::Graphics& gfx, const Bat::Window& wnd, Bat::RenderGraph* graph )
+void RenderBuilder::Make( const Bat::Renderer& gfx, const Bat::Window& wnd, Bat::RenderGraph* graph )
 {
 	MakeForwardPipeline( gfx, wnd, graph );
 }
 
-void RenderBuilder::MakeForwardPipeline( const Bat::Graphics& gfx, const Bat::Window& wnd, Bat::RenderGraph* graph )
+void RenderBuilder::MakeForwardPipeline( const Bat::Renderer& gfx, const Bat::Window& wnd, Bat::RenderGraph* graph )
 {
 	IGPUContext* pContext = gpu->GetContext();
 
@@ -229,7 +211,7 @@ void RenderBuilder::MakeForwardPipeline( const Bat::Graphics& gfx, const Bat::Wi
 	}
 }
 
-void RenderBuilder::DrawSettings( const Bat::Graphics& gfx, const Bat::Window& wnd, Bat::RenderGraph* graph )
+void RenderBuilder::DrawSettings( const Bat::Renderer& gfx, const Bat::Window& wnd, Bat::RenderGraph* graph )
 {
 	bool changed = false;
 

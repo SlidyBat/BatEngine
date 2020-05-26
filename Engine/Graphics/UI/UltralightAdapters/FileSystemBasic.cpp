@@ -1,6 +1,6 @@
 #include "PCH.h"
-#include "Globals.h"
-#include "FileSystem.h"
+#include "Core/Globals.h"
+#include "Util/FileSystem.h"
 #include "UI/UltralightAdapters/FileSystemBasic.h"
 #include <Ultralight/String.h>
 #include <cstring>
