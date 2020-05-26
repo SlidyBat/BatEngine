@@ -1,8 +1,7 @@
 #include "PCH.h"
 
 #include "Window.h"
-#include "Resource.h"
-#include "WindowEvents.h"
+#include "Events/WindowEvents.h"
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
 
@@ -22,8 +21,8 @@ namespace Bat
 		wc.cbClsExtra = 0;
 		wc.cbWndExtra = 0;
 		wc.hInstance = m_hInstance;
-		wc.hIcon = (HICON)LoadImage( m_hInstance, MAKEINTRESOURCE( IDI_ICON1 ), IMAGE_ICON, 32, 32, 0 );
-		wc.hIconSm = (HICON)LoadImage( m_hInstance, MAKEINTRESOURCE( IDI_ICON1 ), IMAGE_ICON, 16, 16, 0 );
+		wc.hIcon = NULL;
+		wc.hIconSm = NULL;
 		wc.hCursor = LoadCursor( NULL, IDC_ARROW );
 		wc.hbrBackground = (HBRUSH)GetStockObject( BLACK_BRUSH );
 		wc.lpszMenuName = NULL;
@@ -107,10 +106,8 @@ namespace Bat
 		DispatchEvent<WindowClosedEvent>();
 
 		DestroyWindow( m_hWnd );
-		m_hWnd = NULL;
 
 		UnregisterClass( m_szApplicationName.c_str(), m_hInstance );
-		m_hInstance = NULL;
 	}
 
 	void Window::Kill()
@@ -159,6 +156,14 @@ namespace Bat
 		}
 
 		return true;
+	}
+
+	void Window::SetIcon( const std::string& filename )
+	{
+		auto hIcon = (HICON)LoadImage( NULL, filename.c_str(), IMAGE_ICON, 32, 32, LR_LOADFROMFILE );
+		auto hIconSmall = (HICON)LoadImage( NULL, filename.c_str(), IMAGE_ICON, 16, 16, LR_LOADFROMFILE );
+		SendMessage( m_hWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon );
+		SendMessage( m_hWnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon );
 	}
 
 	bool Window::ProcessMessagesForAllWindows()

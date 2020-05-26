@@ -1,9 +1,8 @@
 #pragma once
 
-#include "PCH.h"
-#include "Entity.h"
+#include "Core/Entity.h"
+#include "Core/Scene.h"
 #include "Mesh.h"
-#include "Scene.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>

@@ -1,18 +1,18 @@
 #pragma once
 
 #include "SceneRenderPass.h"
-#include "Entity.h"
-#include "CoreEntityComponents.h"
-#include "Model.h"
-#include "RenderData.h"
-#include "Graphics.h"
-#include "Mesh.h"
-#include "Material.h"
-#include "ShaderManager.h"
-#include "LitGenericPipeline.h"
-#include "ParticlePipeline.h"
-#include "Particles.h"
-#include "MeshBuilder.h"
+#include "Core/Entity.h"
+#include "Core/CoreEntityComponents.h"
+#include "../Model.h"
+#include "../RenderData.h"
+#include "../Renderer.h"
+#include "../Mesh.h"
+#include "../Material.h"
+#include "../ShaderManager.h"
+#include "../LitGenericPipeline.h"
+#include "../ParticlePipeline.h"
+#include "../Particles.h"
+#include "../MeshBuilder.h"
 #include <algorithm>
 
 namespace Bat

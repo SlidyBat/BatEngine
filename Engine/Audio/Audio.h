@@ -1,7 +1,8 @@
 #pragma once
 
-#include "MathLib.h"
+#include "Util/MathLib.h"
 #include <string>
+#include <functional>
 
 namespace Bat
 {

@@ -1,6 +1,11 @@
 #pragma once
 
-#include "PCH.h"
+#include <functional>
+#include <typeindex>
+#include <unordered_map>
+#include <array>
+#include <vector>
+#include "Util/BatAssert.h"
 
 // TODO: Make this thread safe so we can listen for events on other threads
 namespace Bat

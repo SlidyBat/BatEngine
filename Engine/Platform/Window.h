@@ -1,6 +1,5 @@
 #pragma once
 
-#include "PCH.h"
 #include "Input.h"
 
 namespace Bat
@@ -26,8 +25,8 @@ namespace Bat
 		size_t GetWidth() const { return m_iWidth; }
 		size_t GetHeight() const { return m_iHeight; }
 		Vei2 GetPosition() const { return m_Pos; }
-		int GetStyle() const { return m_dwStyle; }
 		HWND GetHandle() const { return m_hWnd; }
+		void SetIcon( const std::string& filename );
 
 		static bool ProcessMessagesForAllWindows();
 	public:

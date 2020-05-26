@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/Common.h"
 #include <limits>
 
 namespace Bat

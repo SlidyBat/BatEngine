@@ -2,8 +2,7 @@
 #include "Networking.h"
 
 #include <enet/enet.h>
-#include <spdlog/fmt/fmt.h>
-#include "NetworkEvents.h"
+#include "Events/NetworkEvents.h"
 
 namespace Bat
 {

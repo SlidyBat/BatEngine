@@ -1,7 +1,7 @@
 #pragma once
 
-#include "MathLib.h"
-#include "Entity.h"
+#include "Util/MathLib.h"
+#include "Core/Entity.h"
 #include "Physics.h"
 
 namespace Bat

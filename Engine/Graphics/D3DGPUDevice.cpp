@@ -16,16 +16,17 @@
 #endif
 
 #include "IGPUDevice.h"
-#include "COMException.h"
-#include "Common.h"
-#include "Window.h"
-#include "FileSystem.h"
-#include "FileWatchdog.h"
-#include "MemoryStream.h"
+#include "Core/Common.h"
+#include "Platform/Window.h"
+#include "Util/COMException.h"
+#include "Util/FileSystem.h"
+#include "Util/FileWatchdog.h"
+#include "Util/MemoryStream.h"
+#include "Util/Hash.h"
+
 #include <wrl.h>
 #include <DirectXTex/DirectXTex.h>
 
-#include "Hash.h"
 
 #pragma comment( lib, "d3d11.lib" )
 #pragma comment( lib, "dxgi.lib" )
@@ -1951,6 +1952,8 @@ namespace Bat
 
 	void D3DPixelShader::LoadFromFile( ID3D11Device* pDevice, const std::string& filename, bool crash_on_error )
 	{
+		ASSERT( filesystem->Exists( filename.c_str() ), "Could not find shader %s", filename );
+
 		// compiled shader object
 		if( Bat::GetFileExtension( filename ) == "cso" )
 		{
@@ -2170,6 +2173,8 @@ namespace Bat
 			m_iAttributeCount[attrib] = 0;
 		}
 
+		ASSERT( filesystem->Exists( filename.c_str() ), "Could not find shader %s", filename );
+
 		// compiled shader object
 		if( Bat::GetFileExtension( filename ) == "cso" )
 		{
@@ -2253,6 +2258,7 @@ namespace Bat
 		const char* file = filename.c_str();
 		if( !filesystem->Exists( filename.c_str() ) )
 		{
+			BAT_WARN( "Failed to open %s", filename.c_str() );
 			file = "Assets/error.png";
 		}
 

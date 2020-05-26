@@ -1,7 +1,7 @@
 #pragma once
 
 #include <functional>
-#include "Entity.h"
+#include "Core/Entity.h"
 
 namespace Bat
 {

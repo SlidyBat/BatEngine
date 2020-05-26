@@ -1,7 +1,6 @@
 #pragma once
 
-#include "PCH.h"
-#include "Event.h"
+#include "Events/Event.h"
 
 namespace Bat
 {

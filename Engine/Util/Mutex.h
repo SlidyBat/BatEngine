@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BatWinAPI.h"
+#include "Platform/BatWinAPI.h"
 
 namespace Bat
 {

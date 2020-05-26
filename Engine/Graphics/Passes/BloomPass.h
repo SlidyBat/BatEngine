@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ResourceManager.h"
-#include "IRenderPass.h"
-#include "RenderData.h"
-#include "TexturePipeline.h"
-#include "ConstantBuffer.h"
-#include "ScratchRenderTarget.h"
+#include "Core/ResourceManager.h"
+#include "../IRenderPass.h"
+#include "../RenderData.h"
+#include "../TexturePipeline.h"
+#include "../ConstantBuffer.h"
+#include "../ScratchRenderTarget.h"
 
 namespace Bat
 {
@@ -39,10 +39,10 @@ namespace Bat
 
 		virtual void Execute( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data )
 		{
-			IVertexShader* pPostProcessVS = ResourceManager::GetVertexShader( "Graphics/Shaders/PostProcessVS.hlsl" );
-			IPixelShader* pBrightExtractPS = ResourceManager::GetPixelShader( "Graphics/Shaders/BrightExtractPS.hlsl" );
-			IPixelShader* pGaussBlurPS = ResourceManager::GetPixelShader( "Graphics/Shaders/GaussBlurPS.hlsl" );
-			IPixelShader* pBloomShader = ResourceManager::GetPixelShader( "Graphics/Shaders/BloomPS.hlsl" );
+			IVertexShader* pPostProcessVS = ResourceManager::GetVertexShader( "../Engine/Graphics/Shaders/PostProcessVS.hlsl" );
+			IPixelShader* pBrightExtractPS = ResourceManager::GetPixelShader( "../Engine/Graphics/Shaders/BrightExtractPS.hlsl" );
+			IPixelShader* pGaussBlurPS = ResourceManager::GetPixelShader( "../Engine/Graphics/Shaders/GaussBlurPS.hlsl" );
+			IPixelShader* pBloomShader = ResourceManager::GetPixelShader( "../Engine/Graphics/Shaders/BloomPS.hlsl" );
 
 			pContext->SetDepthEnabled( false );
 			pContext->SetDepthStencil( nullptr );

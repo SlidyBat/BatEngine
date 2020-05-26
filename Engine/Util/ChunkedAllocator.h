@@ -1,5 +1,6 @@
 #pragma once
 
+#include "BatAssert.h"
 #include <cassert>
 #include <vector>
 

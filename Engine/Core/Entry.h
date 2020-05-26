@@ -1,21 +1,22 @@
-#include "PCH.h"
-
-#include "COMInitialize.h"
-#include "COMException.h"
-#include "FrameTimer.h"
+#include "Platform/BatWinAPI.h"
+#include "Console.h"
+#include "Platform/COMInitialize.h"
+#include "Util/COMException.h"
+#include "Util/FrameTimer.h"
 #include "Globals.h"
-#include "Networking.h"
-#include "JobSystem.h"
+#include "Networking/Networking.h"
+#include "Util/JobSystem.h"
 #include "ResourceManager.h"
-#include "Window.h"
-#include "Graphics.h"
-#include "FileWatchdog.h"
-#include "Physics.h"
-#include "Application.h"
+#include "Platform/Window.h"
+#include "Graphics/Renderer.h"
+#include "Util/FileWatchdog.h"
+#include "Physics/Physics.h"
 #include "EngineSystems.h"
 
-#include <WinBase.h>
-using namespace Bat;
+namespace Bat
+{
+	IApplication* CreateApplication( int argc, char* argv[], Renderer& gfx, Window& wnd );
+}
 
 int WINAPI WinMain(
 	_In_ HINSTANCE hInstance,
@@ -23,6 +24,8 @@ int WINAPI WinMain(
 	_In_ LPSTR lpCmdLine,
 	_In_ int nShowCmd)
 {
+	using namespace Bat;
+
 	try
 	{
 		BAT_INIT_SYSTEM( Logger );
@@ -34,14 +37,14 @@ int WINAPI WinMain(
 		BAT_INIT_PER_FRAME_SYSTEM( FileWatchdog );
 #endif
 
-		Window wnd( { 50, 50 }, Graphics::InitialScreenWidth, Graphics::InitialScreenHeight, "Bat Engine", Graphics::FullScreen );
+		Window wnd( { 50, 50 }, Renderer::InitialScreenWidth, Renderer::InitialScreenHeight, "Bat Engine", Renderer::FullScreen );
 		BAT_TRACE( "Initialized window" );
-		Graphics gfx( wnd );
+		Renderer gfx( wnd );
 		BAT_TRACE( "Initialized graphics" );
 
 		FrameTimer ft;
 
-		Application app( gfx, wnd );
+		auto app = std::unique_ptr<IApplication>( CreateApplication( __argc, __argv, gfx, wnd ) );
 		while( Window::ProcessMessagesForAllWindows() && wnd.IsOpen() )
 		{
 			float dt = ft.Mark();
@@ -54,11 +57,11 @@ int WINAPI WinMain(
 
 			BAT_SERVICE_SYSTEMS( dt );
 
-			app.OnUpdate( dt );
+			app->OnUpdate( dt );
 
 			gfx.BeginFrame();
 
-			app.OnRender();
+			app->OnRender();
 			g_Console.Draw("Bat Engine Console");
 
 			gfx.EndFrame();

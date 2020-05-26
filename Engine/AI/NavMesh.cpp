@@ -6,9 +6,9 @@
 #include <Detour/DetourNavMesh.h>
 #include <Detour/DetourNavMeshBuilder.h>
 #include <Detour/DetourNavMeshQuery.h>
-#include "Model.h"
-#include "CoreEntityComponents.h"
-#include "DebugDraw.h"
+#include "Graphics/Model.h"
+#include "Graphics/DebugDraw.h"
+#include "Core/CoreEntityComponents.h"
 
 namespace Bat
 {

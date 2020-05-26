@@ -4,7 +4,7 @@
 #include <vector>
 #include <stack>
 
-#include "Entity.h"
+#include "Core/Entity.h"
 #include "RenderNode.h"
 
 namespace Bat

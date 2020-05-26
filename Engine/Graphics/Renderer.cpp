@@ -1,5 +1,5 @@
 #include "PCH.h"
-#include "Graphics.h"
+#include "Renderer.h"
 
 #include "D3DGPUDevice.h"
 
@@ -10,11 +10,11 @@
 #include "Texture.h"
 #include "Light.h"
 #include "RenderGraph.h"
-#include "Window.h"
+#include "Platform/Window.h"
 #include "ShaderManager.h"
-#include "WindowEvents.h"
+#include "Events/WindowEvents.h"
 #include "DebugDraw.h"
-#include "Scene.h"
+#include "Core/Scene.h"
 
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
@@ -24,7 +24,7 @@ namespace Bat
 {
 	IGPUDevice* gpu = nullptr;
 
-	Graphics::Graphics( Window& wnd )
+	Renderer::Renderer( Window& wnd )
 		:
 		m_UI( wnd )
 	{
@@ -67,7 +67,7 @@ namespace Bat
 		BAT_TRACE( "ImGui initialized" );
 	}
 
-	Graphics::~Graphics()
+	Renderer::~Renderer()
 	{
 		delete gpu;
 
@@ -77,19 +77,19 @@ namespace Bat
 		BAT_TRACE( "ImGui shut down" );
 	}
 
-	void Graphics::Resize( size_t width, size_t height )
+	void Renderer::Resize( size_t width, size_t height )
 	{
 		InitialiseResources( width, height );
 
 		gpu->ResizeBuffers( width, height );
 	}
 
-	void Graphics::SetRenderGraph( RenderGraph* graph )
+	void Renderer::SetRenderGraph( RenderGraph* graph )
 	{
 		m_pRenderGraph = graph;
 	}
 
-	void Graphics::BeginFrame()
+	void Renderer::BeginFrame()
 	{
 		if( m_pCamera )
 		{
@@ -103,7 +103,7 @@ namespace Bat
 		ShaderManager::BindShaderGlobals( m_pCamera, { (float)m_iScreenWidth, (float)m_iScreenHeight }, gpu->GetContext() );
 	}
 
-	void Graphics::EndFrame()
+	void Renderer::EndFrame()
 	{
 		RenderScene();
 		if( m_pCamera )
@@ -117,20 +117,20 @@ namespace Bat
 		gpu->SwapBuffers();
 	}
 
-	Mat4 Graphics::GetOrthoMatrix() const
+	Mat4 Renderer::GetOrthoMatrix() const
 	{
 		return m_matOrtho;
 	}
 
-	void Graphics::InitialiseResources( size_t width, size_t height )
+	void Renderer::InitialiseResources( size_t width, size_t height )
 	{
 		m_iScreenWidth = (int)width;
 		m_iScreenHeight = (int)height;
 		m_matOrtho = Mat4::Ortho(
 			(float)width,
 			(float)height,
-			Graphics::ScreenNear,
-			Graphics::ScreenFar
+			Renderer::ScreenNear,
+			Renderer::ScreenFar
 		);
 
 		Viewport vp;
@@ -142,7 +142,7 @@ namespace Bat
 		gpu->GetContext()->SetViewport( vp );
 	}
 
-	void Graphics::RenderScene()
+	void Renderer::RenderScene()
 	{
 		if( m_pSceneGraph && m_pCamera && m_pRenderGraph )
 		{
@@ -150,7 +150,7 @@ namespace Bat
 		}
 	}
 
-	void Graphics::RenderUI()
+	void Renderer::RenderUI()
 	{
 		IGPUContext* pContext = gpu->GetContext();
 
@@ -160,7 +160,7 @@ namespace Bat
 		pContext->EndEvent();
 	}
 
-	void Graphics::RenderImGui()
+	void Renderer::RenderImGui()
 	{
 		IGPUContext* pContext = gpu->GetContext();
 

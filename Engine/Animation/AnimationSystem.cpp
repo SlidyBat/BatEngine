@@ -1,8 +1,8 @@
 #include "PCH.h"
 #include "AnimationSystem.h"
 
-#include "CoreEntityComponents.h"
-#include "PhysicsComponent.h"
+#include "Core/CoreEntityComponents.h"
+#include "Physics/PhysicsComponent.h"
 #include "AnimationComponent.h"
 #include "AnimationSkeleton.h"
 #include "AnimationChannel.h"

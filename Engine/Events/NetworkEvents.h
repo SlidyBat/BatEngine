@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Networking.h"
+#include "Networking/Networking.h"
 
 namespace Bat
 {

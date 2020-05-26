@@ -1,7 +1,7 @@
 #include "PCH.h"
 #include "Console.h"
 
-#include "TokenStream.h"
+#include "Util/TokenStream.h"
 
 namespace Bat
 {

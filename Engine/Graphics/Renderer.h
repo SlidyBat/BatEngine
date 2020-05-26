@@ -1,8 +1,8 @@
 #pragma once
 
 #include "IGPUDevice.h"
-#include "ResourceManager.h"
-#include "Entity.h"
+#include "Core/ResourceManager.h"
+#include "Core/Entity.h"
 #include "UI/HtmlUI.h"
 
 namespace DirectX
@@ -19,16 +19,16 @@ namespace Bat
 	class RenderGraph;
 	class SceneNode;
 
-	class Graphics
+	class Renderer
 	{
 	public:
-		Graphics( Window& wnd );
-		Graphics( const Graphics& src ) = delete;
-		Graphics& operator=( const Graphics& src ) = delete;
-		Graphics( Graphics&& donor ) = delete;
-		Graphics& operator=( Graphics&& donor ) = delete;
+		Renderer( Window& wnd );
+		Renderer( const Renderer& src ) = delete;
+		Renderer& operator=( const Renderer& src ) = delete;
+		Renderer( Renderer&& donor ) = delete;
+		Renderer& operator=( Renderer&& donor ) = delete;
 
-		~Graphics();
+		~Renderer();
 
 		void Resize( size_t width, size_t height );
 

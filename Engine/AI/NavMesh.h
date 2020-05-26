@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Mesh.h"
+#include "Graphics/Mesh.h"
 
 namespace Bat
 {

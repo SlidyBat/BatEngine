@@ -1,6 +1,5 @@
 #pragma once
 
-#include "BatWinAPI.h"
 #include "Event.h"
 
 namespace Bat

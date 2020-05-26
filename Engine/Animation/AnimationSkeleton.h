@@ -2,8 +2,8 @@
 
 #include <string>
 #include <vector>
-#include "MathLib.h"
-#include "Entity.h"
+#include "Util/MathLib.h"
+#include "Core/Entity.h"
 
 namespace Bat
 {

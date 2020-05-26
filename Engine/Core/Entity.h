@@ -1,12 +1,15 @@
 #pragma once
 
+#include <array>
+#include <unordered_map>
 #include <cstdint>
-
-#include "Event.h"
-#include "EntityEvents.h"
-#include "ChunkedAllocator.h"
-#include "Reflect.h"
 #include <bitset>
+#include <typeindex>
+
+#include "Events/Event.h"
+#include "Events/EntityEvents.h"
+#include "Util/ChunkedAllocator.h"
+#include "Util/Reflect.h"
 
 namespace Bat
 {

@@ -3,9 +3,9 @@
 #include <Ultralight/Ultralight.h>
 #include "UI/UltralightAdapters/PlatformD3D11.h"
 
-#include "MathLib.h"
-#include "PoolAllocator.h"
-#include "FileWatchdog.h"
+#include "Util/MathLib.h"
+#include "Util/PoolAllocator.h"
+#include "Util/FileWatchdog.h"
 
 namespace Bat
 {

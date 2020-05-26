@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ResourceManager.h"
-#include "IRenderPass.h"
-#include "RenderData.h"
-#include "TexturePipeline.h"
-#include "Entity.h"
-#include "Globals.h"
+#include "Core/ResourceManager.h"
+#include "Core/Entity.h"
+#include "Core/Globals.h"
+#include "../IRenderPass.h"
+#include "../RenderData.h"
+#include "../TexturePipeline.h"
 
 namespace Bat
 {
@@ -30,8 +30,8 @@ namespace Bat
 
 		virtual void Execute( IGPUContext* pContext, Camera& camera, SceneNode& scene, RenderData& data )
 		{
-			IVertexShader* pTextureVS = ResourceManager::GetVertexShader( "Graphics/Shaders/PostProcessVS.hlsl" );
-			IPixelShader* pMotionBlurPS = ResourceManager::GetPixelShader( "Graphics/Shaders/MotionBlurPS.hlsl" );
+			IVertexShader* pTextureVS = ResourceManager::GetVertexShader( "../Engine/Graphics/Shaders/PostProcessVS.hlsl" );
+			IPixelShader* pMotionBlurPS = ResourceManager::GetPixelShader( "../Engine/Graphics/Shaders/MotionBlurPS.hlsl" );
 
 			pContext->SetDepthEnabled( false );
 			pContext->SetBlendingEnabled( false );

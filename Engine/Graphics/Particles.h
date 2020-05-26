@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ResourceManager.h"
-#include "Entity.h"
+#include "Core/ResourceManager.h"
+#include "Core/Entity.h"
 #include "Colour.h"
 
 namespace Bat

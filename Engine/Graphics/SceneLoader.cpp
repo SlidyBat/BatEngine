@@ -1,23 +1,24 @@
 #include "PCH.h"
 #include "SceneLoader.h"
 
-#include "Globals.h"
-#include "FileSystem.h"
-#include "CoreEntityComponents.h"
-#include "AnimationComponent.h"
-#include "AnimationClip.h"
+#include "Core/Globals.h"
+#include "Core/CoreEntityComponents.h"
+#include "Core/ResourceManager.h"
+#include "Util/FileSystem.h"
+#include "Util/FrameTimer.h"
+#include "Animation/AnimationComponent.h"
+#include "Animation/AnimationClip.h"
 #include "Mesh.h"
 #include "Model.h"
+#include "Material.h"
 #include "Colour.h"
-#include "ResourceManager.h"
+
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <assimp/pbrmaterial.h>
 #include <assimp/IOStream.hpp>
 #include <assimp/IOSystem.hpp>
-#include "Material.h"
-#include "FrameTimer.h"
 
 namespace Bat
 {
@@ -651,15 +652,16 @@ namespace Bat
 			m_SceneNodes[node_index] = e;
 		}
 
-		std::vector<FutureResource<Mesh>> future_meshes;
+		std::vector<Resource<Mesh>> meshes;
 		if( pAiNode->mNumMeshes > 0 )
 		{
-			future_meshes.reserve( pAiNode->mNumMeshes );
+			meshes.reserve( pAiNode->mNumMeshes );
 			for( unsigned int i = 0; i < pAiNode->mNumMeshes; i++ )
 			{
 				aiMesh* pMesh = m_pAiScene->mMeshes[pAiNode->mMeshes[i]];
-				future_meshes.emplace_back( ProcessMeshAsync( pMesh ) );
+				meshes.emplace_back( ProcessMesh( pMesh ) );
 			}
+			e.Add<ModelComponent>( std::move( meshes ) );
 		}
 
 		for( unsigned int i = 0; i < pAiNode->mNumChildren; i++ )
@@ -667,17 +669,6 @@ namespace Bat
 			Entity child = world.CreateEntity();
 			SceneNode* child_node = node.AddChild( child );
 			ProcessNode( pAiNode->mChildren[i], *child_node );
-		}
-
-		if( pAiNode->mNumMeshes > 0 )
-		{
-			std::vector<Resource<Mesh>> meshes;
-			meshes.reserve( future_meshes.size() );
-			for( auto& future_mesh : future_meshes )
-			{
-				meshes.push_back( future_mesh.Get() );
-			}
-			e.Add<ModelComponent>( std::move( meshes ) );
 		}
 	}
 

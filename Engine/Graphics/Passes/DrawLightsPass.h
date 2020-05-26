@@ -1,14 +1,14 @@
 #pragma once
 
-#include "IRenderPass.h"
-#include "Entity.h"
-#include "RenderData.h"
-#include "Graphics.h"
-#include "Mesh.h"
-#include "Material.h"
-#include "ShaderManager.h"
-#include "SceneLoader.h"
-#include "LitGenericPipeline.h"
+#include "Core/Entity.h"
+#include "../IRenderPass.h"
+#include "../RenderData.h"
+#include "../Renderer.h"
+#include "../Mesh.h"
+#include "../Material.h"
+#include "../ShaderManager.h"
+#include "../SceneLoader.h"
+#include "../LitGenericPipeline.h"
 
 namespace Bat
 {

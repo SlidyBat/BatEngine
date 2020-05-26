@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Thread.h"
+#include "Util/Thread.h"
 #include <string>
+#include <memory>
 
 namespace Bat
 {

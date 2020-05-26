@@ -7,14 +7,22 @@ namespace Bat
 	{
 		FILE* file = nullptr;
 		fopen_s( &file, filename, mode );
+#ifdef _DEBUG
+		if( !file )
+		{
+			BAT_WARN( "Failed to open file %s", filename );
+		}
+#endif
 		return (FileHandle_t)file;
 	}
 	void FileSystem::Close( FileHandle_t handle )
 	{
+		ASSERT( handle != FileSystem::INVALID_HANDLE, "Invalid file handle" );
 		fclose( (FILE*)handle );
 	}
 	size_t FileSystem::Read( FileHandle_t handle, char* out, size_t size )
 	{
+		ASSERT( handle != FileSystem::INVALID_HANDLE, "Invalid file handle" );
 		return fread( out, 1, size, (FILE*)handle );
 	}
 	Future<size_t> FileSystem::ReadAsync( FileHandle_t handle, char* out, size_t size )
@@ -23,6 +31,7 @@ namespace Bat
 	}
 	size_t FileSystem::Write( FileHandle_t handle, const char* in, size_t size )
 	{
+		ASSERT( handle != FileSystem::INVALID_HANDLE, "Invalid file handle" );
 		return fwrite( in, 1, size, (FILE*)handle );
 	}
 	Future<size_t> FileSystem::WriteAsync( FileHandle_t handle, const char* in, size_t size )
@@ -31,14 +40,17 @@ namespace Bat
 	}
 	void FileSystem::Flush( FileHandle_t handle )
 	{
+		ASSERT( handle != FileSystem::INVALID_HANDLE, "Invalid file handle" );
 		fflush( (FILE*)handle );
 	}
 	void FileSystem::Seek( FileHandle_t handle, int off, SeekPos pos )
 	{
+		ASSERT( handle != FileSystem::INVALID_HANDLE, "Invalid file handle" );
 		fseek( (FILE*)handle, off, (int)pos );
 	}
 	int FileSystem::Tell( FileHandle_t handle ) const
 	{
+		ASSERT( handle != FileSystem::INVALID_HANDLE, "Invalid file handle" );
 		return ftell( (FILE*)handle );
 	}
 	bool FileSystem::Exists( const char* filename ) const
@@ -50,6 +62,7 @@ namespace Bat
 	}
 	size_t FileSystem::Size( FileHandle_t handle ) const
 	{
+		ASSERT( handle != FileSystem::INVALID_HANDLE, "Invalid file handle" );
 		auto file = (FILE*)handle;
 
 		long off = ftell( file );
@@ -84,6 +97,7 @@ namespace Bat
 	}
 	std::string FileSystem::ReadAll( const char* filename, const char* mode )
 	{
+		ASSERT( Exists( filename ), "Reading non-existent file %s", filename );
 		size_t filesize = Size( filename );
 
 		std::string buf;

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "SceneRenderPass.h"
-#include "ShadowPipeline.h"
-#include "ShaderManager.h"
+#include "../ShadowPipeline.h"
+#include "../ShaderManager.h"
 
 namespace Bat
 {

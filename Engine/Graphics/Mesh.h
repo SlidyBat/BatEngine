@@ -1,15 +1,13 @@
 #pragma once
 
-#include "PCH.h"
-
 #include "MathLib.h"
 #include "IndexBuffer.h"
 #include "VertexBuffer.h"
 #include "VertexTypes.h"
 #include "IPipeline.h"
 #include "Material.h"
-#include "AnimationSkeleton.h"
 #include "RenderFlags.h"
+#include "Animation/AnimationSkeleton.h"
 
 namespace Bat
 {

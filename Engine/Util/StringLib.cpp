@@ -12,10 +12,6 @@ namespace Bat
 		StringToWide( str.c_str(), buf, sizeof( buf ) );
 		return buf;
 	}
-	std::wstring StringToWideView( std::string_view str )
-	{
-		return std::wstring( str.begin(), str.end() );
-	}
 	void WideToString( const wchar_t* wstr, char* out_str, size_t size_bytes )
 	{
 		wcstombs_s( nullptr, out_str, size_bytes, wstr, size_bytes - 1 );
@@ -25,10 +21,6 @@ namespace Bat
 		char buf[256];
 		WideToString( wstr.c_str(), buf, sizeof( buf ) );
 		return buf;
-	}
-	std::string WideToStringView( std::wstring_view wstr )
-	{
-		return std::string( wstr.begin(), wstr.end() );
 	}
 	std::vector<std::string> SplitString( std::string_view str, const char delim )
 	{

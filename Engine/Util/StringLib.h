@@ -11,10 +11,8 @@ namespace Bat
 {
 	void StringToWide( const char* str, wchar_t* out_wstr, size_t size_bytes );
 	std::wstring StringToWide( const std::string& str );
-	std::wstring StringToWideView( std::string_view str );
 	void WideToString( const wchar_t* wstr, char* out_str, size_t size_bytes );
 	std::string WideToString( const std::wstring& wstr );
-	std::string WideToStringView( std::wstring_view wstr );
 
 	std::vector<std::string> SplitString( std::string_view str, const char delim = ' ' );
 	std::string JoinStrings( const std::vector<std::string>& strings, const std::string& delim = " " );

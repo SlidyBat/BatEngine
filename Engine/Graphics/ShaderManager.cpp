@@ -1,7 +1,7 @@
 #include "PCH.h"
 #include "ShaderManager.h"
 
-#include "Globals.h"
+#include "Core/Globals.h"
 #include "ConstantBuffer.h"
 #include "Mesh.h"
 

@@ -8,8 +8,8 @@ namespace Bat
 {
 	void ColourPipeline::Render( IGPUContext* pContext, const Mesh& mesh, const Camera& camera, const Mat4& world_transform )
 	{
-		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "Graphics/Shaders/ColourVS.hlsl" );
-		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "Graphics/Shaders/ColourPS.hlsl" );
+		IVertexShader* pVertexShader = ResourceManager::GetVertexShader( "../Engine/Graphics/Shaders/ColourVS.hlsl" );
+		IPixelShader* pPixelShader = ResourceManager::GetPixelShader( "../Engine/Graphics/Shaders/ColourPS.hlsl" );
 
 		CB_ColourPipelineMatrix transform;
 		transform.world = world_transform;

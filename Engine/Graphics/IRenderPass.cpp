@@ -1,9 +1,9 @@
 #include "PCH.h"
 #include "IRenderPass.h"
 
-#include "CoreEntityComponents.h"
+#include "Core/CoreEntityComponents.h"
+#include "Core/Scene.h"
 #include "Camera.h"
-#include "Scene.h"
 
 namespace Bat
 {

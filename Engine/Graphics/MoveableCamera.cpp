@@ -1,9 +1,9 @@
 #include "PCH.h"
 #include "MoveableCamera.h"
 
-#include "MouseEvents.h"
-#include "Input.h"
-#include "Globals.h"
+#include "Events/MouseEvents.h"
+#include "Platform/Input.h"
+#include "Core/Globals.h"
 
 namespace Bat
 {
