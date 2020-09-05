@@ -15,8 +15,8 @@ Bat::IApplication* Bat::CreateApplication( int argc, char* argv[], Renderer& gfx
 	return new Demo( gfx, wnd );
 }
 
-static MoveableCharacter player;
-static AiCharacter ai;
+//static MoveableCharacter player;
+//static AiCharacter ai;
 
 BAT_REFLECT_EXTERNAL_BEGIN( Vec3 );
 	BAT_REFLECT_MEMBER( x );
@@ -56,8 +56,8 @@ Demo::Demo( Renderer& gfx, Window& wnd )
 
 	navmesh_system.Bake();
 
-	player.Initialize( scene, { 0.0f, 1.0f, 0.0f } );
-	ai.Initialize( scene, { 1.0f, 0.5f, 2.0f }, navmesh_system, player.GetEntity() );
+	//player.Initialize( scene, { 0.0f, 1.0f, 0.0f } );
+	//ai.Initialize( scene, { 1.0f, 0.5f, 2.0f }, navmesh_system, player.GetEntity() );
 
 	// Fire
 	if( false )
@@ -179,9 +179,10 @@ void Demo::OnUpdate( float deltatime )
 		elapsed_time -= 1.0f;
 	}
 
-	player.Update( wnd.input, deltatime );
-	camera.SetPosition( player.GetPosition() );
-	camera.SetRotation( player.GetRotation() );
+	//player.Update( wnd.input, deltatime );
+	//camera.SetPosition( player.GetPosition() );
+	//camera.SetRotation( player.GetRotation() );
+	camera.Update( deltatime );
 
 	flashlight.Get<TransformComponent>()
 		.SetPosition( camera.GetPosition() )
@@ -420,8 +421,8 @@ void Demo::OnRender()
 		}
 	}
 
-	Vec3 ai_pos = ai.GetPosition();
-	DebugDraw::Box( ai_pos - Vec3{ 1.0f, 1.0f, 1.0f } *0.1f, ai_pos + Vec3{ 1.0f, 1.0f, 1.0f } *0.1f, Colours::Red );
+	//Vec3 ai_pos = ai.GetPosition();
+	//DebugDraw::Box( ai_pos - Vec3{ 1.0f, 1.0f, 1.0f } *0.1f, ai_pos + Vec3{ 1.0f, 1.0f, 1.0f } *0.1f, Colours::Red );
 
 	if( draw_navmesh )
 	{

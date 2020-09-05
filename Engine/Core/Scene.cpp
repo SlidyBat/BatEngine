@@ -35,6 +35,15 @@ namespace Bat
 		std::swap( m_pAdjacentChild, donor.m_pAdjacentChild );
 		std::swap( m_Value, donor.m_Value );
 
+		for( SceneNode* child = m_pFirstChild; child != nullptr; child = child->m_pAdjacentChild )
+		{
+			child->m_pParentNode = this;
+		}
+		for( SceneNode* child = donor.m_pFirstChild; child != nullptr; child = child->m_pAdjacentChild )
+		{
+			child->m_pParentNode = &donor;
+		}
+
 		return *this;
 	}
 	const SceneNode* SceneNode::GetParent() const
